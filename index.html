@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PV 計算器（可新增品項）</title>
   <style>
+    /* 保留原本樣式 */
     body {
       font-family: "Noto Sans TC", sans-serif;
       background-color: #121212;
@@ -178,11 +179,24 @@
   const multiOptions = document.getElementById("multi-options");
   const cancelMultiBtn = document.getElementById("cancel-multi");
 
+  // 超時輔助函數
+  function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 7000 } = options;
+
+    return Promise.race([
+      fetch(resource, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('請求超時')), timeout)
+      )
+    ]);
+  }
+
   // 載入產品資料，並填充 datalist
   async function fetchProducts() {
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error("伺服器回傳錯誤");
+      const res = await fetchWithTimeout(API_URL, { mode: 'cors', timeout: 7000 });
+      if (!res.ok) throw new Error(`伺服器回傳錯誤: ${res.status}`);
+
       products = await res.json();
 
       // 填入 datalist 做 autocomplete
@@ -196,14 +210,17 @@
       productListContainer.innerHTML = "";
       updateProductListUI();
       updateSummary();
+      errorMsg.textContent = "";
 
     } catch (e) {
       productListContainer.innerHTML = `<div class="loading">讀取產品資料失敗，請稍後再試。</div>`;
+      errorMsg.textContent = "載入產品資料失敗：" + e.message;
       console.error(e);
     }
   }
 
-  // 更新選擇品項列表UI
+  // 以下維持你原本程式碼不動...
+
   function updateProductListUI() {
     productListContainer.innerHTML = "";
 
@@ -225,7 +242,6 @@
 
       productListContainer.appendChild(div);
 
-      // 數量變動事件
       const qtyInput = div.querySelector("input[type='number']");
       qtyInput.addEventListener("input", e => {
         const val = parseInt(e.target.value);
@@ -238,7 +254,6 @@
         updateSummary();
       });
 
-      // 刪除按鈕
       const removeBtn = div.querySelector(`#remove-${idx}`);
       removeBtn.addEventListener("click", () => {
         selectedProducts.splice(idx, 1);
@@ -248,7 +263,6 @@
     });
   }
 
-  // 更新總計
   function updateSummary() {
     let totalPrice = 0;
     let totalPV = 0;
@@ -260,7 +274,6 @@
     summary.textContent = `總金額: ${totalPrice} 元\n總 PV: ${totalPV}`;
   }
 
-  // 新增品項輔助函數
   function addSelectedProduct(product, qty) {
     const existingIndex = selectedProducts.findIndex(p => p.displayName === product.displayName);
     if (existingIndex !== -1) {
@@ -276,7 +289,6 @@
     updateSummary();
   }
 
-  // 顯示多筆選擇清單
   function showMultiSelect(foundList, qty) {
     selectMulti.style.display = "block";
     multiOptions.innerHTML = "";
@@ -294,12 +306,10 @@
     });
   }
 
-  // 取消多筆選擇
   cancelMultiBtn.addEventListener("click", () => {
     selectMulti.style.display = "none";
   });
 
-  // 新增品項按鈕事件
   addBtn.addEventListener("click", () => {
     const name = inputName.value.trim();
     const qty = parseInt(inputQty.value);
@@ -313,7 +323,6 @@
       return;
     }
 
-    // 模糊搜尋符合的品項
     const foundList = products.filter(p => p.displayName.includes(name));
 
     if (foundList.length === 0) {
@@ -321,12 +330,10 @@
     } else if (foundList.length === 1) {
       addSelectedProduct(foundList[0], qty);
     } else {
-      // 多筆結果，顯示選擇列表
       showMultiSelect(foundList, qty);
     }
   });
 
-  // 頁面載入時，取得產品清單
   fetchProducts();
 
 </script>
