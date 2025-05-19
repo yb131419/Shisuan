@@ -1,142 +1,291 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>祭改報名表</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Arial", sans-serif;
-      background-color: #f6f8fb;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background-color: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    h2 {
-      color: #444;
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      margin: 1rem 0 0.25rem;
-      font-weight: bold;
-      font-size: 1rem;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      box-sizing: border-box;
-    }
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>產品PV金額計算器（折疊版）</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 10px auto;
+    padding: 10px;
+    background: #fafafa;
+    color: #333;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  button {
+    font-size: 16px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  .accordion {
+    background-color: #fff;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+  }
+  .accordion-header {
+    padding: 12px 16px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .accordion-header:hover {
+    background-color: #f0f0f0;
+  }
+  .accordion-content {
+    padding: 10px 16px;
+    display: none;
+    background: #fefefe;
+  }
+  .accordion-content.active {
+    display: block;
+  }
+  label {
+    display: block;
+    margin: 6px 0 3px;
+    font-size: 14px;
+  }
+  select, input[type=number] {
+    width: 100%;
+    font-size: 15px;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .row {
+    margin-bottom: 10px;
+  }
+  .del-btn {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .del-btn:hover {
+    background-color: #d32f2f;
+  }
+  #result {
+    white-space: pre-line;
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  @media (max-width: 480px) {
     button {
-      margin-top: 1.5rem;
-      padding: 0.75rem 1.5rem;
-      background-color: #007aff;
-      color: white;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
+      font-size: 14px;
+      padding: 8px 12px;
     }
-
-    button:hover {
-      background-color: #005fcc;
+    .accordion-header {
+      font-size: 14px;
+      padding: 10px 14px;
     }
-
-    .message {
-      margin-top: 1.5rem;
-      font-size: 1rem;
+    select, input[type=number] {
+      font-size: 14px;
+      padding: 5px 7px;
     }
-  </style>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>📿 祭改報名表</h2>
-    <form id="signup-form">
-      <label for="name">姓名</label>
-      <input type="text" id="name" placeholder="請輸入姓名" required />
 
-      <label for="wish">祭改項目（可填多項）</label>
-      <textarea id="wish" rows="3" placeholder="例如：補財庫、冤親債主" required></textarea>
+<h2>產品PV金額計算器</h2>
 
-      <button type="submit">✅ 送出報名</button>
-    </form>
-    <div class="message" id="responseMsg"></div>
-  </div>
+<div id="items-container"></div>
 
-  <script>
-    const LIFF_ID = '2007416974-JzvPy6DZ';
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyGV6eumKX2n3McquVS1LYtqn8iMr9stzwQ8uUkSoWQyKgz6CgXWVN5IIWsK9e-sHIL/exec';
+<button id="add-item-btn">新增一筆品項</button>
 
-    async function main() {
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) liff.login();
+<div id="result">總金額: 0
+總PV: 0
+距 11.2 萬 PV: 112000
+距 22 萬 PV: 220000</div>
 
-      const userId = (await liff.getProfile()).userId;
+<script>
+const products = [
+  { name: "apple123", displayName: "Apple123", pv: 10, price: 100 },
+  { name: "banana456", displayName: "Banana456", pv: 20, price: 200 },
+  { name: "orange789", displayName: "Orange789", pv: 15, price: 150 },
+];
 
-      document.getElementById('signup-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const wish = document.getElementById('wish').value.trim();
-        const msgBox = document.getElementById('responseMsg');
+const targetPV112 = 112000;
+const targetPV220 = 220000;
+const maxItems = 20; // 改為20筆
 
-        if (!name || !wish) {
-          msgBox.textContent = '⚠️ 請填寫所有欄位';
-          msgBox.style.color = 'red';
-          return;
-        }
+const itemsContainer = document.getElementById("items-container");
+const addBtn = document.getElementById("add-item-btn");
+const resultDiv = document.getElementById("result");
 
-        const payload = {
-          name,
-          wish,
-          userId
-        };
+// 創建一個折疊品項區塊
+function createAccordionItem(index) {
+  const accordion = document.createElement("div");
+  accordion.className = "accordion";
+  accordion.id = `item-${index}`;
 
-        try {
-          const res = await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+  const header = document.createElement("div");
+  header.className = "accordion-header";
+  header.textContent = `品項 ${index + 1}`;
+  const toggleIcon = document.createElement("span");
+  toggleIcon.textContent = "+";
+  header.appendChild(toggleIcon);
 
-          const text = await res.text();
-          if (text.includes('Success')) {
-            msgBox.textContent = '✅ 報名成功！感謝填寫。';
-            msgBox.style.color = 'green';
-            document.getElementById('signup-form').reset();
-          } else {
-            msgBox.textContent = '⚠️ 發生錯誤，請稍後再試。';
-            msgBox.style.color = 'red';
-          }
-        } catch (err) {
-          msgBox.textContent = '❌ 無法連線到伺服器';
-          msgBox.style.color = 'red';
-        }
-      });
+  header.onclick = () => {
+    const content = accordion.querySelector(".accordion-content");
+    const isActive = content.classList.contains("active");
+    if (isActive) {
+      content.classList.remove("active");
+      toggleIcon.textContent = "+";
+    } else {
+      content.classList.add("active");
+      toggleIcon.textContent = "−";
     }
+  };
 
-    main();
-  </script>
+  const content = document.createElement("div");
+  content.className = "accordion-content";
+
+  // 產品下拉選單
+  const labelSelect = document.createElement("label");
+  labelSelect.textContent = "選擇產品";
+  const select = document.createElement("select");
+  select.name = "product-select";
+  products.forEach(p => {
+    const option = document.createElement("option");
+    option.value = p.name;
+    option.textContent = p.displayName;
+    select.appendChild(option);
+  });
+
+  // 數量輸入
+  const labelQty = document.createElement("label");
+  labelQty.textContent = "數量";
+  const qtyInput = document.createElement("input");
+  qtyInput.type = "number";
+  qtyInput.min = "1";
+  qtyInput.value = "1";
+
+  // 刪除按鈕
+  const delBtn = document.createElement("button");
+  delBtn.textContent = "刪除";
+  delBtn.className = "del-btn";
+  delBtn.onclick = () => {
+    accordion.remove();
+    updateIndices();
+    calculateResult();
+    if (itemsContainer.querySelectorAll(".accordion").length < maxItems) {
+      addBtn.disabled = false;
+    }
+  };
+
+  // 當內容變更時重新計算
+  select.onchange = qtyInput.oninput = calculateResult;
+
+  content.appendChild(labelSelect);
+  content.appendChild(select);
+  content.appendChild(labelQty);
+  content.appendChild(qtyInput);
+  content.appendChild(delBtn);
+
+  accordion.appendChild(header);
+  accordion.appendChild(content);
+
+  return accordion;
+}
+
+// 更新品項標題與編號
+function updateIndices() {
+  const accordions = itemsContainer.querySelectorAll(".accordion");
+  accordions.forEach((acc, idx) => {
+    acc.id = `item-${idx}`;
+    const header = acc.querySelector(".accordion-header");
+    header.firstChild.textContent = `品項 ${idx + 1}`;
+  });
+  if (accordions.length < maxItems) {
+    addBtn.disabled = false;
+  } else {
+    addBtn.disabled = true;
+  }
+}
+
+// 新增一筆品項
+function addItem() {
+  const currentCount = itemsContainer.querySelectorAll(".accordion").length;
+  if (currentCount >= maxItems) {
+    addBtn.disabled = true;
+    return;
+  }
+  const newItem = createAccordionItem(currentCount);
+  itemsContainer.appendChild(newItem);
+  calculateResult();
+  if (currentCount + 1 >= maxItems) {
+    addBtn.disabled = true;
+  }
+}
+
+// 初始化頁面，預設一筆品項且展開
+addItem();
+const firstAccordionContent = itemsContainer.querySelector(".accordion-content");
+if (firstAccordionContent) {
+  firstAccordionContent.classList.add("active");
+  itemsContainer.querySelector(".accordion-header span").textContent = "−";
+}
+
+// 新增按鈕事件
+addBtn.onclick = () => {
+  addItem();
+};
+
+// 計算結果並顯示
+function calculateResult() {
+  const accordions = itemsContainer.querySelectorAll(".accordion");
+  let totalPV = 0;
+  let totalAmount = 0;
+
+  accordions.forEach(acc => {
+    const select = acc.querySelector("select");
+    const qtyInput = acc.querySelector("input[type=number]");
+    const qty = parseInt(qtyInput.value) || 0;
+    const product = products.find(p => p.name === select.value);
+    if (product && qty > 0) {
+      totalPV += product.pv * qty;
+      totalAmount += product.price * qty;
+    }
+  });
+
+  const diff112 = targetPV112 - totalPV;
+  const diff220 = targetPV220 - totalPV;
+
+  let resultText = `總金額: ${totalAmount}\n總PV: ${totalPV}\n`;
+  resultText += diff112 > 0 ? `距 11.2 萬 PV: ${diff112}\n` : "已達標 11.2 萬 PV!\n";
+  resultText += diff220 > 0 ? `距 22 萬 PV: ${diff220}` : "已達標 22 萬 PV!";
+
+  resultDiv.textContent = resultText;
+}
+</script>
+
 </body>
 </html>
