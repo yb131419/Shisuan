@@ -87,8 +87,7 @@
     }
 
     .userInputs label {
-      /* 縮短購買者、試算者輸入欄位寬度 */
-      flex: 0 0 150px; /* 固定寬度150px，避免太寬 */
+      flex: 0 0 150px;
       display: flex;
       flex-direction: column;
       font-size: 16px;
@@ -127,19 +126,12 @@
       font-weight: 600;
     }
 
-    /* 品項名稱改兩行 */
     #reportTable thead th:first-child {
       white-space: normal;
       line-height: 1.2;
       padding: 4px 6px;
     }
 
-    #reportTable thead th:first-child::after {
-      content: "\A";
-      white-space: pre;
-    }
-
-    /* 刪除按鈕變小 */
     .deleteBtn {
       background-color: var(--error);
       border: none;
@@ -212,15 +204,6 @@
       #addBtn {
         flex: 1;
       }
-
-      .userInputs .row {
-        flex-direction: row;
-      }
-
-      /* 讓購買者、試算者在大螢幕也固定寬度 */
-      .userInputs label {
-        flex: 0 0 150px;
-      }
     }
 
     @media print {
@@ -228,7 +211,6 @@
         background: #fff;
         color: #000;
       }
-
       #inputArea,
       #addBtn,
       #exportBtn,
@@ -236,22 +218,18 @@
       #clearImageBtn {
         display: none !important;
       }
-
       #captureArea {
         box-shadow: none;
         background: #fff;
         color: #000;
       }
-
       #reportTable th {
         background: #ccc !important;
         color: #000 !important;
       }
-
       .deleteBtn {
         display: none !important;
       }
-
       .summaryBox {
         color: #000 !important;
       }
@@ -263,15 +241,10 @@
     <h2>🧾 品項報表</h2>
     <div class="userInputs">
       <div class="row">
-        <label>購買者：
-          <input type="text" placeholder="購買者姓名" />
-        </label>
-        <label>試算者：
-          <input type="text" placeholder="試算者姓名" />
-        </label>
+        <label>購買者：<input type="text" placeholder="購買者姓名" /></label>
+        <label>試算者：<input type="text" placeholder="試算者姓名" /></label>
       </div>
     </div>
-
     <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
@@ -286,7 +259,6 @@
       </thead>
       <tbody id="reportBody"></tbody>
     </table>
-
     <div class="summaryBox">
       總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
       <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
@@ -373,89 +345,60 @@
 
       document.getElementById("totalPriceCellDup").textContent = totalPrice.toLocaleString();
       document.getElementById("totalPvCellDup").textContent = totalPv.toLocaleString();
-
-      // 計算距離 112000 PV 的差距
       const pvDiffElem = document.getElementById("pvDiff");
       const diff = 112000 - totalPv;
-      pvDiffElem.textContent = diff > 0 ? diff.toLocaleString() : "已達標！";
-
-      // 綁定刪除事件
-      document.querySelectorAll(".deleteBtn").forEach((btn) =>
-        btn.addEventListener("click", (e) => {
-          const idx = e.target.getAttribute("data-index");
-          selectedProducts.splice(idx, 1);
-          renderReport();
-        })
-      );
-    }
-
-    async function init() {
-      allProducts = await fetchProducts();
-      populateProductOptions();
-      renderReport();
+      pvDiffElem.textContent = diff > 0 ? diff.toLocaleString() : 0;
     }
 
     document.getElementById("addBtn").addEventListener("click", () => {
       const selectedName = nameInput.value;
-      const qty = parseInt(qtyInput.value);
+      const selectedQty = parseInt(qtyInput.value);
+      if (!selectedName) return alert("請選擇品項");
+      const product = allProducts.find(p => p.displayName === selectedName);
+      if (!product) return alert("找不到該品項");
 
-      if (!selectedName) {
-        alert("請選擇品項");
-        return;
-      }
-      if (qty < 1) {
-        alert("數量需大於 0");
-        return;
-      }
-
-      const product = allProducts.find((p) => p.displayName === selectedName);
-      if (!product) {
-        alert("找不到選擇的品項");
-        return;
-      }
-
-      const existIndex = selectedProducts.findIndex((item) => item.displayName === selectedName);
-      if (existIndex >= 0) {
-        selectedProducts[existIndex].qty += qty; // 數量加總
-      } else {
-        selectedProducts.push({ ...product, qty });
-      }
+      selectedProducts.push({ ...product, qty: selectedQty });
       renderReport();
     });
 
-    // 匯出報表為圖片功能
-    const exportBtn = document.getElementById("exportBtn");
-    const previewImage = document.getElementById("previewImage");
-    const saveBtn = document.getElementById("saveBtn");
-    const clearImageBtn = document.getElementById("clearImageBtn");
+    document.getElementById("reportBody").addEventListener("click", (e) => {
+      if (e.target.classList.contains("deleteBtn")) {
+        const idx = parseInt(e.target.dataset.index);
+        selectedProducts.splice(idx, 1);
+        renderReport();
+      }
+    });
 
-    exportBtn.addEventListener("click", () => {
-      html2canvas(document.getElementById("captureArea")).then((canvas) => {
-        previewImage.src = canvas.toDataURL("image/png");
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const captureArea = document.getElementById("captureArea");
+      html2canvas(captureArea).then((canvas) => {
+        const image = canvas.toDataURL("image/png");
+        const previewImage = document.getElementById("previewImage");
+        previewImage.src = image;
         previewImage.style.display = "block";
-        saveBtn.style.display = "inline-block";
-        clearImageBtn.style.display = "inline-block";
-        exportBtn.style.display = "none";
+        document.getElementById("saveBtn").style.display = "block";
+        document.getElementById("clearImageBtn").style.display = "block";
       });
     });
 
-    saveBtn.addEventListener("click", () => {
-      if (!previewImage.src) return;
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const imageSrc = document.getElementById("previewImage").src;
       const a = document.createElement("a");
-      a.href = previewImage.src;
-      a.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
+      a.href = imageSrc;
+      a.download = "報表.png";
       a.click();
     });
 
-    clearImageBtn.addEventListener("click", () => {
-      previewImage.src = "";
-      previewImage.style.display = "none";
-      saveBtn.style.display = "none";
-      clearImageBtn.style.display = "none";
-      exportBtn.style.display = "inline-block";
+    document.getElementById("clearImageBtn").addEventListener("click", () => {
+      document.getElementById("previewImage").style.display = "none";
+      document.getElementById("saveBtn").style.display = "none";
+      document.getElementById("clearImageBtn").style.display = "none";
     });
 
-    init();
+    window.addEventListener("DOMContentLoaded", async () => {
+      allProducts = await fetchProducts();
+      populateProductOptions();
+    });
   </script>
 </body>
 </html>
