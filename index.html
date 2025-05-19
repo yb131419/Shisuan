@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
@@ -105,7 +105,7 @@
       margin-top: 4px;
 
       /* 調整寬度 */
-      width: 120px;  /* 你想要短很多的寬度，可以調整此數值 */
+      width: 150px;  /* 你想要短很多的寬度，可以調整此數值 */
       max-width: 100%; /* 防止超出 */
       box-sizing: border-box;
     }
@@ -149,7 +149,7 @@
       background-color: var(--error);
       border: none;
       color: white;
-      border-radius: 5px;
+      border-radius: 6px;
       padding: 3px 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
@@ -194,7 +194,7 @@
 
     .summaryBox {
       text-align: right;
-      margin-top: 14px;
+      margin-top: 15px;
       font-size: 1rem;
       font-weight: bold;
       color: var(--highlight);
@@ -280,7 +280,7 @@
     <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
-          <th>品項<br>名稱</th>
+          <th>品項名稱</th>
           <th>數量</th>
           <th>單價</th>
           <th>PV</th>
@@ -295,7 +295,6 @@
     <div class="summaryBox">
       總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
       <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
-      <span class="extra">距 22.0萬 PV 還差：<span id="pvDiff">220000</span></span>
     </div>
   </div>
 
@@ -447,9 +446,6 @@
 
       // 計算距離 112,000 PV 差距
       const diff = 112000 - totalPv;
-      pvDiff.textContent = diff > 0 ? diff.toLocaleString() : 0;
-           // 計算距離 202,000 PV 差距
-      const diff = 220000 - totalPv;
       pvDiff.textContent = diff > 0 ? diff.toLocaleString() : 0;
     }
 
