@@ -133,32 +133,6 @@
       letter-spacing: 0.03em;
     }
 
-    datalist option {
-      background: #222;
-      color: #fff;
-    }
-
-    #autocomplete-list {
-      position: absolute;
-      background: #222;
-      max-height: 150px;
-      overflow-y: auto;
-      border-radius: 0 0 6px 6px;
-      border: 1px solid #555;
-      width: calc(50% - 10px);
-      z-index: 9999;
-    }
-
-    #autocomplete-list div {
-      padding: 8px 10px;
-      cursor: pointer;
-      color: #fff;
-    }
-
-    #autocomplete-list div:hover {
-      background-color: #444;
-    }
-
     @media (max-width: 600px) {
       #inputArea {
         flex-direction: column;
@@ -168,9 +142,6 @@
       #qtyInput,
       #addBtn {
         flex: 1 1 100%;
-        width: 100%;
-      }
-      #autocomplete-list {
         width: 100%;
       }
     }
@@ -209,10 +180,9 @@
 
   <!-- 輸入表單區塊 -->
   <div id="inputArea">
-    <input id="nameInput" type="text" placeholder="品項名稱 (可輸入或選擇)" autocomplete="off" />
+    <select id="nameInput" aria-label="品項名稱"></select>
     <select id="qtyInput" aria-label="數量"></select>
     <button id="addBtn">新增品項</button>
-    <div id="autocomplete-list" style="display:none;"></div>
   </div>
 
   <script>
@@ -221,17 +191,16 @@
     let allProducts = [];
     let selectedProducts = [];
 
+    const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
-    for(let i=1; i<=20; i++) {
+
+    for (let i = 1; i <= 20; i++) {
       const option = document.createElement("option");
       option.value = i;
       option.textContent = i;
       qtyInput.appendChild(option);
     }
     qtyInput.value = 1;
-
-    const nameInput = document.getElementById("nameInput");
-    const autocompleteList = document.getElementById("autocomplete-list");
 
     async function fetchProducts() {
       try {
@@ -246,40 +215,15 @@
       }
     }
 
-    function showAutocompleteSuggestions(value) {
-      const val = value.trim().toLowerCase();
-      if (!val) {
-        autocompleteList.style.display = "none";
-        return;
-      }
-      const matches = allProducts.filter(p => p.displayName.toLowerCase().includes(val));
-      if (matches.length === 0) {
-        autocompleteList.style.display = "none";
-        return;
-      }
-      autocompleteList.innerHTML = "";
-      matches.forEach(p => {
-        const div = document.createElement("div");
-        div.textContent = p.displayName;
-        div.addEventListener("click", () => {
-          nameInput.value = p.displayName;
-          autocompleteList.style.display = "none";
-          qtyInput.focus();
-        });
-        autocompleteList.appendChild(div);
+    function populateProductOptions() {
+      nameInput.innerHTML = `<option value="">請選擇品項</option>`;
+      allProducts.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.displayName;
+        option.textContent = p.displayName;
+        nameInput.appendChild(option);
       });
-      autocompleteList.style.display = "block";
     }
-
-    nameInput.addEventListener("input", (e) => {
-      showAutocompleteSuggestions(e.target.value);
-    });
-
-    document.addEventListener("click", e => {
-      if (!e.target.closest("#inputArea")) {
-        autocompleteList.style.display = "none";
-      }
-    });
 
     function renderReport() {
       const tbody = document.getElementById("reportBody");
@@ -325,14 +269,13 @@
       const qty = parseInt(qtyInput.value);
 
       if (!name) {
-        alert("請輸入品項名稱");
+        alert("請選擇品項名稱");
         return;
       }
 
-      const product = allProducts.find(p => p.displayName.toLowerCase() === name.toLowerCase());
-
+      const product = allProducts.find(p => p.displayName === name);
       if (!product) {
-        alert("找不到對應的品項資料，請重新輸入或從下拉選擇");
+        alert("找不到對應的品項資料，請重新選擇");
         return;
       }
 
@@ -368,6 +311,7 @@
 
     async function init() {
       allProducts = await fetchProducts();
+      populateProductOptions();
       qtyInput.value = 1;
     }
 
