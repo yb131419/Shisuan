@@ -1,519 +1,177 @@
 <!DOCTYPE html>
-<html lang="zh-TW" >
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>PV 計算器（可新增品項）</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PV 計算器</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
-
-    /* 全站深色質感配色 */
-    :root {
-      --bg-color: #121214;
-      --primary-color: #4a90e2;
-      --primary-hover: #3572cc;
-      --secondary-color: #1f222a;
-      --text-color: #e0e0e0;
-      --text-muted: #888a94;
-      --error-color: #f56260;
-      --btn-remove-bg: #e04f4f;
-      --btn-remove-hover: #b83636;
-      --input-bg: #2a2d37;
-      --input-border: #444857;
-      --border-radius: 8px;
-      --font-family: 'Noto Sans TC', sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0; padding: 1rem;
-      font-family: var(--font-family);
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Arial', sans-serif;
+      padding: 1rem;
+      margin: 0;
     }
 
     h1 {
-      text-align: center;
+      font-size: 1.5rem;
       margin-bottom: 1rem;
-      font-weight: 700;
-      font-size: 1.8rem;
-      letter-spacing: 1px;
-      color: var(--primary-color);
-      user-select: text;
+      text-align: center;
     }
 
     #input-area {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      justify-content: center;
+      flex-direction: column;
+      gap: 0.5rem;
       margin-bottom: 1rem;
     }
 
-    #input-area input[type="text"],
-    #input-area input[type="number"] {
-      flex: 1 1 180px;
-      max-width: 280px;
-      padding: 0.7rem 1rem;
-      border-radius: var(--border-radius);
-      border: 1.5px solid var(--input-border);
-      background-color: var(--input-bg);
-      color: var(--text-color);
-      font-size: 1.1rem;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
-    }
-    #input-area input[type="text"]:focus,
-    #input-area input[type="number"]:focus {
-      border-color: var(--primary-color);
-      background-color: #222531;
-    }
-
-    #input-area input[type="number"] {
-      max-width: 100px;
-      text-align: center;
-    }
-
-    #add-btn {
-      flex: 0 0 auto;
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--border-radius);
+    input, select, button {
+      padding: 0.5rem;
+      border-radius: 8px;
       border: none;
-      background-color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    input, select {
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+
+    button {
+      background-color: #4caf50;
       color: white;
-      font-weight: 600;
-      font-size: 1.1rem;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgb(74 144 226 / 0.5);
-      transition: background-color 0.25s ease;
-      user-select: none;
-    }
-    #add-btn:hover,
-    #add-btn:focus {
-      background-color: var(--primary-hover);
-      outline: none;
-    }
-
-    #error-msg {
-      height: 1.3rem;
-      text-align: center;
-      color: var(--error-color);
-      margin-bottom: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      user-select: text;
-    }
-
-    #select-multi {
-      background-color: var(--secondary-color);
-      padding: 1rem 1.25rem;
-      border-radius: var(--border-radius);
-      margin-bottom: 1.5rem;
-      box-shadow: 0 0 12px rgb(0 0 0 / 0.6);
-      display: none;
-    }
-
-    #select-multi p {
-      margin: 0 0 0.8rem 0;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--primary-color);
-      user-select: text;
-    }
-
-    #multi-options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      justify-content: center;
-    }
-
-    #multi-options button {
-      background-color: var(--primary-color);
-      color: #fff;
-      border: none;
-      border-radius: var(--border-radius);
-      padding: 0.55rem 1.2rem;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      box-shadow: 0 3px 6px rgb(74 144 226 / 0.45);
-      transition: background-color 0.3s ease;
-      user-select: none;
-      white-space: nowrap;
-    }
-    #multi-options button:hover,
-    #multi-options button:focus {
-      background-color: var(--primary-hover);
-      outline: none;
-    }
-
-    #cancel-multi {
-      margin: 0.8rem auto 0 auto;
-      display: block;
-      background: #666;
-      color: #eee;
-      border: none;
-      border-radius: var(--border-radius);
-      padding: 0.5rem 1.3rem;
-      cursor: pointer;
-      font-weight: 600;
-      user-select: none;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.45);
       transition: background-color 0.3s ease;
     }
-    #cancel-multi:hover,
-    #cancel-multi:focus {
-      background-color: #444;
-      outline: none;
+
+    button:hover {
+      background-color: #45a049;
     }
 
-    #product-list {
-      margin-bottom: 1.5rem;
-      user-select: none;
-    }
-
-    .product-item {
-      background: var(--secondary-color);
-      padding: 1rem 1.25rem;
-      margin-bottom: 0.75rem;
-      border-radius: var(--border-radius);
+    .product-card {
+      background-color: #1f1f1f;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.8rem;
-      box-shadow: 0 0 12px rgb(0 0 0 / 0.7);
-      transition: background-color 0.25s ease;
-    }
-    .product-item:hover {
-      background-color: #2b2e3a;
+      justify-content: space-between;
     }
 
-    .product-item > div:first-child {
-      flex: 1 1 100%;
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--primary-color);
-      user-select: text;
-      letter-spacing: 0.03em;
-    }
-
-    .product-info {
-      flex: 1 1 100%;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      user-select: text;
-      letter-spacing: 0.02em;
-    }
-
-    .product-item input[type="number"] {
-      width: 70px;
-      padding: 0.45rem;
-      border-radius: 6px;
-      border: 1.5px solid var(--input-border);
-      background-color: var(--input-bg);
-      color: var(--text-color);
-      font-size: 1rem;
+    .summary {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 1rem;
       text-align: center;
-      transition: border-color 0.25s ease;
-      user-select: text;
-    }
-    .product-item input[type="number"]:focus {
-      border-color: var(--primary-color);
-      background-color: #222531;
-      outline: none;
     }
 
-    .product-item button {
-      flex: 0 0 auto;
-      background: var(--btn-remove-bg);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1.1rem;
-      cursor: pointer;
-      font-weight: 700;
-      box-shadow: 0 3px 7px rgb(224 79 79 / 0.7);
-      transition: background-color 0.25s ease;
-      user-select: none;
-    }
-    .product-item button:hover,
-    .product-item button:focus {
-      background-color: var(--btn-remove-hover);
-      outline: none;
-    }
-
-    #summary {
-      background: var(--secondary-color);
-      padding: 1.3rem 1.6rem;
-      border-radius: var(--border-radius);
-      font-size: 1.25rem;
-      font-weight: 700;
-      line-height: 1.4;
-      text-align: center;
-      letter-spacing: 0.05em;
-      user-select: text;
-      box-shadow: 0 0 15px rgb(74 144 226 / 0.7);
-      white-space: pre-wrap;
-    }
-
-    .loading {
-      text-align: center;
-      font-style: italic;
-      color: var(--text-muted);
-      user-select: none;
-      font-size: 1.1rem;
-    }
-
-    /* 手機優化：小螢幕時 input 與按鈕寬度調整 */
-    @media (max-width: 480px) {
+    @media (min-width: 481px) {
       #input-area {
-        gap: 0.5rem;
+        flex-direction: row;
+        align-items: center;
       }
-      #input-area input[type="text"],
-      #input-area input[type="number"] {
-        flex-basis: 100%;
-        max-width: 100%;
+
+      #input-area > * {
+        flex: 1;
       }
-      #add-btn {
-        flex-basis: 100%;
-        max-width: 100%;
-      }
-      .product-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .product-item button {
-        align-self: flex-end;
-        margin-top: 0.4rem;
+
+      #input-area button {
+        flex: 0.5;
       }
     }
   </style>
 </head>
 <body>
-  <h1>PV 計算器（可新增品項）</h1>
+  <h1>PV 計算器</h1>
 
   <div id="input-area">
-    <input type="text" id="item-name" placeholder="輸入品項名稱" autocomplete="off" list="product-list-datalist"/>
-    <datalist id="product-list-datalist"></datalist>
+    <input type="text" id="item-name" placeholder="品項名稱" />
+    <input type="number" id="item-pv" placeholder="單位 PV" />
+    <!-- 數量輸入區會由 JS 根據裝置替換 -->
     <input type="number" id="item-qty" min="1" value="1" />
-    <button id="add-btn">新增品項</button>
+    <button id="add-btn">新增</button>
   </div>
 
-  <div id="error-msg"></div>
+  <div id="product-list"></div>
 
-  <div id="select-multi">
-    <p>找到多筆符合品項，請選擇：</p>
-    <div id="multi-options"></div>
-    <button id="cancel-multi">取消</button>
-  </div>
+  <div class="summary" id="summary">總 PV：0</div>
 
-  <div id="product-list">
-    <div class="loading">讀取產品資料中...</div>
-  </div>
+  <script>
+    const productList = [];
+    const inputArea = document.getElementById("input-area");
 
-  <div id="summary">
-    總金額: 0 元  
-    總 PV: 0  
-  </div>
+    // 製作適合手機的下拉選單
+    function replaceQtyInputForDevice() {
+      const oldInput = document.getElementById("item-qty");
+      if (oldInput) oldInput.remove();
 
-<script>
-  //（這邊是你原本的 JS，保持不動）
-  const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
-
-  let products = [];
-  let selectedProducts = [];
-
-  const inputName = document.getElementById("item-name");
-  const inputQty = document.getElementById("item-qty");
-  const addBtn = document.getElementById("add-btn");
-  const errorMsg = document.getElementById("error-msg");
-  const productListContainer = document.getElementById("product-list");
-  const datalist = document.getElementById("product-list-datalist");
-
-  const selectMulti = document.getElementById("select-multi");
-  const multiOptions = document.getElementById("multi-options");
-  const cancelMultiBtn = document.getElementById("cancel-multi");
-
-  function fetchWithTimeout(resource, options = {}) {
-    const { timeout = 7000 } = options;
-    return Promise.race([
-      fetch(resource, options),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('請求超時')), timeout)
-      )
-    ]);
-  }
-
-  async function fetchProducts() {
-    try {
-      const res = await fetchWithTimeout(API_URL, { mode: 'cors', timeout: 7000 });
-      if (!res.ok) throw new Error(`伺服器回傳錯誤: ${res.status}`);
-
-      products = await res.json();
-
-      datalist.innerHTML = "";
-      products.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.displayName;
-        datalist.appendChild(option);
-      });
-
-      productListContainer.innerHTML = "";
-      renderSelectedProducts();
-    } catch (error) {
-      productListContainer.innerHTML = `<div style="color:#f56260; text-align:center;">產品資料讀取失敗，請稍後再試。</div>`;
-      console.error(error);
-    }
-  }
-
-  function renderSelectedProducts() {
-    if (selectedProducts.length === 0) {
-      productListContainer.innerHTML = `<div style="text-align:center; color:#888a94; user-select:none;">尚未新增任何品項</div>`;
-      updateSummary();
-      return;
-    }
-
-    productListContainer.innerHTML = "";
-    selectedProducts.forEach((item, idx) => {
-      const div = document.createElement("div");
-      div.className = "product-item";
-
-      const nameDiv = document.createElement("div");
-      nameDiv.textContent = item.displayName;
-      div.appendChild(nameDiv);
-
-      const infoDiv = document.createElement("div");
-      infoDiv.className = "product-info";
-      infoDiv.textContent = `單價: ${item.price} 元，PV: ${item.pv}`;
-      div.appendChild(infoDiv);
-
-      const qtyInput = document.createElement("input");
-      qtyInput.type = "number";
-      qtyInput.min = 1;
-      qtyInput.value = item.qty;
-      qtyInput.addEventListener("change", (e) => {
-        const val = parseInt(e.target.value, 10);
-        if (val > 0) {
-          selectedProducts[idx].qty = val;
-          updateSummary();
-        } else {
-          e.target.value = selectedProducts[idx].qty;
+      let newInput;
+      if (window.innerWidth <= 480) {
+        newInput = document.createElement("select");
+        newInput.id = "item-qty";
+        for (let i = 1; i <= 20; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = i;
+          newInput.appendChild(option);
         }
+      } else {
+        newInput = document.createElement("input");
+        newInput.type = "number";
+        newInput.id = "item-qty";
+        newInput.min = 1;
+        newInput.value = 1;
+      }
+
+      inputArea.insertBefore(newInput, document.getElementById("add-btn"));
+    }
+
+    function renderSelectedProducts() {
+      const container = document.getElementById("product-list");
+      container.innerHTML = "";
+
+      let total = 0;
+
+      productList.forEach((item, idx) => {
+        const pv = item.qty * item.pv;
+        total += pv;
+
+        const div = document.createElement("div");
+        div.className = "product-card";
+        div.innerHTML = `
+          <div>
+            <strong>${item.name}</strong><br/>
+            單位 PV：${item.pv} × ${item.qty} 件
+          </div>
+          <div>${pv} PV</div>
+        `;
+        container.appendChild(div);
       });
-      div.appendChild(qtyInput);
 
-      const removeBtn = document.createElement("button");
-      removeBtn.textContent = "刪除";
-      removeBtn.addEventListener("click", () => {
-        selectedProducts.splice(idx, 1);
-        renderSelectedProducts();
-      });
-      div.appendChild(removeBtn);
-
-      productListContainer.appendChild(div);
-    });
-
-    updateSummary();
-  }
-
-  function updateSummary() {
-    let totalPrice = 0;
-    let totalPV = 0;
-    selectedProducts.forEach(p => {
-      totalPrice += p.price * p.qty;
-      totalPV += p.pv * p.qty;
-    });
-
-    document.getElementById("summary").textContent = `總金額: ${totalPrice.toLocaleString()} 元\n總 PV: ${totalPV.toLocaleString()}`;
-  }
-
-  function clearError() {
-    errorMsg.textContent = "";
-  }
-
-  function showError(msg) {
-    errorMsg.textContent = msg;
-  }
-
-  function findProductsByName(name) {
-    if (!name) return [];
-    const lowerName = name.toLowerCase();
-    return products.filter(p => p.displayName.toLowerCase().includes(lowerName));
-  }
-
-  addBtn.addEventListener("click", () => {
-    clearError();
-    const name = inputName.value.trim();
-    const qty = parseInt(inputQty.value, 10);
-
-    if (!name) {
-      showError("請輸入品項名稱");
-      return;
-    }
-    if (!qty || qty < 1) {
-      showError("請輸入有效數量");
-      return;
+      document.getElementById("summary").textContent = `總 PV：${total}`;
     }
 
-    const matched = findProductsByName(name);
+    function addProduct() {
+      const name = document.getElementById("item-name").value.trim();
+      const pv = parseFloat(document.getElementById("item-pv").value);
+      const qty = parseInt(document.getElementById("item-qty").value);
 
-    if (matched.length === 0) {
-      showError("找不到該品項，請確認名稱是否正確");
-      return;
+      if (!name || isNaN(pv) || isNaN(qty) || qty <= 0) {
+        alert("請填寫完整正確的品項資訊！");
+        return;
+      }
+
+      productList.push({ name, pv, qty });
+      renderSelectedProducts();
+
+      document.getElementById("item-name").value = "";
+      document.getElementById("item-pv").value = "";
+      document.getElementById("item-qty").value = 1;
     }
-    if (matched.length === 1) {
-      addProduct(matched[0], qty);
-    } else {
-      // 多筆選擇模式
-      showMultiOptions(matched, qty);
-    }
-  });
 
-  function addProduct(product, qty) {
-    // 如果已存在品項，累加數量
-    const exist = selectedProducts.find(p => p.id === product.id);
-    if (exist) {
-      exist.qty += qty;
-    } else {
-      selectedProducts.push({...product, qty});
-    }
-    renderSelectedProducts();
-    inputName.value = "";
-    inputQty.value = 1;
-  }
-
-  function showMultiOptions(items, qty) {
-    multiOptions.innerHTML = "";
-    items.forEach(item => {
-      const btn = document.createElement("button");
-      btn.textContent = `${item.displayName} (單價:${item.price}，PV:${item.pv})`;
-      btn.addEventListener("click", () => {
-        addProduct(item, qty);
-        hideMultiOptions();
-      });
-      multiOptions.appendChild(btn);
-    });
-    selectMulti.style.display = "block";
-  }
-
-  function hideMultiOptions() {
-    selectMulti.style.display = "none";
-  }
-
-  cancelMultiBtn.addEventListener("click", () => {
-    hideMultiOptions();
-  });
-
-  // 初始化讀取產品資料
-  fetchProducts();
-</script>
+    document.getElementById("add-btn").addEventListener("click", addProduct);
+    window.addEventListener("resize", replaceQtyInputForDevice);
+    window.addEventListener("DOMContentLoaded", replaceQtyInputForDevice);
+  </script>
 </body>
 </html>
