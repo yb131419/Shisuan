@@ -24,30 +24,28 @@
       position: relative;
     }
 
-    #nameInput,
-    #qtyInput,
-    #addBtn {
+    #nameInput, #qtyInput, #addBtn {
       padding: 8px;
       font-size: 16px;
       border-radius: 6px;
       border: none;
     }
 
-    #nameInput {
-      flex: 1 1 50%;
+    #nameInput, #qtyInput {
       background-color: #222;
       color: #fff;
+    }
+
+    #nameInput {
+      flex: 1 1 50%;
     }
 
     #qtyInput {
       flex: 1 1 20%;
-      background-color: #222;
-      color: #fff;
     }
 
     #addBtn {
       flex: 1 1 20%;
-      padding: 10px;
       background-color: #4caf50;
       color: white;
       cursor: pointer;
@@ -63,7 +61,7 @@
       color: #fff;
       padding: 20px;
       border-radius: 12px;
-      max-width: 400px;
+      max-width: 100%;
       margin: 0 auto 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
@@ -86,7 +84,7 @@
 
     #reportTable th, #reportTable td {
       border: 1px solid #555;
-      padding: 10px 6px;
+      padding: 8px;
       text-align: center;
     }
 
@@ -139,7 +137,14 @@
       border: 2px solid #888;
       border-radius: 10px;
       margin: 20px auto;
-      display: block;
+    }
+
+    .summaryBox {
+      text-align: right;
+      margin-top: 15px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #90caf9;
     }
 
     @media (max-width: 600px) {
@@ -147,9 +152,7 @@
         flex-direction: column;
         align-items: stretch;
       }
-      #nameInput,
-      #qtyInput,
-      #addBtn {
+      #nameInput, #qtyInput, #addBtn {
         flex: 1 1 100%;
         width: 100%;
       }
@@ -183,6 +186,10 @@
         </tr>
       </tfoot>
     </table>
+
+    <div class="summaryBox">
+      小計金額：<span id="totalPriceCellDup">0</span>　｜　小計 PV：<span id="totalPvCellDup">0</span>
+    </div>
   </div>
 
   <button id="exportBtn">📤 匯出報表為圖片</button>
@@ -265,6 +272,8 @@
 
       document.getElementById("totalPriceCell").textContent = totalPrice.toLocaleString();
       document.getElementById("totalPvCell").textContent = totalPv;
+      document.getElementById("totalPriceCellDup").textContent = totalPrice.toLocaleString();
+      document.getElementById("totalPvCellDup").textContent = totalPv;
 
       document.querySelectorAll(".deleteBtn").forEach(btn => {
         btn.addEventListener("click", (e) => {
@@ -309,11 +318,9 @@
         preview.src = canvas.toDataURL("image/png");
         preview.style.display = "block";
 
-        // 顯示儲存按鈕
         const saveBtn = document.getElementById("saveBtn");
         saveBtn.style.display = "block";
 
-        // 儲存功能
         saveBtn.onclick = () => {
           const link = document.createElement("a");
           link.download = "report.png";
@@ -321,7 +328,6 @@
           link.click();
         };
 
-        // 滾動到預覽圖
         window.scrollTo({ top: preview.offsetTop - 20, behavior: 'smooth' });
       });
     });
