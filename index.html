@@ -32,14 +32,17 @@
       margin-top: 20px;
     }
 
-    #nameInput, #qtyInput, #addBtn {
+    #nameInput,
+    #qtyInput,
+    #addBtn {
       padding: 10px;
       font-size: 16px;
       border-radius: 6px;
       border: none;
     }
 
-    #nameInput, #qtyInput {
+    #nameInput,
+    #qtyInput {
       background-color: #2c2f33;
       color: #fff;
     }
@@ -61,7 +64,7 @@
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
     }
 
     #captureArea h2 {
@@ -84,7 +87,8 @@
     }
 
     .userInputs label {
-      flex: 1;
+      /* 縮短購買者、試算者輸入欄位寬度 */
+      flex: 0 0 150px; /* 固定寬度150px，避免太寬 */
       display: flex;
       flex-direction: column;
       font-size: 16px;
@@ -109,7 +113,8 @@
       word-break: keep-all;
     }
 
-    #reportTable th, #reportTable td {
+    #reportTable th,
+    #reportTable td {
       border: 1px solid #555;
       padding: 6px;
       text-align: center;
@@ -122,22 +127,38 @@
       font-weight: 600;
     }
 
+    /* 品項名稱改兩行 */
+    #reportTable thead th:first-child {
+      white-space: normal;
+      line-height: 1.2;
+      padding: 4px 6px;
+    }
+
+    #reportTable thead th:first-child::after {
+      content: "\A";
+      white-space: pre;
+    }
+
+    /* 刪除按鈕變小 */
     .deleteBtn {
       background-color: var(--error);
       border: none;
       color: white;
       border-radius: 6px;
-      padding: 5px 12px;
+      padding: 3px 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1;
     }
 
     .deleteBtn:hover {
       background-color: #c62828;
     }
 
-    #exportBtn, #saveBtn, #clearImageBtn {
+    #exportBtn,
+    #saveBtn,
+    #clearImageBtn {
       margin: 10px auto;
       display: block;
       padding: 10px 25px;
@@ -186,7 +207,9 @@
         flex-direction: row;
         align-items: center;
       }
-      #nameInput, #qtyInput, #addBtn {
+      #nameInput,
+      #qtyInput,
+      #addBtn {
         flex: 1;
       }
 
@@ -194,8 +217,9 @@
         flex-direction: row;
       }
 
+      /* 讓購買者、試算者在大螢幕也固定寬度 */
       .userInputs label {
-        flex: 1 1 48%;
+        flex: 0 0 150px;
       }
     }
 
@@ -205,7 +229,11 @@
         color: #000;
       }
 
-      #inputArea, #addBtn, #exportBtn, #saveBtn, #clearImageBtn {
+      #inputArea,
+      #addBtn,
+      #exportBtn,
+      #saveBtn,
+      #clearImageBtn {
         display: none !important;
       }
 
@@ -236,10 +264,10 @@
     <div class="userInputs">
       <div class="row">
         <label>購買者：
-          <input type="text" placeholder="請輸入購買者姓名">
+          <input type="text" placeholder="購買者姓名" />
         </label>
         <label>試算者：
-          <input type="text" placeholder="請輸入試算者姓名">
+          <input type="text" placeholder="試算者姓名" />
         </label>
       </div>
     </div>
@@ -296,7 +324,7 @@
     async function fetchProducts() {
       try {
         const resp = await fetch(API_URL);
-        if (!resp.ok) throw new Error('網路錯誤');
+        if (!resp.ok) throw new Error("網路錯誤");
         const data = await resp.json();
         return data;
       } catch (err) {
@@ -308,7 +336,7 @@
 
     function populateProductOptions() {
       nameInput.innerHTML = `<option value="">請選擇品項</option>`;
-      allProducts.forEach(p => {
+      allProducts.forEach((p) => {
         const option = document.createElement("option");
         option.value = p.displayName;
         option.textContent = p.displayName;
@@ -329,14 +357,14 @@
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${item.displayName}</td>
-          <td>${item.qty}</td>
-          <td>${item.price.toLocaleString()}</td>
-          <td>${item.pv}</td>
-          <td>${subtotal.toLocaleString()}</td>
-          <td>${subpv}</td>
-          <td><button class="deleteBtn" data-index="${index}">刪除</button></td>
-        `;
+           <td>${item.displayName}</td>
+           <td>${item.qty}</td>
+           <td>${item.price.toLocaleString()}</td>
+           <td>${item.pv}</td>
+           <td>${subtotal.toLocaleString()}</td>
+           <td>${subpv}</td>
+           <td><button class="deleteBtn" data-index="${index}">刪除</button></td>
+         `;
         tbody.appendChild(tr);
 
         totalPrice += subtotal;
@@ -344,79 +372,88 @@
       });
 
       document.getElementById("totalPriceCellDup").textContent = totalPrice.toLocaleString();
-      document.getElementById("totalPvCellDup").textContent = totalPv;
-      document.getElementById("pvDiff").textContent = Math.max(112000 - totalPv, 0).toLocaleString();
+      document.getElementById("totalPvCellDup").textContent = totalPv.toLocaleString();
 
-      document.querySelectorAll(".deleteBtn").forEach(btn => {
+      // 計算距離 112000 PV 的差距
+      const pvDiffElem = document.getElementById("pvDiff");
+      const diff = 112000 - totalPv;
+      pvDiffElem.textContent = diff > 0 ? diff.toLocaleString() : "已達標！";
+
+      // 綁定刪除事件
+      document.querySelectorAll(".deleteBtn").forEach((btn) =>
         btn.addEventListener("click", (e) => {
-          const i = parseInt(e.target.dataset.index);
-          selectedProducts.splice(i, 1);
+          const idx = e.target.getAttribute("data-index");
+          selectedProducts.splice(idx, 1);
           renderReport();
-        });
-      });
+        })
+      );
     }
-
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const name = nameInput.value.trim();
-      const qty = parseInt(qtyInput.value);
-
-      if (!name) {
-        alert("請選擇品項名稱");
-        return;
-      }
-
-      const product = allProducts.find(p => p.displayName === name);
-      if (!product) {
-        alert("找不到對應的品項資料，請重新選擇");
-        return;
-      }
-
-      selectedProducts.push({
-        displayName: product.displayName,
-        price: product.price,
-        pv: product.pv,
-        qty: qty
-      });
-
-      nameInput.value = "";
-      qtyInput.value = 1;
-      renderReport();
-    });
-
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      const captureArea = document.getElementById("captureArea");
-      html2canvas(captureArea, { scale: 2 }).then(canvas => {
-        const preview = document.getElementById("previewImage");
-        preview.src = canvas.toDataURL("image/png");
-        preview.style.display = "block";
-
-        document.getElementById("saveBtn").style.display = "block";
-        document.getElementById("clearImageBtn").style.display = "block";
-
-        document.getElementById("saveBtn").onclick = () => {
-          const link = document.createElement("a");
-          link.download = "report.png";
-          link.href = canvas.toDataURL("image/png");
-          link.click();
-        };
-
-        window.scrollTo({ top: preview.offsetTop - 20, behavior: 'smooth' });
-      });
-    });
-
-    document.getElementById("clearImageBtn").addEventListener("click", () => {
-      const preview = document.getElementById("previewImage");
-      preview.src = "";
-      preview.style.display = "none";
-      document.getElementById("saveBtn").style.display = "none";
-      document.getElementById("clearImageBtn").style.display = "none";
-    });
 
     async function init() {
       allProducts = await fetchProducts();
       populateProductOptions();
-      qtyInput.value = 1;
+      renderReport();
     }
+
+    document.getElementById("addBtn").addEventListener("click", () => {
+      const selectedName = nameInput.value;
+      const qty = parseInt(qtyInput.value);
+
+      if (!selectedName) {
+        alert("請選擇品項");
+        return;
+      }
+      if (qty < 1) {
+        alert("數量需大於 0");
+        return;
+      }
+
+      const product = allProducts.find((p) => p.displayName === selectedName);
+      if (!product) {
+        alert("找不到選擇的品項");
+        return;
+      }
+
+      const existIndex = selectedProducts.findIndex((item) => item.displayName === selectedName);
+      if (existIndex >= 0) {
+        selectedProducts[existIndex].qty += qty; // 數量加總
+      } else {
+        selectedProducts.push({ ...product, qty });
+      }
+      renderReport();
+    });
+
+    // 匯出報表為圖片功能
+    const exportBtn = document.getElementById("exportBtn");
+    const previewImage = document.getElementById("previewImage");
+    const saveBtn = document.getElementById("saveBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+
+    exportBtn.addEventListener("click", () => {
+      html2canvas(document.getElementById("captureArea")).then((canvas) => {
+        previewImage.src = canvas.toDataURL("image/png");
+        previewImage.style.display = "block";
+        saveBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
+        exportBtn.style.display = "none";
+      });
+    });
+
+    saveBtn.addEventListener("click", () => {
+      if (!previewImage.src) return;
+      const a = document.createElement("a");
+      a.href = previewImage.src;
+      a.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
+      a.click();
+    });
+
+    clearImageBtn.addEventListener("click", () => {
+      previewImage.src = "";
+      previewImage.style.display = "none";
+      saveBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
+      exportBtn.style.display = "inline-block";
+    });
 
     init();
   </script>
