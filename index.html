@@ -6,7 +6,7 @@
 <title>品項報表匯出（串接 Google 試算表）</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  /* 深色主題略同上，略過重複 CSS */
+  /* 深色主題 */
   body {
     background-color: #121212;
     color: #fff;
@@ -237,172 +237,165 @@
   <button id="exportBtn" aria-label="匯出報表為圖片">匯出報表為圖片</button>
 
 <script>
-  // Google 試算表設定 - 請換成你自己的試算表 ID 和工作表名稱
-  const SHEET_ID = "1uGR3C4eUPE0M9J9THJY8266uaGmwopYgaoMz_ROJ3wQ";
-  const SHEET_NAME = "Sheet1"; // 預設工作表名稱
-
-  // 建立Google Sheets API公開URL讀取JSON格式資料
-  // 注意：此URL只適用於試算表設定為「任何擁有連結者皆可檢視」
-  const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-
-  // 前端品項資料
-  let itemData = []; // 來自試算表，每筆物件 {name, price, pv}
-
-  // 報表陣列，存放用戶輸入的品項和數量
-  let reportItems = [];
+  // 以下是示範用的品項資料，實務上可改成串 Google 試算表 API 取得
+  const itemData = [
+    { name: "淨水器", pv: 1200, price: 4500 },
+    { name: "濾芯", pv: 300, price: 1200 },
+    { name: "沐浴乳", pv: 800, price: 380 },
+    { name: "洗髮精", pv: 650, price: 420 },
+    { name: "保養品", pv: 1500, price: 2500 },
+    { name: "健康食品", pv: 2000, price: 3800 },
+    { name: "口罩", pv: 50, price: 100 },
+    { name: "保險方案", pv: 5000, price: 8000 },
+    { name: "水壺", pv: 700, price: 1500 },
+    { name: "咖啡豆", pv: 350, price: 800 }
+  ];
 
   const nameInput = document.getElementById("nameInput");
   const qtyInput = document.getElementById("qtyInput");
   const addBtn = document.getElementById("addBtn");
+  const autocompleteList = document.getElementById("autocomplete-list");
   const reportTableBody = document.querySelector("#reportTable tbody");
   const totalPv = document.getElementById("totalPv");
-  const autocompleteList = document.getElementById("autocomplete-list");
-  const inputArea = document.getElementById("inputArea");
+  const exportBtn = document.getElementById("exportBtn");
+  const captureArea = document.getElementById("captureArea");
+
+  let reportItems = [];
 
   // 初始化數量下拉選單 1~100
   function initQty() {
-    for(let i = 1; i <= 100; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = i;
-      qtyInput.appendChild(opt);
+    for(let i=1; i<=100; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      qtyInput.appendChild(option);
     }
   }
-
   initQty();
 
-  // 載入 Google 試算表資料
-  async function loadSheetData() {
-    try {
-      const res = await fetch(API_URL);
-      const text = await res.text();
-      // Google 回傳的內容包裹在函式呼叫中，需要抽出純 JSON 部分
-      const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-      const data = JSON.parse(jsonText);
+  // 自動完成邏輯
+  nameInput.addEventListener("input", onNameInput);
+  nameInput.addEventListener("keydown", onNameKeyDown);
+  document.addEventListener("click", () => closeAutocomplete());
 
-      // data.table.rows 是資料列，data.table.cols 是欄位名稱等
-      // 假設試算表欄位分別是：品項名稱, 單價, PV，且順序固定
-      const rows = data.table.rows;
-      itemData = rows.map(row => {
-        const c = row.c;
-        return {
-          name: c[0]?.v || "",
-          price: Number(c[1]?.v) || 0,
-          pv: Number(c[2]?.v) || 0,
-        };
-      }).filter(item => item.name.length > 0);
+  function onNameInput(e) {
+    const val = e.target.value.trim().toLowerCase();
+    closeAutocomplete();
+    if (!val) return;
 
-      // 資料載入完成後開啟自動完成功能
-      setupAutocomplete();
+    const matchedItems = itemData.filter(item => item.name.toLowerCase().includes(val));
+    if (matchedItems.length === 0) return;
 
-    } catch (err) {
-      alert("無法載入 Google 試算表資料，請檢查試算表設定及網路連線。");
-      console.error(err);
+    autocompleteList.style.display = "block";
+    autocompleteList.innerHTML = "";
+    matchedItems.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.textContent = item.name;
+      div.setAttribute("role", "option");
+      div.setAttribute("id", "autocomplete-item-" + idx);
+      div.addEventListener("click", () => {
+        nameInput.value = item.name;
+        closeAutocomplete();
+      });
+      autocompleteList.appendChild(div);
+    });
+    document.getElementById("inputArea").setAttribute("aria-expanded", "true");
+  }
+
+  function closeAutocomplete() {
+    autocompleteList.innerHTML = "";
+    autocompleteList.style.display = "none";
+    document.getElementById("inputArea").setAttribute("aria-expanded", "false");
+  }
+
+  // 支援上下鍵選擇自動完成選項
+  let currentFocus = -1;
+  function onNameKeyDown(e) {
+    const items = autocompleteList.getElementsByTagName("div");
+    if (items.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      currentFocus++;
+      addActive(items);
+      e.preventDefault();
+    } else if (e.key === "ArrowUp") {
+      currentFocus--;
+      addActive(items);
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (currentFocus > -1) {
+        if(items[currentFocus]) {
+          items[currentFocus].click();
+          currentFocus = -1;
+        }
+      } else {
+        addItem();
+      }
+    }
+  }
+  function addActive(items) {
+    if (!items) return false;
+    removeActive(items);
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length -1;
+    items[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(items) {
+    for(let i=0; i<items.length; i++) {
+      items[i].classList.remove("autocomplete-active");
     }
   }
 
-  // 自動完成列表生成
-  function setupAutocomplete() {
-    nameInput.addEventListener("input", function() {
-      const val = this.value.trim().toLowerCase();
-      autocompleteList.innerHTML = "";
-      if (!val) {
-        autocompleteList.style.display = "none";
-        inputArea.setAttribute("aria-expanded", "false");
-        return;
-      }
-
-      let matchedItems = itemData.filter(item => item.name.toLowerCase().includes(val));
-      if(matchedItems.length === 0) {
-        autocompleteList.style.display = "none";
-        inputArea.setAttribute("aria-expanded", "false");
-        return;
-      }
-
-      matchedItems = matchedItems.slice(0, 10); // 限制最多顯示10項
-
-      for(let i = 0; i < matchedItems.length; i++) {
-        const div = document.createElement("div");
-        div.textContent = matchedItems[i].name;
-        div.setAttribute("role", "option");
-        div.tabIndex = -1;
-        div.addEventListener("click", () => {
-          nameInput.value = matchedItems[i].name;
-          autocompleteList.innerHTML = "";
-          autocompleteList.style.display = "none";
-          inputArea.setAttribute("aria-expanded", "false");
-        });
-        autocompleteList.appendChild(div);
-      }
-      autocompleteList.style.display = "block";
-      inputArea.setAttribute("aria-expanded", "true");
-    });
-
-    // 點擊外部關閉自動完成
-    document.addEventListener("click", e => {
-      if (!inputArea.contains(e.target)) {
-        autocompleteList.innerHTML = "";
-        autocompleteList.style.display = "none";
-        inputArea.setAttribute("aria-expanded", "false");
-      }
-    });
-  }
-
-  // 新增品項至報表
-  addBtn.addEventListener("click", () => {
-    const itemName = nameInput.value.trim();
+  // 新增品項
+  addBtn.addEventListener("click", addItem);
+  function addItem() {
+    const name = nameInput.value.trim();
     const qty = parseInt(qtyInput.value);
-    if (!itemName) {
+    if (!name) {
       alert("請輸入品項名稱");
       nameInput.focus();
       return;
     }
-    if (!(qty > 0)) {
-      alert("請選擇有效數量");
+    if (!qty || qty <= 0) {
+      alert("請選擇數量");
       qtyInput.focus();
       return;
     }
 
-    // 檢查品項是否存在於 itemData 中
-    const foundItem = itemData.find(item => item.name === itemName);
-    if (!foundItem) {
-      alert("品項名稱不在試算表資料中，請從下拉或輸入正確名稱");
+    // 查詢品項資料
+    const itemInfo = itemData.find(i => i.name === name);
+    if (!itemInfo) {
+      alert("品項不存在，請從列表中選擇或確認名稱");
       nameInput.focus();
       return;
     }
 
-    // 若報表已有該品項，數量累加
-    const existIndex = reportItems.findIndex(r => r.name === itemName);
-    if(existIndex !== -1) {
-      reportItems[existIndex].qty += qty;
+    // 先檢查是否已存在報表中，若有則加數量
+    const existingIndex = reportItems.findIndex(i => i.name === name);
+    if (existingIndex > -1) {
+      reportItems[existingIndex].qty += qty;
     } else {
       reportItems.push({
-        name: itemName,
-        qty,
-        price: foundItem.price,
-        pv: foundItem.pv,
+        name: itemInfo.name,
+        qty: qty,
+        price: itemInfo.price,
+        pv: itemInfo.pv
       });
     }
-
     nameInput.value = "";
-    qtyInput.value = 1;
-    autocompleteList.innerHTML = "";
-    autocompleteList.style.display = "none";
-    inputArea.setAttribute("aria-expanded", "false");
+    qtyInput.value = "1";
+    closeAutocomplete();
     renderReport();
-  });
-
-  // 刪除品項
-  function deleteItem(index) {
-    reportItems.splice(index, 1);
-    renderReport();
+    nameInput.focus();
   }
 
   // 渲染報表表格
   function renderReport() {
     reportTableBody.innerHTML = "";
     let sumPv = 0;
-    for(let i = 0; i < reportItems.length; i++) {
+
+    for(let i=0; i<reportItems.length; i++) {
       const row = document.createElement("tr");
 
       const tdName = document.createElement("td");
@@ -421,15 +414,15 @@
       tdPv.textContent = reportItems[i].pv.toLocaleString();
       row.appendChild(tdPv);
 
-      const tdSub = document.createElement("td");
-      tdSub.textContent = (reportItems[i].qty * reportItems[i].price).toLocaleString();
-      row.appendChild(tdSub);
+      const tdSubtotal = document.createElement("td");
+      tdSubtotal.textContent = (reportItems[i].price * reportItems[i].qty).toLocaleString();
+      row.appendChild(tdSubtotal);
 
       const tdDel = document.createElement("td");
       const delBtn = document.createElement("button");
-      delBtn.className = "deleteBtn";
-      delBtn.setAttribute("aria-label", `刪除品項 ${reportItems[i].name}`);
       delBtn.textContent = "刪除";
+      delBtn.className = "deleteBtn";
+      delBtn.setAttribute("aria-label", `刪除 ${reportItems[i].name}`);
       delBtn.addEventListener("click", () => deleteItem(i));
       tdDel.appendChild(delBtn);
       row.appendChild(tdDel);
@@ -441,25 +434,32 @@
     totalPv.textContent = sumPv.toLocaleString();
   }
 
+  // 刪除品項
+  function deleteItem(index) {
+    reportItems.splice(index, 1);
+    renderReport();
+  }
+
   // 匯出報表為圖片
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL("image/png");
+  exportBtn.addEventListener("click", () => {
+    exportBtn.disabled = true;
+    exportBtn.textContent = "匯出中...";
+
+    html2canvas(captureArea, {backgroundColor: null, scale: 2}).then(canvas => {
       const link = document.createElement("a");
-      link.href = imgData;
       link.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
-      document.body.appendChild(link);
+      link.href = canvas.toDataURL("image/png");
       link.click();
-      document.body.removeChild(link);
+
+      exportBtn.disabled = false;
+      exportBtn.textContent = "匯出報表為圖片";
     }).catch(err => {
-      alert("匯出圖片時發生錯誤，請稍後再試");
+      alert("匯出圖片失敗，請稍後再試。");
       console.error(err);
+      exportBtn.disabled = false;
+      exportBtn.textContent = "匯出報表為圖片";
     });
   });
-
-  // 頁面初始化時讀取試算表資料
-  loadSheetData();
 </script>
-
 </body>
 </html>
