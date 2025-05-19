@@ -6,9 +6,20 @@
   <title>品項報表匯出</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    :root {
+      --bg-color: #0e0f11;
+      --panel-bg: #1a1c1f;
+      --text-color: #f1f1f1;
+      --accent: #64ffda;
+      --highlight: #90caf9;
+      --error: #ef5350;
+      --button-green: #4caf50;
+      --button-grey: #616161;
+    }
+
     body {
-      background-color: #121212;
-      color: #fff;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 20px;
@@ -29,24 +40,24 @@
     }
 
     #nameInput, #qtyInput {
-      background-color: #222;
+      background-color: #2c2f33;
       color: #fff;
     }
 
     #addBtn {
-      background-color: #4caf50;
+      background-color: var(--button-green);
       color: white;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
 
     #addBtn:hover {
-      background-color: #45a049;
+      background-color: #43a047;
     }
 
     #captureArea {
-      background: #222;
-      color: #fff;
+      background: var(--panel-bg);
+      color: var(--text-color);
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 20px;
@@ -55,7 +66,7 @@
 
     #captureArea h2 {
       text-align: center;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       margin-bottom: 15px;
     }
 
@@ -76,12 +87,13 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      font-size: 14px;
+      font-size: 16px;
       color: #ccc;
     }
 
     .userInputs input {
-      padding: 6px;
+      padding: 8px;
+      font-size: 18px;
       background: #333;
       color: #fff;
       border: none;
@@ -92,25 +104,26 @@
     #reportTable {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
+      font-size: 11.5px;
       table-layout: fixed;
-      word-break: break-word;
+      word-break: keep-all;
     }
 
     #reportTable th, #reportTable td {
       border: 1px solid #555;
       padding: 6px;
       text-align: center;
+      white-space: nowrap;
     }
 
     #reportTable thead {
-      background: linear-gradient(90deg, #1e88e5, #42a5f5);
+      background: linear-gradient(90deg, #00bcd4, #2196f3);
       color: #fff;
       font-weight: 600;
     }
 
     .deleteBtn {
-      background-color: #e53935;
+      background-color: var(--error);
       border: none;
       color: white;
       border-radius: 6px;
@@ -129,7 +142,7 @@
       display: block;
       padding: 10px 25px;
       font-size: 16px;
-      background: #4caf50;
+      background: var(--button-green);
       color: white;
       border: none;
       border-radius: 8px;
@@ -138,11 +151,11 @@
     }
 
     #clearImageBtn {
-      background: #757575;
+      background: var(--button-grey);
     }
 
     #clearImageBtn:hover {
-      background: #5a5a5a;
+      background: #4e4e4e;
     }
 
     #previewImage {
@@ -158,7 +171,14 @@
       margin-top: 15px;
       font-size: 1rem;
       font-weight: bold;
-      color: #90caf9;
+      color: var(--highlight);
+    }
+
+    .summaryBox .extra {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-top: 6px;
     }
 
     @media (min-width: 600px) {
@@ -211,7 +231,6 @@
   </style>
 </head>
 <body>
-
   <div id="captureArea">
     <h2>🧾 品項報表</h2>
     <div class="userInputs">
@@ -242,6 +261,7 @@
 
     <div class="summaryBox">
       總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
+      <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
     </div>
   </div>
 
@@ -325,6 +345,7 @@
 
       document.getElementById("totalPriceCellDup").textContent = totalPrice.toLocaleString();
       document.getElementById("totalPvCellDup").textContent = totalPv;
+      document.getElementById("pvDiff").textContent = Math.max(112000 - totalPv, 0).toLocaleString();
 
       document.querySelectorAll(".deleteBtn").forEach(btn => {
         btn.addEventListener("click", (e) => {
