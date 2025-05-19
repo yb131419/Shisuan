@@ -1,236 +1,80 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>產品PV金額查詢</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <title>PV 計算器</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #fff;
-      max-width: 600px;
-      margin: auto;
-      padding: 15px;
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #121212;
+      color: #eee;
+      margin: 0; padding: 1rem;
     }
-    h2 {
+    h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 1rem;
     }
-    button {
-      font-size: 16px;
-      padding: 10px 15px;
-      background-color: #1e88e5;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      margin: 10px 0;
+    #product-list {
+      margin-bottom: 1.5rem;
     }
-    .accordion {
-      background-color: #1e1e1e;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.3);
+    .product-item {
+      background: #222;
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
     }
-    .accordion-header {
-      padding: 12px 16px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .product-name {
+      font-weight: 700;
     }
-    .accordion-content {
-      padding: 10px 16px;
-      display: none;
+    .product-info {
+      font-size: 0.9rem;
+      color: #aaa;
     }
-    .accordion-content.active {
-      display: block;
-    }
-    label, select, input[type=number], input[type=text] {
-      display: block;
-      width: 100%;
-      margin-top: 5px;
-      margin-bottom: 10px;
-      font-size: 15px;
-    }
-    input, select {
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-    }
-    .del-btn {
-      background-color: #e53935;
-      padding: 6px 10px;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    .progress-container {
-      margin-top: 20px;
-    }
-    .progress-bar {
-      background: #333;
-      border-radius: 8px;
-      margin: 8px 0;
-      overflow: hidden;
-    }
-    .progress-bar span {
-      display: block;
-      height: 20px;
-      background-color: #43a047;
-      text-align: right;
-      padding-right: 5px;
-      color: #fff;
-      line-height: 20px;
-    }
-    #result {
-      white-space: pre-line;
-      background: #263238;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 20px;
+    .loading {
+      text-align: center;
+      font-style: italic;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <h2>產品PV金額查詢</h2>
-  <div id="items-container"></div>
-  <button id="add-item-btn">新增一筆品項</button>
-
-  <div class="progress-container">
-    <div>PV 進度 (11.2 萬):</div>
-    <div class="progress-bar"><span id="bar112" style="width: 0%">0%</span></div>
-    <div>PV 進度 (22 萬):</div>
-    <div class="progress-bar"><span id="bar220" style="width: 0%">0%</span></div>
+  <h1>PV 計算器</h1>
+  <div id="product-list">
+    <div class="loading">讀取產品資料中...</div>
   </div>
 
-  <div id="result"></div>
-
   <script>
-    let products = [];
-    const target112 = 112000;
-    const target220 = 220000;
-    const itemsContainer = document.getElementById("items-container");
-    const addBtn = document.getElementById("add-item-btn");
-    const resultDiv = document.getElementById("result");
+    // 請把這裡改成你 Google Apps Script 的 Web App URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
-    function createItem(index) {
-      const acc = document.createElement("div");
-      acc.className = "accordion";
+    async function fetchProducts() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("伺服器回傳錯誤");
+        const products = await res.json();
 
-      const header = document.createElement("div");
-      header.className = "accordion-header";
-      header.innerHTML = `品項 ${index + 1} <span>+</span>`;
-      header.onclick = () => {
-        const content = acc.querySelector(".accordion-content");
-        const icon = header.querySelector("span");
-        if (content.classList.contains("active")) {
-          content.classList.remove("active");
-          icon.textContent = "+";
-        } else {
-          content.classList.add("active");
-          icon.textContent = "−";
-        }
-      };
+        const container = document.getElementById("product-list");
+        container.innerHTML = ""; // 清除 loading 字樣
 
-      const content = document.createElement("div");
-      content.className = "accordion-content";
-
-      const search = document.createElement("input");
-      search.type = "text";
-      search.placeholder = "搜尋產品...";
-
-      const select = document.createElement("select");
-
-      function updateOptions(keyword = "") {
-        select.innerHTML = "";
-        products.filter(p => p.displayName.includes(keyword)).forEach(p => {
-          const opt = document.createElement("option");
-          opt.value = p.name;
-          opt.textContent = p.displayName;
-          select.appendChild(opt);
+        products.forEach(prod => {
+          const div = document.createElement("div");
+          div.className = "product-item";
+          div.innerHTML = `
+            <div class="product-name">${prod.displayName}</div>
+            <div class="product-info">價格: ${prod.price} 元 | PV: ${prod.pv}</div>
+          `;
+          container.appendChild(div);
         });
+
+      } catch (error) {
+        const container = document.getElementById("product-list");
+        container.innerHTML = `<div class="loading">讀取產品資料失敗，請稍後再試。</div>`;
+        console.error(error);
       }
-
-      search.oninput = () => updateOptions(search.value.trim());
-
-      const qty = document.createElement("input");
-      qty.type = "number";
-      qty.min = "1";
-      qty.value = "1";
-      qty.oninput = calculate;
-      select.onchange = calculate;
-
-      const delBtn = document.createElement("button");
-      delBtn.className = "del-btn";
-      delBtn.textContent = "刪除";
-      delBtn.onclick = () => {
-        acc.remove();
-        calculate();
-      };
-
-      updateOptions();
-
-      content.append(search, select, qty, delBtn);
-      acc.append(header, content);
-      return acc;
     }
 
-    function addItem() {
-      const count = itemsContainer.children.length;
-      const item = createItem(count);
-      itemsContainer.appendChild(item);
-      calculate();
-    }
-
-    function calculate() {
-      const items = itemsContainer.querySelectorAll(".accordion");
-      let totalPV = 0;
-      let totalAmount = 0;
-
-      items.forEach(acc => {
-        const select = acc.querySelector("select");
-        const qty = parseInt(acc.querySelector("input[type=number]").value);
-        const product = products.find(p => p.name === select.value);
-        if (product && qty > 0) {
-          totalPV += product.pv * qty;
-          totalAmount += product.price * qty;
-        }
-      });
-
-      const pct112 = Math.min(100, (totalPV / target112 * 100).toFixed(1));
-      const pct220 = Math.min(100, (totalPV / target220 * 100).toFixed(1));
-      document.getElementById("bar112").style.width = pct112 + "%";
-      document.getElementById("bar112").textContent = pct112 + "%";
-      document.getElementById("bar220").style.width = pct220 + "%";
-      document.getElementById("bar220").textContent = pct220 + "%";
-
-      resultDiv.textContent = `總金額: ${totalAmount}\n總PV: ${totalPV}\n距 11.2 萬 PV: ${target112 - totalPV}\n距 22 萬 PV: ${target220 - totalPV}`;
-    }
-
-    function init() {
-      fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec")
-        .then(res => res.json())
-        .then(data => {
-          products = data.map(row => ({
-            name: row.name,
-            displayName: row.displayName || row.name,
-            price: parseInt(row.price),
-            pv: parseInt(row.pv),
-          }));
-          addItem();
-        })
-        .catch(err => alert("讀取產品資料失敗"));
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      liff.init({ liffId: "2007434020-R4ZBmV47" }).then(init);
-      addBtn.onclick = addItem;
-    });
+    fetchProducts();
   </script>
 </body>
 </html>
