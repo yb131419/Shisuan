@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PV 計算器</title>
+  <title>PV 計算器（可新增品項）</title>
   <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
@@ -14,6 +14,45 @@
     h1 {
       text-align: center;
       margin-bottom: 1rem;
+    }
+    #input-area {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #input-area input[type="text"] {
+      width: 200px;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      background-color: #333;
+      color: #eee;
+    }
+    #input-area input[type="number"] {
+      width: 80px;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      background-color: #333;
+      color: #eee;
+      text-align: center;
+    }
+    #input-area button {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background-color: #0066cc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #input-area button:hover {
+      background-color: #004a99;
     }
     #product-list {
       margin-bottom: 1.5rem;
@@ -31,7 +70,7 @@
       flex: 1 1 auto;
       margin-left: 1rem;
     }
-    input[type="number"] {
+    .product-item input[type="number"] {
       width: 60px;
       padding: 0.3rem;
       border-radius: 4px;
@@ -48,16 +87,71 @@
       font-size: 1.1rem;
       line-height: 1.5;
       white-space: pre-wrap;
+      text-align: center;
     }
     .loading {
       text-align: center;
       font-style: italic;
       color: #888;
     }
+    #error-msg {
+      text-align: center;
+      color: #ff6666;
+      margin-bottom: 1rem;
+      height: 1.2rem;
+    }
+    #select-multi {
+      text-align: center;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    #multi-options button {
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin: 0.25rem;
+      transition: background-color 0.3s ease;
+    }
+    #multi-options button:hover {
+      background-color: #004a99;
+    }
+    #cancel-multi {
+      margin-top: 0.5rem;
+      background: #999;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #cancel-multi:hover {
+      background-color: #666;
+    }
   </style>
 </head>
 <body>
-  <h1>PV 計算器</h1>
+  <h1>PV 計算器（可新增品項）</h1>
+
+  <div id="input-area">
+    <input type="text" id="item-name" placeholder="輸入品項名稱" autocomplete="off" list="product-list-datalist"/>
+    <datalist id="product-list-datalist"></datalist>
+    <input type="number" id="item-qty" min="1" value="1" />
+    <button id="add-btn">新增品項</button>
+  </div>
+
+  <div id="error-msg"></div>
+
+  <!-- 多筆模糊匹配選擇區 -->
+  <div id="select-multi">
+    <p>找到多筆符合品項，請選擇：</p>
+    <div id="multi-options"></div>
+    <button id="cancel-multi">取消</button>
+  </div>
+
   <div id="product-list">
     <div class="loading">讀取產品資料中...</div>
   </div>
@@ -67,60 +161,175 @@
     總 PV: 0  
   </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/你的部署ID/exec";
-    let products = [];
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
-    function updateSummary() {
-      let totalPrice = 0;
-      let totalPV = 0;
-      products.forEach((prod, idx) => {
-        const qtyInput = document.getElementById("qty-" + idx);
-        const qty = parseInt(qtyInput.value) || 0;
-        totalPrice += qty * prod.price;
-        totalPV += qty * prod.pv;
+  let products = [];
+  let selectedProducts = [];
+
+  const inputName = document.getElementById("item-name");
+  const inputQty = document.getElementById("item-qty");
+  const addBtn = document.getElementById("add-btn");
+  const errorMsg = document.getElementById("error-msg");
+  const productListContainer = document.getElementById("product-list");
+  const datalist = document.getElementById("product-list-datalist");
+
+  const selectMulti = document.getElementById("select-multi");
+  const multiOptions = document.getElementById("multi-options");
+  const cancelMultiBtn = document.getElementById("cancel-multi");
+
+  // 載入產品資料，並填充 datalist
+  async function fetchProducts() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error("伺服器回傳錯誤");
+      products = await res.json();
+
+      // 填入 datalist 做 autocomplete
+      datalist.innerHTML = "";
+      products.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.displayName;
+        datalist.appendChild(option);
       });
 
-      const summary = document.getElementById("summary");
-      summary.textContent = `總金額: ${totalPrice} 元\n總 PV: ${totalPV}`;
+      productListContainer.innerHTML = "";
+      updateProductListUI();
+      updateSummary();
+
+    } catch (e) {
+      productListContainer.innerHTML = `<div class="loading">讀取產品資料失敗，請稍後再試。</div>`;
+      console.error(e);
+    }
+  }
+
+  // 更新選擇品項列表UI
+  function updateProductListUI() {
+    productListContainer.innerHTML = "";
+
+    if (selectedProducts.length === 0) {
+      productListContainer.innerHTML = `<div class="loading">尚未新增任何品項</div>`;
+      return;
     }
 
-    async function fetchProducts() {
-      try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error("伺服器回傳錯誤");
-        products = await res.json();
+    selectedProducts.forEach((prod, idx) => {
+      const div = document.createElement("div");
+      div.className = "product-item";
 
-        const container = document.getElementById("product-list");
-        container.innerHTML = "";
+      div.innerHTML = `
+        <div><strong>${prod.displayName}</strong></div>
+        <div class="product-info">價格: ${prod.price} 元 | PV: ${prod.pv}</div>
+        <input type="number" min="0" id="qty-${idx}" value="${prod.qty}" />
+        <button id="remove-${idx}" style="margin-left:10px; background:#cc3300; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer;">刪除</button>
+      `;
 
-        products.forEach((prod, idx) => {
-          const div = document.createElement("div");
-          div.className = "product-item";
+      productListContainer.appendChild(div);
 
-          div.innerHTML = `
-            <div><strong>${prod.displayName}</strong></div>
-            <div class="product-info">價格: ${prod.price} 元 | PV: ${prod.pv}</div>
-            <input type="number" min="0" id="qty-${idx}" value="0" />
-          `;
-
-          container.appendChild(div);
-
-          // 監聽輸入改變
-          const qtyInput = div.querySelector("input");
-          qtyInput.addEventListener("input", updateSummary);
-        });
-
+      // 數量變動事件
+      const qtyInput = div.querySelector("input[type='number']");
+      qtyInput.addEventListener("input", e => {
+        const val = parseInt(e.target.value);
+        if (isNaN(val) || val < 0) {
+          e.target.value = 0;
+          selectedProducts[idx].qty = 0;
+        } else {
+          selectedProducts[idx].qty = val;
+        }
         updateSummary();
+      });
 
-      } catch (error) {
-        const container = document.getElementById("product-list");
-        container.innerHTML = `<div class="loading">讀取產品資料失敗，請稍後再試。</div>`;
-        console.error(error);
-      }
+      // 刪除按鈕
+      const removeBtn = div.querySelector(`#remove-${idx}`);
+      removeBtn.addEventListener("click", () => {
+        selectedProducts.splice(idx, 1);
+        updateProductListUI();
+        updateSummary();
+      });
+    });
+  }
+
+  // 更新總計
+  function updateSummary() {
+    let totalPrice = 0;
+    let totalPV = 0;
+    selectedProducts.forEach(prod => {
+      totalPrice += prod.qty * prod.price;
+      totalPV += prod.qty * prod.pv;
+    });
+    const summary = document.getElementById("summary");
+    summary.textContent = `總金額: ${totalPrice} 元\n總 PV: ${totalPV}`;
+  }
+
+  // 新增品項輔助函數
+  function addSelectedProduct(product, qty) {
+    const existingIndex = selectedProducts.findIndex(p => p.displayName === product.displayName);
+    if (existingIndex !== -1) {
+      selectedProducts[existingIndex].qty += qty;
+    } else {
+      selectedProducts.push({ ...product, qty: qty });
     }
 
-    fetchProducts();
-  </script>
+    inputName.value = "";
+    inputQty.value = 1;
+    errorMsg.textContent = "";
+    updateProductListUI();
+    updateSummary();
+  }
+
+  // 顯示多筆選擇清單
+  function showMultiSelect(foundList, qty) {
+    selectMulti.style.display = "block";
+    multiOptions.innerHTML = "";
+
+    foundList.forEach((p, idx) => {
+      const btn = document.createElement("button");
+      btn.textContent = `${p.displayName}（價格: ${p.price} 元，PV: ${p.pv}）`;
+
+      btn.addEventListener("click", () => {
+        addSelectedProduct(p, qty);
+        selectMulti.style.display = "none";
+      });
+
+      multiOptions.appendChild(btn);
+    });
+  }
+
+  // 取消多筆選擇
+  cancelMultiBtn.addEventListener("click", () => {
+    selectMulti.style.display = "none";
+  });
+
+  // 新增品項按鈕事件
+  addBtn.addEventListener("click", () => {
+    const name = inputName.value.trim();
+    const qty = parseInt(inputQty.value);
+
+    if (!name) {
+      errorMsg.textContent = "請輸入品項名稱";
+      return;
+    }
+    if (isNaN(qty) || qty <= 0) {
+      errorMsg.textContent = "數量需為大於 0 的整數";
+      return;
+    }
+
+    // 模糊搜尋符合的品項
+    const foundList = products.filter(p => p.displayName.includes(name));
+
+    if (foundList.length === 0) {
+      errorMsg.textContent = `找不到符合 "${name}" 的品項`;
+    } else if (foundList.length === 1) {
+      addSelectedProduct(foundList[0], qty);
+    } else {
+      // 多筆結果，顯示選擇列表
+      showMultiSelect(foundList, qty);
+    }
+  });
+
+  // 頁面載入時，取得產品清單
+  fetchProducts();
+
+</script>
+
 </body>
 </html>
