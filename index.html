@@ -1,177 +1,241 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PV 計算器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>品項報表匯出</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body {
       background-color: #121212;
-      color: #ffffff;
-      font-family: 'Arial', sans-serif;
-      padding: 1rem;
-      margin: 0;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    #input-area {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    input, select, button {
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-    }
-
-    input, select {
-      background-color: #1e1e1e;
       color: #fff;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 20px;
     }
-
-    button {
+    #inputArea {
+      max-width: 800px;
+      margin: 0 auto 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    #inputArea input {
+      flex: 1 1 40%;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+    #inputArea button {
+      flex: 1 1 15%;
+      padding: 10px;
       background-color: #4caf50;
       color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
-    button:hover {
+    #inputArea button:hover {
       background-color: #45a049;
     }
-
-    .product-card {
-      background-color: #1f1f1f;
-      padding: 1rem;
+    #captureArea {
+      background: #222;
+      color: #fff;
+      padding: 20px;
       border-radius: 12px;
-      margin-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
-
-    .summary {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-top: 1rem;
+    #captureArea h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #reportTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #reportTable th, #reportTable td {
+      border: 1px solid #444;
+      padding: 8px;
       text-align: center;
     }
-
-    @media (min-width: 481px) {
-      #input-area {
-        flex-direction: row;
-        align-items: center;
-      }
-
-      #input-area > * {
-        flex: 1;
-      }
-
-      #input-area button {
-        flex: 0.5;
-      }
+    #reportTable thead {
+      background-color: #333;
+    }
+    #reportTable tfoot td {
+      font-weight: bold;
+      background-color: #111;
+    }
+    #exportBtn {
+      margin: 30px auto 0;
+      display: block;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #exportBtn:hover {
+      background: #45a049;
     }
   </style>
 </head>
 <body>
-  <h1>PV 計算器</h1>
-
-  <div id="input-area">
-    <input type="text" id="item-name" placeholder="品項名稱" />
-    <input type="number" id="item-pv" placeholder="單位 PV" />
-    <!-- 數量輸入區會由 JS 根據裝置替換 -->
-    <input type="number" id="item-qty" min="1" value="1" />
-    <button id="add-btn">新增</button>
+  <div id="inputArea">
+    <input id="nameInput" type="text" placeholder="品項名稱" />
+    <input id="qtyInput" type="number" min="1" value="1" placeholder="數量" />
+    <button id="addBtn">新增品項</button>
+    <button id="loadBtn">從試算表讀取</button>
   </div>
 
-  <div id="product-list"></div>
+  <div id="captureArea">
+    <h2>🧾 品項報表</h2>
+    <table id="reportTable">
+      <thead>
+        <tr>
+          <th>品項名稱</th>
+          <th>數量</th>
+          <th>單價</th>
+          <th>PV</th>
+          <th>小計金額</th>
+          <th>小計 PV</th>
+        </tr>
+      </thead>
+      <tbody id="reportBody">
+        <!-- 動態產生資料 -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" style="text-align:right;">總計：</td>
+          <td id="totalPriceCell">0</td>
+          <td id="totalPvCell">0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
-  <div class="summary" id="summary">總 PV：0</div>
+  <button id="exportBtn">📤 匯出報表為圖片</button>
 
   <script>
-    const productList = [];
-    const inputArea = document.getElementById("input-area");
+    // 全部可選品項資料（從試算表讀取）
+    let allProducts = [];
 
-    // 製作適合手機的下拉選單
-    function replaceQtyInputForDevice() {
-      const oldInput = document.getElementById("item-qty");
-      if (oldInput) oldInput.remove();
+    // 報表目前已選品項
+    let selectedProducts = [];
 
-      let newInput;
-      if (window.innerWidth <= 480) {
-        newInput = document.createElement("select");
-        newInput.id = "item-qty";
-        for (let i = 1; i <= 20; i++) {
-          const option = document.createElement("option");
-          option.value = i;
-          option.textContent = i;
-          newInput.appendChild(option);
-        }
-      } else {
-        newInput = document.createElement("input");
-        newInput.type = "number";
-        newInput.id = "item-qty";
-        newInput.min = 1;
-        newInput.value = 1;
-      }
+    // 更新報表畫面
+    function renderReport() {
+      const tbody = document.getElementById("reportBody");
+      tbody.innerHTML = "";
 
-      inputArea.insertBefore(newInput, document.getElementById("add-btn"));
-    }
+      let totalPrice = 0;
+      let totalPv = 0;
 
-    function renderSelectedProducts() {
-      const container = document.getElementById("product-list");
-      container.innerHTML = "";
+      selectedProducts.forEach(item => {
+        const subtotal = item.price * item.qty;
+        const subpv = item.pv * item.qty;
 
-      let total = 0;
-
-      productList.forEach((item, idx) => {
-        const pv = item.qty * item.pv;
-        total += pv;
-
-        const div = document.createElement("div");
-        div.className = "product-card";
-        div.innerHTML = `
-          <div>
-            <strong>${item.name}</strong><br/>
-            單位 PV：${item.pv} × ${item.qty} 件
-          </div>
-          <div>${pv} PV</div>
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.displayName}</td>
+          <td>${item.qty}</td>
+          <td>${item.price.toLocaleString()}</td>
+          <td>${item.pv}</td>
+          <td>${subtotal.toLocaleString()}</td>
+          <td>${subpv}</td>
         `;
-        container.appendChild(div);
+        tbody.appendChild(tr);
+
+        totalPrice += subtotal;
+        totalPv += subpv;
       });
 
-      document.getElementById("summary").textContent = `總 PV：${total}`;
+      document.getElementById("totalPriceCell").textContent = totalPrice.toLocaleString();
+      document.getElementById("totalPvCell").textContent = totalPv;
     }
 
-    function addProduct() {
-      const name = document.getElementById("item-name").value.trim();
-      const pv = parseFloat(document.getElementById("item-pv").value);
-      const qty = parseInt(document.getElementById("item-qty").value);
-
-      if (!name || isNaN(pv) || isNaN(qty) || qty <= 0) {
-        alert("請填寫完整正確的品項資訊！");
+    // 新增品項到報表
+    function addProduct(name, qty) {
+      if (!name || qty < 1) {
+        alert("請輸入有效品項名稱與數量");
         return;
       }
 
-      productList.push({ name, pv, qty });
-      renderSelectedProducts();
+      // 從 allProducts 找符合的品項
+      // 忽略大小寫、模糊比對，找到第一個包含輸入文字的品項
+      const found = allProducts.find(p => p.displayName.toLowerCase().includes(name.toLowerCase()));
 
-      document.getElementById("item-name").value = "";
-      document.getElementById("item-pv").value = "";
-      document.getElementById("item-qty").value = 1;
+      if (!found) {
+        alert("品項名稱不存在，請先按「從試算表讀取」取得最新品項清單");
+        return;
+      }
+
+      // 看看報表中是否已有此品項，若有則累加數量
+      const existIndex = selectedProducts.findIndex(p => p.displayName === found.displayName);
+
+      if (existIndex !== -1) {
+        selectedProducts[existIndex].qty += qty;
+      } else {
+        selectedProducts.push({ ...found, qty });
+      }
+
+      renderReport();
     }
 
-    document.getElementById("add-btn").addEventListener("click", addProduct);
-    window.addEventListener("resize", replaceQtyInputForDevice);
-    window.addEventListener("DOMContentLoaded", replaceQtyInputForDevice);
+    // 從 Google Apps Script 取得試算表資料
+    async function fetchProductsFromSheet() {
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec");
+        if (!response.ok) throw new Error("伺服器錯誤");
+        const data = await response.json();
+
+        // 假設格式 [{displayName:"靈芝飲",price:300,pv:10},...]
+        allProducts = data.map(item => ({
+          displayName: item.displayName,
+          price: Number(item.price),
+          pv: Number(item.pv)
+        }));
+
+        alert("已成功從試算表讀取品項資料！");
+      } catch (error) {
+        alert("讀取資料失敗，請稍後再試");
+        console.error(error);
+      }
+    }
+
+    // 事件監聽
+    document.getElementById("addBtn").addEventListener("click", () => {
+      const name = document.getElementById("nameInput").value.trim();
+      const qty = parseInt(document.getElementById("qtyInput").value, 10);
+
+      addProduct(name, qty);
+
+      // 清空輸入欄位，數量回復1
+      document.getElementById("nameInput").value = "";
+      document.getElementById("qtyInput").value = 1;
+    });
+
+    document.getElementById("loadBtn").addEventListener("click", () => {
+      fetchProductsFromSheet();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      html2canvas(document.getElementById("captureArea")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
+
+    // 初始化 - 你可以在此呼叫 fetchProductsFromSheet() 自動載入資料 (選擇性)
+    // fetchProductsFromSheet();
   </script>
 </body>
 </html>
