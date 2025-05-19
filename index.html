@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>產品PV金額計算器</title>
+  <title>產品PV金額查詢</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
       max-width: 600px;
-      margin: 10px auto;
-      padding: 10px;
-      background: #fafafa;
-      color: #333;
+      margin: auto;
+      padding: 15px;
     }
     h2 {
       text-align: center;
@@ -21,30 +21,23 @@
     button {
       font-size: 16px;
       padding: 10px 15px;
-      margin: 10px 0;
-      background-color: #4CAF50;
+      background-color: #1e88e5;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       color: white;
       cursor: pointer;
-    }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
+      margin: 10px 0;
     }
     .accordion {
-      background-color: #fff;
-      border-radius: 5px;
+      background-color: #1e1e1e;
+      border-radius: 8px;
       margin-bottom: 10px;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+      box-shadow: 0 2px 5px rgb(0 0 0 / 0.3);
     }
     .accordion-header {
       padding: 12px 16px;
       font-weight: bold;
-      font-size: 16px;
       cursor: pointer;
-      border-bottom: 1px solid #ddd;
-      user-select: none;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -52,204 +45,156 @@
     .accordion-content {
       padding: 10px 16px;
       display: none;
-      background: #fefefe;
     }
     .accordion-content.active {
       display: block;
     }
-    label {
+    label, select, input[type=number], input[type=text] {
       display: block;
-      margin: 6px 0 3px;
-      font-size: 14px;
-    }
-    select, input[type=number], input[type=text] {
       width: 100%;
+      margin-top: 5px;
+      margin-bottom: 10px;
       font-size: 15px;
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
+    }
+    input, select {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
     }
     .del-btn {
-      background-color: #f44336;
-      border: none;
+      background-color: #e53935;
+      padding: 6px 10px;
       color: white;
-      padding: 6px 12px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 8px;
+      border: none;
+      border-radius: 5px;
     }
-    .del-btn:hover {
-      background-color: #d32f2f;
+    .progress-container {
+      margin-top: 20px;
+    }
+    .progress-bar {
+      background: #333;
+      border-radius: 8px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+    .progress-bar span {
+      display: block;
+      height: 20px;
+      background-color: #43a047;
+      text-align: right;
+      padding-right: 5px;
+      color: #fff;
+      line-height: 20px;
     }
     #result {
       white-space: pre-line;
-      background: #e3f2fd;
+      background: #263238;
       padding: 15px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 16px;
       margin-top: 20px;
-    }
-    @media (max-width: 480px) {
-      button {
-        font-size: 14px;
-        padding: 8px 12px;
-      }
-      .accordion-header {
-        font-size: 14px;
-        padding: 10px 14px;
-      }
-      select, input[type=number] {
-        font-size: 14px;
-        padding: 5px 7px;
-      }
     }
   </style>
 </head>
 <body>
-  <h2>產品PV金額計算器</h2>
+  <h2>產品PV金額查詢</h2>
   <div id="items-container"></div>
   <button id="add-item-btn">新增一筆品項</button>
-  <div id="result">總金額: 0
-總PV: 0
-距 11.2 萬 PV: 112000
-距 22 萬 PV: 220000</div>
+
+  <div class="progress-container">
+    <div>PV 進度 (11.2 萬):</div>
+    <div class="progress-bar"><span id="bar112" style="width: 0%">0%</span></div>
+    <div>PV 進度 (22 萬):</div>
+    <div class="progress-bar"><span id="bar220" style="width: 0%">0%</span></div>
+  </div>
+
+  <div id="result"></div>
 
   <script>
     let products = [];
-    const targetPV112 = 112000;
-    const targetPV220 = 220000;
-    const maxItems = 20;
-
+    const target112 = 112000;
+    const target220 = 220000;
     const itemsContainer = document.getElementById("items-container");
     const addBtn = document.getElementById("add-item-btn");
     const resultDiv = document.getElementById("result");
 
-    function createAccordionItem(index) {
-      const accordion = document.createElement("div");
-      accordion.className = "accordion";
-      accordion.id = `item-${index}`;
+    function createItem(index) {
+      const acc = document.createElement("div");
+      acc.className = "accordion";
 
       const header = document.createElement("div");
       header.className = "accordion-header";
-      header.textContent = `品項 ${index + 1}`;
-      const toggleIcon = document.createElement("span");
-      toggleIcon.textContent = "+";
-      header.appendChild(toggleIcon);
-
+      header.innerHTML = `品項 ${index + 1} <span>+</span>`;
       header.onclick = () => {
-        const content = accordion.querySelector(".accordion-content");
-        const isActive = content.classList.contains("active");
-        if (isActive) {
+        const content = acc.querySelector(".accordion-content");
+        const icon = header.querySelector("span");
+        if (content.classList.contains("active")) {
           content.classList.remove("active");
-          toggleIcon.textContent = "+";
+          icon.textContent = "+";
         } else {
           content.classList.add("active");
-          toggleIcon.textContent = "−";
+          icon.textContent = "−";
         }
       };
 
       const content = document.createElement("div");
       content.className = "accordion-content";
 
-      const labelSelect = document.createElement("label");
-      labelSelect.textContent = "選擇產品";
+      const search = document.createElement("input");
+      search.type = "text";
+      search.placeholder = "搜尋產品...";
 
       const select = document.createElement("select");
-      products.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.name;
-        option.textContent = p.displayName;
-        select.appendChild(option);
-      });
 
-      const searchInput = document.createElement("input");
-      searchInput.type = "text";
-      searchInput.placeholder = "可輸入產品名稱搜尋...";
-      searchInput.oninput = () => {
-        const keyword = searchInput.value.trim().toLowerCase();
+      function updateOptions(keyword = "") {
         select.innerHTML = "";
-        products
-          .filter(p => p.displayName.toLowerCase().includes(keyword))
-          .forEach(p => {
-            const option = document.createElement("option");
-            option.value = p.name;
-            option.textContent = p.displayName;
-            select.appendChild(option);
-          });
-        calculateResult();
-      };
+        products.filter(p => p.displayName.includes(keyword)).forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.name;
+          opt.textContent = p.displayName;
+          select.appendChild(opt);
+        });
+      }
 
-      const labelQty = document.createElement("label");
-      labelQty.textContent = "數量";
+      search.oninput = () => updateOptions(search.value.trim());
 
-      const qtyInput = document.createElement("input");
-      qtyInput.type = "number";
-      qtyInput.min = "1";
-      qtyInput.value = "1";
+      const qty = document.createElement("input");
+      qty.type = "number";
+      qty.min = "1";
+      qty.value = "1";
+      qty.oninput = calculate;
+      select.onchange = calculate;
 
       const delBtn = document.createElement("button");
-      delBtn.textContent = "刪除";
       delBtn.className = "del-btn";
+      delBtn.textContent = "刪除";
       delBtn.onclick = () => {
-        accordion.remove();
-        updateIndices();
-        calculateResult();
-        if (itemsContainer.querySelectorAll(".accordion").length < maxItems) {
-          addBtn.disabled = false;
-        }
+        acc.remove();
+        calculate();
       };
 
-      select.onchange = qtyInput.oninput = calculateResult;
+      updateOptions();
 
-      content.appendChild(labelSelect);
-      content.appendChild(searchInput);
-      content.appendChild(select);
-      content.appendChild(labelQty);
-      content.appendChild(qtyInput);
-      content.appendChild(delBtn);
-
-      accordion.appendChild(header);
-      accordion.appendChild(content);
-
-      return accordion;
-    }
-
-    function updateIndices() {
-      const accordions = itemsContainer.querySelectorAll(".accordion");
-      accordions.forEach((acc, idx) => {
-        acc.id = `item-${idx}`;
-        const header = acc.querySelector(".accordion-header");
-        // header.textContent = `品項 ${idx + 1}`;
-        // 因為 header 最後有一個 span toggleIcon，不能直接用 textContent，不然會刪除 span
-        // 所以改用 firstChild.textContent
-        header.firstChild.textContent = `品項 ${idx + 1}`;
-      });
-      addBtn.disabled = accordions.length >= maxItems;
+      content.append(search, select, qty, delBtn);
+      acc.append(header, content);
+      return acc;
     }
 
     function addItem() {
-      const count = itemsContainer.querySelectorAll(".accordion").length;
-      if (count >= maxItems) return;
-      const newItem = createAccordionItem(count);
-      itemsContainer.appendChild(newItem);
-      calculateResult();
-      if (count + 1 >= maxItems) {
-        addBtn.disabled = true;
-      }
+      const count = itemsContainer.children.length;
+      const item = createItem(count);
+      itemsContainer.appendChild(item);
+      calculate();
     }
 
-    function calculateResult() {
-      const accordions = itemsContainer.querySelectorAll(".accordion");
+    function calculate() {
+      const items = itemsContainer.querySelectorAll(".accordion");
       let totalPV = 0;
       let totalAmount = 0;
 
-      accordions.forEach(acc => {
+      items.forEach(acc => {
         const select = acc.querySelector("select");
-        const qtyInput = acc.querySelector("input[type=number]");
-        const qty = parseInt(qtyInput.value);
-        if (!qty || qty < 1) return; // 避免無效數量
+        const qty = parseInt(acc.querySelector("input[type=number]").value);
         const product = products.find(p => p.name === select.value);
         if (product && qty > 0) {
           totalPV += product.pv * qty;
@@ -257,54 +202,34 @@
         }
       });
 
-      const diff112 = targetPV112 - totalPV;
-      const diff220 = targetPV220 - totalPV;
+      const pct112 = Math.min(100, (totalPV / target112 * 100).toFixed(1));
+      const pct220 = Math.min(100, (totalPV / target220 * 100).toFixed(1));
+      document.getElementById("bar112").style.width = pct112 + "%";
+      document.getElementById("bar112").textContent = pct112 + "%";
+      document.getElementById("bar220").style.width = pct220 + "%";
+      document.getElementById("bar220").textContent = pct220 + "%";
 
-      let resultText = `總金額: ${totalAmount}\n總PV: ${totalPV}\n`;
-      resultText += diff112 > 0 ? `距 11.2 萬 PV: ${diff112}\n` : "已達標 11.2 萬 PV!\n";
-      resultText += diff220 > 0 ? `距 22 萬 PV: ${diff220}` : "已達標 22 萬 PV!";
-
-      if (window.userId) {
-        resultText += `\n\n你的 LINE User ID：${window.userId}`;
-      }
-
-      resultDiv.textContent = resultText;
+      resultDiv.textContent = `總金額: ${totalAmount}\n總PV: ${totalPV}\n距 11.2 萬 PV: ${target112 - totalPV}\n距 22 萬 PV: ${target220 - totalPV}`;
     }
 
     function init() {
-      fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec") // 請改成你實際的 GAS 網址
+      fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec")
         .then(res => res.json())
         .then(data => {
           products = data.map(row => ({
             name: row.name,
             displayName: row.displayName || row.name,
+            price: parseInt(row.price),
             pv: parseInt(row.pv),
-            price: parseInt(row.price)
           }));
           addItem();
-          // 預設展開第一個品項區塊
-          const firstContent = itemsContainer.querySelector(".accordion-content");
-          if (firstContent) {
-            firstContent.classList.add("active");
-            const firstHeader = itemsContainer.querySelector(".accordion-header span");
-            if (firstHeader) firstHeader.textContent = "−";
-          }
         })
-        .catch(err => {
-          alert("無法讀取產品資料！");
-          console.error(err);
-        });
-
-      addBtn.onclick = addItem;
+        .catch(err => alert("讀取產品資料失敗"));
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      liff.init({ liffId: "2007434020-R4ZBmV47" }) // 請替換為你的 LIFF ID
-        .then(() => {
-          window.userId = liff.getContext().userId || "未取得UserID";
-          init();
-        })
-        .catch(console.error);
+    document.addEventListener("DOMContentLoaded", () => {
+      liff.init({ liffId: "你的 LIFF ID" }).then(init);
+      addBtn.onclick = addItem;
     });
   </script>
 </body>
