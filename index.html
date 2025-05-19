@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,13 +23,31 @@
       padding: 0.8rem;
       margin-bottom: 0.5rem;
       border-radius: 6px;
-    }
-    .product-name {
-      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .product-info {
-      font-size: 0.9rem;
-      color: #aaa;
+      flex: 1 1 auto;
+      margin-left: 1rem;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 0.3rem;
+      border-radius: 4px;
+      border: none;
+      font-size: 1rem;
+      background-color: #333;
+      color: #eee;
+      text-align: center;
+    }
+    #summary {
+      background: #222;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
     }
     .loading {
       text-align: center;
@@ -44,28 +62,56 @@
     <div class="loading">讀取產品資料中...</div>
   </div>
 
+  <div id="summary">
+    總金額: 0 元  
+    總 PV: 0  
+  </div>
+
   <script>
-    // 請把這裡改成你 Google Apps Script 的 Web App URL
-    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+    const API_URL = "https://script.google.com/macros/s/你的部署ID/exec";
+    let products = [];
+
+    function updateSummary() {
+      let totalPrice = 0;
+      let totalPV = 0;
+      products.forEach((prod, idx) => {
+        const qtyInput = document.getElementById("qty-" + idx);
+        const qty = parseInt(qtyInput.value) || 0;
+        totalPrice += qty * prod.price;
+        totalPV += qty * prod.pv;
+      });
+
+      const summary = document.getElementById("summary");
+      summary.textContent = `總金額: ${totalPrice} 元\n總 PV: ${totalPV}`;
+    }
 
     async function fetchProducts() {
       try {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("伺服器回傳錯誤");
-        const products = await res.json();
+        products = await res.json();
 
         const container = document.getElementById("product-list");
-        container.innerHTML = ""; // 清除 loading 字樣
+        container.innerHTML = "";
 
-        products.forEach(prod => {
+        products.forEach((prod, idx) => {
           const div = document.createElement("div");
           div.className = "product-item";
+
           div.innerHTML = `
-            <div class="product-name">${prod.displayName}</div>
+            <div><strong>${prod.displayName}</strong></div>
             <div class="product-info">價格: ${prod.price} 元 | PV: ${prod.pv}</div>
+            <input type="number" min="0" id="qty-${idx}" value="0" />
           `;
+
           container.appendChild(div);
+
+          // 監聽輸入改變
+          const qtyInput = div.querySelector("input");
+          qtyInput.addEventListener("input", updateSummary);
         });
+
+        updateSummary();
 
       } catch (error) {
         const container = document.getElementById("product-list");
