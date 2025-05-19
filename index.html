@@ -6,73 +6,132 @@
   <title>品項報表匯出</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    /* 基本深色背景與字體 */
     body {
       background-color: #121212;
       color: #fff;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Noto Sans TC', 'Arial', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      user-select: none;
     }
+    /* 輸入區容器 */
     #inputArea {
-      max-width: 800px;
-      margin: 0 auto 20px;
+      max-width: 480px;
+      margin: 0 auto 24px;
       display: flex;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 10px;
       align-items: center;
+      justify-content: center;
       position: relative;
+      padding: 0 8px;
     }
-    #nameInput {
-      flex: 1 1 50%;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 6px;
+
+    /* 品項輸入欄 (Combobox) */
+    #nameInput, #qtyInput, #addBtn {
+      font-size: 1.1rem;
+      border-radius: 8px;
       border: none;
+      outline-offset: 2px;
+      transition: box-shadow 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    #nameInput {
+      flex: 1 1 60%;
+      padding: 10px 14px;
       background-color: #222;
       color: #fff;
+      cursor: text;
     }
+    #nameInput:focus {
+      box-shadow: 0 0 6px 2px #42a5f5;
+      background-color: #333;
+    }
+
+    /* 下拉清單 */
+    #autocomplete-list {
+      position: absolute;
+      top: 48px;
+      left: 8px;
+      right: calc(40% + 12px);
+      max-height: 180px;
+      overflow-y: auto;
+      background: #222;
+      border-radius: 0 0 8px 8px;
+      border: 1px solid #555;
+      z-index: 1000;
+      display: none;
+      user-select: none;
+    }
+    #autocomplete-list div {
+      padding: 10px 14px;
+      cursor: pointer;
+      color: #eee;
+      font-size: 1rem;
+    }
+    #autocomplete-list div:hover {
+      background-color: #444;
+    }
+
+    /* 數量下拉選單 */
     #qtyInput {
       flex: 1 1 20%;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+      padding: 10px 14px;
       background-color: #222;
       color: #fff;
+      cursor: pointer;
     }
+    #qtyInput:focus {
+      box-shadow: 0 0 6px 2px #42a5f5;
+      background-color: #333;
+    }
+
+    /* 新增按鈕 */
     #addBtn {
-      flex: 1 1 20%;
-      padding: 10px;
+      flex: 1 1 18%;
+      padding: 10px 0;
       background-color: #4caf50;
       color: white;
-      border: none;
-      border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
+      user-select: none;
+      box-shadow: 0 4px 8px rgb(76 175 80 / 0.5);
       transition: background-color 0.3s ease;
     }
-    #addBtn:hover {
+    #addBtn:hover, #addBtn:focus {
       background-color: #45a049;
+      outline: none;
     }
+
+    /* 報表區 */
     #captureArea {
       background: #222;
       color: #fff;
-      padding: 20px;
+      padding: 24px 16px;
       border-radius: 12px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+      max-width: 480px;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 24px rgba(0,0,0,0.8);
+      user-select: text;
     }
     #captureArea h2 {
       text-align: center;
       margin-bottom: 20px;
       font-weight: 700;
-      font-size: 1.6rem;
-      letter-spacing: 1px;
+      font-size: 1.8rem;
+      letter-spacing: 1.2px;
+      user-select: none;
     }
+
+    /* 報表表格 */
     #reportTable {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 1rem;
       table-layout: fixed;
       word-break: break-word;
     }
@@ -84,88 +143,93 @@
     #reportTable thead {
       background: linear-gradient(90deg, #1e88e5, #42a5f5);
       color: #fff;
-      font-weight: 600;
-      letter-spacing: 0.05em;
+      font-weight: 700;
+      letter-spacing: 0.1em;
     }
     #reportTable tfoot td {
-      font-weight: bold;
+      font-weight: 700;
       background-color: #111;
       color: #ccc;
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
+
+    /* 刪除按鈕 */
     .deleteBtn {
       background-color: #e53935;
       border: none;
       color: white;
-      border-radius: 6px;
-      padding: 5px 12px;
+      border-radius: 8px;
+      padding: 6px 14px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      font-size: 13px;
+      font-size: 0.9rem;
+      user-select: none;
     }
-    .deleteBtn:hover {
+    .deleteBtn:hover, .deleteBtn:focus {
       background-color: #c62828;
+      outline: none;
     }
+
+    /* 匯出按鈕 */
     #exportBtn {
-      margin: 30px auto 0;
+      margin: 0 auto;
       display: block;
-      padding: 10px 25px;
-      font-size: 16px;
+      padding: 14px 28px;
+      font-size: 1.1rem;
       background: #4caf50;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
+      box-shadow: 0 6px 12px rgb(76 175 80 / 0.6);
+      user-select: none;
+      max-width: 480px;
     }
-    #exportBtn:hover {
+    #exportBtn:hover, #exportBtn:focus {
       background: #45a049;
+      outline: none;
     }
-    datalist option {
-      background: #222;
-      color: #fff;
-    }
-    #autocomplete-list {
-      position: absolute;
-      background: #222;
-      max-height: 150px;
-      overflow-y: auto;
-      border-radius: 0 0 6px 6px;
-      border: 1px solid #555;
-      width: calc(50% - 10px);
-      z-index: 9999;
-    }
-    #autocomplete-list div {
-      padding: 8px 10px;
-      cursor: pointer;
-      color: #fff;
-    }
-    #autocomplete-list div:hover {
-      background-color: #444;
+
+    /* 手機版微調 */
+    @media (max-width: 480px) {
+      #inputArea {
+        padding: 0 12px;
+      }
+      #nameInput, #qtyInput, #addBtn {
+        font-size: 1.2rem;
+      }
+      #exportBtn {
+        font-size: 1.2rem;
+        padding: 16px 30px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="inputArea">
-    <input id="nameInput" type="text" placeholder="品項名稱 (可輸入或選擇)" autocomplete="off" />
-    <select id="qtyInput" aria-label="數量"></select>
-    <button id="addBtn">新增品項</button>
-    <div id="autocomplete-list" style="display:none;"></div>
+
+  <div id="inputArea" role="combobox" aria-haspopup="listbox" aria-owns="autocomplete-list" aria-expanded="false">
+    <input id="nameInput" type="text" placeholder="品項名稱 (輸入或選擇)" aria-autocomplete="list" aria-controls="autocomplete-list" autocomplete="off" aria-label="品項名稱" />
+    <select id="qtyInput" aria-label="數量">
+      <!-- 選項由 JS 填充 -->
+    </select>
+    <button id="addBtn" aria-label="新增品項">新增品項</button>
+    <div id="autocomplete-list" role="listbox" tabindex="-1"></div>
   </div>
 
-  <div id="captureArea">
+  <div id="captureArea" aria-live="polite" aria-atomic="true" aria-relevant="all">
     <h2>🧾 品項報表</h2>
     <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
-          <th>品項名稱</th>
-          <th>數量</th>
-          <th>單價</th>
-          <th>PV</th>
-          <th>小計金額</th>
-          <th>小計 PV</th>
-          <th>操作</th>
+          <th scope="col">品項名稱</th>
+          <th scope="col">數量</th>
+          <th scope="col">單價</th>
+          <th scope="col">PV</th>
+          <th scope="col">小計金額</th>
+          <th scope="col">小計 PV</th>
+          <th scope="col">操作</th>
         </tr>
       </thead>
       <tbody id="reportBody"></tbody>
@@ -180,165 +244,261 @@
     </table>
   </div>
 
-  <button id="exportBtn">📤 匯出報表為圖片</button>
+  <button id="exportBtn" aria-label="匯出報表為圖片">📤 匯出報表為圖片</button>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
-    let allProducts = [];
-    let selectedProducts = [];
+  let allProducts = [];
+  let selectedProducts = [];
 
-    const qtyInput = document.getElementById("qtyInput");
-    for(let i=1; i<=20; i++) {
-      const option = document.createElement("option");
-      option.value = i;
-      option.textContent = i;
-      qtyInput.appendChild(option);
+  // 建立數量下拉選項
+  const qtyInput = document.getElementById("qtyInput");
+  for(let i = 1; i <= 20; i++) {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = i;
+    qtyInput.appendChild(option);
+  }
+  qtyInput.value = 1;
+
+  const nameInput = document.getElementById("nameInput");
+  const autocompleteList = document.getElementById("autocomplete-list");
+  const inputArea = document.getElementById("inputArea");
+
+  // 取得品項資料
+  async function fetchProducts() {
+    try {
+      const resp = await fetch(API_URL);
+      if (!resp.ok) throw new Error('網路錯誤');
+      const data = await resp.json();
+      return data;
+    } catch (err) {
+      console.error("取得品項失敗:", err);
+      alert("無法取得品項資料，請稍後再試");
+      return [];
     }
-    qtyInput.value = 1;
+  }
 
-    const nameInput = document.getElementById("nameInput");
-    const autocompleteList = document.getElementById("autocomplete-list");
-
-    async function fetchProducts() {
-      try {
-        const resp = await fetch(API_URL);
-        if (!resp.ok) throw new Error('網路錯誤');
-        const data = await resp.json();
-        return data;
-      } catch (err) {
-        console.error("取得品項失敗:", err);
-        alert("無法取得品項資料，請稍後再試");
-        return [];
-      }
+  // 顯示下拉建議
+  function showAutocompleteSuggestions(value) {
+    const val = value.trim().toLowerCase();
+    if (!val) {
+      autocompleteList.style.display = "none";
+      inputArea.setAttribute("aria-expanded", "false");
+      return;
     }
 
-    function showAutocompleteSuggestions(value) {
-      const val = value.trim().toLowerCase();
-      if (!val) {
+    const matches = allProducts.filter(p => p.displayName.toLowerCase().includes(val));
+    if (matches.length === 0) {
+      autocompleteList.style.display = "none";
+      inputArea.setAttribute("aria-expanded", "false");
+      return;
+    }
+
+    autocompleteList.innerHTML = "";
+    matches.forEach((p, idx) => {
+      const div = document.createElement("div");
+      div.textContent = p.displayName;
+      div.setAttribute("role", "option");
+      div.id = `autocomplete-option-${idx}`;
+      div.tabIndex = -1;
+      div.addEventListener("click", () => {
+        nameInput.value = p.displayName;
         autocompleteList.style.display = "none";
-        return;
-      }
-      const matches = allProducts.filter(p => p.displayName.toLowerCase().includes(val));
-      if (matches.length === 0) {
-        autocompleteList.style.display = "none";
-        return;
-      }
-      autocompleteList.innerHTML = "";
-      matches.forEach(p => {
-        const div = document.createElement("div");
-        div.textContent = p.displayName;
-        div.addEventListener("click", () => {
-          nameInput.value = p.displayName;
-          autocompleteList.style.display = "none";
-          qtyInput.focus();
-        });
-        autocompleteList.appendChild(div);
+        inputArea.setAttribute("aria-expanded", "false");
+        qtyInput.focus();
       });
-      autocompleteList.style.display = "block";
-    }
+      autocompleteList.appendChild(div);
+    });
+    autocompleteList.style.display = "block";
+    inputArea.setAttribute("aria-expanded", "true");
+  }
 
-    nameInput.addEventListener("input", (e) => {
-      showAutocompleteSuggestions(e.target.value);
+  nameInput.addEventListener("input", (e) => {
+    showAutocompleteSuggestions(e.target.value);
+  });
+
+  // 鍵盤導覽 (上下鍵選擇建議品項)
+  let currentFocus = -1;
+  nameInput.addEventListener("keydown", (e) => {
+    const options = autocompleteList.querySelectorAll("div");
+    if (autocompleteList.style.display === "block" && options.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        currentFocus++;
+        if (currentFocus >= options.length) currentFocus = 0;
+        setActiveOption(options, currentFocus);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        currentFocus--;
+        if (currentFocus < 0) currentFocus = options.length - 1;
+        setActiveOption(options, currentFocus);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (currentFocus > -1) {
+          options[currentFocus].click();
+          currentFocus = -1;
+        }
+      } else if (e.key === "Escape") {
+        autocompleteList.style.display = "none";
+        inputArea.setAttribute("aria-expanded", "false");
+      }
+    }
+  });
+  function setActiveOption(options, index) {
+    options.forEach(opt => opt.classList.remove("autocomplete-active"));
+    if (index >= 0 && index < options.length) {
+      options[index].classList.add("autocomplete-active");
+      options[index].scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  // 點擊頁面其他區域關閉下拉
+  document.addEventListener("click", e => {
+    if (!e.target.closest("#inputArea")) {
+      autocompleteList.style.display = "none";
+      inputArea.setAttribute("aria-expanded", "false");
+      currentFocus = -1;
+    }
+  });
+
+  // 渲染報表
+  function renderReport() {
+    const tbody = document.getElementById("reportBody");
+    tbody.innerHTML = "";
+    let totalPrice = 0;
+    let totalPv = 0;
+
+    selectedProducts.forEach((item, idx) => {
+      const tr = document.createElement("tr");
+
+      // 品項名稱
+      const tdName = document.createElement("td");
+      tdName.textContent = item.name;
+      tr.appendChild(tdName);
+
+      // 數量
+      const tdQty = document.createElement("td");
+      tdQty.textContent = item.qty;
+      tr.appendChild(tdQty);
+
+      // 單價
+      const tdPrice = document.createElement("td");
+      tdPrice.textContent = item.price.toLocaleString();
+      tr.appendChild(tdPrice);
+
+      // PV
+      const tdPv = document.createElement("td");
+      tdPv.textContent = item.pv.toLocaleString();
+      tr.appendChild(tdPv);
+
+      // 小計金額
+      const subPrice = item.price * item.qty;
+      const tdSubPrice = document.createElement("td");
+      tdSubPrice.textContent = subPrice.toLocaleString();
+      tr.appendChild(tdSubPrice);
+
+      // 小計PV
+      const subPv = item.pv * item.qty;
+      const tdSubPv = document.createElement("td");
+      tdSubPv.textContent = subPv.toLocaleString();
+      tr.appendChild(tdSubPv);
+
+      // 刪除按鈕
+      const tdDel = document.createElement("td");
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "刪除";
+      delBtn.className = "deleteBtn";
+      delBtn.setAttribute("aria-label", `刪除品項 ${item.name}`);
+      delBtn.addEventListener("click", () => {
+        selectedProducts.splice(idx, 1);
+        renderReport();
+      });
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
+
+      tbody.appendChild(tr);
+
+      totalPrice += subPrice;
+      totalPv += subPv;
     });
 
-    document.addEventListener("click", e => {
-      if (!e.target.closest("#inputArea")) {
-        autocompleteList.style.display = "none";
-      }
-    });
+    document.getElementById("totalPriceCell").textContent = totalPrice.toLocaleString();
+    document.getElementById("totalPvCell").textContent = totalPv.toLocaleString();
+  }
 
-    function renderReport() {
-      const tbody = document.getElementById("reportBody");
-      tbody.innerHTML = "";
-
-      let totalPrice = 0;
-      let totalPv = 0;
-
-      selectedProducts.forEach((item, index) => {
-        const subtotal = item.price * item.qty;
-        const subpv = item.pv * item.qty;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${item.displayName}</td>
-          <td>${item.qty}</td>
-          <td>${item.price.toLocaleString()}</td>
-          <td>${item.pv}</td>
-          <td>${subtotal.toLocaleString()}</td>
-          <td>${subpv}</td>
-          <td><button class="deleteBtn" data-index="${index}">刪除</button></td>
-        `;
-        tbody.appendChild(tr);
-
-        totalPrice += subtotal;
-        totalPv += subpv;
-      });
-
-      document.getElementById("totalPriceCell").textContent = totalPrice.toLocaleString();
-      document.getElementById("totalPvCell").textContent = totalPv;
-
-      document.querySelectorAll(".deleteBtn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const i = parseInt(e.target.dataset.index);
-          selectedProducts.splice(i, 1);
-          renderReport();
-        });
-      });
+  // 新增品項邏輯
+  document.getElementById("addBtn").addEventListener("click", () => {
+    const inputName = nameInput.value.trim();
+    if (!inputName) {
+      alert("請輸入品項名稱");
+      return;
     }
 
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const name = nameInput.value.trim();
-      const qty = parseInt(qtyInput.value);
+    // 找品項資料（大小寫不敏感）
+    const foundProduct = allProducts.find(p => p.displayName.toLowerCase() === inputName.toLowerCase());
+    if (!foundProduct) {
+      alert("品項不存在，請從下拉選單選擇或確認輸入正確");
+      return;
+    }
 
-      if (!name) {
-        alert("請輸入品項名稱");
-        return;
-      }
+    const qty = parseInt(qtyInput.value, 10);
+    if (isNaN(qty) || qty <= 0) {
+      alert("數量必須是正整數");
+      return;
+    }
 
-      const product = allProducts.find(p => p.displayName.toLowerCase() === name.toLowerCase());
-
-      if (!product) {
-        alert("找不到對應的品項資料，請重新輸入或從下拉選擇");
-        return;
-      }
-
+    // 同一品項合併數量
+    const existIndex = selectedProducts.findIndex(item => item.name.toLowerCase() === foundProduct.displayName.toLowerCase());
+    if (existIndex > -1) {
+      selectedProducts[existIndex].qty += qty;
+    } else {
       selectedProducts.push({
-        displayName: product.displayName,
-        price: product.price,
-        pv: product.pv,
-        qty: qty
+        name: foundProduct.displayName,
+        price: foundProduct.price,
+        pv: foundProduct.pv,
+        qty: qty,
       });
-
-      nameInput.value = "";
-      qtyInput.value = 1;
-      renderReport();
-    });
-
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      const captureArea = document.getElementById("captureArea");
-      html2canvas(captureArea, { scale: 2 }).then(canvas => {
-        canvas.toBlob(blob => {
-          if (!blob) {
-            alert("匯出失敗");
-            return;
-          }
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
-          a.click();
-          URL.revokeObjectURL(url);
-        });
-      });
-    });
-
-    async function init() {
-      allProducts = await fetchProducts();
-      qtyInput.value = 1;
     }
 
-    init();
-  </script>
+    nameInput.value = "";
+    qtyInput.value = 1;
+    autocompleteList.style.display = "none";
+    inputArea.setAttribute("aria-expanded", "false");
+    nameInput.focus();
+
+    renderReport();
+  });
+
+  // 匯出為圖片
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const captureArea = document.getElementById("captureArea");
+    html2canvas(captureArea, {scale: 2, backgroundColor: '#121212'}).then(canvas => {
+      const link = document.createElement("a");
+      link.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  });
+
+  // 初始取得資料並渲染
+  (async () => {
+    const data = await fetchProducts();
+
+    // 預期資料結構：{displayName, price, pv} 陣列
+    if (Array.isArray(data)) {
+      allProducts = data.map(item => ({
+        displayName: item.name || item.displayName || "",
+        price: Number(item.price) || 0,
+        pv: Number(item.pv) || 0,
+      })).filter(p => p.displayName);
+
+    } else {
+      allProducts = [];
+    }
+  })();
+</script>
+
 </body>
 </html>
