@@ -87,14 +87,13 @@
     }
 
     .userInputs label {
-      flex: 0 0 150px; /* 固定寬度150px，避免過寬 */
+      flex: 0 0 150px;
       display: flex;
       flex-direction: column;
       font-size: 16px;
       color: #ccc;
     }
 
-    /* 這裡修改輸入框寬度，讓購買者、試算者的輸入框短很多 */
     .userInputs input {
       padding: 8px;
       font-size: 18px;
@@ -103,10 +102,8 @@
       border: none;
       border-radius: 6px;
       margin-top: 4px;
-
-      /* 調整寬度 */
-      width: 150px;  /* 你想要短很多的寬度，可以調整此數值 */
-      max-width: 100%; /* 防止超出 */
+      width: 150px;
+      max-width: 100%;
       box-sizing: border-box;
     }
 
@@ -132,7 +129,6 @@
       font-weight: 600;
     }
 
-    /* 品項名稱 */
     #reportTable thead th:first-child {
       white-space: normal;
       line-height: 1.2;
@@ -144,7 +140,6 @@
       white-space: pre;
     }
 
-    /* 刪除按鈕變小 */
     .deleteBtn {
       background-color: var(--error);
       border: none;
@@ -217,12 +212,9 @@
       #addBtn {
         flex: 1;
       }
-
       .userInputs .row {
         flex-direction: row;
       }
-
-      /* 讓購買者、試算者在大螢幕也固定寬度 */
       .userInputs label {
         flex: 0 0 150px;
       }
@@ -233,7 +225,6 @@
         background: #fff;
         color: #000;
       }
-
       #inputArea,
       #addBtn,
       #exportBtn,
@@ -241,22 +232,18 @@
       #clearImageBtn {
         display: none !important;
       }
-
       #captureArea {
         box-shadow: none;
         background: #fff;
         color: #000;
       }
-
       #reportTable th {
         background: #ccc !important;
         color: #000 !important;
       }
-
       .deleteBtn {
         display: none !important;
       }
-
       .summaryBox {
         color: #000 !important;
       }
