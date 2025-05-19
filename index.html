@@ -77,14 +77,14 @@
     #reportTable {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 12px; /* 字體變小 */
       table-layout: fixed;
       word-break: break-word;
     }
 
     #reportTable th, #reportTable td {
       border: 1px solid #555;
-      padding: 8px;
+      padding: 6px;
       text-align: center;
     }
 
@@ -117,8 +117,8 @@
       background-color: #c62828;
     }
 
-    #exportBtn, #saveBtn {
-      margin: 20px auto;
+    #exportBtn, #saveBtn, #clearImageBtn {
+      margin: 10px auto;
       display: block;
       padding: 10px 25px;
       font-size: 16px;
@@ -129,6 +129,14 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
       letter-spacing: 0.03em;
+    }
+
+    #clearImageBtn {
+      background: #757575;
+    }
+
+    #clearImageBtn:hover {
+      background: #5a5a5a;
     }
 
     #previewImage {
@@ -161,7 +169,6 @@
 </head>
 <body>
 
-  <!-- 報表放最上方 -->
   <div id="captureArea">
     <h2>🧾 品項報表</h2>
     <table id="reportTable" aria-label="品項報表">
@@ -188,15 +195,15 @@
     </table>
 
     <div class="summaryBox">
-      小計金額：<span id="totalPriceCellDup">0</span>　｜　小計 PV：<span id="totalPvCellDup">0</span>
+      總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
     </div>
   </div>
 
   <button id="exportBtn">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
   <button id="saveBtn" style="display:none;">💾 儲存圖片</button>
+  <button id="clearImageBtn" style="display:none;">❌ 清除圖片</button>
 
-  <!-- 輸入表單區塊 -->
   <div id="inputArea">
     <select id="nameInput" aria-label="品項名稱"></select>
     <select id="qtyInput" aria-label="數量"></select>
@@ -318,10 +325,10 @@
         preview.src = canvas.toDataURL("image/png");
         preview.style.display = "block";
 
-        const saveBtn = document.getElementById("saveBtn");
-        saveBtn.style.display = "block";
+        document.getElementById("saveBtn").style.display = "block";
+        document.getElementById("clearImageBtn").style.display = "block";
 
-        saveBtn.onclick = () => {
+        document.getElementById("saveBtn").onclick = () => {
           const link = document.createElement("a");
           link.download = "report.png";
           link.href = canvas.toDataURL("image/png");
@@ -330,6 +337,14 @@
 
         window.scrollTo({ top: preview.offsetTop - 20, behavior: 'smooth' });
       });
+    });
+
+    document.getElementById("clearImageBtn").addEventListener("click", () => {
+      const preview = document.getElementById("previewImage");
+      preview.src = "";
+      preview.style.display = "none";
+      document.getElementById("saveBtn").style.display = "none";
+      document.getElementById("clearImageBtn").style.display = "none";
     });
 
     async function init() {
