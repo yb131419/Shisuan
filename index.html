@@ -1,383 +1,189 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>品項報表匯出</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
-    :root {
-      --bg-color: #0e0f11;
-      --panel-bg: #1a1c1f;
-      --text-color: #f1f1f1;
-      --accent: #64ffda;
-      --highlight: #90caf9;
-      --error: #ef5350;
-      --button-green: #4caf50;
-      --button-grey: #616161;
-    }
-
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: 'Arial', sans-serif;
-      margin: 0;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      font-family: "Segoe UI", sans-serif;
       padding: 20px;
     }
 
-    #inputArea {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    #nameInput,
-    #qtyInput,
-    #addBtn {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
-    }
-
-    #nameInput,
-    #qtyInput {
-      background-color: #2c2f33;
-      color: #fff;
-    }
-
-    #addBtn {
-      background-color: var(--button-green);
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #addBtn:hover {
-      background-color: #43a047;
-    }
-
-    #captureArea {
-      background: var(--panel-bg);
-      color: var(--text-color);
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-    }
-
-    #captureArea h2 {
+    h1 {
       text-align: center;
-      font-size: 1.4rem;
-      margin-bottom: 15px;
+      color: #00c6ff;
     }
 
-    .userInputs {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .userInputs .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .userInputs label {
-      flex: 0 0 150px;
-      display: flex;
-      flex-direction: column;
-      font-size: 16px;
-      color: #ccc;
-    }
-
-    .userInputs input {
-      padding: 8px;
-      font-size: 18px;
-      background: #333;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      margin-top: 4px;
-    }
-
-    #reportTable {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-      table-layout: fixed;
-      word-break: keep-all;
-    }
-
-    #reportTable th,
-    #reportTable td {
-      border: 1px solid #555;
-      padding: 6px;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    #reportTable thead {
-      background: linear-gradient(90deg, #00bcd4, #2196f3);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    #reportTable thead th:first-child {
-      white-space: normal;
-      line-height: 1.2;
-      padding: 4px 6px;
-    }
-
-    .deleteBtn {
-      background-color: var(--error);
-      border: none;
-      color: white;
-      border-radius: 6px;
-      padding: 3px 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-size: 12px;
-      line-height: 1;
-    }
-
-    .deleteBtn:hover {
-      background-color: #c62828;
-    }
-
-    #exportBtn,
-    #saveBtn,
-    #clearImageBtn {
+    .form-section, .output-section {
+      background: #2b2b2b;
+      padding: 16px;
       margin: 10px auto;
+      border-radius: 12px;
+      max-width: 500px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    label, select, input {
       display: block;
-      padding: 10px 25px;
-      font-size: 16px;
-      background: var(--button-green);
-      color: white;
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #00c6ff;
       border: none;
       border-radius: 8px;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    #clearImageBtn {
-      background: var(--button-grey);
-    }
-
-    #clearImageBtn:hover {
-      background: #4e4e4e;
+    #productList li {
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     #previewImage {
-      display: none;
       max-width: 100%;
-      border: 2px solid #888;
-      border-radius: 10px;
-      margin: 20px auto;
+      display: none;
+      margin-top: 12px;
+      border: 2px solid #ccc;
     }
 
-    .summaryBox {
-      text-align: right;
-      margin-top: 15px;
-      font-size: 1rem;
-      font-weight: bold;
-      color: var(--highlight);
-    }
-
-    .summaryBox .extra {
-      display: block;
-      font-size: 0.95rem;
-      color: var(--accent);
-      margin-top: 6px;
-    }
-
-    @media (min-width: 600px) {
-      #inputArea {
-        flex-direction: row;
-        align-items: center;
-      }
-      #nameInput,
-      #qtyInput,
-      #addBtn {
-        flex: 1;
-      }
-    }
-
-    @media print {
-      body {
-        background: #fff;
-        color: #000;
-      }
-      #inputArea,
-      #addBtn,
-      #exportBtn,
-      #saveBtn,
-      #clearImageBtn {
-        display: none !important;
-      }
-      #captureArea {
-        box-shadow: none;
-        background: #fff;
-        color: #000;
-      }
-      #reportTable th {
-        background: #ccc !important;
-        color: #000 !important;
-      }
-      .deleteBtn {
-        display: none !important;
-      }
-      .summaryBox {
-        color: #000 !important;
-      }
+    #saveBtn, #clearImageBtn {
+      display: none;
+      margin-right: 8px;
     }
   </style>
 </head>
 <body>
-  <div id="captureArea">
-    <h2>🧾 品項報表</h2>
-    <div class="userInputs">
-      <div class="row">
-        <label>購買者：<input type="text" placeholder="購買者姓名" /></label>
-        <label>試算者：<input type="text" placeholder="試算者姓名" /></label>
-      </div>
-    </div>
-    <table id="reportTable" aria-label="品項報表">
-      <thead>
-        <tr>
-          <th>品項<br>名稱</th>
-          <th>數量</th>
-          <th>單價</th>
-          <th>PV</th>
-          <th>小計<br>金額</th>
-          <th>小計<br>PV</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="reportBody"></tbody>
-    </table>
-    <div class="summaryBox">
-      總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
-      <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
-    </div>
-  </div>
+  <h1>品項報表匯出</h1>
 
-  <button id="exportBtn">📤 匯出報表為圖片</button>
-  <img id="previewImage" alt="預覽匯出圖片" />
-  <button id="saveBtn" style="display:none;">💾 儲存圖片</button>
-  <button id="clearImageBtn" style="display:none;">❌ 清除圖片</button>
+  <div class="form-section">
+    <label for="buyerInput">購買者（可留空）：</label>
+    <input type="text" id="buyerInput" placeholder="輸入購買者名稱" />
 
-  <div id="inputArea">
-    <select id="nameInput" aria-label="品項名稱"></select>
-    <select id="qtyInput" aria-label="數量"></select>
+    <label for="testerInput">試算者（可留空）：</label>
+    <input type="text" id="testerInput" placeholder="輸入試算者名稱" />
+
+    <label for="productSelect">選擇品項：</label>
+    <select id="productSelect"></select>
+
+    <label for="quantityInput">輸入數量：</label>
+    <input type="number" id="quantityInput" value="1" min="1" />
+
     <button id="addBtn">新增品項</button>
   </div>
 
+  <div class="output-section" id="report">
+    <h2>已選品項</h2>
+    <ul id="productList"></ul>
+    <p>總金額：<span id="totalAmount">0</span></p>
+    <p>總 PV：<span id="totalPv">0</span></p>
+    <p>距 11.2 萬 PV：<span id="pvDiff">112000</span></p>
+    <p>距 22 萬 PV：<span id="pvDiff22">220000</span></p>
+    <p>購買者：<span id="buyerDisplay">-</span></p>
+    <p>試算者：<span id="testerDisplay">-</span></p>
+  </div>
+
+  <div class="form-section">
+    <button id="exportBtn">匯出報表圖片</button>
+    <button id="saveBtn">儲存圖片</button>
+    <button id="clearImageBtn">清除圖片</button>
+    <img id="previewImage" alt="報表圖片預覽" />
+  </div>
+
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
-
-    let allProducts = [];
+    let products = [];
     let selectedProducts = [];
-
-    const nameInput = document.getElementById("nameInput");
-    const qtyInput = document.getElementById("qtyInput");
-
-    for (let i = 1; i <= 20; i++) {
-      const option = document.createElement("option");
-      option.value = i;
-      option.textContent = i;
-      qtyInput.appendChild(option);
-    }
-    qtyInput.value = 1;
 
     async function fetchProducts() {
       try {
-        const resp = await fetch(API_URL);
-        if (!resp.ok) throw new Error("網路錯誤");
-        const data = await resp.json();
-        return data;
-      } catch (err) {
-        console.error("取得品項失敗:", err);
-        alert("無法取得品項資料，請稍後再試");
-        return [];
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwfdGzHogbYjaFyzsfvEgfB4_aWVZsafczGkxauJ_zE3l_1_EpmT2rxRFa1gS3RwTuw/exec');
+        const data = await response.json();
+        products = data.data;
+        const select = document.getElementById("productSelect");
+        products.forEach(p => {
+          const option = document.createElement("option");
+          option.value = p.name;
+          option.textContent = `${p.name}（$${p.price} / ${p.pv} PV）`;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        alert("無法載入品項資料！");
+        console.error(error);
       }
-    }
-
-    function populateProductOptions() {
-      nameInput.innerHTML = `<option value="">請選擇品項</option>`;
-      allProducts.forEach((p) => {
-        const option = document.createElement("option");
-        option.value = p.displayName;
-        option.textContent = p.displayName;
-        nameInput.appendChild(option);
-      });
-    }
-
-    function renderReport() {
-      const tbody = document.getElementById("reportBody");
-      tbody.innerHTML = "";
-
-      let totalPrice = 0;
-      let totalPv = 0;
-
-      selectedProducts.forEach((item, index) => {
-        const subtotal = item.price * item.qty;
-        const subpv = item.pv * item.qty;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-           <td>${item.displayName}</td>
-           <td>${item.qty}</td>
-           <td>${item.price.toLocaleString()}</td>
-           <td>${item.pv}</td>
-           <td>${subtotal.toLocaleString()}</td>
-           <td>${subpv}</td>
-           <td><button class="deleteBtn" data-index="${index}">刪除</button></td>
-         `;
-        tbody.appendChild(tr);
-
-        totalPrice += subtotal;
-        totalPv += subpv;
-      });
-
-      document.getElementById("totalPriceCellDup").textContent = totalPrice.toLocaleString();
-      document.getElementById("totalPvCellDup").textContent = totalPv.toLocaleString();
-      const pvDiffElem = document.getElementById("pvDiff");
-      const diff = 112000 - totalPv;
-      pvDiffElem.textContent = diff > 0 ? diff.toLocaleString() : 0;
     }
 
     document.getElementById("addBtn").addEventListener("click", () => {
-      const selectedName = nameInput.value;
-      const selectedQty = parseInt(qtyInput.value);
-      if (!selectedName) return alert("請選擇品項");
-      const product = allProducts.find(p => p.displayName === selectedName);
-      if (!product) return alert("找不到該品項");
+      const selectedName = document.getElementById("productSelect").value;
+      const quantity = parseInt(document.getElementById("quantityInput").value);
 
-      selectedProducts.push({ ...product, qty: selectedQty });
-      renderReport();
-    });
+      const product = products.find(p => p.name === selectedName);
+      if (!product) return;
 
-    document.getElementById("reportBody").addEventListener("click", (e) => {
-      if (e.target.classList.contains("deleteBtn")) {
-        const idx = parseInt(e.target.dataset.index);
-        selectedProducts.splice(idx, 1);
-        renderReport();
+      if (selectedProducts.find(p => p.name === selectedName)) {
+        alert("此品項已新增過！");
+        return;
       }
+
+      const totalPrice = product.price * quantity;
+      const totalPV = product.pv * quantity;
+
+      selectedProducts.push({
+        name: selectedName,
+        quantity,
+        totalPrice,
+        totalPV
+      });
+
+      updateList();
     });
+
+    function updateList() {
+      const ul = document.getElementById("productList");
+      ul.innerHTML = "";
+      let totalAmount = 0;
+      let totalPv = 0;
+
+      selectedProducts.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.name} x ${p.quantity}：$${p.totalPrice}，${p.totalPV} PV`;
+        ul.appendChild(li);
+        totalAmount += p.totalPrice;
+        totalPv += p.totalPV;
+      });
+
+      document.getElementById("totalAmount").textContent = totalAmount.toLocaleString();
+      document.getElementById("totalPv").textContent = totalPv.toLocaleString();
+      document.getElementById("pvDiff").textContent = totalPv < 112000 ? (112000 - totalPv).toLocaleString() : 0;
+      document.getElementById("pvDiff22").textContent = totalPv < 220000 ? (220000 - totalPv).toLocaleString() : 0;
+
+      // 更新購買者與試算者欄位
+      const buyer = document.getElementById("buyerInput").value || "-";
+      const tester = document.getElementById("testerInput").value || "-";
+      document.getElementById("buyerDisplay").textContent = buyer;
+      document.getElementById("testerDisplay").textContent = tester;
+    }
 
     document.getElementById("exportBtn").addEventListener("click", () => {
-      const captureArea = document.getElementById("captureArea");
-      html2canvas(captureArea).then((canvas) => {
-        const image = canvas.toDataURL("image/png");
-        const previewImage = document.getElementById("previewImage");
-        previewImage.src = image;
-        previewImage.style.display = "block";
-        document.getElementById("saveBtn").style.display = "block";
-        document.getElementById("clearImageBtn").style.display = "block";
+      updateList(); // 匯出前更新一次購買者與試算者資料
+      const reportEl = document.getElementById("report");
+      html2canvas(reportEl).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const imgEl = document.getElementById("previewImage");
+        imgEl.src = imgData;
+        imgEl.style.display = "block";
+        document.getElementById("saveBtn").style.display = "inline-block";
+        document.getElementById("clearImageBtn").style.display = "inline-block";
       });
     });
 
@@ -385,20 +191,22 @@
       const imageSrc = document.getElementById("previewImage").src;
       const a = document.createElement("a");
       a.href = imageSrc;
-      a.download = "報表.png";
+      const date = new Date().toISOString().split("T")[0];
+      a.download = `品項報表_${date}.png`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
     });
 
     document.getElementById("clearImageBtn").addEventListener("click", () => {
-      document.getElementById("previewImage").style.display = "none";
+      const img = document.getElementById("previewImage");
+      img.src = "";
+      img.style.display = "none";
       document.getElementById("saveBtn").style.display = "none";
       document.getElementById("clearImageBtn").style.display = "none";
     });
 
-    window.addEventListener("DOMContentLoaded", async () => {
-      allProducts = await fetchProducts();
-      populateProductOptions();
-    });
+    fetchProducts();
   </script>
 </body>
 </html>
