@@ -1,212 +1,492 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>品項報表匯出</title>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    :root {
+      --bg-color: #0e0f11;
+      --panel-bg: #1a1c1f;
+      --text-color: #f1f1f1;
+      --accent: #64ffda;
+      --highlight: #90caf9;
+      --error: #ef5350;
+      --button-green: #4caf50;
+      --button-grey: #616161;
+    }
+
     body {
-      background-color: #1e1e1e;
-      color: #f0f0f0;
-      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Arial', sans-serif;
+      margin: 0;
       padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      color: #00c6ff;
+    #inputArea {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
     }
 
-    .form-section, .output-section {
-      background: #2b2b2b;
-      padding: 16px;
-      margin: 10px auto;
-      border-radius: 12px;
-      max-width: 500px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-
-    label, select, input {
-      display: block;
-      margin: 8px 0;
-      width: 100%;
-    }
-
-    button {
-      margin-top: 10px;
+    #nameInput,
+    #qtyInput,
+    #addBtn {
       padding: 10px;
-      background-color: #00c6ff;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    #nameInput,
+    #qtyInput {
+      background-color: #2c2f33;
+      color: #fff;
+    }
+
+    #addBtn {
+      background-color: var(--button-green);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #addBtn:hover {
+      background-color: #43a047;
+    }
+
+    #captureArea {
+      background: var(--panel-bg);
+      color: var(--text-color);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    #captureArea h2 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+
+    .userInputs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .userInputs .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .userInputs label {
+      flex: 0 0 150px; /* 固定寬度150px，避免過寬 */
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    /* 這裡修改輸入框寬度，讓購買者、試算者的輸入框短很多 */
+    .userInputs input {
+      padding: 8px;
+      font-size: 18px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      margin-top: 4px;
+
+      /* 調整寬度 */
+      width: 100px;  /* 你想要短很多的寬度，可以調整此數值 */
+      max-width: 100%; /* 防止超出 */
+      box-sizing: border-box;
+    }
+
+    #reportTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      table-layout: fixed;
+      word-break: keep-all;
+    }
+
+    #reportTable th,
+    #reportTable td {
+      border: 1px solid #555;
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    #reportTable thead {
+      background: linear-gradient(90deg, #00bcd4, #2196f3);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 品項名稱改兩行 */
+    #reportTable thead th:first-child {
+      white-space: normal;
+      line-height: 1.2;
+      padding: 4px 6px;
+    }
+
+    #reportTable thead th:first-child::after {
+      content: "\A";
+      white-space: pre;
+    }
+
+    /* 刪除按鈕變小 */
+    .deleteBtn {
+      background-color: var(--error);
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .deleteBtn:hover {
+      background-color: #c62828;
+    }
+
+    #exportBtn,
+    #saveBtn,
+    #clearImageBtn {
+      margin: 10px auto;
+      display: block;
+      padding: 10px 25px;
+      font-size: 16px;
+      background: var(--button-green);
+      color: white;
       border: none;
       border-radius: 8px;
-      color: white;
-      font-weight: bold;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
-    #productList li {
-      margin-bottom: 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    #clearImageBtn {
+      background: var(--button-grey);
+    }
+
+    #clearImageBtn:hover {
+      background: #4e4e4e;
     }
 
     #previewImage {
-      max-width: 100%;
       display: none;
-      margin-top: 12px;
-      border: 2px solid #ccc;
+      max-width: 100%;
+      border: 2px solid #888;
+      border-radius: 10px;
+      margin: 20px auto;
     }
 
-    #saveBtn, #clearImageBtn {
-      display: none;
-      margin-right: 8px;
+    .summaryBox {
+      text-align: right;
+      margin-top: 15px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--highlight);
+    }
+
+    .summaryBox .extra {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-top: 6px;
+    }
+
+    @media (min-width: 600px) {
+      #inputArea {
+        flex-direction: row;
+        align-items: center;
+      }
+      #nameInput,
+      #qtyInput,
+      #addBtn {
+        flex: 1;
+      }
+
+      .userInputs .row {
+        flex-direction: row;
+      }
+
+      /* 讓購買者、試算者在大螢幕也固定寬度 */
+      .userInputs label {
+        flex: 0 0 150px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      #inputArea,
+      #addBtn,
+      #exportBtn,
+      #saveBtn,
+      #clearImageBtn {
+        display: none !important;
+      }
+
+      #captureArea {
+        box-shadow: none;
+        background: #fff;
+        color: #000;
+      }
+
+      #reportTable th {
+        background: #ccc !important;
+        color: #000 !important;
+      }
+
+      .deleteBtn {
+        display: none !important;
+      }
+
+      .summaryBox {
+        color: #000 !important;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>品項報表匯出</h1>
+  <div id="captureArea">
+    <h2>🧾 品項報表</h2>
+    <div class="userInputs">
+      <div class="row">
+        <label>購買者：
+          <input type="text" placeholder="購買者姓名" />
+        </label>
+        <label>試算者：
+          <input type="text" placeholder="試算者姓名" />
+        </label>
+      </div>
+    </div>
 
-  <div class="form-section">
-    <label for="buyerInput">購買者（可留空）：</label>
-    <input type="text" id="buyerInput" placeholder="輸入購買者名稱" />
+    <table id="reportTable" aria-label="品項報表">
+      <thead>
+        <tr>
+          <th>品項<br>名稱</th>
+          <th>數量</th>
+          <th>單價</th>
+          <th>PV</th>
+          <th>小計<br>金額</th>
+          <th>小計<br>PV</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="reportBody"></tbody>
+    </table>
 
-    <label for="testerInput">試算者（可留空）：</label>
-    <input type="text" id="testerInput" placeholder="輸入試算者名稱" />
+    <div class="summaryBox">
+      總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
+      <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
+    </div>
+  </div>
 
-    <label for="productSelect">選擇品項：</label>
-    <select id="productSelect"></select>
+  <button id="exportBtn">📤 匯出報表為圖片</button>
+  <img id="previewImage" alt="預覽匯出圖片" />
+  <button id="saveBtn" style="display:none;">💾 儲存圖片</button>
+  <button id="clearImageBtn" style="display:none;">❌ 清除圖片</button>
 
-    <label for="quantityInput">輸入數量：</label>
-    <input type="number" id="quantityInput" value="1" min="1" />
-
+  <div id="inputArea">
+    <select id="nameInput" aria-label="品項名稱"></select>
+    <select id="qtyInput" aria-label="數量"></select>
     <button id="addBtn">新增品項</button>
   </div>
 
-  <div class="output-section" id="report">
-    <h2>已選品項</h2>
-    <ul id="productList"></ul>
-    <p>總金額：<span id="totalAmount">0</span></p>
-    <p>總 PV：<span id="totalPv">0</span></p>
-    <p>距 11.2 萬 PV：<span id="pvDiff">112000</span></p>
-    <p>距 22 萬 PV：<span id="pvDiff22">220000</span></p>
-    <p>購買者：<span id="buyerDisplay">-</span></p>
-    <p>試算者：<span id="testerDisplay">-</span></p>
-  </div>
-
-  <div class="form-section">
-    <button id="exportBtn">匯出報表圖片</button>
-    <button id="saveBtn">儲存圖片</button>
-    <button id="clearImageBtn">清除圖片</button>
-    <img id="previewImage" alt="報表圖片預覽" />
-  </div>
-
   <script>
-    let products = [];
+    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+
+    let allProducts = [];
     let selectedProducts = [];
 
-    async function fetchProducts() {
-      try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbwfdGzHogbYjaFyzsfvEgfB4_aWVZsafczGkxauJ_zE3l_1_EpmT2rxRFa1gS3RwTuw/exec');
-        const data = await response.json();
-        products = data.data;
-        const select = document.getElementById("productSelect");
-        products.forEach(p => {
-          const option = document.createElement("option");
-          option.value = p.name;
-          option.textContent = `${p.name}（$${p.price} / ${p.pv} PV）`;
-          select.appendChild(option);
-        });
-      } catch (error) {
-        alert("無法載入品項資料！");
-        console.error(error);
+    const nameInput = document.getElementById("nameInput");
+    const qtyInput = document.getElementById("qtyInput");
+    const addBtn = document.getElementById("addBtn");
+    const reportBody = document.getElementById("reportBody");
+    const totalPriceCellDup = document.getElementById("totalPriceCellDup");
+    const totalPvCellDup = document.getElementById("totalPvCellDup");
+    const pvDiff = document.getElementById("pvDiff");
+
+    // 預設最大數量 1-50
+    function initQtyOptions() {
+      for (let i = 1; i <= 50; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        qtyInput.appendChild(option);
       }
     }
 
-    document.getElementById("addBtn").addEventListener("click", () => {
-      const selectedName = document.getElementById("productSelect").value;
-      const quantity = parseInt(document.getElementById("quantityInput").value);
+    // 載入品項資料
+    async function loadProducts() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        allProducts = data;
+        renderProductOptions();
+      } catch (error) {
+        console.error("載入品項失敗:", error);
+      }
+    }
 
-      const product = products.find(p => p.name === selectedName);
+    // 渲染品項下拉選單
+    function renderProductOptions() {
+      nameInput.innerHTML = "";
+      allProducts.forEach((product) => {
+        const option = document.createElement("option");
+        option.value = product.name;
+        option.textContent = product.name;
+        nameInput.appendChild(option);
+      });
+    }
+
+    // 新增品項到報表
+    function addProduct() {
+      const name = nameInput.value;
+      const qty = parseInt(qtyInput.value);
+      if (!name || qty <= 0) return;
+
+      const product = allProducts.find((p) => p.name === name);
       if (!product) return;
 
-      if (selectedProducts.find(p => p.name === selectedName)) {
-        alert("此品項已新增過！");
-        return;
+      const existingIndex = selectedProducts.findIndex((p) => p.name === name);
+      if (existingIndex !== -1) {
+        // 已有品項，數量累加
+        selectedProducts[existingIndex].qty += qty;
+      } else {
+        selectedProducts.push({
+          name,
+          qty,
+          price: product.price,
+          pv: product.pv,
+        });
       }
 
-      const totalPrice = product.price * quantity;
-      const totalPV = product.pv * quantity;
-
-      selectedProducts.push({
-        name: selectedName,
-        quantity,
-        totalPrice,
-        totalPV
-      });
-
-      updateList();
-    });
-
-    function updateList() {
-      const ul = document.getElementById("productList");
-      ul.innerHTML = "";
-      let totalAmount = 0;
-      let totalPv = 0;
-
-      selectedProducts.forEach(p => {
-        const li = document.createElement("li");
-        li.textContent = `${p.name} x ${p.quantity}：$${p.totalPrice}，${p.totalPV} PV`;
-        ul.appendChild(li);
-        totalAmount += p.totalPrice;
-        totalPv += p.totalPV;
-      });
-
-      document.getElementById("totalAmount").textContent = totalAmount.toLocaleString();
-      document.getElementById("totalPv").textContent = totalPv.toLocaleString();
-      document.getElementById("pvDiff").textContent = totalPv < 112000 ? (112000 - totalPv).toLocaleString() : 0;
-      document.getElementById("pvDiff22").textContent = totalPv < 220000 ? (220000 - totalPv).toLocaleString() : 0;
-
-      // 更新購買者與試算者欄位
-      const buyer = document.getElementById("buyerInput").value || "-";
-      const tester = document.getElementById("testerInput").value || "-";
-      document.getElementById("buyerDisplay").textContent = buyer;
-      document.getElementById("testerDisplay").textContent = tester;
+      renderReport();
     }
 
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      updateList(); // 匯出前更新一次購買者與試算者資料
-      const reportEl = document.getElementById("report");
-      html2canvas(reportEl).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        const imgEl = document.getElementById("previewImage");
-        imgEl.src = imgData;
-        imgEl.style.display = "block";
-        document.getElementById("saveBtn").style.display = "inline-block";
-        document.getElementById("clearImageBtn").style.display = "inline-block";
+    // 渲染報表
+    function renderReport() {
+      reportBody.innerHTML = "";
+
+      let totalPrice = 0;
+      let totalPv = 0;
+
+      selectedProducts.forEach((product, index) => {
+        const row = document.createElement("tr");
+
+        // 品項名稱
+        const nameCell = document.createElement("td");
+        nameCell.textContent = product.name;
+        row.appendChild(nameCell);
+
+        // 數量
+        const qtyCell = document.createElement("td");
+        qtyCell.textContent = product.qty;
+        row.appendChild(qtyCell);
+
+        // 單價
+        const priceCell = document.createElement("td");
+        priceCell.textContent = product.price;
+        row.appendChild(priceCell);
+
+        // PV
+        const pvCell = document.createElement("td");
+        pvCell.textContent = product.pv;
+        row.appendChild(pvCell);
+
+        // 小計金額
+        const subTotalPrice = product.price * product.qty;
+        const subTotalPriceCell = document.createElement("td");
+        subTotalPriceCell.textContent = subTotalPrice.toLocaleString();
+        row.appendChild(subTotalPriceCell);
+
+        // 小計 PV
+        const subTotalPv = product.pv * product.qty;
+        const subTotalPvCell = document.createElement("td");
+        subTotalPvCell.textContent = subTotalPv.toLocaleString();
+        row.appendChild(subTotalPvCell);
+
+        // 操作欄 - 刪除按鈕
+        const actionCell = document.createElement("td");
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "刪除";
+        deleteBtn.className = "deleteBtn";
+        deleteBtn.onclick = () => {
+          selectedProducts.splice(index, 1);
+          renderReport();
+        };
+        actionCell.appendChild(deleteBtn);
+        row.appendChild(actionCell);
+
+        reportBody.appendChild(row);
+
+        totalPrice += subTotalPrice;
+        totalPv += subTotalPv;
+      });
+
+      totalPriceCellDup.textContent = totalPrice.toLocaleString();
+      totalPvCellDup.textContent = totalPv.toLocaleString();
+
+      // 計算距離 112,000 PV 差距
+      const diff = 112000 - totalPv;
+      pvDiff.textContent = diff > 0 ? diff.toLocaleString() : 0;
+    }
+
+    // 匯出報表為圖片
+    const exportBtn = document.getElementById("exportBtn");
+    const previewImage = document.getElementById("previewImage");
+    const saveBtn = document.getElementById("saveBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+
+    exportBtn.addEventListener("click", () => {
+      html2canvas(document.querySelector("#captureArea")).then((canvas) => {
+        previewImage.src = canvas.toDataURL("image/png");
+        previewImage.style.display = "block";
+        saveBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
       });
     });
 
-    document.getElementById("saveBtn").addEventListener("click", () => {
-      const imageSrc = document.getElementById("previewImage").src;
-      const a = document.createElement("a");
-      a.href = imageSrc;
-      const date = new Date().toISOString().split("T")[0];
-      a.download = `品項報表_${date}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    // 儲存圖片
+    saveBtn.addEventListener("click", () => {
+      const link = document.createElement("a");
+      link.href = previewImage.src;
+      link.download = "品項報表.png";
+      link.click();
     });
 
-    document.getElementById("clearImageBtn").addEventListener("click", () => {
-      const img = document.getElementById("previewImage");
-      img.src = "";
-      img.style.display = "none";
-      document.getElementById("saveBtn").style.display = "none";
-      document.getElementById("clearImageBtn").style.display = "none";
+    // 清除圖片
+    clearImageBtn.addEventListener("click", () => {
+      previewImage.style.display = "none";
+      saveBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
+      previewImage.src = "";
     });
 
-    fetchProducts();
+    addBtn.addEventListener("click", () => {
+      addProduct();
+    });
+
+    // 初始化
+    initQtyOptions();
+    loadProducts();
   </script>
 </body>
 </html>
