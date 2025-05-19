@@ -194,7 +194,7 @@
 
     .summaryBox {
       text-align: right;
-      margin-top: 15px;
+      margin-top: 14px;
       font-size: 1rem;
       font-weight: bold;
       color: var(--highlight);
@@ -411,80 +411,71 @@
         pvCell.textContent = product.pv;
         row.appendChild(pvCell);
 
-        // 小計金額
-        const subTotalPrice = product.price * product.qty;
-        const subTotalPriceCell = document.createElement("td");
-        subTotalPriceCell.textContent = subTotalPrice.toLocaleString();
-        row.appendChild(subTotalPriceCell);
+        // 小計 金額
+        const subtotalPrice = product.price * product.qty;
+        totalPrice += subtotalPrice;
+        const subtotalPriceCell = document.createElement("td");
+        subtotalPriceCell.textContent = subtotalPrice;
+        row.appendChild(subtotalPriceCell);
 
         // 小計 PV
-        const subTotalPv = product.pv * product.qty;
-        const subTotalPvCell = document.createElement("td");
-        subTotalPvCell.textContent = subTotalPv.toLocaleString();
-        row.appendChild(subTotalPvCell);
+        const subtotalPv = product.pv * product.qty;
+        totalPv += subtotalPv;
+        const subtotalPvCell = document.createElement("td");
+        subtotalPvCell.textContent = subtotalPv;
+        row.appendChild(subtotalPvCell);
 
-        // 操作欄 - 刪除按鈕
+        // 操作（刪除）
         const actionCell = document.createElement("td");
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "刪除";
         deleteBtn.className = "deleteBtn";
-        deleteBtn.onclick = () => {
+        deleteBtn.addEventListener("click", () => {
           selectedProducts.splice(index, 1);
           renderReport();
-        };
+        });
         actionCell.appendChild(deleteBtn);
         row.appendChild(actionCell);
 
         reportBody.appendChild(row);
-
-        totalPrice += subTotalPrice;
-        totalPv += subTotalPv;
       });
 
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
-
-      // 計算距離 112,000 PV 差距
-      const diff = 112000 - totalPv;
-      pvDiff.textContent = diff > 0 ? diff.toLocaleString() : 0;
+      const pvTarget = 112000;
+      pvDiff.textContent = (pvTarget - totalPv).toLocaleString();
     }
 
-    // 匯出報表為圖片
-    const exportBtn = document.getElementById("exportBtn");
-    const previewImage = document.getElementById("previewImage");
-    const saveBtn = document.getElementById("saveBtn");
-    const clearImageBtn = document.getElementById("clearImageBtn");
-
-    exportBtn.addEventListener("click", () => {
-      html2canvas(document.querySelector("#captureArea")).then((canvas) => {
-        previewImage.src = canvas.toDataURL("image/png");
+    // 匯出圖片
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const captureArea = document.getElementById("captureArea");
+      html2canvas(captureArea).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const previewImage = document.getElementById("previewImage");
+        previewImage.src = imgData;
         previewImage.style.display = "block";
-        saveBtn.style.display = "inline-block";
-        clearImageBtn.style.display = "inline-block";
+        document.getElementById("saveBtn").style.display = "inline-block";
+        document.getElementById("clearImageBtn").style.display = "inline-block";
       });
     });
 
     // 儲存圖片
-    saveBtn.addEventListener("click", () => {
+    document.getElementById("saveBtn").addEventListener("click", () => {
       const link = document.createElement("a");
-      link.href = previewImage.src;
       link.download = "品項報表.png";
+      link.href = document.getElementById("previewImage").src;
       link.click();
     });
 
     // 清除圖片
-    clearImageBtn.addEventListener("click", () => {
-      previewImage.style.display = "none";
-      saveBtn.style.display = "none";
-      clearImageBtn.style.display = "none";
-      previewImage.src = "";
+    document.getElementById("clearImageBtn").addEventListener("click", () => {
+      document.getElementById("previewImage").style.display = "none";
+      document.getElementById("saveBtn").style.display = "none";
+      document.getElementById("clearImageBtn").style.display = "none";
     });
 
-    addBtn.addEventListener("click", () => {
-      addProduct();
-    });
-
-    // 初始化
+    // 事件綁定與初始化
+    addBtn.addEventListener("click", addProduct);
     initQtyOptions();
     loadProducts();
   </script>
