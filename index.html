@@ -15,17 +15,14 @@
     }
 
     #inputArea {
-      max-width: 800px;
-      margin: 20px auto 0;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
-      align-items: center;
-      position: relative;
+      margin-top: 20px;
     }
 
     #nameInput, #qtyInput, #addBtn {
-      padding: 8px;
+      padding: 10px;
       font-size: 16px;
       border-radius: 6px;
       border: none;
@@ -36,16 +33,7 @@
       color: #fff;
     }
 
-    #nameInput {
-      flex: 1 1 50%;
-    }
-
-    #qtyInput {
-      flex: 1 1 20%;
-    }
-
     #addBtn {
-      flex: 1 1 20%;
       background-color: #4caf50;
       color: white;
       cursor: pointer;
@@ -61,29 +49,31 @@
       color: #fff;
       padding: 20px;
       border-radius: 12px;
-      max-width: 100%;
-      margin: 0 auto 20px;
+      margin-bottom: 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
 
     #captureArea h2 {
       text-align: center;
-      margin-bottom: 10px;
-      font-weight: 700;
       font-size: 1.6rem;
-      letter-spacing: 1px;
+      margin-bottom: 15px;
     }
 
     .userInputs {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 10px;
       margin-bottom: 15px;
-      flex-wrap: wrap;
+    }
+
+    .userInputs .row {
+      display: flex;
+      justify-content: space-between;
       gap: 10px;
     }
 
     .userInputs label {
-      flex: 1 1 48%;
+      flex: 1;
       display: flex;
       flex-direction: column;
       font-size: 14px;
@@ -111,14 +101,12 @@
       border: 1px solid #555;
       padding: 6px;
       text-align: center;
-      white-space: nowrap;
     }
 
     #reportTable thead {
       background: linear-gradient(90deg, #1e88e5, #42a5f5);
       color: #fff;
       font-weight: 600;
-      letter-spacing: 0.05em;
     }
 
     .deleteBtn {
@@ -147,7 +135,6 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      letter-spacing: 0.03em;
     }
 
     #clearImageBtn {
@@ -174,17 +161,51 @@
       color: #90caf9;
     }
 
-    @media (max-width: 600px) {
+    @media (min-width: 600px) {
       #inputArea {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: center;
       }
       #nameInput, #qtyInput, #addBtn {
-        flex: 1 1 100%;
-        width: 100%;
+        flex: 1;
       }
+
+      .userInputs .row {
+        flex-direction: row;
+      }
+
       .userInputs label {
-        flex: 1 1 100%;
+        flex: 1 1 48%;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      #inputArea, #addBtn, #exportBtn, #saveBtn, #clearImageBtn {
+        display: none !important;
+      }
+
+      #captureArea {
+        box-shadow: none;
+        background: #fff;
+        color: #000;
+      }
+
+      #reportTable th {
+        background: #ccc !important;
+        color: #000 !important;
+      }
+
+      .deleteBtn {
+        display: none !important;
+      }
+
+      .summaryBox {
+        color: #000 !important;
       }
     }
   </style>
@@ -194,22 +215,25 @@
   <div id="captureArea">
     <h2>🧾 品項報表</h2>
     <div class="userInputs">
-      <label>購買者：
-        <input type="text" placeholder="請輸入購買者姓名">
-      </label>
-      <label>試算者：
-        <input type="text" placeholder="請輸入試算者姓名">
-      </label>
+      <div class="row">
+        <label>購買者：
+          <input type="text" placeholder="請輸入購買者姓名">
+        </label>
+        <label>試算者：
+          <input type="text" placeholder="請輸入試算者姓名">
+        </label>
+      </div>
     </div>
+
     <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
-          <th>品項名稱</th>
+          <th>品項<br>名稱</th>
           <th>數量</th>
           <th>單價</th>
           <th>PV</th>
-          <th>小計金額</th>
-          <th>小計 PV</th>
+          <th>小計<br>金額</th>
+          <th>小計<br>PV</th>
           <th>操作</th>
         </tr>
       </thead>
