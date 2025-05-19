@@ -263,7 +263,7 @@ function calculateResult() {
 }
 
 function init() {
-  fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec")
+  fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec") // 改成你實際的 GAS 網址
     .then(res => res.json())
     .then(data => {
       products = data.map(row => ({
@@ -272,7 +272,7 @@ function init() {
         pv: parseInt(row.pv),
         price: parseInt(row.price)
       }));
-      addItem(); // 初始一筆
+      addItem();
       const firstContent = itemsContainer.querySelector(".accordion-content");
       if (firstContent) {
         firstContent.classList.add("active");
@@ -283,11 +283,12 @@ function init() {
       alert("無法讀取產品資料！");
       console.error(err);
     });
+
   addBtn.onclick = addItem;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  liff.init({ liffId: "2007434020-R4ZBmV47" }) // 請替換為實際 LIFF ID
+  liff.init({ liffId: "2007434020-R4ZBmV47" }) // 替換為你的 LIFF ID
     .then(() => {
       if (!liff.isLoggedIn()) {
         liff.login();
@@ -298,14 +299,14 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(profile => {
       if (profile) {
         window.userId = profile.userId;
-        calculateResult(); // 更新顯示 User ID
+        calculateResult(); // 顯示 LINE User ID
       }
     })
     .catch(err => {
       console.error("LIFF 初始化錯誤:", err);
     });
 
-  init(); // 讀取產品資料並初始化頁面
+  init(); // 初始化
 });
 </script>
 </body>
