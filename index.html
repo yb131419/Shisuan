@@ -19,16 +19,28 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+      align-items: center;
     }
-    #inputArea input {
-      flex: 1 1 40%;
+    #nameInput {
+      flex: 1 1 50%;
       padding: 8px;
       font-size: 16px;
       border-radius: 6px;
       border: none;
+      background-color: #222;
+      color: #fff;
     }
-    #inputArea button {
-      flex: 1 1 15%;
+    #qtyInput {
+      flex: 1 1 20%;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      background-color: #222;
+      color: #fff;
+    }
+    #addBtn {
+      flex: 1 1 20%;
       padding: 10px;
       background-color: #4caf50;
       color: white;
@@ -37,7 +49,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    #inputArea button:hover {
+    #addBtn:hover {
       background-color: #45a049;
     }
     #captureArea {
@@ -69,6 +81,18 @@
       font-weight: bold;
       background-color: #111;
     }
+    .deleteBtn {
+      background-color: #e53935;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .deleteBtn:hover {
+      background-color: #c62828;
+    }
     #exportBtn {
       margin: 30px auto 0;
       display: block;
@@ -84,14 +108,23 @@
     #exportBtn:hover {
       background: #45a049;
     }
+    /* datalist style hack */
+    datalist option {
+      background: #222;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <div id="inputArea">
-    <input id="nameInput" type="text" placeholder="品項名稱" />
-    <input id="qtyInput" type="number" min="1" value="1" placeholder="數量" />
+    <input id="nameInput" list="productsList" type="text" placeholder="品項名稱 (可輸入或選擇)" autocomplete="off" />
+    <datalist id="productsList">
+      <!-- 會由 JS 動態填入 -->
+    </datalist>
+    <select id="qtyInput" aria-label="數量">
+      <!-- 數量下拉 1~20 -->
+    </select>
     <button id="addBtn">新增品項</button>
-    <button id="loadBtn">從試算表讀取</button>
   </div>
 
   <div id="captureArea">
@@ -105,6 +138,7 @@
           <th>PV</th>
           <th>小計金額</th>
           <th>小計 PV</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody id="reportBody">
@@ -115,6 +149,7 @@
           <td colspan="4" style="text-align:right;">總計：</td>
           <td id="totalPriceCell">0</td>
           <td id="totalPvCell">0</td>
+          <td></td>
         </tr>
       </tfoot>
     </table>
@@ -123,11 +158,40 @@
   <button id="exportBtn">📤 匯出報表為圖片</button>
 
   <script>
-    // 全部可選品項資料（從試算表讀取）
-    let allProducts = [];
+    // 你可以在這裡放你目前手動設定的所有品項資料，格式參考：
+    const allProducts = [
+      { displayName: "靈芝飲", price: 300, pv: 10 },
+      { displayName: "人參膠囊", price: 500, pv: 25 },
+      { displayName: "蜂王乳", price: 450, pv: 15 },
+      { displayName: "紅景天", price: 350, pv: 12 },
+      { displayName: "酵素粉", price: 280, pv: 8 }
+      // 可繼續新增更多品項
+    ];
 
     // 報表目前已選品項
     let selectedProducts = [];
+
+    // 產生數量下拉選單 1~20
+    const qtyInput = document.getElementById("qtyInput");
+    for(let i=1; i<=20; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      qtyInput.appendChild(option);
+    }
+    qtyInput.value = 1;
+
+    // 將 allProducts 名稱塞入 datalist 選項
+    function fillProductDatalist() {
+      const datalist = document.getElementById("productsList");
+      datalist.innerHTML = "";
+      allProducts.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.displayName;
+        datalist.appendChild(option);
+      });
+    }
+    fillProductDatalist();
 
     // 更新報表畫面
     function renderReport() {
@@ -137,7 +201,7 @@
       let totalPrice = 0;
       let totalPv = 0;
 
-      selectedProducts.forEach(item => {
+      selectedProducts.forEach((item, index) => {
         const subtotal = item.price * item.qty;
         const subpv = item.pv * item.qty;
 
@@ -149,6 +213,7 @@
           <td>${item.pv}</td>
           <td>${subtotal.toLocaleString()}</td>
           <td>${subpv}</td>
+          <td><button class="deleteBtn" data-index="${index}">刪除</button></td>
         `;
         tbody.appendChild(tr);
 
@@ -158,6 +223,17 @@
 
       document.getElementById("totalPriceCell").textContent = totalPrice.toLocaleString();
       document.getElementById("totalPvCell").textContent = totalPv;
+
+      // 綁定刪除按鈕事件
+      document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          const idx = Number(e.target.dataset.index);
+          if (!isNaN(idx)) {
+            selectedProducts.splice(idx, 1);
+            renderReport();
+          }
+        });
+      });
     }
 
     // 新增品項到報表
@@ -167,17 +243,16 @@
         return;
       }
 
-      // 從 allProducts 找符合的品項
-      // 忽略大小寫、模糊比對，找到第一個包含輸入文字的品項
-      const found = allProducts.find(p => p.displayName.toLowerCase().includes(name.toLowerCase()));
+      // 從 allProducts 找完全比對的品項(不區分大小寫)
+      const found = allProducts.find(p => p.displayName.toLowerCase() === name.toLowerCase());
 
       if (!found) {
-        alert("品項名稱不存在，請先按「從試算表讀取」取得最新品項清單");
+        alert("品項名稱不存在，請從清單中選擇正確品項");
         return;
       }
 
       // 看看報表中是否已有此品項，若有則累加數量
-      const existIndex = selectedProducts.findIndex(p => p.displayName === found.displayName);
+      const existIndex = selectedProducts.findIndex(p => p.displayName.toLowerCase() === found.displayName.toLowerCase());
 
       if (existIndex !== -1) {
         selectedProducts[existIndex].qty += qty;
@@ -186,27 +261,6 @@
       }
 
       renderReport();
-    }
-
-    // 從 Google Apps Script 取得試算表資料
-    async function fetchProductsFromSheet() {
-      try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec");
-        if (!response.ok) throw new Error("伺服器錯誤");
-        const data = await response.json();
-
-        // 假設格式 [{displayName:"靈芝飲",price:300,pv:10},...]
-        allProducts = data.map(item => ({
-          displayName: item.displayName,
-          price: Number(item.price),
-          pv: Number(item.pv)
-        }));
-
-        alert("已成功從試算表讀取品項資料！");
-      } catch (error) {
-        alert("讀取資料失敗，請稍後再試");
-        console.error(error);
-      }
     }
 
     // 事件監聽
@@ -219,10 +273,7 @@
       // 清空輸入欄位，數量回復1
       document.getElementById("nameInput").value = "";
       document.getElementById("qtyInput").value = 1;
-    });
-
-    document.getElementById("loadBtn").addEventListener("click", () => {
-      fetchProductsFromSheet();
+      document.getElementById("nameInput").focus();
     });
 
     document.getElementById("exportBtn").addEventListener("click", () => {
@@ -233,9 +284,6 @@
         link.click();
       });
     });
-
-    // 初始化 - 你可以在此呼叫 fetchProductsFromSheet() 自動載入資料 (選擇性)
-    // fetchProductsFromSheet();
   </script>
 </body>
 </html>
