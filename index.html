@@ -59,36 +59,50 @@
       border-radius: 12px;
       max-width: 800px;
       margin: auto;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+      /* 限制匯出寬度，手機較適合 */
+      max-width: 400px;
     }
     #captureArea h2 {
       text-align: center;
       margin-bottom: 20px;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
     }
     #reportTable {
       width: 100%;
       border-collapse: collapse;
+      font-size: 14px;
+      table-layout: fixed;
+      word-break: break-word;
     }
     #reportTable th, #reportTable td {
-      border: 1px solid #444;
-      padding: 8px;
+      border: 1px solid #555;
+      padding: 10px 6px;
       text-align: center;
     }
     #reportTable thead {
-      background-color: #333;
+      background: linear-gradient(90deg, #1e88e5, #42a5f5);
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.05em;
     }
     #reportTable tfoot td {
       font-weight: bold;
       background-color: #111;
+      color: #ccc;
+      font-size: 1rem;
     }
     .deleteBtn {
       background-color: #e53935;
       border: none;
       color: white;
       border-radius: 6px;
-      padding: 5px 10px;
+      padding: 5px 12px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      font-size: 13px;
     }
     .deleteBtn:hover {
       background-color: #c62828;
@@ -96,7 +110,7 @@
     #exportBtn {
       margin: 30px auto 0;
       display: block;
-      padding: 10px 20px;
+      padding: 10px 25px;
       font-size: 16px;
       background: #4caf50;
       color: white;
@@ -104,6 +118,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      letter-spacing: 0.03em;
     }
     #exportBtn:hover {
       background: #45a049;
@@ -113,23 +128,38 @@
       background: #222;
       color: #fff;
     }
+    /* autocomplete suggestions box (自製簡易版) */
+    #autocomplete-list {
+      position: absolute;
+      background: #222;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 0 0 6px 6px;
+      border: 1px solid #555;
+      width: calc(50% - 10px);
+      z-index: 9999;
+    }
+    #autocomplete-list div {
+      padding: 8px 10px;
+      cursor: pointer;
+      color: #fff;
+    }
+    #autocomplete-list div:hover {
+      background-color: #444;
+    }
   </style>
 </head>
 <body>
-  <div id="inputArea">
-    <input id="nameInput" list="productsList" type="text" placeholder="品項名稱 (可輸入或選擇)" autocomplete="off" />
-    <datalist id="productsList">
-      <!-- 會由 JS 動態填入 -->
-    </datalist>
-    <select id="qtyInput" aria-label="數量">
-      <!-- 數量下拉 1~20 -->
-    </select>
+  <div id="inputArea" style="position:relative;">
+    <input id="nameInput" type="text" placeholder="品項名稱 (可輸入或選擇)" autocomplete="off" />
+    <select id="qtyInput" aria-label="數量"></select>
     <button id="addBtn">新增品項</button>
+    <div id="autocomplete-list" style="display:none;"></div>
   </div>
 
   <div id="captureArea">
     <h2>🧾 品項報表</h2>
-    <table id="reportTable">
+    <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
           <th>品項名稱</th>
@@ -141,9 +171,7 @@
           <th>操作</th>
         </tr>
       </thead>
-      <tbody id="reportBody">
-        <!-- 動態產生資料 -->
-      </tbody>
+      <tbody id="reportBody"></tbody>
       <tfoot>
         <tr>
           <td colspan="4" style="text-align:right;">總計：</td>
@@ -158,20 +186,29 @@
   <button id="exportBtn">📤 匯出報表為圖片</button>
 
   <script>
-    // 你可以在這裡放你目前手動設定的所有品項資料，格式參考：
-    const allProducts = [
-      { displayName: "靈芝飲", price: 300, pv: 10 },
-      { displayName: "人參膠囊", price: 500, pv: 25 },
-      { displayName: "蜂王乳", price: 450, pv: 15 },
-      { displayName: "紅景天", price: 350, pv: 12 },
-      { displayName: "酵素粉", price: 280, pv: 8 }
-      // 可繼續新增更多品項
-    ];
+    // 模擬從後端或 Google Sheets API 取得的動態品項資料 (JSON格式)
+    // 這裡是示範，實際請改成你真正的API URL，fetch取資料
+    async function fetchProducts() {
+      // 範例：return await fetch("https://你的API/products.json").then(r=>r.json());
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve([
+            { displayName: "靈芝飲", price: 300, pv: 10 },
+            { displayName: "人參膠囊", price: 500, pv: 25 },
+            { displayName: "蜂王乳", price: 450, pv: 15 },
+            { displayName: "紅景天", price: 350, pv: 12 },
+            { displayName: "酵素粉", price: 280, pv: 8 },
+            { displayName: "益生菌", price: 400, pv: 18 },
+            { displayName: "葉黃素", price: 330, pv: 11 }
+          ]);
+        }, 300);
+      });
+    }
 
-    // 報表目前已選品項
+    let allProducts = [];
     let selectedProducts = [];
 
-    // 產生數量下拉選單 1~20
+    // 數量下拉 1~20
     const qtyInput = document.getElementById("qtyInput");
     for(let i=1; i<=20; i++) {
       const option = document.createElement("option");
@@ -181,17 +218,45 @@
     }
     qtyInput.value = 1;
 
-    // 將 allProducts 名稱塞入 datalist 選項
-    function fillProductDatalist() {
-      const datalist = document.getElementById("productsList");
-      datalist.innerHTML = "";
-      allProducts.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.displayName;
-        datalist.appendChild(option);
+    const nameInput = document.getElementById("nameInput");
+    const autocompleteList = document.getElementById("autocomplete-list");
+
+    // 簡易模糊搜尋功能
+    function showAutocompleteSuggestions(value) {
+      const val = value.trim().toLowerCase();
+      if (!val) {
+        autocompleteList.style.display = "none";
+        return;
+      }
+      const matches = allProducts.filter(p => p.displayName.toLowerCase().includes(val));
+      if (matches.length === 0) {
+        autocompleteList.style.display = "none";
+        return;
+      }
+      autocompleteList.innerHTML = "";
+      matches.forEach(p => {
+        const div = document.createElement("div");
+        div.textContent = p.displayName;
+        div.addEventListener("click", () => {
+          nameInput.value = p.displayName;
+          autocompleteList.style.display = "none";
+          qtyInput.focus();
+        });
+        autocompleteList.appendChild(div);
       });
+      autocompleteList.style.display = "block";
     }
-    fillProductDatalist();
+
+    nameInput.addEventListener("input", (e) => {
+      showAutocompleteSuggestions(e.target.value);
+    });
+
+    // 點頁面其他地方自動關閉 autocomplete
+    document.addEventListener("click", e => {
+      if (!e.target.closest("#inputArea")) {
+        autocompleteList.style.display = "none";
+      }
+    });
 
     // 更新報表畫面
     function renderReport() {
@@ -263,27 +328,42 @@
       renderReport();
     }
 
-    // 事件監聽
     document.getElementById("addBtn").addEventListener("click", () => {
-      const name = document.getElementById("nameInput").value.trim();
-      const qty = parseInt(document.getElementById("qtyInput").value, 10);
+      const name = nameInput.value.trim();
+      const qty = parseInt(qtyInput.value, 10);
 
       addProduct(name, qty);
 
       // 清空輸入欄位，數量回復1
-      document.getElementById("nameInput").value = "";
-      document.getElementById("qtyInput").value = 1;
-      document.getElementById("nameInput").focus();
+      nameInput.value = "";
+      qtyInput.value = 1;
+      nameInput.focus();
+      autocompleteList.style.display = "none";
     });
 
     document.getElementById("exportBtn").addEventListener("click", () => {
-      html2canvas(document.getElementById("captureArea")).then(canvas => {
+      const captureArea = document.getElementById("captureArea");
+
+      // 手機版限制寬度後放大比例設定
+      html2canvas(captureArea, {
+        scale: 2, // 放大 2 倍畫質更好
+        width: captureArea.clientWidth,
+        height: captureArea.clientHeight,
+        backgroundColor: null
+      }).then(canvas => {
         const link = document.createElement("a");
         link.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
-        link.href = canvas.toDataURL();
+        link.href = canvas.toDataURL("image/png");
         link.click();
       });
     });
+
+    // 進入頁面先讀取品項
+    (async () => {
+      allProducts = await fetchProducts();
+      // 可視需求加入初始自動填充 autocomplete 的功能
+      // 這邊不用datalist改用自製autocomplete
+    })();
   </script>
 </body>
 </html>
