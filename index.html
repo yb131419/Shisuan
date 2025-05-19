@@ -119,7 +119,7 @@
       background-color: #c62828;
     }
 
-    #exportBtn {
+    #exportBtn, #saveBtn {
       margin: 20px auto;
       display: block;
       padding: 10px 25px;
@@ -131,6 +131,15 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
       letter-spacing: 0.03em;
+    }
+
+    #previewImage {
+      display: none;
+      max-width: 100%;
+      border: 2px solid #888;
+      border-radius: 10px;
+      margin: 20px auto;
+      display: block;
     }
 
     @media (max-width: 600px) {
@@ -177,6 +186,8 @@
   </div>
 
   <button id="exportBtn">📤 匯出報表為圖片</button>
+  <img id="previewImage" alt="預覽匯出圖片" />
+  <button id="saveBtn" style="display:none;">💾 儲存圖片</button>
 
   <!-- 輸入表單區塊 -->
   <div id="inputArea">
@@ -294,18 +305,24 @@
     document.getElementById("exportBtn").addEventListener("click", () => {
       const captureArea = document.getElementById("captureArea");
       html2canvas(captureArea, { scale: 2 }).then(canvas => {
-        canvas.toBlob(blob => {
-          if (!blob) {
-            alert("匯出失敗");
-            return;
-          }
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `品項報表_${new Date().toISOString().slice(0,10)}.png`;
-          a.click();
-          URL.revokeObjectURL(url);
-        });
+        const preview = document.getElementById("previewImage");
+        preview.src = canvas.toDataURL("image/png");
+        preview.style.display = "block";
+
+        // 顯示儲存按鈕
+        const saveBtn = document.getElementById("saveBtn");
+        saveBtn.style.display = "block";
+
+        // 儲存功能
+        saveBtn.onclick = () => {
+          const link = document.createElement("a");
+          link.download = "report.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        };
+
+        // 滾動到預覽圖
+        window.scrollTo({ top: preview.offsetTop - 20, behavior: 'smooth' });
       });
     });
 
