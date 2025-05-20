@@ -129,6 +129,16 @@
       font-weight: 600;
     }
 
+    #reportTable th:nth-child(1),
+    #reportTable td:nth-child(1) {
+      width: 20%;
+    }
+
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2) {
+      width: 6%;
+    }
+
     .deleteBtn {
       background-color: var(--error);
       border: none;
@@ -260,7 +270,7 @@
     <table id="reportTable" aria-label="品項報表">
       <thead>
         <tr>
-          <th>品項 名稱</th>
+          <th>品項<br>名稱</th>
           <th>數量</th>
           <th>單價</th>
           <th>PV</th>
@@ -273,9 +283,9 @@
     </table>
 
     <div class="summaryBox">
-      總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
+      總計 金額：<span id="totalPriceCellDup">0</span>｜總計 PV：<span id="totalPvCellDup">0</span>
       <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
-      <span class="extra">距 22萬 PV 還差：<span id="pvDiff2">220000</span></span>
+      <span class="extra">距 22.0萬 PV 還差：<span id="pvDiff2">220000</span></span>
     </div>
   </div>
 
@@ -412,8 +422,8 @@
       totalPvCellDup.textContent = totalPv.toLocaleString();
       const pvTarget1 = 112000;
       const pvTarget2 = 220000;
-      pvDiff.textContent = totalPv >= pvTarget1 ? "已完成" : (pvTarget1 - totalPv).toLocaleString();
-      pvDiff2.textContent = totalPv >= pvTarget2 ? "已完成" : (pvTarget2 - totalPv).toLocaleString();
+      pvDiff.textContent = totalPv >= pvTarget1 ? "已達標" : (pvTarget1 - totalPv).toLocaleString();
+      pvDiff2.textContent = totalPv >= pvTarget2 ? "已達標" : (pvTarget2 - totalPv).toLocaleString();
     }
 
     document.getElementById("exportBtn").addEventListener("click", () => {
