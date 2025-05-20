@@ -446,13 +446,12 @@
         const json = await res.json();
         if (json.success) {
           const url = json.data.url;
-          const lineUrl = `https://line.me/R/msg/image/?${encodeURIComponent(url)}`;
-          window.open(lineUrl, "_blank");
+          alert("圖片上傳成功！\nURL:\n" + url);
         } else {
-          alert("上傳失敗：" + json.error.message);
+          alert("圖片上傳失敗！");
         }
       } catch (e) {
-        alert("上傳錯誤：" + e.message);
+        alert("圖片上傳發生錯誤：" + e.message);
       } finally {
         shareToLineBtn.disabled = false;
         shareToLineBtn.textContent = "📩 上傳備份";
@@ -460,22 +459,18 @@
     });
 
     nativeShareBtn.addEventListener("click", async () => {
-      if (!previewImage.src) {
-        alert("請先匯出圖片");
-        return;
-      }
-      if (!navigator.canShare || !navigator.canShare()) {
-        alert("此裝置不支援原生分享");
+      if (!navigator.canShare || !previewImage.src) {
+        alert("裝置不支援原生分享功能");
         return;
       }
       try {
         const response = await fetch(previewImage.src);
         const blob = await response.blob();
-        const file = new File([blob], "試算報表.png", { type: blob.type });
+        const filesArray = [new File([blob], "report.png", { type: blob.type })];
         await navigator.share({
-          files: [file],
-          title: "康園試算報表",
-          text: "這是康園試算報表圖片。",
+          files: filesArray,
+          title: "康園PV試算報表",
+          text: "請參考附件的報表圖片",
         });
       } catch (e) {
         alert("分享失敗：" + e.message);
@@ -490,9 +485,12 @@
       clearImageBtn.style.display = "none";
     });
 
-    // 初始化數量選項和載入商品
+    // 初始化數量下拉選單
     initQtyOptions();
+
+    // 載入商品資料
     loadProducts();
+
   </script>
 </body>
 </html>
