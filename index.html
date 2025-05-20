@@ -6,7 +6,6 @@
   <title>彥彬試算系統</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* ---（以下省略，請用你提供的樣式）--- */
     :root {
       --bg-color: #121212;
       --panel-bg: #1e1e1e;
@@ -150,13 +149,14 @@
       background-color: var(--button-green);
       color: white;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     #addBtn:hover {
       background-color: #009e8a;
     }
 
-    #exportBtn, #saveBtn, #clearImageBtn {
+    #exportBtn, #shareToLineBtn, #clearImageBtn {
       margin: 10px auto;
       display: block;
       padding: 10px 25px;
@@ -168,7 +168,7 @@
       cursor: pointer;
     }
 
-    #exportBtn:hover, #saveBtn:hover {
+    #exportBtn:hover, #shareToLineBtn:hover {
       background: #009e8a;
     }
 
@@ -198,8 +198,12 @@
         align-items: center;
       }
 
-      #nameInput, #qtyInput, #addBtn {
+      #nameInput, #qtyInput {
         flex: 1;
+      }
+
+      #addBtn {
+        width: 120px;
       }
     }
 
@@ -209,7 +213,7 @@
         color: #000;
       }
 
-      #inputArea, #addBtn, #exportBtn, #saveBtn, #clearImageBtn {
+      #inputArea, #addBtn, #exportBtn, #shareToLineBtn, #clearImageBtn {
         display: none !important;
       }
 
@@ -248,7 +252,7 @@
       </div>
     </div>
 
-    <table id="reportTable">
+    <table id="reportTable" aria-label="試算報表">
       <thead>
         <tr>
           <th>品項<br>名稱</th>
@@ -263,17 +267,17 @@
       <tbody id="reportBody"></tbody>
     </table>
 
-    <div class="summaryBox">
+    <div class="summaryBox" aria-live="polite">
       總計 金額：<span id="totalPriceCellDup">0</span>｜總計 PV：<span id="totalPvCellDup">0</span>
       <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
       <span class="extra">距 22.0萬 PV 還差：<span id="pvDiff2">220000</span></span>
     </div>
   </div>
 
-  <button id="exportBtn">📤 匯出報表為圖片</button>
+  <button id="exportBtn" aria-label="匯出報表為圖片">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
-  <button id="shareToLineBtn">📩 分享至LINE</button>
-  <button id="clearImageBtn">❌ 清除圖片</button>
+  <button id="shareToLineBtn" aria-label="分享至LINE">📩 分享至LINE</button>
+  <button id="clearImageBtn" aria-label="清除圖片">❌ 清除圖片</button>
 
   <div id="inputArea">
     <select id="nameInput" aria-label="品項名稱"></select>
@@ -282,10 +286,10 @@
   </div>
 
   <script>
-    // 改成你自己 GAS Web App URL (Imgur 代理)
+    // 請將此 URL 換成你自己的 GAS Web App URL (Imgur 代理)
     const GAS_IMGUR_PROXY_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
-    // 讀取商品資料 API（你的Google Apps Script Web App）
+    // 你的 Google Apps Script Web App API 讀取商品資料 URL
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
     let allProducts = [];
@@ -300,6 +304,7 @@
     const pvDiff = document.getElementById("pvDiff");
     const pvDiff2 = document.getElementById("pvDiff2");
 
+    // 初始化數量下拉 (1~50)
     function initQtyOptions() {
       for (let i = 1; i <= 50; i++) {
         const option = document.createElement("option");
@@ -309,14 +314,15 @@
       }
     }
 
+    // 載入商品清單
     async function loadProducts() {
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
         allProducts = data;
         renderProductOptions();
-      } catch (error) {
-        console.error("載入品項失敗:", error);
+      } catch (e) {
+        alert("無法載入商品資料，請檢查網路或 API。");
       }
     }
 
@@ -330,117 +336,167 @@
       });
     }
 
+    // 新增品項至試算清單
     function addProduct() {
       const name = nameInput.value;
-      const qty = parseInt(qtyInput.value);
-      if (!name || qty <= 0) return;
+      const qty = parseInt(qtyInput.value, 10);
+      if (!name || qty < 1) return;
 
       const product = allProducts.find(p => p.name === name);
       if (!product) return;
 
-      const existingIndex = selectedProducts.findIndex(p => p.name === name);
-      if (existingIndex !== -1) {
-        selectedProducts[existingIndex].qty += qty;
+      // 若品項已存在則增加數量
+      const existing = selectedProducts.find(p => p.name === name);
+      if (existing) {
+        existing.qty += qty;
       } else {
-        selectedProducts.push({ name, qty, price: product.price, pv: product.pv });
+        selectedProducts.push({ ...product, qty });
       }
 
-      renderReport();
+      renderTable();
     }
 
-    function renderReport() {
+    // 渲染試算表格
+    function renderTable() {
       reportBody.innerHTML = "";
+
       let totalPrice = 0;
       let totalPv = 0;
 
-      selectedProducts.forEach((product, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${product.name}</td>
-          <td>${product.qty}</td>
-          <td>${product.price}</td>
-          <td>${product.pv}</td>
-          <td>${product.price * product.qty}</td>
-          <td>${product.pv * product.qty}</td>
-          <td><button class="deleteBtn">刪除</button></td>
+      selectedProducts.forEach((item, idx) => {
+        const tr = document.createElement("tr");
+
+        const priceNum = parseInt(item.price, 10) || 0;
+        const pvNum = parseInt(item.pv, 10) || 0;
+        const subTotalPrice = priceNum * item.qty;
+        const subTotalPv = pvNum * item.qty;
+
+        totalPrice += subTotalPrice;
+        totalPv += subTotalPv;
+
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${priceNum.toLocaleString()}</td>
+          <td>${pvNum.toLocaleString()}</td>
+          <td>${subTotalPrice.toLocaleString()}</td>
+          <td>${subTotalPv.toLocaleString()}</td>
+          <td><button class="deleteBtn" aria-label="刪除 ${item.name}" data-index="${idx}">✖</button></td>
         `;
 
-        row.querySelector(".deleteBtn").addEventListener("click", () => {
-          selectedProducts.splice(index, 1);
-          renderReport();
-        });
-
-        totalPrice += product.price * product.qty;
-        totalPv += product.pv * product.qty;
-
-        reportBody.appendChild(row);
+        reportBody.appendChild(tr);
       });
 
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
-      pvDiff.textContent = totalPv >= 112000 ? "已達標" : (112000 - totalPv).toLocaleString();
-      pvDiff2.textContent = totalPv >= 220000 ? "已達標" : (220000 - totalPv).toLocaleString();
+
+      // 計算差距
+      const diff1 = 112000 - totalPv;
+      const diff2 = 220000 - totalPv;
+
+      pvDiff.textContent = diff1 > 0 ? diff1.toLocaleString() : "已達標";
+      pvDiff2.textContent = diff2 > 0 ? diff2.toLocaleString() : "已達標";
     }
 
-    // 匯出為圖片
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      html2canvas(document.getElementById("captureArea")).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const previewImage = document.getElementById("previewImage");
-        previewImage.src = imgData;
-        previewImage.style.display = "block";
-        document.getElementById("shareToLineBtn").style.display = "inline-block";
-        document.getElementById("clearImageBtn").style.display = "inline-block";
-      });
+    // 刪除指定品項
+    reportBody.addEventListener("click", e => {
+      if (e.target.classList.contains("deleteBtn")) {
+        const index = parseInt(e.target.getAttribute("data-index"), 10);
+        selectedProducts.splice(index, 1);
+        renderTable();
+      }
     });
 
-    // 分享至 LINE，改用 GAS 代理上傳 Imgur
-    document.getElementById("shareToLineBtn").addEventListener("click", async () => {
-      const previewImage = document.getElementById("previewImage").src;
-      if (!previewImage) {
-        alert("請先匯出圖片！");
+    addBtn.addEventListener("click", () => {
+      addProduct();
+    });
+
+    // 按下 Enter 在品項名稱或數量時也可新增
+    nameInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addProduct();
+      }
+    });
+
+    qtyInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addProduct();
+      }
+    });
+
+    // 匯出為圖片
+    const exportBtn = document.getElementById("exportBtn");
+    const previewImage = document.getElementById("previewImage");
+    const shareToLineBtn = document.getElementById("shareToLineBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+
+    exportBtn.addEventListener("click", async () => {
+      exportBtn.disabled = true;
+      exportBtn.textContent = "匯出中...";
+      try {
+        const canvas = await html2canvas(document.getElementById("captureArea"), {
+          scale: 2,
+          backgroundColor: null,
+          useCORS: true
+        });
+        const dataUrl = canvas.toDataURL("image/png");
+        previewImage.src = dataUrl;
+        previewImage.style.display = "block";
+        shareToLineBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
+      } catch (e) {
+        alert("匯出失敗：" + e.message);
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = "📤 匯出報表為圖片";
+      }
+    });
+
+    clearImageBtn.addEventListener("click", () => {
+      previewImage.style.display = "none";
+      previewImage.src = "";
+      shareToLineBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
+    });
+
+    shareToLineBtn.addEventListener("click", async () => {
+      if (!previewImage.src) {
+        alert("請先匯出圖片");
         return;
       }
-
+      shareToLineBtn.disabled = true;
+      shareToLineBtn.textContent = "上傳中...";
       try {
-        const base64Image = previewImage.split(",")[1];
+        // 將 dataURL 去掉前綴，只留下 Base64
+        const base64Data = previewImage.src.split(",")[1];
+        const formData = new FormData();
+        formData.append("image", base64Data);
 
-        const response = await fetch(GAS_IMGUR_PROXY_URL, {
+        // 使用 Google Apps Script 當作 Imgur 代理上傳圖片
+        const resp = await fetch(GAS_IMGUR_PROXY_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ image: base64Image }),
+          body: formData,
         });
 
-        const result = await response.json();
-
-        if (result.success) {
-          const imgurUrl = result.data.link;
-          const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(imgurUrl)}`;
-          window.open(lineShareUrl, "_blank");
+        const result = await resp.json();
+        if (result.success && result.data && result.data.link) {
+          // 開啟 LINE 分享網址
+          const shareUrl = `https://line.me/R/msg/image/?${encodeURIComponent(result.data.link)}`;
+          window.open(shareUrl, "_blank");
         } else {
-          alert("圖片上傳 Imgur 失敗：" + (result.data?.error || result.message));
-          console.error(result);
+          alert("圖片上傳失敗，請稍後再試。");
         }
-      } catch (err) {
-        alert("圖片上傳過程發生錯誤");
-        console.error(err);
+      } catch (e) {
+        alert("上傳過程發生錯誤：" + e.message);
+      } finally {
+        shareToLineBtn.disabled = false;
+        shareToLineBtn.textContent = "📩 分享至LINE";
       }
     });
 
-    // 清除圖片
-    document.getElementById("clearImageBtn").addEventListener("click", () => {
-      document.getElementById("previewImage").style.display = "none";
-      document.getElementById("previewImage").src = "";
-      document.getElementById("shareToLineBtn").style.display = "none";
-      document.getElementById("clearImageBtn").style.display = "none";
-    });
-
-    // 新增品項
-    addBtn.addEventListener("click", addProduct);
-
-    // 初始化
+    // 初始化畫面
     initQtyOptions();
     loadProducts();
   </script>
