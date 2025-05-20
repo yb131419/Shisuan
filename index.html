@@ -83,11 +83,11 @@
     /* 修改欄位寬度，品項名稱欄位3份，數量欄位2份，其他不變 */
     #reportTable th:nth-child(1),
     #reportTable td:nth-child(1) {
-      width: 23%;
+      width: 20%;
     }
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2) {
-      width: 7%;
+      width: 10%;
     }
     /* 其餘欄位不設定寬度 */
 
@@ -110,7 +110,7 @@
       font-size: 9px;
       padding: 3px 5px;
       white-space: nowrap;
-      width: 60px;
+      width: 55px;
     }
 
     .deleteBtn {
@@ -181,7 +181,7 @@
       margin: 10px auto;
       display: block;
       padding: 10px 0;
-      width: 30%;
+      width: 35%; /* 調整成比原本30%稍長一點 */
       font-size: 16px;
       background: var(--button-green);
       color: white;
@@ -312,15 +312,13 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
-
-    let allProducts = [];
-    let selectedProducts = [];
+    const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKyCR/exec";
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
     const addBtn = document.getElementById("addBtn");
     const reportBody = document.getElementById("reportBody");
+
     const totalPriceCellDup = document.getElementById("totalPriceCellDup");
     const totalPvCellDup = document.getElementById("totalPvCellDup");
     const pvDiff = document.getElementById("pvDiff");
@@ -332,164 +330,140 @@
     const nativeShareBtn = document.getElementById("nativeShareBtn");
     const clearImageBtn = document.getElementById("clearImageBtn");
 
-    function initQtyOptions() {
-      for (let i = 1; i <= 50; i++) {
+    let productList = [];
+    let currentItems = [];
+
+    // 1. 讀取品項資料
+    async function loadProductList() {
+      try {
+        const response = await fetch(API_URL + "?action=read");
+        if (!response.ok) throw new Error("讀取品項資料失敗");
+        const data = await response.json();
+        productList = data.map(item => ({
+          id: item.id,
+          name: item.名稱,
+          price: Number(item.售價) || 0,
+          pv: Number(item.PV) || 0,
+        }));
+        populateNameOptions();
+      } catch (error) {
+        console.error(error);
+        alert("無法載入品項資料");
+      }
+    }
+
+    // 2. 填充品項下拉選單
+    function populateNameOptions() {
+      nameInput.innerHTML = "";
+      productList.forEach(product => {
+        const option = document.createElement("option");
+        option.value = product.id;
+        option.textContent = product.name;
+        nameInput.appendChild(option);
+      });
+
+      populateQtyOptions(1);
+    }
+
+    // 3. 填充數量選單（1~10）
+    function populateQtyOptions(selected) {
+      qtyInput.innerHTML = "";
+      for (let i = 1; i <= 10; i++) {
         const option = document.createElement("option");
         option.value = i;
         option.textContent = i;
+        if (i === selected) option.selected = true;
         qtyInput.appendChild(option);
       }
     }
 
-    async function loadProducts() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        allProducts = data;
-        renderProductOptions();
-      } catch (e) {
-        alert("無法載入商品資料，請檢查網路或 API。");
-      }
-    }
-
-    function renderProductOptions() {
-      nameInput.innerHTML = "";
-      allProducts.forEach(product => {
-        const option = document.createElement("option");
-        option.value = product.name;
-        option.textContent = product.name;
-        nameInput.appendChild(option);
-      });
-    }
-
-    function addProduct() {
-      const name = nameInput.value;
+    // 4. 新增品項
+    addBtn.addEventListener("click", () => {
+      const selectedId = nameInput.value;
       const qty = parseInt(qtyInput.value, 10);
-      if (!name || qty < 1) return;
 
-      const product = allProducts.find(p => p.name === name);
-      if (!product) return;
-
-      const existing = selectedProducts.find(p => p.name === name);
-      if (existing) {
-        existing.qty += qty;
-      } else {
-        selectedProducts.push({
-          name: product.name,
-          price: product.price,
-          pv: product.pv,
-          qty: qty
-        });
+      if (!selectedId || qty <= 0) {
+        alert("請選擇品項和數量");
+        return;
       }
+
+      const product = productList.find(p => p.id === selectedId);
+      if (!product) {
+        alert("找不到選擇的品項");
+        return;
+      }
+
+      const existingIndex = currentItems.findIndex(item => item.id === selectedId);
+      if (existingIndex >= 0) {
+        currentItems[existingIndex].qty += qty;
+      } else {
+        currentItems.push({ ...product, qty });
+      }
+
+      renderTable();
+    });
+
+    // 5. 刪除品項
+    function deleteItem(id) {
+      currentItems = currentItems.filter(item => item.id !== id);
       renderTable();
     }
 
+    // 6. 渲染表格
     function renderTable() {
       reportBody.innerHTML = "";
-
       let totalPrice = 0;
       let totalPv = 0;
 
-      selectedProducts.forEach((item, idx) => {
-        const tr = document.createElement("tr");
-
-        const tdName = document.createElement("td");
-        tdName.textContent = item.name;
-        tr.appendChild(tdName);
-
-        const tdQty = document.createElement("td");
-        tdQty.textContent = item.qty;
-        tr.appendChild(tdQty);
-
-        const tdPrice = document.createElement("td");
-        tdPrice.textContent = item.price.toLocaleString();
-        tr.appendChild(tdPrice);
-
-        const tdPv = document.createElement("td");
-        tdPv.textContent = item.pv.toLocaleString();
-        tr.appendChild(tdPv);
-
+      currentItems.forEach(item => {
         const subTotalPrice = item.price * item.qty;
         const subTotalPv = item.pv * item.qty;
 
-        const tdSubPrice = document.createElement("td");
-        tdSubPrice.textContent = subTotalPrice.toLocaleString();
-        tr.appendChild(tdSubPrice);
-
-        const tdSubPv = document.createElement("td");
-        tdSubPv.textContent = subTotalPv.toLocaleString();
-        tr.appendChild(tdSubPv);
-
-        const tdDel = document.createElement("td");
-        const btnDel = document.createElement("button");
-        btnDel.className = "deleteBtn";
-        btnDel.textContent = "刪除";
-        btnDel.onclick = () => {
-          selectedProducts.splice(idx, 1);
-          renderTable();
-        };
-        tdDel.appendChild(btnDel);
-        tr.appendChild(tdDel);
-
-        reportBody.appendChild(tr);
-
         totalPrice += subTotalPrice;
         totalPv += subTotalPv;
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${item.price}</td>
+          <td>${item.pv}</td>
+          <td>${subTotalPrice}</td>
+          <td>${subTotalPv}</td>
+          <td><button class="deleteBtn" aria-label="刪除${item.name}" onclick="deleteItem('${item.id}')">刪除</button></td>
+        `;
+
+        reportBody.appendChild(tr);
       });
 
-      totalPriceCellDup.textContent = totalPrice.toLocaleString();
-      totalPvCellDup.textContent = totalPv.toLocaleString();
+      totalPriceCellDup.textContent = totalPrice;
+      totalPvCellDup.textContent = totalPv;
 
-      const diff1 = 112000 - totalPv;
-      const diff2 = 220000 - totalPv;
-      pvDiff.textContent = diff1 > 0 ? diff1.toLocaleString() : "已達標";
-      pvDiff2.textContent = diff2 > 0 ? diff2.toLocaleString() : "已達標";
+      pvDiff.textContent = Math.max(0, 112000 - totalPv);
+      pvDiff2.textContent = Math.max(0, 220000 - totalPv);
     }
 
-    addBtn.addEventListener("click", () => {
-      addProduct();
-    });
-
-    // 匯出圖片
+    // 7. 匯出報表為圖片 (html2canvas)
     exportBtn.addEventListener("click", () => {
-      html2canvas(document.querySelector("#captureArea")).then(canvas => {
-        previewImage.src = canvas.toDataURL("image/png");
+      exportBtn.disabled = true;
+      exportBtn.textContent = "圖片生成中…";
+
+      html2canvas(document.getElementById("captureArea"), { scale: 2 }).then(canvas => {
+        const dataUrl = canvas.toDataURL("image/png");
+        previewImage.src = dataUrl;
         previewImage.style.display = "block";
+
         shareToLineBtn.style.display = "inline-block";
-        nativeShareBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = navigator.canShare ? "inline-block" : "none";
         clearImageBtn.style.display = "inline-block";
+
+        exportBtn.disabled = false;
+        exportBtn.textContent = "📤 匯出報表為圖片";
       });
     });
 
-    // 清除圖片
-    clearImageBtn.addEventListener("click", () => {
-      previewImage.src = "";
-      previewImage.style.display = "none";
-      shareToLineBtn.style.display = "none";
-      nativeShareBtn.style.display = "none";
-      clearImageBtn.style.display = "none";
-    });
-
-    // 本地分享
-    nativeShareBtn.addEventListener("click", async () => {
-      if (!navigator.canShare || !navigator.canShare({ files: [] })) {
-        alert("您的瀏覽器不支援分享功能");
-        return;
-      }
-      const blob = await fetch(previewImage.src).then(r => r.blob());
-      const file = new File([blob], "康園PV試算.png", { type: "image/png" });
-      try {
-        await navigator.share({
-          files: [file],
-          title: "康園PV試算報表",
-          text: "請查看康園PV試算的圖片報表。"
-        });
-      } catch (err) {
-        console.error("分享失敗:", err);
-      }
-    });
-
-    // 備份至 Google Sheets (呼叫 Apps Script API)
+    // 8. 分享到LINE聊天機器人 (透過Web API上傳圖片並回傳LINE消息，需配合後端)
     shareToLineBtn.addEventListener("click", async () => {
       if (!previewImage.src) {
         alert("請先匯出圖片");
@@ -497,47 +471,73 @@
       }
 
       try {
-        shareToLineBtn.textContent = "備份中...";
         shareToLineBtn.disabled = true;
+        shareToLineBtn.textContent = "上傳中…";
 
-        // 簡單示範：上傳 base64 圖片及資料至 Google Apps Script
-        const payload = {
-          action: "backup",
-          imageBase64: previewImage.src,
-          data: selectedProducts,
-          totalPrice: totalPriceCellDup.textContent,
-          totalPv: totalPvCellDup.textContent,
-          timestamp: new Date().toISOString(),
-          buyer: document.querySelectorAll(".userInputs input")[0].value,
-          calculator: document.querySelectorAll(".userInputs input")[1].value
-        };
-
-        const res = await fetch(API_URL, {
+        // 用 fetch 將圖片 dataUrl 傳給後端處理（你需自己實作LINE推播的Apps Script）
+        const response = await fetch(API_URL + "?action=uploadImage", {
           method: "POST",
-          body: JSON.stringify(payload),
-          headers: {
-            "Content-Type": "application/json"
-          }
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: previewImage.src })
         });
 
-        const result = await res.json();
+        if (!response.ok) throw new Error("上傳失敗");
+        alert("圖片已上傳至LINE聊天機器人備份");
 
-        if (result.success) {
-          alert("備份成功！");
-        } else {
-          alert("備份失敗：" + (result.message || "未知錯誤"));
-        }
       } catch (e) {
-        alert("備份時發生錯誤：" + e.message);
+        alert("上傳失敗：" + e.message);
       } finally {
-        shareToLineBtn.textContent = "📩 上傳備份";
         shareToLineBtn.disabled = false;
+        shareToLineBtn.textContent = "📩 上傳備份";
       }
     });
 
-    // 初始化
-    initQtyOptions();
-    loadProducts();
+    // 9. 原生分享（支援Web Share API）
+    nativeShareBtn.addEventListener("click", async () => {
+      if (!previewImage.src) {
+        alert("請先匯出圖片");
+        return;
+      }
+
+      if (!navigator.canShare) {
+        alert("您的瀏覽器不支援原生分享功能");
+        return;
+      }
+
+      try {
+        // dataUrl轉Blob
+        const blob = await (await fetch(previewImage.src)).blob();
+        const file = new File([blob], "報表.png", { type: "image/png" });
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "康園PV試算報表",
+            text: "這是我的康園PV試算報表圖片",
+          });
+        } else {
+          alert("您的裝置不支援檔案分享");
+        }
+      } catch (e) {
+        alert("分享失敗：" + e.message);
+      }
+    });
+
+    // 10. 清除圖片預覽和按鈕
+    clearImageBtn.addEventListener("click", () => {
+      previewImage.src = "";
+      previewImage.style.display = "none";
+
+      shareToLineBtn.style.display = "none";
+      nativeShareBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
+    });
+
+    // 11. 初始化
+    loadProductList();
+
+    // 把 deleteItem 加到全域，方便onclick使用
+    window.deleteItem = deleteItem;
   </script>
 </body>
 </html>
