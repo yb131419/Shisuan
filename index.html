@@ -1,9 +1,9 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>品項報表匯出</title>
+  <title>彥彬試算系統</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
@@ -110,7 +110,7 @@
     #reportTable {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11.5px;
+      font-size: 11px;
       table-layout: fixed;
       word-break: keep-all;
     }
@@ -127,17 +127,6 @@
       background: linear-gradient(90deg, #00bcd4, #2196f3);
       color: #fff;
       font-weight: 600;
-    }
-
-    #reportTable thead th:first-child {
-      white-space: normal;
-      line-height: 1.2;
-      padding: 4px 5px;
-    }
-
-    #reportTable thead th:first-child::after {
-      content: "\A";
-      white-space: pre;
     }
 
     .deleteBtn {
@@ -188,8 +177,8 @@
     }
 
     .summaryBox {
-      text-align: right;
-      margin-top: 14px;
+      text-align: center;
+      margin-top: 13px;
       font-size: 1rem;
       font-weight: bold;
       color: var(--highlight);
@@ -200,6 +189,10 @@
       font-size: 0.95rem;
       color: var(--accent);
       margin-top: 6px;
+    }
+
+    .summaryBox .done {
+      color: #4caf50;
     }
 
     @media (min-width: 600px) {
@@ -282,6 +275,7 @@
     <div class="summaryBox">
       總計 金額：<span id="totalPriceCellDup">0</span>　｜　總計 PV：<span id="totalPvCellDup">0</span>
       <span class="extra">距 11.2萬 PV 還差：<span id="pvDiff">112000</span></span>
+      <span class="extra">距 22萬 PV 還差：<span id="pvDiff2">220000</span></span>
     </div>
   </div>
 
@@ -309,8 +303,8 @@
     const totalPriceCellDup = document.getElementById("totalPriceCellDup");
     const totalPvCellDup = document.getElementById("totalPvCellDup");
     const pvDiff = document.getElementById("pvDiff");
+    const pvDiff2 = document.getElementById("pvDiff2");
 
-    // 預設最大數量 1-50
     function initQtyOptions() {
       for (let i = 1; i <= 50; i++) {
         const option = document.createElement("option");
@@ -320,7 +314,6 @@
       }
     }
 
-    // 載入品項資料
     async function loadProducts() {
       try {
         const res = await fetch(API_URL);
@@ -332,7 +325,6 @@
       }
     }
 
-    // 渲染品項下拉選單
     function renderProductOptions() {
       nameInput.innerHTML = "";
       allProducts.forEach((product) => {
@@ -343,7 +335,6 @@
       });
     }
 
-    // 新增品項到報表
     function addProduct() {
       const name = nameInput.value;
       const qty = parseInt(qtyInput.value);
@@ -354,7 +345,6 @@
 
       const existingIndex = selectedProducts.findIndex((p) => p.name === name);
       if (existingIndex !== -1) {
-        // 已有品項，數量累加
         selectedProducts[existingIndex].qty += qty;
       } else {
         selectedProducts.push({
@@ -368,51 +358,42 @@
       renderReport();
     }
 
-    // 渲染報表
     function renderReport() {
       reportBody.innerHTML = "";
-
       let totalPrice = 0;
       let totalPv = 0;
 
       selectedProducts.forEach((product, index) => {
         const row = document.createElement("tr");
 
-        // 品項名稱
         const nameCell = document.createElement("td");
         nameCell.textContent = product.name;
         row.appendChild(nameCell);
 
-        // 數量
         const qtyCell = document.createElement("td");
         qtyCell.textContent = product.qty;
         row.appendChild(qtyCell);
 
-        // 單價
         const priceCell = document.createElement("td");
         priceCell.textContent = product.price;
         row.appendChild(priceCell);
 
-        // PV
         const pvCell = document.createElement("td");
         pvCell.textContent = product.pv;
         row.appendChild(pvCell);
 
-        // 小計 金額
         const subtotalPrice = product.price * product.qty;
         totalPrice += subtotalPrice;
         const subtotalPriceCell = document.createElement("td");
         subtotalPriceCell.textContent = subtotalPrice;
         row.appendChild(subtotalPriceCell);
 
-        // 小計 PV
         const subtotalPv = product.pv * product.qty;
         totalPv += subtotalPv;
         const subtotalPvCell = document.createElement("td");
         subtotalPvCell.textContent = subtotalPv;
         row.appendChild(subtotalPvCell);
 
-        // 操作（刪除）
         const actionCell = document.createElement("td");
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "刪除";
@@ -429,11 +410,12 @@
 
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
-      const pvTarget = 112000;
-      pvDiff.textContent = (pvTarget - totalPv).toLocaleString();
+      const pvTarget1 = 112000;
+      const pvTarget2 = 220000;
+      pvDiff.textContent = totalPv >= pvTarget1 ? "已完成" : (pvTarget1 - totalPv).toLocaleString();
+      pvDiff2.textContent = totalPv >= pvTarget2 ? "已完成" : (pvTarget2 - totalPv).toLocaleString();
     }
 
-    // 匯出圖片
     document.getElementById("exportBtn").addEventListener("click", () => {
       const captureArea = document.getElementById("captureArea");
       html2canvas(captureArea).then((canvas) => {
@@ -446,7 +428,6 @@
       });
     });
 
-    // 儲存圖片
     document.getElementById("saveBtn").addEventListener("click", () => {
       const link = document.createElement("a");
       link.download = "品項報表.png";
@@ -454,14 +435,12 @@
       link.click();
     });
 
-    // 清除圖片
     document.getElementById("clearImageBtn").addEventListener("click", () => {
       document.getElementById("previewImage").style.display = "none";
       document.getElementById("saveBtn").style.display = "none";
       document.getElementById("clearImageBtn").style.display = "none";
     });
 
-    // 事件綁定與初始化
     addBtn.addEventListener("click", addProduct);
     initQtyOptions();
     loadProducts();
