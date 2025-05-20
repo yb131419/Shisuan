@@ -420,16 +420,16 @@
         tdSubPv.textContent = subTotalPv.toLocaleString();
         tr.appendChild(tdSubPv);
 
-        const tdAction = document.createElement("td");
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "刪除";
-        delBtn.classList.add("deleteBtn");
-        delBtn.addEventListener("click", () => {
+        const tdDel = document.createElement("td");
+        const btnDel = document.createElement("button");
+        btnDel.className = "deleteBtn";
+        btnDel.textContent = "刪除";
+        btnDel.onclick = () => {
           selectedProducts.splice(idx, 1);
           renderTable();
-        });
-        tdAction.appendChild(delBtn);
-        tr.appendChild(tdAction);
+        };
+        tdDel.appendChild(btnDel);
+        tr.appendChild(tdDel);
 
         reportBody.appendChild(tr);
 
@@ -440,92 +440,98 @@
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
 
-      pvDiff.textContent = Math.max(0, 112000 - totalPv).toLocaleString();
-      pvDiff2.textContent = Math.max(0, 220000 - totalPv).toLocaleString();
+      const diff1 = 112000 - totalPv;
+      const diff2 = 220000 - totalPv;
+      pvDiff.textContent = diff1 > 0 ? diff1.toLocaleString() : "已達標";
+      pvDiff2.textContent = diff2 > 0 ? diff2.toLocaleString() : "已達標";
     }
-
-    // 封裝匯出報表成圖片函式
-    async function exportReportToImage() {
-      if (selectedProducts.length === 0) {
-        alert("尚未新增任何品項，無法匯出報表圖片。");
-        return;
-      }
-
-      // 先滾動到報表區避免截圖異常
-      document.getElementById("captureArea").scrollIntoView({ behavior: "smooth" });
-
-      const captureArea = document.getElementById("captureArea");
-
-      try {
-        const canvas = await html2canvas(captureArea, {
-          backgroundColor: "#121212",
-          scale: 2, // 放大 2 倍解析度
-          useCORS: true,
-        });
-        const dataUrl = canvas.toDataURL("image/png");
-
-        previewImage.src = dataUrl;
-        previewImage.style.display = "block";
-
-        // 顯示分享及清除按鈕
-        shareToLineBtn.style.display = "inline-block";
-        nativeShareBtn.style.display = "inline-block";
-        clearImageBtn.style.display = "inline-block";
-
-        // 按鈕文字改成重新匯出
-        exportBtn.textContent = "🔄 重新匯出報表為圖片";
-
-        // 滾動到圖片區
-        previewImage.scrollIntoView({ behavior: "smooth" });
-      } catch (error) {
-        alert("匯出圖片失敗，請稍後再試。");
-        console.error(error);
-      }
-    }
-
-    exportBtn.addEventListener("click", exportReportToImage);
 
     addBtn.addEventListener("click", () => {
       addProduct();
     });
 
-    // 清除圖片和按鈕狀態
+    // 匯出圖片
+    exportBtn.addEventListener("click", () => {
+      html2canvas(document.querySelector("#captureArea")).then(canvas => {
+        previewImage.src = canvas.toDataURL("image/png");
+        previewImage.style.display = "block";
+        shareToLineBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
+      });
+    });
+
+    // 清除圖片
     clearImageBtn.addEventListener("click", () => {
       previewImage.src = "";
       previewImage.style.display = "none";
       shareToLineBtn.style.display = "none";
       nativeShareBtn.style.display = "none";
       clearImageBtn.style.display = "none";
-
-      exportBtn.textContent = "📤 匯出報表為圖片";
     });
 
-    // 分享功能（原本邏輯維持不變）
-    shareToLineBtn.addEventListener("click", () => {
-      if (!previewImage.src) return alert("尚未匯出圖片，無法分享。");
-
-      // 你的分享 API 或上傳流程，這裡先做示意 alert
-      alert("這裡可接你的上傳備份功能（例如上傳到 Google Drive 或 LINE）");
-    });
-
+    // 本地分享
     nativeShareBtn.addEventListener("click", async () => {
-      if (!previewImage.src) return alert("尚未匯出圖片，無法分享。");
+      if (!navigator.canShare || !navigator.canShare({ files: [] })) {
+        alert("您的瀏覽器不支援分享功能");
+        return;
+      }
+      const blob = await fetch(previewImage.src).then(r => r.blob());
+      const file = new File([blob], "康園PV試算.png", { type: "image/png" });
+      try {
+        await navigator.share({
+          files: [file],
+          title: "康園PV試算報表",
+          text: "請查看康園PV試算的圖片報表。"
+        });
+      } catch (err) {
+        console.error("分享失敗:", err);
+      }
+    });
 
-      if (navigator.canShare && navigator.canShare({ files: [] })) {
-        const response = await fetch(previewImage.src);
-        const blob = await response.blob();
-        const file = new File([blob], "report.png", { type: "image/png" });
-        try {
-          await navigator.share({
-            files: [file],
-            title: "試算報表",
-            text: "這是我的試算報表圖片。",
-          });
-        } catch (err) {
-          alert("分享失敗: " + err.message);
+    // 備份至 Google Sheets (呼叫 Apps Script API)
+    shareToLineBtn.addEventListener("click", async () => {
+      if (!previewImage.src) {
+        alert("請先匯出圖片");
+        return;
+      }
+
+      try {
+        shareToLineBtn.textContent = "備份中...";
+        shareToLineBtn.disabled = true;
+
+        // 簡單示範：上傳 base64 圖片及資料至 Google Apps Script
+        const payload = {
+          action: "backup",
+          imageBase64: previewImage.src,
+          data: selectedProducts,
+          totalPrice: totalPriceCellDup.textContent,
+          totalPv: totalPvCellDup.textContent,
+          timestamp: new Date().toISOString(),
+          buyer: document.querySelectorAll(".userInputs input")[0].value,
+          calculator: document.querySelectorAll(".userInputs input")[1].value
+        };
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          alert("備份成功！");
+        } else {
+          alert("備份失敗：" + (result.message || "未知錯誤"));
         }
-      } else {
-        alert("您的裝置不支援原生分享功能，請使用備份按鈕。");
+      } catch (e) {
+        alert("備份時發生錯誤：" + e.message);
+      } finally {
+        shareToLineBtn.textContent = "📩 上傳備份";
+        shareToLineBtn.disabled = false;
       }
     });
 
