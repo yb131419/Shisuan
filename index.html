@@ -350,7 +350,7 @@
         data.forEach(item => {
           const opt = document.createElement("option");
           opt.value = item.name;
-          opt.textContent = `${item.name} 單價:${item.price} PV:${item.pv}`;
+          opt.textContent = `${item.name} `;
           nameInput.appendChild(opt);
         });
       } catch (error) {
