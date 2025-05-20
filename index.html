@@ -73,17 +73,28 @@
       box-sizing: border-box;
     }
 
-    /* 調整報表欄位大小及字體 */
     #reportTable {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
+      font-size: 11px;
       table-layout: fixed;
+    }
+
+    /* 品項名稱欄加寬 */
+    #reportTable th:nth-child(1),
+    #reportTable td:nth-child(1) {
+      width: 12rem; /* 大約比原本大2單位 */
+    }
+
+    /* 數量欄縮小 */
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2) {
+      width: 3rem; /* 小約2單位 */
     }
 
     #reportTable th, #reportTable td {
       border: 1px solid #555;
-      padding: 6px 8px;
+      padding: 5px;
       text-align: center;
       white-space: nowrap;
     }
@@ -92,22 +103,6 @@
       background: linear-gradient(90deg, #00bfa5, #29b6f6);
       color: #fff;
       font-weight: 600;
-    }
-
-    /* 品項名稱欄加寬 */
-    #reportTable th:nth-child(1),
-    #reportTable td:nth-child(1) {
-      width: 28%;
-      font-size: 13px;
-      text-align: left;
-      padding-left: 12px;
-    }
-
-    /* 數量欄縮小 */
-    #reportTable th:nth-child(2),
-    #reportTable td:nth-child(2) {
-      width: 8%;
-      font-size: 12px;
     }
 
     .deleteBtn {
@@ -173,8 +168,8 @@
       background-color: #009e8a;
     }
 
-    /* 匯出按鈕 */
-    #exportBtn {
+    /* 匯出及分享按鈕 */
+    #exportBtn, #shareToLineBtn, #nativeShareBtn, #clearImageBtn {
       margin: 10px auto;
       display: block;
       padding: 10px 25px;
@@ -184,46 +179,24 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      width: 140px;
     }
 
-    #exportBtn:hover {
+    #shareToLineBtn, #nativeShareBtn, #clearImageBtn {
+      display: none;
+    }
+
+    #exportBtn:hover, #shareToLineBtn:hover, #nativeShareBtn:hover {
       background: #009e8a;
     }
 
-    /* 調整上傳備份、分享圖片、清除圖片三個按鈕尺寸和間距 */
-    #shareToLineBtn,
-    #nativeShareBtn,
     #clearImageBtn {
-      width: 120px;
-      padding: 8px 12px;
-      font-size: 14px;
-      margin: 10px 5px;
-      display: none;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
+      background: var(--button-grey);
+      width: 100px;
     }
 
-    #shareToLineBtn {
-      background-color: var(--button-green);
-    }
-    #shareToLineBtn:hover {
-      background-color: #009e8a;
-    }
-
-    #nativeShareBtn {
-      background-color: var(--button-green);
-    }
-    #nativeShareBtn:hover {
-      background-color: #009e8a;
-    }
-
-    #clearImageBtn {
-      background-color: var(--button-grey);
-    }
     #clearImageBtn:hover {
-      background-color: #424242;
+      background: #424242;
     }
 
     #previewImage {
@@ -318,9 +291,9 @@
 
   <button id="exportBtn">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
-  <button id="shareToLineBtn">📩 上傳備份</button>
-  <button id="nativeShareBtn">📱 分享圖片</button>
-  <button id="clearImageBtn">❌ 清除圖片</button>
+  <button id="shareToLineBtn">備份</button>
+  <button id="nativeShareBtn">分享</button>
+  <button id="clearImageBtn">清除</button>
 
   <div id="inputArea">
     <select id="nameInput"></select>
@@ -371,83 +344,23 @@
 
     function renderProductOptions() {
       nameInput.innerHTML = "";
-      allProducts.forEach((item) => {
+      allProducts.forEach(product => {
         const option = document.createElement("option");
-        option.value = item.name;
-        option.textContent = `${item.name} - 單價:${item.price} PV:${item.pv}`;
+        option.value = product.name;
+        option.textContent = product.name;
         nameInput.appendChild(option);
       });
     }
 
-    function calculateTotals() {
-      let totalPrice = 0;
-      let totalPv = 0;
-
-      selectedProducts.forEach((item) => {
-        totalPrice += item.price * item.qty;
-        totalPv += item.pv * item.qty;
-      });
-
-      totalPriceCellDup.textContent = totalPrice.toLocaleString();
-      totalPvCellDup.textContent = totalPv.toLocaleString();
-
-      pvDiff.textContent = (112000 - totalPv > 0 ? 112000 - totalPv : 0).toLocaleString();
-      pvDiff2.textContent = (220000 - totalPv > 0 ? 220000 - totalPv : 0).toLocaleString();
-    }
-
-    function renderTable() {
-      reportBody.innerHTML = "";
-      selectedProducts.forEach((item, index) => {
-        const tr = document.createElement("tr");
-
-        const tdName = document.createElement("td");
-        tdName.textContent = item.name;
-        tr.appendChild(tdName);
-
-        const tdQty = document.createElement("td");
-        tdQty.textContent = item.qty;
-        tr.appendChild(tdQty);
-
-        const tdPrice = document.createElement("td");
-        tdPrice.textContent = item.price.toLocaleString();
-        tr.appendChild(tdPrice);
-
-        const tdPv = document.createElement("td");
-        tdPv.textContent = item.pv.toLocaleString();
-        tr.appendChild(tdPv);
-
-        const tdSubtotalPrice = document.createElement("td");
-        tdSubtotalPrice.textContent = (item.price * item.qty).toLocaleString();
-        tr.appendChild(tdSubtotalPrice);
-
-        const tdSubtotalPv = document.createElement("td");
-        tdSubtotalPv.textContent = (item.pv * item.qty).toLocaleString();
-        tr.appendChild(tdSubtotalPv);
-
-        const tdDel = document.createElement("td");
-        const btnDel = document.createElement("button");
-        btnDel.className = "deleteBtn";
-        btnDel.textContent = "刪除";
-        btnDel.addEventListener("click", () => {
-          selectedProducts.splice(index, 1);
-          renderTable();
-          calculateTotals();
-        });
-        tdDel.appendChild(btnDel);
-        tr.appendChild(tdDel);
-
-        reportBody.appendChild(tr);
-      });
-    }
-
-    addBtn.addEventListener("click", () => {
+    function addProduct() {
       const name = nameInput.value;
-      const qty = parseInt(qtyInput.value);
-      if (!name || qty <= 0) return;
-      const product = allProducts.find((p) => p.name === name);
+      const qty = parseInt(qtyInput.value, 10);
+      if (!name || qty < 1) return;
+
+      const product = allProducts.find(p => p.name === name);
       if (!product) return;
 
-      const existing = selectedProducts.find((p) => p.name === name);
+      const existing = selectedProducts.find(p => p.name === name);
       if (existing) {
         existing.qty += qty;
       } else {
@@ -455,69 +368,131 @@
       }
 
       renderTable();
-      calculateTotals();
-    });
+    }
+
+    function renderTable() {
+      reportBody.innerHTML = "";
+      let totalPrice = 0;
+      let totalPv = 0;
+
+      selectedProducts.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+
+        // 品項名稱
+        const nameTd = document.createElement("td");
+        nameTd.textContent = p.name;
+        tr.appendChild(nameTd);
+
+        // 數量
+        const qtyTd = document.createElement("td");
+        qtyTd.textContent = p.qty;
+        tr.appendChild(qtyTd);
+
+        // 單價
+        const priceTd = document.createElement("td");
+        priceTd.textContent = p.price.toLocaleString();
+        tr.appendChild(priceTd);
+
+        // PV
+        const pvTd = document.createElement("td");
+        pvTd.textContent = p.pv.toLocaleString();
+        tr.appendChild(pvTd);
+
+        // 小計金額
+        const subPrice = p.price * p.qty;
+        const subPriceTd = document.createElement("td");
+        subPriceTd.textContent = subPrice.toLocaleString();
+        tr.appendChild(subPriceTd);
+
+        // 小計PV
+        const subPv = p.pv * p.qty;
+        const subPvTd = document.createElement("td");
+        subPvTd.textContent = subPv.toLocaleString();
+        tr.appendChild(subPvTd);
+
+        // 操作按鈕
+        const opTd = document.createElement("td");
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "刪除";
+        delBtn.className = "deleteBtn";
+        delBtn.addEventListener("click", () => {
+          selectedProducts.splice(idx, 1);
+          renderTable();
+        });
+        opTd.appendChild(delBtn);
+        tr.appendChild(opTd);
+
+        reportBody.appendChild(tr);
+
+        totalPrice += subPrice;
+        totalPv += subPv;
+      });
+
+      totalPriceCellDup.textContent = totalPrice.toLocaleString();
+      totalPvCellDup.textContent = totalPv.toLocaleString();
+
+      pvDiff.textContent = (112000 - totalPv).toLocaleString();
+      pvDiff2.textContent = (220000 - totalPv).toLocaleString();
+
+      // 如果表格有品項，顯示匯出和分享按鈕
+      if (selectedProducts.length > 0) {
+        exportBtn.style.display = "block";
+        shareToLineBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
+      } else {
+        exportBtn.style.display = "none";
+        shareToLineBtn.style.display = "none";
+        nativeShareBtn.style.display = "none";
+        clearImageBtn.style.display = "none";
+        previewImage.style.display = "none";
+        previewImage.src = "";
+      }
+    }
+
+    addBtn.addEventListener("click", addProduct);
 
     exportBtn.addEventListener("click", () => {
-      html2canvas(document.querySelector("#captureArea"), { scale: 2 }).then((canvas) => {
+      html2canvas(document.querySelector("#captureArea")).then(canvas => {
         previewImage.src = canvas.toDataURL("image/png");
         previewImage.style.display = "block";
-        shareToLineBtn.style.display = "inline-block";
-        nativeShareBtn.style.display = navigator.canShare ? "inline-block" : "none";
-        clearImageBtn.style.display = "inline-block";
       });
     });
 
-    shareToLineBtn.addEventListener("click", async () => {
-      if (!previewImage.src) return;
-      try {
-        const blob = await (await fetch(previewImage.src)).blob();
-        const formData = new FormData();
-        formData.append("file", blob, "report.png");
-
-        const res = await fetch(API_URL + "?upload=true", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert("圖片上傳成功！");
-          shareToLineBtn.style.display = "none";
-        } else {
-          alert("圖片上傳失敗！");
-        }
-      } catch {
-        alert("圖片上傳過程發生錯誤！");
+    shareToLineBtn.addEventListener("click", () => {
+      if (!previewImage.src) {
+        alert("請先匯出報表圖片！");
+        return;
       }
+      const shareUrl = `https://social-plugins.line.me/lineit/share?text=康園PV試算報表\n${previewImage.src}`;
+      window.open(shareUrl, "_blank");
     });
 
     nativeShareBtn.addEventListener("click", async () => {
       if (!navigator.canShare || !previewImage.src) {
-        return; // 不跳提示訊息
+        // 不顯示提示，悄悄失敗
+        return;
       }
       try {
-        const response = await fetch(previewImage.src);
-        const blob = await response.blob();
+        const res = await fetch(previewImage.src);
+        const blob = await res.blob();
         const filesArray = [new File([blob], "report.png", { type: blob.type })];
         await navigator.share({
           files: filesArray,
           title: "康園PV試算報表",
           text: "請參考附件的報表圖片",
         });
-      } catch (e) {
-        // 分享失敗不跳提示訊息
+      } catch {
+        // 失敗不提示
       }
     });
 
     clearImageBtn.addEventListener("click", () => {
-      previewImage.src = "";
       previewImage.style.display = "none";
-      shareToLineBtn.style.display = "none";
-      nativeShareBtn.style.display = "none";
-      clearImageBtn.style.display = "none";
+      previewImage.src = "";
     });
 
-    // 初始化數量選項和載入商品清單
+    // 初始化數量選項和載入品項
     initQtyOptions();
     loadProducts();
   </script>
