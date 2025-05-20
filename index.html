@@ -87,20 +87,6 @@
       white-space: nowrap;
     }
 
-    /* 品項名稱欄變大，文字靠左 */
-    #reportTable th:nth-child(1),
-    #reportTable td:nth-child(1) {
-      width: 220px;
-      text-align: left;
-      padding-left: 10px;
-    }
-
-    /* 數量欄變小 */
-    #reportTable th:nth-child(2),
-    #reportTable td:nth-child(2) {
-      width: 60px;
-    }
-
     #reportTable thead {
       background: linear-gradient(90deg, #00bfa5, #29b6f6);
       color: #fff;
@@ -145,8 +131,6 @@
       flex-direction: column;
       gap: 10px;
       margin-top: 20px;
-      justify-content: center;
-      align-items: center;
     }
 
     #nameInput, #qtyInput, #addBtn {
@@ -172,9 +156,9 @@
       background-color: #009e8a;
     }
 
-    /* 三個按鈕排成一行 */
     #exportBtn, #shareToLineBtn, #nativeShareBtn, #clearImageBtn {
-      margin: 10px 6px;
+      margin: 10px auto;
+      display: block;
       padding: 10px 25px;
       font-size: 16px;
       background: var(--button-green);
@@ -182,7 +166,10 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      display: inline-block;
+    }
+
+    #exportBtn:hover, #shareToLineBtn:hover, #nativeShareBtn:hover {
+      background: #009e8a;
     }
 
     #clearImageBtn {
@@ -193,23 +180,18 @@
       background: #424242;
     }
 
-    /* 容器包按鈕讓它們在一行 */
-    #buttonGroup {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    #exportBtn:hover, #shareToLineBtn:hover, #nativeShareBtn:hover {
-      background: #009e8a;
-    }
-
     #previewImage {
       display: none;
       max-width: 100%;
       border: 2px solid #888;
       border-radius: 10px;
-      margin: 10px auto 20px;
-      display: block;
+      margin: 20px auto;
+    }
+
+    #shareToLineBtn,
+    #nativeShareBtn,
+    #clearImageBtn {
+      display: none;
     }
 
     @media (min-width: 600px) {
@@ -294,14 +276,11 @@
     </div>
   </div>
 
-  <div id="buttonGroup">
-    <button id="exportBtn">📤 匯出報表為圖片</button>
-    <button id="shareToLineBtn">📩 上傳備份</button>
-    <button id="nativeShareBtn">📱 分享圖片</button>
-    <button id="clearImageBtn">❌ 清除圖片</button>
-  </div>
-
+  <button id="exportBtn">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
+  <button id="shareToLineBtn">📩 上傳備份</button>
+  <button id="nativeShareBtn">📱 分享圖片</button>
+  <button id="clearImageBtn">❌ 清除圖片</button>
 
   <div id="inputArea">
     <select id="nameInput"></select>
@@ -413,55 +392,105 @@
 
     reportBody.addEventListener("click", e => {
       if (e.target.classList.contains("deleteBtn")) {
-        const idx = e.target.dataset.index;
-        selectedProducts.splice(idx, 1);
-        renderTable();
+        const idx = parseInt(e.target.dataset.index, 10);
+        if (!isNaN(idx)) {
+          selectedProducts.splice(idx, 1);
+          renderTable();
+        }
       }
     });
 
     addBtn.addEventListener("click", addProduct);
 
-    exportBtn.addEventListener("click", () => {
-      html2canvas(document.getElementById("captureArea")).then(canvas => {
+    exportBtn.addEventListener("click", async () => {
+      exportBtn.disabled = true;
+      exportBtn.textContent = "匯出中...";
+      try {
+        const canvas = await html2canvas(document.getElementById("captureArea"), {
+          scale: 2,
+          backgroundColor: null,
+          useCORS: true,
+        });
         previewImage.src = canvas.toDataURL("image/png");
         previewImage.style.display = "block";
-      });
+        shareToLineBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = "inline-block";
+        clearImageBtn.style.display = "inline-block";
+      } catch (e) {
+        alert("匯出失敗: " + e.message);
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = "📤 匯出報表為圖片";
+      }
     });
 
-    shareToLineBtn.addEventListener("click", () => {
-      alert("備份上傳功能請自行實作 API");
-    });
-
-    nativeShareBtn.addEventListener("click", () => {
+    shareToLineBtn.addEventListener("click", async () => {
       if (!previewImage.src) {
         alert("請先匯出圖片");
         return;
       }
-      if (navigator.share) {
-        fetch(previewImage.src)
-          .then(res => res.blob())
-          .then(blob => {
-            const file = new File([blob], "report.png", { type: "image/png" });
-            navigator.share({
-              files: [file],
-              title: "試算報表",
-              text: "康園PV試算報表"
-            });
-          })
-          .catch(console.error);
-      } else {
-        alert("此裝置不支援原生分享");
+      shareToLineBtn.disabled = true;
+      shareToLineBtn.textContent = "上傳中...";
+      try {
+        // imgbb 上傳 API key，請自行替換成你自己的key
+        const API_KEY = "5be146133d1fa6ded66878aade98880f";
+        const base64 = previewImage.src.split(",")[1];
+        const formData = new FormData();
+        formData.append("key", API_KEY);
+        formData.append("image", base64);
+
+        const res = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success) {
+          const url = json.data.url;
+          alert("圖片上傳成功！\nURL:\n" + url);
+        } else {
+          alert("圖片上傳失敗！");
+        }
+      } catch (e) {
+        alert("圖片上傳發生錯誤：" + e.message);
+      } finally {
+        shareToLineBtn.disabled = false;
+        shareToLineBtn.textContent = "📩 上傳備份";
+      }
+    });
+
+    nativeShareBtn.addEventListener("click", async () => {
+      if (!navigator.canShare || !previewImage.src) {
+        alert("裝置不支援原生分享功能");
+        return;
+      }
+      try {
+        const response = await fetch(previewImage.src);
+        const blob = await response.blob();
+        const filesArray = [new File([blob], "report.png", { type: blob.type })];
+        await navigator.share({
+          files: filesArray,
+          title: "康園PV試算報表",
+          text: "請參考附件的報表圖片",
+        });
+      } catch (e) {
+        alert("分享失敗：" + e.message);
       }
     });
 
     clearImageBtn.addEventListener("click", () => {
       previewImage.src = "";
       previewImage.style.display = "none";
+      shareToLineBtn.style.display = "none";
+      nativeShareBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
     });
 
-    // 初始化
+    // 初始化數量下拉選單
     initQtyOptions();
+
+    // 載入商品資料
     loadProducts();
+
   </script>
 </body>
 </html>
