@@ -77,22 +77,19 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
-      table-layout: fixed;
+      table-layout: auto; /* 改成自動寬度，避免匯出時縮欄 */
     }
 
     /* 修改欄位寬度，品項名稱欄位3份，數量欄位2份，其他不變 */
     #reportTable th:nth-child(1),
     #reportTable td:nth-child(1) {
-      width: 25%;
+      width: 23%;
     }
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2) {
-      width: 5%;
+      width: 7%;
     }
-    #reportTable th:nth-child(n+3),
-    #reportTable td:nth-child(n+3) {
-      width: auto; /* 其他欄位保持預設 */
-    }
+    /* 其餘欄位不設定寬度 */
 
     #reportTable th, #reportTable td {
       border: 1px solid #555;
@@ -105,6 +102,15 @@
       background: linear-gradient(90deg, #00bfa5, #29b6f6);
       color: #fff;
       font-weight: 600;
+    }
+
+    /* 操作欄位字體較小 */
+    #reportTable td:last-child,
+    #reportTable th:last-child {
+      font-size: 9px;
+      padding: 3px 5px;
+      white-space: nowrap;
+      width: 60px;
     }
 
     .deleteBtn {
@@ -464,46 +470,72 @@
       clearImageBtn.style.display = "none";
     });
 
-    // 使用 LINE BOT API 傳圖片給自己備份
-    shareToLineBtn.addEventListener("click", () => {
-      if (!previewImage.src) return alert("請先匯出圖片");
-      fetch("https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({action: "uploadImage", imageData: previewImage.src})
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert(data.message || "圖片已上傳備份");
-      })
-      .catch(() => {
-        alert("上傳失敗，請稍後再試");
-      });
-    });
-
-    // 使用原生分享 API
+    // 本地分享
     nativeShareBtn.addEventListener("click", async () => {
-      if (!previewImage.src) return alert("請先匯出圖片");
-
+      if (!navigator.canShare || !navigator.canShare({ files: [] })) {
+        alert("您的瀏覽器不支援分享功能");
+        return;
+      }
+      const blob = await fetch(previewImage.src).then(r => r.blob());
+      const file = new File([blob], "康園PV試算.png", { type: "image/png" });
       try {
-        const response = await fetch(previewImage.src);
-        const blob = await response.blob();
-        const filesArray = [new File([blob], "報表.png", {type: blob.type})];
-        if (navigator.canShare && navigator.canShare({files: filesArray})) {
-          await navigator.share({
-            files: filesArray,
-            title: "康園PV試算報表",
-            text: "試算報表圖片分享"
-          });
-        } else {
-          alert("裝置不支援分享檔案");
-        }
-      } catch {
-        alert("分享失敗");
+        await navigator.share({
+          files: [file],
+          title: "康園PV試算報表",
+          text: "請查看康園PV試算的圖片報表。"
+        });
+      } catch (err) {
+        console.error("分享失敗:", err);
       }
     });
 
-    // 初始
+    // 備份至 Google Sheets (呼叫 Apps Script API)
+    shareToLineBtn.addEventListener("click", async () => {
+      if (!previewImage.src) {
+        alert("請先匯出圖片");
+        return;
+      }
+
+      try {
+        shareToLineBtn.textContent = "備份中...";
+        shareToLineBtn.disabled = true;
+
+        // 簡單示範：上傳 base64 圖片及資料至 Google Apps Script
+        const payload = {
+          action: "backup",
+          imageBase64: previewImage.src,
+          data: selectedProducts,
+          totalPrice: totalPriceCellDup.textContent,
+          totalPv: totalPvCellDup.textContent,
+          timestamp: new Date().toISOString(),
+          buyer: document.querySelectorAll(".userInputs input")[0].value,
+          calculator: document.querySelectorAll(".userInputs input")[1].value
+        };
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          alert("備份成功！");
+        } else {
+          alert("備份失敗：" + (result.message || "未知錯誤"));
+        }
+      } catch (e) {
+        alert("備份時發生錯誤：" + e.message);
+      } finally {
+        shareToLineBtn.textContent = "📩 上傳備份";
+        shareToLineBtn.disabled = false;
+      }
+    });
+
+    // 初始化
     initQtyOptions();
     loadProducts();
   </script>
