@@ -279,7 +279,7 @@
   <button id="exportBtn">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
   <button id="shareToLineBtn">📩 上傳備份</button>
-  <button id="nativeShareBtn">📱 手機分享圖片</button>
+  <button id="nativeShareBtn">📱 分享圖片</button>
   <button id="clearImageBtn">❌ 清除圖片</button>
 
   <div id="inputArea">
@@ -432,25 +432,27 @@
       shareToLineBtn.disabled = true;
       shareToLineBtn.textContent = "上傳中...";
       try {
-        const base64Data = previewImage.src.split(",")[1];
+        // imgbb 上傳 API key，請自行替換成你自己的key
+        const API_KEY = "5be146133d1fa6ded66878aade98880f";
+        const base64 = previewImage.src.split(",")[1];
         const formData = new FormData();
-        formData.append("key", "5be146133d1fa6ded66878aade98880f");
-        formData.append("image", base64Data);
+        formData.append("key", API_KEY);
+        formData.append("image", base64);
 
-        const resp = await fetch("https://api.imgbb.com/1/upload", {
+        const res = await fetch("https://api.imgbb.com/1/upload", {
           method: "POST",
           body: formData,
         });
-
-        const result = await resp.json();
-        if (result.success && result.data && result.data.url) {
-          const shareUrl = `https://line.me/R/msg/image/?${encodeURIComponent(result.data.url)}`;
-          window.open(shareUrl, "_blank");
+        const json = await res.json();
+        if (json.success) {
+          const url = json.data.url;
+          const lineUrl = `https://line.me/R/msg/image/?${encodeURIComponent(url)}`;
+          window.open(lineUrl, "_blank");
         } else {
-          alert("圖片上傳失敗，請稍後再試。");
+          alert("上傳失敗：" + json.error.message);
         }
       } catch (e) {
-        alert("上傳過程發生錯誤：" + e.message);
+        alert("上傳錯誤：" + e.message);
       } finally {
         shareToLineBtn.disabled = false;
         shareToLineBtn.textContent = "📩 上傳備份";
@@ -458,21 +460,25 @@
     });
 
     nativeShareBtn.addEventListener("click", async () => {
-      if (!previewImage.src || !navigator.canShare || !navigator.canShare({ files: [] })) {
-        alert("瀏覽器不支援原生分享");
+      if (!previewImage.src) {
+        alert("請先匯出圖片");
         return;
       }
-      const res = await fetch(previewImage.src);
-      const blob = await res.blob();
-      const file = new File([blob], "report.png", { type: blob.type });
+      if (!navigator.canShare || !navigator.canShare()) {
+        alert("此裝置不支援原生分享");
+        return;
+      }
       try {
+        const response = await fetch(previewImage.src);
+        const blob = await response.blob();
+        const file = new File([blob], "試算報表.png", { type: blob.type });
         await navigator.share({
           files: [file],
-          title: "彥彬試算報表",
-          text: "這是我的 PV 試算報表圖片",
+          title: "康園試算報表",
+          text: "這是康園試算報表圖片。",
         });
-      } catch (err) {
-        alert("分享失敗：" + err.message);
+      } catch (e) {
+        alert("分享失敗：" + e.message);
       }
     });
 
@@ -484,10 +490,9 @@
       clearImageBtn.style.display = "none";
     });
 
-    window.onload = () => {
-      initQtyOptions();
-      loadProducts();
-    };
+    // 初始化數量選項和載入商品
+    initQtyOptions();
+    loadProducts();
   </script>
 </body>
 </html>
