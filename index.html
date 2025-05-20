@@ -286,9 +286,6 @@
   </div>
 
   <script>
-    // 請將此 URL 換成你自己的 GAS Web App URL (Imgur 代理)
-    const GAS_IMGUR_PROXY_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
-
     // 你的 Google Apps Script Web App API 讀取商品資料 URL
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
@@ -390,20 +387,18 @@
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
 
-      // 計算差距
-      const diff1 = 112000 - totalPv;
-      const diff2 = 220000 - totalPv;
-
-      pvDiff.textContent = diff1 > 0 ? diff1.toLocaleString() : "已達標";
-      pvDiff2.textContent = diff2 > 0 ? diff2.toLocaleString() : "已達標";
+      pvDiff.textContent = Math.max(112000 - totalPv, 0).toLocaleString();
+      pvDiff2.textContent = Math.max(220000 - totalPv, 0).toLocaleString();
     }
 
-    // 刪除指定品項
+    // 刪除品項
     reportBody.addEventListener("click", e => {
       if (e.target.classList.contains("deleteBtn")) {
-        const index = parseInt(e.target.getAttribute("data-index"), 10);
-        selectedProducts.splice(index, 1);
-        renderTable();
+        const idx = parseInt(e.target.dataset.index, 10);
+        if (!isNaN(idx)) {
+          selectedProducts.splice(idx, 1);
+          renderTable();
+        }
       }
     });
 
@@ -411,22 +406,7 @@
       addProduct();
     });
 
-    // 按下 Enter 在品項名稱或數量時也可新增
-    nameInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        addProduct();
-      }
-    });
-
-    qtyInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        addProduct();
-      }
-    });
-
-    // 匯出為圖片
+    // 匯出圖片
     const exportBtn = document.getElementById("exportBtn");
     const previewImage = document.getElementById("previewImage");
     const shareToLineBtn = document.getElementById("shareToLineBtn");
@@ -439,26 +419,18 @@
         const canvas = await html2canvas(document.getElementById("captureArea"), {
           scale: 2,
           backgroundColor: null,
-          useCORS: true
+          useCORS: true,
         });
-        const dataUrl = canvas.toDataURL("image/png");
-        previewImage.src = dataUrl;
+        previewImage.src = canvas.toDataURL("image/png");
         previewImage.style.display = "block";
         shareToLineBtn.style.display = "inline-block";
         clearImageBtn.style.display = "inline-block";
       } catch (e) {
-        alert("匯出失敗：" + e.message);
+        alert("匯出失敗: " + e.message);
       } finally {
         exportBtn.disabled = false;
         exportBtn.textContent = "📤 匯出報表為圖片";
       }
-    });
-
-    clearImageBtn.addEventListener("click", () => {
-      previewImage.style.display = "none";
-      previewImage.src = "";
-      shareToLineBtn.style.display = "none";
-      clearImageBtn.style.display = "none";
     });
 
     shareToLineBtn.addEventListener("click", async () => {
@@ -469,21 +441,21 @@
       shareToLineBtn.disabled = true;
       shareToLineBtn.textContent = "上傳中...";
       try {
-        // 將 dataURL 去掉前綴，只留下 Base64
         const base64Data = previewImage.src.split(",")[1];
+
         const formData = new FormData();
+        formData.append("key", "5be146133d1fa6ded66878aade98880f");
         formData.append("image", base64Data);
 
-        // 使用 Google Apps Script 當作 Imgur 代理上傳圖片
-        const resp = await fetch(GAS_IMGUR_PROXY_URL, {
+        const resp = await fetch("https://api.imgbb.com/1/upload", {
           method: "POST",
           body: formData,
         });
 
         const result = await resp.json();
-        if (result.success && result.data && result.data.link) {
-          // 開啟 LINE 分享網址
-          const shareUrl = `https://line.me/R/msg/image/?${encodeURIComponent(result.data.link)}`;
+        if (result.success && result.data && result.data.url) {
+          // LINE 分享圖片連結的 URL 格式
+          const shareUrl = `https://line.me/R/msg/image/?${encodeURIComponent(result.data.url)}`;
           window.open(shareUrl, "_blank");
         } else {
           alert("圖片上傳失敗，請稍後再試。");
@@ -496,9 +468,18 @@
       }
     });
 
-    // 初始化畫面
-    initQtyOptions();
-    loadProducts();
+    clearImageBtn.addEventListener("click", () => {
+      previewImage.src = "";
+      previewImage.style.display = "none";
+      shareToLineBtn.style.display = "none";
+      clearImageBtn.style.display = "none";
+    });
+
+    // 初始化頁面
+    window.onload = () => {
+      initQtyOptions();
+      loadProducts();
+    };
   </script>
 </body>
 </html>
