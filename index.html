@@ -286,6 +286,8 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+    const IMGUR_CLIENT_ID = "5be146133d1fa6ded66878aade98880f";
+
     let allProducts = [];
     let selectedProducts = [];
 
@@ -392,10 +394,43 @@
       });
     });
 
-    document.getElementById("shareToLineBtn").addEventListener("click", () => {
+    // 分享至 LINE (先上傳 Imgur 再分享)
+    document.getElementById("shareToLineBtn").addEventListener("click", async () => {
       const previewImage = document.getElementById("previewImage").src;
-      const shareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(previewImage)}`;
-      window.open(shareUrl, "_blank");
+      if (!previewImage) {
+        alert("請先匯出圖片！");
+        return;
+      }
+
+      try {
+        const base64Image = previewImage.split(",")[1];
+
+        const response = await fetch("https://api.imgur.com/3/image", {
+          method: "POST",
+          headers: {
+            Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image: base64Image,
+            type: "base64"
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const imgurUrl = result.data.link;
+          const lineShareUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(imgurUrl)}`;
+          window.open(lineShareUrl, "_blank");
+        } else {
+          alert("圖片上傳 Imgur 失敗");
+          console.error(result);
+        }
+      } catch (err) {
+        alert("圖片上傳過程發生錯誤");
+        console.error(err);
+      }
     });
 
     document.getElementById("clearImageBtn").addEventListener("click", () => {
