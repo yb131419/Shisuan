@@ -156,7 +156,7 @@
       background-color: #009e8a;
     }
 
-    #exportBtn, #shareToLineBtn, #clearImageBtn {
+    #exportBtn, #shareToLineBtn, #nativeShareBtn, #clearImageBtn {
       margin: 10px auto;
       display: block;
       padding: 10px 25px;
@@ -168,7 +168,7 @@
       cursor: pointer;
     }
 
-    #exportBtn:hover, #shareToLineBtn:hover {
+    #exportBtn:hover, #shareToLineBtn:hover, #nativeShareBtn:hover {
       background: #009e8a;
     }
 
@@ -188,7 +188,9 @@
       margin: 20px auto;
     }
 
-    #shareToLineBtn {
+    #shareToLineBtn,
+    #nativeShareBtn,
+    #clearImageBtn {
       display: none;
     }
 
@@ -213,7 +215,7 @@
         color: #000;
       }
 
-      #inputArea, #addBtn, #exportBtn, #shareToLineBtn, #clearImageBtn {
+      #inputArea, #addBtn, #exportBtn, #shareToLineBtn, #clearImageBtn, #nativeShareBtn {
         display: none !important;
       }
 
@@ -274,19 +276,19 @@
     </div>
   </div>
 
-  <button id="exportBtn" aria-label="匯出報表為圖片">📤 匯出報表為圖片</button>
+  <button id="exportBtn">📤 匯出報表為圖片</button>
   <img id="previewImage" alt="預覽匯出圖片" />
-  <button id="shareToLineBtn" aria-label="上傳備份">📩 上傳備份</button>
-  <button id="clearImageBtn" aria-label="清除圖片">❌ 清除圖片</button>
+  <button id="shareToLineBtn">📩 上傳備份</button>
+  <button id="nativeShareBtn">📱 手機分享圖片</button>
+  <button id="clearImageBtn">❌ 清除圖片</button>
 
   <div id="inputArea">
-    <select id="nameInput" aria-label="品項名稱"></select>
-    <select id="qtyInput" aria-label="數量"></select>
+    <select id="nameInput"></select>
+    <select id="qtyInput"></select>
     <button id="addBtn">新增品項</button>
   </div>
 
   <script>
-    // 你的 Google Apps Script Web App API 讀取商品資料 URL
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 
     let allProducts = [];
@@ -301,7 +303,12 @@
     const pvDiff = document.getElementById("pvDiff");
     const pvDiff2 = document.getElementById("pvDiff2");
 
-    // 初始化數量下拉 (1~50)
+    const exportBtn = document.getElementById("exportBtn");
+    const previewImage = document.getElementById("previewImage");
+    const shareToLineBtn = document.getElementById("shareToLineBtn");
+    const nativeShareBtn = document.getElementById("nativeShareBtn");
+    const clearImageBtn = document.getElementById("clearImageBtn");
+
     function initQtyOptions() {
       for (let i = 1; i <= 50; i++) {
         const option = document.createElement("option");
@@ -311,7 +318,6 @@
       }
     }
 
-    // 載入商品清單
     async function loadProducts() {
       try {
         const res = await fetch(API_URL);
@@ -333,7 +339,6 @@
       });
     }
 
-    // 新增品項至試算清單
     function addProduct() {
       const name = nameInput.value;
       const qty = parseInt(qtyInput.value, 10);
@@ -342,7 +347,6 @@
       const product = allProducts.find(p => p.name === name);
       if (!product) return;
 
-      // 若品項已存在則增加數量
       const existing = selectedProducts.find(p => p.name === name);
       if (existing) {
         existing.qty += qty;
@@ -353,16 +357,12 @@
       renderTable();
     }
 
-    // 渲染試算表格
     function renderTable() {
       reportBody.innerHTML = "";
-
       let totalPrice = 0;
       let totalPv = 0;
 
       selectedProducts.forEach((item, idx) => {
-        const tr = document.createElement("tr");
-
         const priceNum = parseInt(item.price, 10) || 0;
         const pvNum = parseInt(item.pv, 10) || 0;
         const subTotalPrice = priceNum * item.qty;
@@ -371,6 +371,7 @@
         totalPrice += subTotalPrice;
         totalPv += subTotalPv;
 
+        const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${item.name}</td>
           <td>${item.qty}</td>
@@ -378,20 +379,17 @@
           <td>${pvNum.toLocaleString()}</td>
           <td>${subTotalPrice.toLocaleString()}</td>
           <td>${subTotalPv.toLocaleString()}</td>
-          <td><button class="deleteBtn" aria-label="刪除 ${item.name}" data-index="${idx}">✖</button></td>
+          <td><button class="deleteBtn" data-index="${idx}">✖</button></td>
         `;
-
         reportBody.appendChild(tr);
       });
 
       totalPriceCellDup.textContent = totalPrice.toLocaleString();
       totalPvCellDup.textContent = totalPv.toLocaleString();
-
       pvDiff.textContent = Math.max(112000 - totalPv, 0).toLocaleString();
       pvDiff2.textContent = Math.max(220000 - totalPv, 0).toLocaleString();
     }
 
-    // 刪除品項
     reportBody.addEventListener("click", e => {
       if (e.target.classList.contains("deleteBtn")) {
         const idx = parseInt(e.target.dataset.index, 10);
@@ -402,15 +400,7 @@
       }
     });
 
-    addBtn.addEventListener("click", () => {
-      addProduct();
-    });
-
-    // 匯出圖片
-    const exportBtn = document.getElementById("exportBtn");
-    const previewImage = document.getElementById("previewImage");
-    const shareToLineBtn = document.getElementById("shareToLineBtn");
-    const clearImageBtn = document.getElementById("clearImageBtn");
+    addBtn.addEventListener("click", addProduct);
 
     exportBtn.addEventListener("click", async () => {
       exportBtn.disabled = true;
@@ -424,6 +414,7 @@
         previewImage.src = canvas.toDataURL("image/png");
         previewImage.style.display = "block";
         shareToLineBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = "inline-block";
         clearImageBtn.style.display = "inline-block";
       } catch (e) {
         alert("匯出失敗: " + e.message);
@@ -442,7 +433,6 @@
       shareToLineBtn.textContent = "上傳中...";
       try {
         const base64Data = previewImage.src.split(",")[1];
-
         const formData = new FormData();
         formData.append("key", "5be146133d1fa6ded66878aade98880f");
         formData.append("image", base64Data);
@@ -454,7 +444,6 @@
 
         const result = await resp.json();
         if (result.success && result.data && result.data.url) {
-          // LINE 分享圖片連結的 URL 格式
           const shareUrl = `https://line.me/R/msg/image/?${encodeURIComponent(result.data.url)}`;
           window.open(shareUrl, "_blank");
         } else {
@@ -468,14 +457,33 @@
       }
     });
 
+    nativeShareBtn.addEventListener("click", async () => {
+      if (!previewImage.src || !navigator.canShare || !navigator.canShare({ files: [] })) {
+        alert("瀏覽器不支援原生分享");
+        return;
+      }
+      const res = await fetch(previewImage.src);
+      const blob = await res.blob();
+      const file = new File([blob], "report.png", { type: blob.type });
+      try {
+        await navigator.share({
+          files: [file],
+          title: "彥彬試算報表",
+          text: "這是我的 PV 試算報表圖片",
+        });
+      } catch (err) {
+        alert("分享失敗：" + err.message);
+      }
+    });
+
     clearImageBtn.addEventListener("click", () => {
       previewImage.src = "";
       previewImage.style.display = "none";
       shareToLineBtn.style.display = "none";
+      nativeShareBtn.style.display = "none";
       clearImageBtn.style.display = "none";
     });
 
-    // 初始化頁面
     window.onload = () => {
       initQtyOptions();
       loadProducts();
