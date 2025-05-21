@@ -2,18 +2,42 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube 教學影片</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教學影片播放</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 40px;
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      max-width: 100%;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+  </style>
 </head>
-<body style="margin:0; padding:0; background-color:#000;">
-  <div style="position:relative; padding-top:56.25%; height:0;">
-    <iframe
-      src="https://youtu.be/ZqDNkp4J87U/embed/VgcdcKjMuBBsgo_2"
-      style="position:absolute; top:0; left:0; width:100%; height:100%;"
-      frameborder="0"
-      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen>
-    </iframe>
+<body>
+  <h1>📽️ 教學影片列表</h1>
+
+  <h2>📘 影片 1：ZqDNkp4J87U</h2>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/ZqDNkp4J87U" frameborder="0" allowfullscreen></iframe>
+  </div>
+
+  <h2>📘 影片 2：RaTvDPfueAE</h2>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/RaTvDPfueAE" frameborder="0" allowfullscreen></iframe>
   </div>
 </body>
 </html>
