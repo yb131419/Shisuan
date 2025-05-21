@@ -574,8 +574,10 @@
           const imageUrl = result.data.url;
           const buyerName = buyerInput.value.trim() || "未填購買者";
           const calculatorName = calculatorInput.value.trim() || "未填試算者";
-          const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent("康園試算報表\n購買者：" + buyerName + "\n試算者:"
-          + calculatorName  + imageUrl)}`;
+          const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
+          `康園試算報表\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`
+      )}`;
+
           window.open(lineShareUrl, "_blank");
           showToast("✅ 圖片已上傳備份");
         } else {
