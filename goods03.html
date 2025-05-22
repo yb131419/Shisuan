@@ -69,6 +69,26 @@
       border: 0;
     }
 
+    .unmute-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.9em;
+      z-index: 10;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .unmute-btn.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .footer {
       text-align: center;
       font-size: 0.85em;
@@ -79,6 +99,12 @@
     @media (max-width: 480px) {
       h1 { font-size: 1.4em; }
       p { font-size: 0.95em; }
+      .unmute-btn {
+        font-size: 1em;
+        padding: 12px 18px;
+        top: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -87,11 +113,13 @@
     <h1>『線上版』試算 3.0</h1>
     <p>教學 3.0 線上版 的使用方法</p>
 
-    <div class="video-wrapper">
-      <iframe 
-        src="https://player.vimeo.com/video/1086596919?autoplay=1&muted=1" 
-        frameborder="0" 
-        allow="autoplay; fullscreen; picture-in-picture" 
+    <div class="video-wrapper" id="video-wrapper">
+      <button class="unmute-btn" id="unmute-btn">🔊 點我開聲</button>
+      <iframe
+        id="vimeo-player"
+        src="https://player.vimeo.com/video/1086596919?autoplay=1&muted=1"
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
         allowfullscreen>
       </iframe>
     </div>
@@ -100,5 +128,23 @@
 
     <div class="footer">© 2025 彥彬 試算系統 · 保留所有權利</div>
   </div>
+
+  <!-- Vimeo Player API -->
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <script>
+    const iframe = document.getElementById('vimeo-player');
+    const unmuteBtn = document.getElementById('unmute-btn');
+    const player = new Vimeo.Player(iframe);
+
+    unmuteBtn.addEventListener('click', async () => {
+      try {
+        await player.setVolume(1);
+        await player.play();
+        unmuteBtn.classList.add('hide');
+      } catch (e) {
+        console.error('開聲播放失敗', e);
+      }
+    });
+  </script>
 </body>
 </html>
