@@ -7,8 +7,8 @@
   <style>
     :root {
       --bg: #fffdf7;
-      --text: #333333;
-      --subtext: #888888;
+      --text: #333;
+      --subtext: #777;
       --accent: #d4af37;
       --shadow: rgba(0, 0, 0, 0.08);
     }
@@ -48,20 +48,25 @@
       margin-bottom: 20px;
     }
 
+    /* 直式 9:16 容器 + 視窗裁切技巧 */
     .video-wrapper {
       position: relative;
       width: 100%;
-      aspect-ratio: 9 / 16; /* 改為直式影片比例 */
+      aspect-ratio: 9 / 16;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
       margin-bottom: 24px;
+      background-color: #000;
     }
 
     .video-wrapper iframe {
       position: absolute;
-      width: 100%;
+      top: 50%;
+      left: 50%;
+      width: 177.78%; /* 強制讓橫式影片撐滿直式容器寬度 */
       height: 100%;
+      transform: translate(-50%, -50%);
       border: 0;
     }
 
@@ -73,25 +78,22 @@
     }
 
     @media (max-width: 480px) {
-      h1 {
-        font-size: 1.4em;
-      }
-      p {
-        font-size: 0.95em;
-      }
+      h1 { font-size: 1.4em; }
+      p { font-size: 0.95em; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>精彩影片欣賞</h1>
-    <p>這是來自 Vimeo 的影片，現在為手機直式播放設計（9:16）。</p>
+    <p>這是來自 Vimeo 的影片，已針對手機長螢幕與質感設計最佳化。</p>
 
     <div class="video-wrapper">
-      <iframe src="https://player.vimeo.com/video/1086596891" 
-              frameborder="0" 
-              allow="autoplay; fullscreen; picture-in-picture" 
-              allowfullscreen>
+      <iframe 
+        src="https://player.vimeo.com/video/1086596891" 
+        frameborder="0" 
+        allow="autoplay; fullscreen; picture-in-picture" 
+        allowfullscreen>
       </iframe>
     </div>
 
