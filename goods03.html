@@ -57,21 +57,16 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
       margin-bottom: 24px;
       background-color: #000;
-      cursor: pointer;
     }
 
-    .video-wrapper::after {
-      content: "點擊播放有聲版本";
+    .video-wrapper iframe {
       position: absolute;
-      bottom: 12px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 0.85em;
-      pointer-events: none;
+      width: 177.78%;
+      height: 100%;
+      transform: translate(-50%, -50%);
+      border: 0;
     }
 
     .footer {
@@ -92,14 +87,12 @@
     <h1>『線上版』試算 3.0</h1>
     <p>教學 3.0 線上版 的使用方法</p>
 
-    <div class="video-wrapper" id="video-wrapper">
-      <iframe
-        id="vimeo-player"
-        src="https://player.vimeo.com/video/1086596919?autoplay=1&muted=1"
-        frameborder="0"
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowfullscreen
-        title="試算教學影片">
+    <div class="video-wrapper">
+      <iframe 
+        src="https://player.vimeo.com/video/1086596919?autoplay=1&muted=1" 
+        frameborder="0" 
+        allow="autoplay; fullscreen; picture-in-picture" 
+        allowfullscreen>
       </iframe>
     </div>
 
@@ -107,21 +100,5 @@
 
     <div class="footer">© 2025 彥彬 試算系統 · 保留所有權利</div>
   </div>
-
-  <script src="https://player.vimeo.com/api/player.js"></script>
-  <script>
-    const iframe = document.getElementById('vimeo-player');
-    const player = new Vimeo.Player(iframe);
-    const wrapper = document.getElementById('video-wrapper');
-
-    wrapper.addEventListener('click', async () => {
-      try {
-        await player.setVolume(1);
-        await player.play();
-      } catch (error) {
-        console.error('播放失敗:', error);
-      }
-    });
-  </script>
 </body>
 </html>
