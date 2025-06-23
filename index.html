@@ -605,35 +605,41 @@ select::-ms-expand {
     }
 
     exportBtn.addEventListener("click", async () => {
-      if (selectedProducts.length === 0) {
-        alert("請先新增至少一個品項，才能匯出圖片！");
-        return;
-      }
+  if (selectedProducts.length === 0) {
+    alert("請先新增至少一個品項，才能匯出圖片！");
+    return;
+  }
 
-      exportBtn.disabled = true;
-      exportBtn.textContent = "匯出中...";
+  exportBtn.disabled = true;
+  exportBtn.textContent = "匯出中...";
 
-      try {
-        const canvas = await html2canvas(document.getElementById("captureArea"), {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: null,
-          logging: false,
-        });
-        const dataUrl = canvas.toDataURL("image/png");
-        previewImage.src = dataUrl;
-        previewImage.style.display = "block";
-        shareToLineBtn.style.display = "inline-block";
-        nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
-        clearImageBtn.style.display = "inline-block";
-      } catch (error) {
-        alert("匯出失敗：" + error);
-      } finally {
-        exportBtn.disabled = false;
-        exportBtn.textContent = "📤 報表轉圖片";
-      }
+  // ✅ 暫時隱藏「操作」欄
+  const opCells = document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+  opCells.forEach(el => el.style.display = "none");
+
+  try {
+    const canvas = await html2canvas(document.getElementById("captureArea"), {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      logging: false,
     });
+    const dataUrl = canvas.toDataURL("image/png");
+    previewImage.src = dataUrl;
+    previewImage.style.display = "block";
+    shareToLineBtn.style.display = "inline-block";
+    nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
+    clearImageBtn.style.display = "inline-block";
+  } catch (error) {
+    alert("匯出失敗：" + error);
+  } finally {
+    // ✅ 還原顯示「操作」欄
+    opCells.forEach(el => el.style.display = "");
+    exportBtn.disabled = false;
+    exportBtn.textContent = "📤 報表轉圖片";
+  }
+});
 
     shareToLineBtn.addEventListener("click", async () => {
       if (!previewImage.src) {
