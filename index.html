@@ -369,26 +369,25 @@
   color: white; /* ⬅ 更改 現金、刷卡 字體顏色 */
   font-weight: 500;
 }
+
 /* 精緻版 qtySelect：背景透明、尺寸小巧 */
-.qtySelect.slimQty {
-  font-size: 13px;
-  padding: 2px 4px;
-  border-radius: 4px;
-  border: 1px solid #999;
-  background-color: transparent;
-  color: #333;
-  width: auto;
-  min-width: 30px;
+.qtySelect {
+  font-size: 13px;              /* 字體與數字比例剛好 */
+  padding: 2px 4px;             /* 上下與左右留白精簡 */
+  border-radius: 4px;           /* 小圓角 */
+  border: 1px solid #999;       /* 細邊框 */
+  background-color: transparent;/* 背景透明 */
+  color: #333;                  /* 字色深灰 */
+  width: auto;                  /* 自動寬度 */
+  min-width: 36px;              /* 不會太小 */
   text-align: center;
-  appearance: none;
+  appearance: none;             /* 移除原生樣式 */
   -webkit-appearance: none;
   -moz-appearance: none;
-}
-@media (max-width: 480px) {
-  .qtySelect.slimQty {
-    min-width: 26px;
-    font-size: 12px;
-  }
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='12' viewBox='0 0 24 24' width='12' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 12px;
 }
 
   }
