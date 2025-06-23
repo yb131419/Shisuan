@@ -96,19 +96,19 @@
   }
 
   #reportTable th:nth-child(1),
-  #reportTable td:nth-child(1) { width: 24%; }
+  #reportTable td:nth-child(1) { width: 26%; }
   #reportTable th:nth-child(2),
-  #reportTable td:nth-child(2) { width: 14%; }
+  #reportTable td:nth-child(2) { width: 7%; }
   #reportTable th:nth-child(3),
-  #reportTable td:nth-child(3) { width: 12%; }
+  #reportTable td:nth-child(3) { width: 13%; }
   #reportTable th:nth-child(4),
-  #reportTable td:nth-child(4) { width: 12%; }
+  #reportTable td:nth-child(4) { width: 13%; }
   #reportTable th:nth-child(5),
-  #reportTable td:nth-child(5) { width: 15%; }
+  #reportTable td:nth-child(5) { width: 16%; }
   #reportTable th:nth-child(6),
-  #reportTable td:nth-child(6) { width: 15%; }
+  #reportTable td:nth-child(6) { width: 16%; }
   #reportTable th:nth-child(7),
-  #reportTable td:nth-child(7) { width: 8%; }
+  #reportTable td:nth-child(7) { width: 9%; }
 
   #reportTable th,
   #reportTable td {
@@ -389,6 +389,31 @@
   background-position: right 6px center;
   background-size: 12px;
 }
+
+/* 讓數量下拉選單背景透明，字體大小符合欄位比例 */
+.slimQty {
+  background-color: transparent;
+  font-size: 14px;
+  border: 1px solid #aaa;
+  color: #333;
+  padding: 2px 4px;
+  border-radius: 4px;
+  width: 100%;
+  text-align: center;
+  appearance: none;
+}
+
+/* 避免在 Firefox/Chrome 出現預設的箭頭背景 */
+.slimQty:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #333;
+}
+
+.slimQty option {
+  background-color: #fff; /* 選單展開時的背景保持白底 */
+  color: #000;
+}
+
 
   }
 </style>
