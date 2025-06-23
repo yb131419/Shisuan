@@ -392,15 +392,17 @@
 
 /* 讓數量下拉選單背景透明，字體大小符合欄位比例 */
 .slimQty {
-  background-color: transparent;
-  font-size: 14px;
-  border: 1px solid #aaa;
-  color: #333;
-  padding: 2px 4px;
-  border-radius: 4px;
-  width: 100%;
-  text-align: center;
-  appearance: none;
+  background-color: transparent;  /* 背景透明，融入表格色系 */
+  font-size: 14px;                /* 字體大小設定為 14px，數字不會太大 */
+  border: 1px solid transparent; /* 透明邊框 */
+  color: #333;                    /* 字體顏色深灰，易於閱讀 */
+  padding: 2px 4px;               /* 上下 2px、左右 4px 的內距，保持緊湊 */
+  border-radius: 4px;             /* 圓角邊框，看起來較柔和 */
+  width: auto;             /* ⬅️ 關鍵：讓寬度自動依內容調整 */
+  min-width: 40px;         /* ⬅️ 避免太窄，給一點安全寬度 */
+  max-width: 60px;         /* ⬅️ 避免太寬，控制整體排版 */
+  text-align: center;             /* 數字置中對齊 */
+  appearance: none;              /* 移除瀏覽器預設下拉樣式（例如 Safari、Firefox） */
 }
 
 /* 避免在 Firefox/Chrome 出現預設的箭頭背景 */
