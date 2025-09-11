@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>彥彬🌿試算系統</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -17,12 +17,17 @@
     --button-grey: #3a3a3a;
   }
 
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Segoe UI', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
+    line-height: 1.5;
   }
 
   #captureArea {
@@ -30,19 +35,27 @@
     box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05),
                 0 4px 20px rgba(0, 0, 0, 0.6);
     color: var(--text-color);
-    padding: 20px;
+    padding: 15px 10px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    overflow-x: auto;
   }
 
-#captureArea h2 {
-  text-align: center;
-  font-size: 2rem; /* 原本是 1.6rem，可視情況調整更大 */
-  font-weight: bold;
-  color: #ffffff;  /* 改為白色 */
-  margin-bottom: 15px;
-}
+  #captureArea h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 0 0 15px 0;
+    padding: 0;
+    line-height: 1.3;
+  }
 
+  @media (min-width: 768px) {
+    #captureArea h2 {
+      font-size: 1.8rem;
+    }
+  }
 
   .userInputs {
     display: flex;
@@ -53,28 +66,34 @@
 
   .userInputs .row {
     display: flex;
-    justify-content: space-between;
     gap: 10px;
+    width: 100%;
   }
 
   .userInputs label {
-    flex: 0 0 150px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    font-size: 16px;
+    font-size: 14px;
     color: #bbb;
   }
 
+  .userInputs label span {
+    text-align: center;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+
   .userInputs input {
-    padding: 8px;
-    font-size: 18px;
+    padding: 10px;
+    font-size: 16px;
     background: #333;
     color: var(--text-color);
     border: none;
     border-radius: 6px;
-    margin-top: 4px;
-    width: 150px;
+    width: 100%;
     box-sizing: border-box;
+    text-align: center;
   }
 
   #nameInput option {
@@ -87,37 +106,69 @@
 
   #reportTable {
     width: 100%;
+    min-width: 300px;
     border-collapse: collapse;
     font-size: 12px;
-    table-layout: fixed;
     border-radius: 10px;
     overflow: hidden;
     background-color: #f9fafb;
     color: #374151;
+    margin: 0 auto;
   }
 
   #reportTable th:nth-child(1),
-  #reportTable td:nth-child(1) { width: 25%; }
+  #reportTable td:nth-child(1) { width: 22%; }
   #reportTable th:nth-child(2),
-  #reportTable td:nth-child(2) { width: 13%; }
+  #reportTable td:nth-child(2) { width: 10%; }
   #reportTable th:nth-child(3),
-  #reportTable td:nth-child(3) { width: 13%; }
+  #reportTable td:nth-child(3) { width: 12%; }
   #reportTable th:nth-child(4),
-  #reportTable td:nth-child(4) { width: 13%; }
+  #reportTable td:nth-child(4) { width: 12%; }
   #reportTable th:nth-child(5),
-  #reportTable td:nth-child(5) { width: 15%; }
+  #reportTable td:nth-child(5) { width: 16%; }
   #reportTable th:nth-child(6),
-  #reportTable td:nth-child(6) { width: 14%; }
+  #reportTable td:nth-child(6) { width: 16%; }
   #reportTable th:nth-child(7),
-  #reportTable td:nth-child(7) { width: 7%; }
+  #reportTable td:nth-child(7) { width: 12%; }
 
   #reportTable th,
   #reportTable td {
     border: 1px solid #d1d5db;
-    padding: 5px;
+    padding: 6px 4px;
     text-align: center;
     white-space: nowrap;
     transition: all 0.3s ease;
+  }
+
+  /* 特别加大数量列的字体 */
+  #reportTable th:nth-child(2),
+  #reportTable td:nth-child(2),
+  .qtySelect {
+    font-size: 16px !important;
+    font-weight: bold !important;
+  }
+
+  #reportTable td:nth-child(3),
+  #reportTable td:nth-child(4),
+  #reportTable td:nth-child(5),
+  #reportTable td:nth-child(6) {
+    font-weight: 500;
+    text-align: center !important;
+  }
+
+  @media (min-width: 768px) {
+    #reportTable th,
+    #reportTable td {
+      padding: 8px 5px;
+      font-size: 14px;
+    }
+    
+    /* 大屏幕上进一步加大数量列的字体 */
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2),
+    .qtySelect {
+      font-size: 18px !important;
+    }
   }
 
   #reportTable thead {
@@ -145,12 +196,12 @@
     border-radius: 4px;
     padding: 2px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     display: inline-block;
     height: auto;
     width: auto;
+    margin: 0 auto;
   }
-
 
   .summaryBox {
     text-align: center;
@@ -158,13 +209,14 @@
     font-size: 1rem;
     font-weight: bold;
     color: var(--highlight);
+    line-height: 1.6;
   }
 
   .summaryBox .extra {
     display: block;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--accent);
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .summaryBox .done {
@@ -172,11 +224,24 @@
     font-weight: bold;
   }
 
+  #totalPriceCellDup, #totalPvCellDup, #pvDiff, #pvDiff2 {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+  }
+
   #inputArea {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
+  }
+
+  @media (min-width: 576px) {
+    #inputArea {
+      flex-direction: row;
+      align-items: center;
+    }
   }
 
   #nameInput,
@@ -188,10 +253,18 @@
     border: none;
   }
 
+  /* 特别加大数量选择框的字体 */
+  #qtyInput {
+    font-size: 18px !important;
+    font-weight: bold;
+  }
+
   #nameInput,
   #qtyInput {
     background-color: #2c2c2c;
     color: var(--text-color);
+    flex: 1;
+    text-align: center;
   }
 
   #addBtn,
@@ -204,6 +277,8 @@
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-align: center;
+    font-size: 15px;
   }
 
   #addBtn:hover,
@@ -214,17 +289,34 @@
     transform: translateY(-2px);
   }
 
+  #addBtn {
+    width: 100%;
+  }
+
+  @media (min-width: 576px) {
+    #addBtn {
+      width: 120px;
+    }
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
   #exportBtn,
   #shareToLineBtn,
   #nativeShareBtn,
   #clearImageBtn {
-    margin: 10px auto;
-    display: block;
+    flex: 1;
+    min-width: 110px;
+    margin: 0;
     padding: 10px 0;
-    width: 30%;
-    font-size: 16px;
+    font-size: 15px;
     border-radius: 8px;
-    box-sizing: border-box;
   }
 
   #clearImageBtn {
@@ -240,7 +332,7 @@
     max-width: 100%;
     border: 2px solid #888;
     border-radius: 10px;
-    margin: 20px auto;
+    margin: 15px auto;
   }
 
   #shareToLineBtn,
@@ -255,12 +347,19 @@
     border: 1.5px solid #d1d5db;
     color: #374151;
     border-radius: 8px;
-    padding: 12px 16px;
+    padding: 10px 12px;
     font-size: 16px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
     box-sizing: border-box;
     font-weight: 500;
+  }
+
+  @media (min-width: 768px) {
+    #buyerInput,
+    #calculatorInput {
+      font-size: 18px;
+    }
   }
 
   #buyerInput:focus,
@@ -275,14 +374,7 @@
   #calculatorInput::placeholder {
     color: #9ca3af;
     font-weight: 400;
-  }
-
-  #uploadSuccessMessage {
-    color: #4caf50;
     text-align: center;
-    margin-top: 10px;
-    display: none;
-    font-weight: bold;
   }
 
   .toast {
@@ -292,12 +384,15 @@
     transform: translateX(-50%);
     background-color: #4caf50;
     color: white;
-    padding: 12px 20px;
+    padding: 10px 16px;
     border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.5s ease;
     z-index: 1000;
+    text-align: center;
+    min-width: 180px;
+    font-size: 15px;
   }
 
   .toast.show {
@@ -305,20 +400,28 @@
     transform: translateX(-50%) translateY(-10px);
   }
 
-  @media (min-width: 600px) {
-    #inputArea {
-      flex-direction: row;
-      align-items: center;
-    }
+  .payment-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 8px;
+    color: white;
+    font-size: 1.1rem; /* 放大现金、刷卡选项字体 */
+    flex-wrap: wrap;
+  }
 
-    #nameInput,
-    #qtyInput {
-      flex: 1;
-    }
+  .payment-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-weight: 500;
+  }
 
-    #addBtn {
-      width: 120px;
-    }
+  /* 放大复选框 */
+  .payment-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
   }
 
   @media print {
@@ -355,77 +458,71 @@
       color: #000 !important;
     }
     
-.payment-options {
-  display: flex;
-  flex-direction: column;  /* 垂直排列 */
-  align-items: center;     /* 置中對齊（你也可以改成 flex-start 靠左） */
-  margin-top: 10px;
-  color: white;
-  font-size: 0.95rem;
-}
-.payment-options label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: white; /* ⬅ 更改 現金、刷卡 字體顏色 */
-  font-weight: 500;
-}
+    #reportTable td, #reportTable th {
+      text-align: center !important;
+    }
+    
+    /* 打印时保持数量字体较大 */
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2) {
+      font-size: 16px !important;
+      font-weight: bold !important;
+    }
+  }
 
-.slimQty {
-  background-color: transparent;
-  font-size: 14px;
-  color: #333;
-  padding: 2px 6px;
-  border: none;
-  width: auto;
-  min-width: 38px;
-  text-align: center;
+  .spacer {
+    height: 80px;
+  }
 
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  background-image: none; /* 移除下拉箭頭圖示 */
-}
-
-select::-ms-expand {
-  display: none;
-}
-
-#reportTable th, #reportTable td {
-  padding: 10px;
-  font-size: 14px;
-}
-
-#buyerInput,
-#calculatorInput {
-  font-size: 20px;
-  text-align: center;
-  font-weight: 600;
-}
-
+  @media (max-width: 360px) {
+    .userInputs .row {
+      gap: 5px;
+    }
+    
+    .userInputs label {
+      font-size: 13px;
+    }
+    
+    .userInputs input {
+      font-size: 15px;
+      padding: 8px;
+    }
+    
+    #reportTable {
+      font-size: 11px;
+    }
+    
+    /* 小屏幕上数量字体仍保持较大 */
+    #reportTable th:nth-child(2),
+    #reportTable td:nth-child(2),
+    .qtySelect,
+    #qtyInput {
+      font-size: 15px !important;
+    }
+    
+    .payment-options {
+      font-size: 1rem;
+    }
   }
 </style>
-
-
-
 </head>
 <body>
   <div id="captureArea">
-<h2>
-  🌿 康園試算報表
-  <br />
-  <span class="payment-options">
-    <label><input type="checkbox" id="cashOption" /> 現金</label>
-    <label><input type="checkbox" id="cardOption" /> 刷卡</label>
-  </span>
-</h2>
+    <h2>
+      🌿 康園試算報表
+      <div class="payment-options">
+        <label><input type="checkbox" id="cashOption" /> 現金</label>
+        <label><input type="checkbox" id="cardOption" /> 刷卡</label>
+      </div>
+    </h2>
     <div class="userInputs">  
       <div class="row">
-        <label>購買者：
+        <label>
+          <span>購買者：</span>
           <input type="text" placeholder="輸入購買者" id="buyerInput" />
         </label>
-        <label>試算者：
+        <label>
+          <span>試算者：</span>
           <input type="text" placeholder="輸入試算者" id="calculatorInput" />
         </label>
       </div>
@@ -434,13 +531,13 @@ select::-ms-expand {
     <table id="reportTable" aria-label="試算報表">
       <thead>
         <tr>
-          <th>品項<br>名稱</th>
+          <th>品項名稱</th>
           <th>數量</th>
-          <th>單<br>價</th>
+          <th>單價</th>
           <th>PV</th>
-          <th>小計<br>金額</th>
-          <th>小計<br>PV</th>
-          <th>操<br>作</th>
+          <th>小計金額</th>
+          <th>小計PV</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody id="reportBody"></tbody>
@@ -448,18 +545,20 @@ select::-ms-expand {
 
     <div class="summaryBox" aria-live="polite">
       總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
-      <span class="extra">距 11.2萬 PV ：<span id="pvDiff">112000</span> <span id="pvMessage1"></span></span>
-      <span class="extra">距 22.0萬 PV ：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
+      <span class="extra">距 11.2萬 PV：<span id="pvDiff">112000</span> <span id="pvMessage1"></span></span>
+      <span class="extra">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
     </div>
   </div>
 
   <img id="previewImage" alt="預覽匯出圖片" />
-  <button id="shareToLineBtn">📩 上傳備份</button>
-  <button id="clearImageBtn">❌ 清除圖片</button>
-  <button id="nativeShareBtn">📱 分享圖片</button>
   
+  <div class="button-group">
+    <button id="exportBtn">📤 報表轉圖片</button>
+    <button id="shareToLineBtn">📩 上傳備份</button>
+    <button id="nativeShareBtn">📱 分享圖片</button>
+    <button id="clearImageBtn">❌ 清除圖片</button>
+  </div>
 
-  <!-- ✅ 浮窗提示 -->
   <div id="toast" class="toast">✅ 圖片已上傳備份</div>
 
   <div id="inputArea">
@@ -468,10 +567,7 @@ select::-ms-expand {
     <button id="addBtn">➕ 新增品項</button>
   </div>
 
-   <button id="exportBtn">📤 報表轉圖片</button>
-
- <!-- 新增這段留白用的區塊 -->
-  <div style="height: 100px;"></div>
+  <div class="spacer"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
@@ -500,6 +596,7 @@ select::-ms-expand {
     const calculatorInput = document.getElementById("calculatorInput");
     const toast = document.getElementById("toast");
 
+    // 初始化數量選擇下拉框
     for (let i = 1; i <= 20; i++) {
       const option = document.createElement("option");
       option.value = i;
@@ -507,6 +604,7 @@ select::-ms-expand {
       qtyInput.appendChild(option);
     }
 
+    // 加載產品數據
     async function loadProducts() {
       try {
         const res = await fetch(API_URL + "?action=all");
@@ -524,70 +622,71 @@ select::-ms-expand {
       }
     }
 
- function renderTable() {
-  reportBody.innerHTML = "";
-  let totalPrice = 0;
-  let totalPv = 0;
+    // 渲染表格
+    function renderTable() {
+      reportBody.innerHTML = "";
+      let totalPrice = 0;
+      let totalPv = 0;
 
-  selectedProducts.forEach((item, idx) => {
-    const subtotalPrice = item.price * item.qty;
-    const subtotalPv = item.pv * item.qty;
-    totalPrice += subtotalPrice;
-    totalPv += subtotalPv;
+      selectedProducts.forEach((item, idx) => {
+        const subtotalPrice = item.price * item.qty;
+        const subtotalPv = item.pv * item.qty;
+        totalPrice += subtotalPrice;
+        totalPv += subtotalPv;
 
-    const tr = document.createElement("tr");
-    const qtyOptions = Array.from({ length: 20 }, (_, i) => {
-      const val = i + 1;
-      return `<option value="${val}" ${val === item.qty ? "selected" : ""}>${val}</option>`;
-    }).join("");
+        const tr = document.createElement("tr");
+        const qtyOptions = Array.from({ length: 20 }, (_, i) => {
+          const val = i + 1;
+          return `<option value="${val}" ${val === item.qty ? "selected" : ""}>${val}</option>`;
+        }).join("");
 
-    tr.innerHTML = `
-      <td>${item.name}</td>
-      <td>
-        <select class="qtySelect" data-index="${idx}">
-          ${qtyOptions}
-        </select>
-      </td>
-      <td>${item.price}</td>
-      <td>${item.pv}</td>
-      <td>${subtotalPrice}</td>
-      <td>${subtotalPv}</td>
-      <td><button class="deleteBtn" data-index="${idx}">刪除</button></td>
-    `;
-    reportBody.appendChild(tr);
-  });
+        tr.innerHTML = `
+          <td style="text-align:center;">${item.name}</td>
+          <td>
+            <select class="qtySelect" data-index="${idx}" style="text-align:center;">
+              ${qtyOptions}
+            </select>
+          </td>
+          <td style="text-align:center;">${item.price}</td>
+          <td style="text-align:center;">${item.pv}</td>
+          <td style="text-align:center;">${subtotalPrice}</td>
+          <td style="text-align:center;">${subtotalPv}</td>
+          <td><button class="deleteBtn" data-index="${idx}">刪除</button></td>
+        `;
+        reportBody.appendChild(tr);
+      });
 
-  totalPriceCellDup.textContent = totalPrice;
-  totalPvCellDup.textContent = totalPv;
-  const diff1 = 112000 - totalPv;
-  const diff2 = 220000 - totalPv;
+      totalPriceCellDup.textContent = totalPrice;
+      totalPvCellDup.textContent = totalPv;
+      const diff1 = 112000 - totalPv;
+      const diff2 = 220000 - totalPv;
 
-  pvDiff.textContent = diff1 > 0 ? diff1 : 0;
-  pvDiff2.textContent = diff2 > 0 ? diff2 : 0;
-  pvMessage1.innerHTML = totalPv >= 112000 ? '<span class="done">🎉 已達標</span>' : '';
-  pvMessage2.innerHTML = totalPv >= 220000 ? '<span class="done">🎉 已達標</span>' : '';
+      pvDiff.textContent = diff1 > 0 ? diff1 : 0;
+      pvDiff2.textContent = diff2 > 0 ? diff2 : 0;
+      pvMessage1.innerHTML = totalPv >= 112000 ? '<span class="done">🎉 已達標</span>' : '';
+      pvMessage2.innerHTML = totalPv >= 220000 ? '<span class="done">🎉 已達標</span>' : '';
 
-  // 刪除按鈕事件
-  document.querySelectorAll(".deleteBtn").forEach(btn => {
-    btn.onclick = e => {
-      const idx = parseInt(e.target.dataset.index);
-      selectedProducts.splice(idx, 1);
-      renderTable();
-    };
-  });
+      // 刪除按鈕事件
+      document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.onclick = e => {
+          const idx = parseInt(e.target.dataset.index);
+          selectedProducts.splice(idx, 1);
+          renderTable();
+        };
+      });
 
-  // 數量下拉變更事件
-  document.querySelectorAll(".qtySelect").forEach(select => {
-    select.onchange = e => {
-      const idx = parseInt(e.target.dataset.index);
-      const newQty = parseInt(e.target.value);
-      selectedProducts[idx].qty = newQty;
-      renderTable();
-    };
-  });
-}
+      // 數量下拉變更事件
+      document.querySelectorAll(".qtySelect").forEach(select => {
+        select.onchange = e => {
+          const idx = parseInt(e.target.dataset.index);
+          const newQty = parseInt(e.target.value);
+          selectedProducts[idx].qty = newQty;
+          renderTable();
+        };
+      });
+    }
 
-
+    // 添加產品
     function addProduct() {
       const selectedName = nameInput.value;
       const qty = parseInt(qtyInput.value);
@@ -612,43 +711,45 @@ select::-ms-expand {
       renderTable();
     }
 
+    // 匯出圖片
     exportBtn.addEventListener("click", async () => {
-  if (selectedProducts.length === 0) {
-    alert("請先新增至少一個品項，才能匯出圖片！");
-    return;
-  }
+      if (selectedProducts.length === 0) {
+        alert("請先新增至少一個品項，才能匯出圖片！");
+        return;
+      }
 
-  exportBtn.disabled = true;
-  exportBtn.textContent = "匯出中...";
+      exportBtn.disabled = true;
+      exportBtn.textContent = "匯出中...";
 
-  // ✅ 暫時隱藏「操作」欄
-  const opCells = document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
-  opCells.forEach(el => el.style.display = "none");
+      const opCells = document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+      opCells.forEach(el => el.style.display = "none");
 
-  try {
-    const canvas = await html2canvas(document.getElementById("captureArea"), {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      logging: false,
+      try {
+        const canvas = await html2canvas(document.getElementById("captureArea"), {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: null,
+          logging: false,
+          letterRendering: true,
+          useTransform: true
+        });
+        const dataUrl = canvas.toDataURL("image/png");
+        previewImage.src = dataUrl;
+        previewImage.style.display = "block";
+        shareToLineBtn.style.display = "inline-block";
+        nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
+        clearImageBtn.style.display = "inline-block";
+      } catch (error) {
+        alert("匯出失敗：" + error);
+      } finally {
+        opCells.forEach(el => el.style.display = "");
+        exportBtn.disabled = false;
+        exportBtn.textContent = "📤 報表轉圖片";
+      }
     });
-    const dataUrl = canvas.toDataURL("image/png");
-    previewImage.src = dataUrl;
-    previewImage.style.display = "block";
-    shareToLineBtn.style.display = "inline-block";
-    nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
-    clearImageBtn.style.display = "inline-block";
-  } catch (error) {
-    alert("匯出失敗：" + error);
-  } finally {
-    // ✅ 還原顯示「操作」欄
-    opCells.forEach(el => el.style.display = "");
-    exportBtn.disabled = false;
-    exportBtn.textContent = "📤 報表轉圖片";
-  }
-});
 
+    // 上傳分享
     shareToLineBtn.addEventListener("click", async () => {
       if (!previewImage.src) {
         alert("請先匯出圖片");
@@ -674,8 +775,8 @@ select::-ms-expand {
           const buyerName = buyerInput.value.trim() || "未填";
           const calculatorName = calculatorInput.value.trim() || "未填";
           const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
-          `康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`
-      )}`;
+            `康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`
+          )}`;
 
           window.open(lineShareUrl, "_blank");
           showToast("✅ 圖片已上傳備份");
@@ -690,6 +791,7 @@ select::-ms-expand {
       }
     });
 
+    // 原生分享
     nativeShareBtn.addEventListener("click", async () => {
       if (!navigator.share || !previewImage.src) {
         alert("無法使用原生分享");
@@ -715,6 +817,7 @@ select::-ms-expand {
       }
     });
 
+    // 清除圖片
     clearImageBtn.addEventListener("click", () => {
       previewImage.style.display = "none";
       previewImage.src = "";
@@ -723,17 +826,38 @@ select::-ms-expand {
       clearImageBtn.style.display = "none";
     });
 
+    // 顯示提示
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
+    // 事件監聽
     addBtn.addEventListener("click", addProduct);
 
+    // 頁面加載時加載產品
     window.onload = () => {
       loadProducts();
     };
+
+    // 處理窗口大小變化
+    window.addEventListener('resize', () => {
+      adjustTableDisplay();
+    });
+
+    // 調整表格顯示
+    function adjustTableDisplay() {
+      const table = document.getElementById('reportTable');
+      const width = window.innerWidth;
+      
+      if (width < 360) {
+        table.style.fontSize = '11px';
+      } else {
+        table.style.fontSize = '12px';
+      }
+    }
   </script>
 </body>
 </html>
+    
