@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>彥彬🌿試算系統</title>
   <style>
     :root {
@@ -22,6 +22,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
 
     .container {
@@ -31,6 +33,7 @@
       padding: 20px;
       border-radius: 18px;
       box-shadow: 0 8px 30px var(--shadow);
+      margin: auto; /* 垂直居中 */
     }
 
     h1 {
@@ -38,6 +41,19 @@
       text-align: center;
       margin-bottom: 12px;
       color: var(--text);
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background-color: var(--accent);
     }
 
     p {
@@ -70,16 +86,35 @@
       border: 0;
     }
 
+    .video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      background-color: #222;
+    }
+
     .footer {
       text-align: center;
       font-size: 0.85em;
       color: #bbb;
       margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
     }
 
     @media (max-width: 480px) {
       h1 { font-size: 1.4em; }
       p { font-size: 0.95em; }
+      .container {
+        padding: 15px;
+        border-radius: 12px;
+      }
     }
   </style>
 </head>
@@ -89,18 +124,52 @@
     <p>教學 一鍵試算 的使用方法</p>
 
     <div class="video-wrapper">
+      <!-- 添加了錯誤處理的影片容器 -->
       <iframe 
         src="https://player.vimeo.com/video/1120724270" 
         frameborder="0" 
         allow="autoplay; fullscreen; picture-in-picture" 
-        allowfullscreen>
+        allowfullscreen
+        onload="this.style.display='block'"
+        onerror="document.getElementById('videoError').style.display='flex'">
       </iframe>
+      <div id="videoError" class="video-placeholder" style="display: none;">
+        影片載入失敗，請稍後再試
+      </div>
     </div>
-
 
     <p>更多精彩內容即將推出，敬請期待！</p>
 
     <div class="footer">© 2025 彥彬 試算系統 · 保留所有權利</div>
   </div>
+
+  <script>
+    // 防止意外打開新頁面的腳本
+    document.addEventListener('click', function(e) {
+      // 檢查點擊的是否為可能打開新頁面的元素
+      if (e.target.tagName === 'A' && e.target.target === '_blank') {
+        // 如果需要，可以在這裡添加額外的控制
+        // e.preventDefault(); // 阻止默認行為
+      }
+    });
+
+    // 檢查iframe是否加載成功
+    window.addEventListener('load', function() {
+      const iframe = document.querySelector('iframe');
+      // 設置超時檢查
+      setTimeout(function() {
+        try {
+          // 嘗試訪問iframe內容，如果同源的話
+          if (iframe.contentDocument && iframe.contentDocument.body) {
+            // 內容加載成功
+          } else {
+            document.getElementById('videoError').style.display = 'flex';
+          }
+        } catch (e) {
+          // 跨域訪問會拋出異常，屬於正常現象
+        }
+      }, 8000); // 8秒後檢查
+    });
+  </script>
 </body>
 </html>
