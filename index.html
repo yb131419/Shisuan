@@ -615,7 +615,7 @@
       
       if (!lineName) {
         // 首次使用，提示輸入試算者名稱
-        const input = prompt('請輸入您的『試算者名稱』（僅需輸入一次）：');
+        const input = prompt('請輸入您的『試算者名稱』\n（僅需輸入一次）：');
         if (input && input.trim()) {
           lineName = input.trim();
           localStorage.setItem('lineName', lineName); // 保存到本地存儲
