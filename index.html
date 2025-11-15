@@ -28,7 +28,9 @@
     margin: 0;
     padding: 10px;
     line-height: 1.5;
-    padding-bottom: 100px; /* 为底部输入区域预留空间 */
+    padding-bottom: 20px; /* 调整底部留白 */
+    position: relative; /* 为浮窗提供定位上下文 */
+    min-height: 100vh;
   }
 
   #captureArea {
@@ -252,22 +254,70 @@
     text-align: center;
   }
 
+  /* 浮窗样式 */
+  #floatingWindow {
+    position: absolute;
+    width: 100%;
+    max-width: 800px;
+    background-color: rgba(26, 26, 26, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+  }
+
+  #floatingWindow.dragging {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.8);
+  }
+
+  #windowHeader {
+    background: linear-gradient(145deg, #00bfa5, #009e8a);
+    padding: 8px 15px;
+    cursor: move;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #windowTitle {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  #windowControls {
+    display: flex;
+    gap: 8px;
+  }
+
+  .windowControlBtn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #minimizeBtn {
+    background-color: #ffc107;
+  }
+
+  #closeBtn {
+    background-color: #ff5252;
+  }
+
   #inputArea {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 15px;
-    background-color: rgba(26, 26, 26, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3);
-    position: fixed; /* 固定在底部 */
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    z-index: 100;
   }
 
   @media (min-width: 576px) {
@@ -339,6 +389,8 @@
     gap: 8px;
     justify-content: center;
     margin: 10px 0;
+    position: relative;
+    z-index: 10; /* 确保按钮在浮窗下方时仍可点击 */
   }
 
   #exportBtn,
@@ -416,7 +468,7 @@
 
   .toast {
     position: fixed;
-    bottom: 110px; /* 調整提示位置，避免被輸入區域遮擋 */
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #4caf50;
@@ -468,7 +520,7 @@
       padding-bottom: 0;
     }
 
-    #inputArea,
+    #floatingWindow,
     #addBtn,
     #exportBtn,
     #shareToLineBtn,
@@ -546,6 +598,10 @@
     #captureArea h2 {
       font-size: 1.8rem;
     }
+
+    #windowTitle {
+      font-size: 14px;
+    }
   }
 </style>
 </head>
@@ -607,10 +663,20 @@
 
   <div id="toast" class="toast">✅ 圖片已上傳備份</div>
 
-  <div id="inputArea">
-    <select id="nameInput"></select>
-    <select id="qtyInput"></select>
-    <button id="addBtn">➕ 新增品項</button>
+  <!-- 可移动浮窗 -->
+  <div id="floatingWindow">
+    <div id="windowHeader">
+      <div id="windowTitle">新增品項</div>
+      <div id="windowControls">
+        <button id="minimizeBtn" class="windowControlBtn">-</button>
+        <button id="closeBtn" class="windowControlBtn">×</button>
+      </div>
+    </div>
+    <div id="inputArea">
+      <select id="nameInput"></select>
+      <select id="qtyInput"></select>
+      <button id="addBtn">➕ 新增品項</button>
+    </div>
   </div>
 
   <script>
@@ -620,6 +686,9 @@
     let allProducts = [];
     let selectedProducts = [];
     let lineName = ''; // 存儲LINE名稱
+    let isDragging = false;
+    let offsetX, offsetY;
+    let isMinimized = false;
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -639,8 +708,16 @@
     const clearImageBtn = document.getElementById("clearImageBtn");
     const buyerInput = document.getElementById("buyerInput");
     const calculatorDisplay = document.getElementById("calculatorDisplay");
-    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn"); // 重置按鈕
+    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn");
     const toast = document.getElementById("toast");
+    
+    // 浮窗相关元素
+    const floatingWindow = document.getElementById("floatingWindow");
+    const windowHeader = document.getElementById("windowHeader");
+    const windowTitle = document.getElementById("windowTitle");
+    const minimizeBtn = document.getElementById("minimizeBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const inputArea = document.getElementById("inputArea");
 
     // 初始化數量選擇下拉框
     for (let i = 1; i <= 20; i++) {
@@ -923,9 +1000,119 @@
       setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
+    // 浮窗拖动功能
+    function setupFloatingWindow() {
+      // 从本地存储加载窗口位置
+      const savedPosition = localStorage.getItem('floatingWindowPosition');
+      if (savedPosition) {
+        const { x, y } = JSON.parse(savedPosition);
+        floatingWindow.style.left = `${x}px`;
+        floatingWindow.style.top = `${y}px`;
+      } else {
+        // 默认位置：右下角
+        const defaultX = window.innerWidth - floatingWindow.offsetWidth - 20;
+        const defaultY = 20;
+        floatingWindow.style.left = `${defaultX}px`;
+        floatingWindow.style.top = `${defaultY}px`;
+      }
+
+      // 鼠标按下事件 - 开始拖动
+      windowHeader.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        floatingWindow.classList.add('dragging');
+        
+        // 计算鼠标相对于窗口的位置
+        const rect = floatingWindow.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        
+        // 防止拖动时选中文本
+        e.preventDefault();
+      });
+
+      // 鼠标移动事件 - 拖动窗口
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        // 计算新位置
+        const x = e.clientX - offsetX;
+        const y = e.clientY - offsetY;
+        
+        // 限制窗口在可视区域内
+        const maxX = window.innerWidth - floatingWindow.offsetWidth;
+        const maxY = window.innerHeight - floatingWindow.offsetHeight;
+        const constrainedX = Math.max(0, Math.min(x, maxX));
+        const constrainedY = Math.max(0, Math.min(y, maxY));
+        
+        // 设置新位置
+        floatingWindow.style.left = `${constrainedX}px`;
+        floatingWindow.style.top = `${constrainedY}px`;
+      });
+
+      // 鼠标释放事件 - 结束拖动
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          floatingWindow.classList.remove('dragging');
+          
+          // 保存位置到本地存储
+          const position = {
+            x: parseInt(floatingWindow.style.left),
+            y: parseInt(floatingWindow.style.top)
+          };
+          localStorage.setItem('floatingWindowPosition', JSON.stringify(position));
+        }
+      });
+
+      // 窗口最小化/还原功能
+      minimizeBtn.addEventListener('click', () => {
+        isMinimized = !isMinimized;
+        if (isMinimized) {
+          inputArea.style.display = 'none';
+          minimizeBtn.textContent = '+';
+          windowTitle.textContent = '點擊展開';
+        } else {
+          inputArea.style.display = window.innerWidth >= 576 ? 'flex' : 'flex';
+          minimizeBtn.textContent = '-';
+          windowTitle.textContent = '新增品項';
+        }
+      });
+
+      // 关闭/显示窗口功能
+      closeBtn.addEventListener('click', () => {
+        if (floatingWindow.style.display !== 'none') {
+          floatingWindow.style.display = 'none';
+          closeBtn.textContent = '⧉'; // 显示图标
+          windowTitle.textContent = '已關閉，點擊打開';
+        } else {
+          floatingWindow.style.display = 'block';
+          closeBtn.textContent = '×';
+          windowTitle.textContent = isMinimized ? '點擊展開' : '新增品項';
+        }
+      });
+
+      // 窗口大小变化时调整位置
+      window.addEventListener('resize', () => {
+        const rect = floatingWindow.getBoundingClientRect();
+        const maxX = window.innerWidth - floatingWindow.offsetWidth;
+        const maxY = window.innerHeight - floatingWindow.offsetHeight;
+        
+        const constrainedX = Math.max(0, Math.min(rect.left, maxX));
+        const constrainedY = Math.max(0, Math.min(rect.top, maxY));
+        
+        floatingWindow.style.left = `${constrainedX}px`;
+        floatingWindow.style.top = `${constrainedY}px`;
+        
+        // 调整输入区域显示方式
+        if (!isMinimized) {
+          inputArea.style.display = window.innerWidth >= 576 ? 'flex' : 'flex';
+        }
+      });
+    }
+
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
-    resetCalculatorBtn.addEventListener("click", resetLineName); // 綁定重置按鈕事件
+    resetCalculatorBtn.addEventListener("click", resetLineName);
 
     // 支持按Enter键添加产品
     qtyInput.addEventListener("keypress", (e) => {
@@ -944,6 +1131,8 @@
     window.onload = () => {
       setupLineName(); // 設置LINE名稱
       loadProducts();
+      setupFloatingWindow(); // 设置浮窗
+      adjustTableDisplay();
     };
 
     // 處理窗口大小變化
