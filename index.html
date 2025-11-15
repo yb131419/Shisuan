@@ -28,6 +28,7 @@
     margin: 0;
     padding: 10px;
     line-height: 1.5;
+    padding-bottom: 100px; /* 为底部输入区域预留空间 */
   }
 
   #captureArea {
@@ -43,7 +44,7 @@
 
   #captureArea h2 {
     text-align: center;
-    font-size: 1.6rem;
+    font-size: 2rem; /* 增大标题字体 */
     font-weight: bold;
     color: #ffffff;
     margin: 0 0 15px 0;
@@ -53,7 +54,7 @@
 
   @media (min-width: 768px) {
     #captureArea h2 {
-      font-size: 1.8rem;
+      font-size: 2.2rem; /* 大屏幕上进一步增大 */
     }
   }
 
@@ -255,13 +256,25 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 15px;
+    padding: 15px;
+    background-color: rgba(26, 26, 26, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3);
+    position: fixed; /* 固定在底部 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    z-index: 100;
   }
 
   @media (min-width: 576px) {
     #inputArea {
       flex-direction: row;
       align-items: center;
+      padding: 15px 20px;
     }
   }
 
@@ -403,7 +416,7 @@
 
   .toast {
     position: fixed;
-    bottom: 30px;
+    bottom: 110px; /* 調整提示位置，避免被輸入區域遮擋 */
     left: 50%;
     transform: translateX(-50%);
     background-color: #4caf50;
@@ -452,6 +465,7 @@
     body {
       background: #fff;
       color: #000;
+      padding-bottom: 0;
     }
 
     #inputArea,
@@ -496,7 +510,7 @@
   }
 
   .spacer {
-    height: 80px;
+    height: 20px;
   }
 
   @media (max-width: 360px) {
@@ -527,6 +541,10 @@
     
     .payment-options {
       font-size: 1rem;
+    }
+    
+    #captureArea h2 {
+      font-size: 1.8rem;
     }
   }
 </style>
@@ -594,8 +612,6 @@
     <select id="qtyInput"></select>
     <button id="addBtn">➕ 新增品項</button>
   </div>
-
-  <div class="spacer"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
@@ -683,6 +699,9 @@
 
     // 渲染表格
     function renderTable() {
+      // 保存当前滚动位置
+      const scrollPosition = window.scrollY;
+      
       reportBody.innerHTML = "";
       let totalPrice = 0;
       let totalPv = 0;
@@ -743,6 +762,9 @@
           renderTable();
         };
       });
+      
+      // 恢复滚动位置
+      window.scrollTo(0, scrollPosition);
     }
 
     // 添加產品
@@ -760,6 +782,9 @@
         return;
       }
 
+      // 保存当前滚动位置
+      const scrollPosition = window.scrollY;
+      
       const exists = selectedProducts.find(p => p.name === selectedName);
       if (exists) {
         exists.qty += qty;
@@ -768,6 +793,12 @@
       }
 
       renderTable();
+      
+      // 恢复滚动位置
+      window.scrollTo(0, scrollPosition);
+      
+      // 保持数量选择框为1
+      qtyInput.value = 1;
     }
 
     // 匯出圖片
@@ -895,6 +926,19 @@
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
     resetCalculatorBtn.addEventListener("click", resetLineName); // 綁定重置按鈕事件
+
+    // 支持按Enter键添加产品
+    qtyInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        addProduct();
+      }
+    });
+
+    nameInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        addProduct();
+      }
+    });
 
     // 頁面加載時初始化
     window.onload = () => {
