@@ -41,19 +41,21 @@
     overflow-x: auto;
   }
 
+  /* 增大标题字体并确保居中 */
   #captureArea h2 {
     text-align: center;
-    font-size: 1.6rem;
+    font-size: 2rem; /* 基础字体更大 */
     font-weight: bold;
     color: #ffffff;
     margin: 0 0 15px 0;
-    padding: 0;
+    padding: 10px 0; /* 增加内边距 */
     line-height: 1.3;
+    width: 100%; /* 确保全宽 */
   }
 
   @media (min-width: 768px) {
     #captureArea h2 {
-      font-size: 1.8rem;
+      font-size: 2.4rem; /* 大屏幕字体更大 */
     }
   }
 
@@ -161,7 +163,6 @@
     transition: all 0.3s ease;
   }
 
-  /* 特別加大數量列的字體 */
   #reportTable th:nth-child(2),
   #reportTable td:nth-child(2),
   .qtySelect {
@@ -184,7 +185,6 @@
       font-size: 14px;
     }
     
-    /* 大屏幕上進一步加大數量列的字體 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect {
@@ -274,7 +274,6 @@
     border: none;
   }
 
-  /* 特別加大數量選擇框的字體 */
   #qtyInput {
     font-size: 18px !important;
     font-weight: bold;
@@ -292,7 +291,8 @@
   #exportBtn,
   #shareToLineBtn,
   #nativeShareBtn,
-  #clearImageBtn {
+  #clearImageBtn,
+  #resetReportBtn {
     background: linear-gradient(145deg, #00bfa5, #009e8a);
     box-shadow: 0 4px 8px rgba(0, 191, 165, 0.3);
     color: white;
@@ -305,7 +305,8 @@
   #addBtn:hover,
   #exportBtn:hover,
   #shareToLineBtn:hover,
-  #nativeShareBtn:hover {
+  #nativeShareBtn:hover,
+  #resetReportBtn:hover {
     background: linear-gradient(145deg, #00ccb2, #00a98e);
     transform: translateY(-2px);
   }
@@ -331,7 +332,8 @@
   #exportBtn,
   #shareToLineBtn,
   #nativeShareBtn,
-  #clearImageBtn {
+  #clearImageBtn,
+  #resetReportBtn {
     flex: 1;
     min-width: 110px;
     margin: 0;
@@ -346,6 +348,14 @@
 
   #clearImageBtn:hover {
     background: #555;
+  }
+
+  #resetReportBtn {
+    background: #ff9800;
+  }
+
+  #resetReportBtn:hover {
+    background: #ffa726;
   }
 
   #previewImage {
@@ -430,7 +440,7 @@
     gap: 15px;
     margin-top: 8px;
     color: white;
-    font-size: 1.1rem; /* 放大現金、刷卡選項字體 */
+    font-size: 1.1rem;
     flex-wrap: wrap;
   }
 
@@ -442,7 +452,6 @@
     font-weight: 500;
   }
 
-  /* 放大復選框 */
   .payment-options input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -460,7 +469,8 @@
     #shareToLineBtn,
     #clearImageBtn,
     #nativeShareBtn,
-    #resetCalculatorBtn {
+    #resetCalculatorBtn,
+    #resetReportBtn {
       display: none !important;
     }
 
@@ -487,7 +497,6 @@
       text-align: center !important;
     }
     
-    /* 打印時保持數量字體較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2) {
       font-size: 16px !important;
@@ -517,7 +526,6 @@
       font-size: 11px;
     }
     
-    /* 小屏幕上數量字體仍保持較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect,
@@ -585,6 +593,7 @@
     <button id="shareToLineBtn">📩 上傳備份</button>
     <button id="nativeShareBtn">📱 分享圖片</button>
     <button id="clearImageBtn">❌ 清除圖片</button>
+    <button id="resetReportBtn">🔄 重置報表</button> <!-- 新增报表重置按钮 -->
   </div>
 
   <div id="toast" class="toast">✅ 圖片已上傳備份</div>
@@ -603,7 +612,7 @@
 
     let allProducts = [];
     let selectedProducts = [];
-    let lineName = ''; // 存儲LINE名稱
+    let lineName = '';
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -621,9 +630,10 @@
     const shareToLineBtn = document.getElementById("shareToLineBtn");
     const nativeShareBtn = document.getElementById("nativeShareBtn");
     const clearImageBtn = document.getElementById("clearImageBtn");
+    const resetReportBtn = document.getElementById("resetReportBtn"); // 报表重置按钮
     const buyerInput = document.getElementById("buyerInput");
     const calculatorDisplay = document.getElementById("calculatorDisplay");
-    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn"); // 重置按鈕
+    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn");
     const toast = document.getElementById("toast");
 
     // 初始化數量選擇下拉框
@@ -634,32 +644,53 @@
       qtyInput.appendChild(option);
     }
 
+    // 从本地存储加载选中的产品
+    function loadSelectedProducts() {
+      const saved = localStorage.getItem('selectedProducts');
+      if (saved) {
+        selectedProducts = JSON.parse(saved);
+        renderTable();
+      }
+    }
+
+    // 保存选中的产品到本地存储
+    function saveSelectedProducts() {
+      localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+    }
+
     // 設置試算者名稱
     function setupLineName() {
-      // 嘗試從本地存儲獲取
       lineName = localStorage.getItem('lineName') || '';
       
       if (!lineName) {
-        // 首次使用，提示輸入試算者名稱
         const input = prompt('請輸入您的『試算者名稱』\n（僅需輸入一次，可隨時重置）：');
         if (input && input.trim()) {
           lineName = input.trim();
-          localStorage.setItem('lineName', lineName); // 保存到本地存儲
+          localStorage.setItem('lineName', lineName);
         } else {
           lineName = '未設定';
         }
       }
       
-      // 顯示試算者名稱
       calculatorDisplay.value = lineName;
     }
 
     // 重置試算者名稱
     function resetLineName() {
       if (confirm('確定要重置試算者名稱嗎？')) {
-        localStorage.removeItem('lineName'); // 清除本地存儲
-        setupLineName(); // 重新設置名稱
+        localStorage.removeItem('lineName');
+        setupLineName();
         showToast('試算者名稱已重置');
+      }
+    }
+
+    // 重置报表（清除所有品项数据）
+    function resetReport() {
+      if (confirm('確定要清空所有品項記錄嗎？')) {
+        selectedProducts = [];
+        saveSelectedProducts(); // 清空本地存储
+        renderTable();
+        showToast('報表已重置');
       }
     }
 
@@ -730,6 +761,7 @@
         btn.onclick = e => {
           const idx = parseInt(e.target.dataset.index);
           selectedProducts.splice(idx, 1);
+          saveSelectedProducts(); // 保存修改
           renderTable();
         };
       });
@@ -740,6 +772,7 @@
           const idx = parseInt(e.target.dataset.index);
           const newQty = parseInt(e.target.value);
           selectedProducts[idx].qty = newQty;
+          saveSelectedProducts(); // 保存修改
           renderTable();
         };
       });
@@ -767,6 +800,7 @@
         selectedProducts.push({ ...product, qty });
       }
 
+      saveSelectedProducts(); // 保存新增的产品
       renderTable();
     }
 
@@ -894,12 +928,14 @@
 
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
-    resetCalculatorBtn.addEventListener("click", resetLineName); // 綁定重置按鈕事件
+    resetCalculatorBtn.addEventListener("click", resetLineName);
+    resetReportBtn.addEventListener("click", resetReport); // 绑定报表重置事件
 
     // 頁面加載時初始化
     window.onload = () => {
-      setupLineName(); // 設置LINE名稱
+      setupLineName();
       loadProducts();
+      loadSelectedProducts(); // 加载保存的品项数据
     };
 
     // 處理窗口大小變化
