@@ -28,9 +28,6 @@
     margin: 0;
     padding: 10px;
     line-height: 1.5;
-    padding-bottom: 20px;
-    position: relative;
-    min-height: 100vh;
   }
 
   #captureArea {
@@ -46,7 +43,7 @@
 
   #captureArea h2 {
     text-align: center;
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: bold;
     color: #ffffff;
     margin: 0 0 15px 0;
@@ -56,7 +53,7 @@
 
   @media (min-width: 768px) {
     #captureArea h2 {
-      font-size: 2.2rem;
+      font-size: 1.8rem;
     }
   }
 
@@ -164,6 +161,7 @@
     transition: all 0.3s ease;
   }
 
+  /* 特別加大數量列的字體 */
   #reportTable th:nth-child(2),
   #reportTable td:nth-child(2),
   .qtySelect {
@@ -186,6 +184,7 @@
       font-size: 14px;
     }
     
+    /* 大屏幕上進一步加大數量列的字體 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect {
@@ -252,91 +251,30 @@
     text-align: center;
   }
 
-  /* 浮窗样式 - 优化手机显示 */
-  #floatingWindow {
-    position: absolute;
-    width: 90%; /* 调整宽度为屏幕的90% */
-    max-width: 400px; /* 限制最大宽度，适合手机 */
-    background-color: rgba(26, 26, 26, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    z-index: 100;
-    overflow: hidden;
-    transition: box-shadow 0.3s ease;
-    touch-action: none; /* 防止触摸时的默认行为 */
-  }
-
-  #floatingWindow.dragging {
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.8);
-  }
-
-  #windowHeader {
-    background: linear-gradient(145deg, #00bfa5, #009e8a);
-    padding: 8px 15px;
-    cursor: move;
-    user-select: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 40px; /* 固定标题栏高度，便于触摸拖动 */
-  }
-
-  #windowTitle {
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-  }
-
-  #windowControls {
-    display: flex;
-    gap: 8px;
-  }
-
-  .windowControlBtn {
-    width: 28px; /* 增大按钮尺寸，便于触摸 */
-    height: 28px;
-    border-radius: 50%;
-    border: none;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #minimizeBtn {
-    background-color: #ffc107;
-  }
-
-  #closeBtn {
-    background-color: #ff5252;
-  }
-
   #inputArea {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 15px;
+    margin-top: 15px;
   }
 
   @media (min-width: 576px) {
     #inputArea {
       flex-direction: row;
       align-items: center;
-      padding: 15px 20px;
     }
   }
 
   #nameInput,
   #qtyInput,
   #addBtn {
-    padding: 12px; /* 增大输入区域，便于触摸 */
+    padding: 10px;
     font-size: 16px;
     border-radius: 6px;
     border: none;
   }
 
+  /* 特別加大數量選擇框的字體 */
   #qtyInput {
     font-size: 18px !important;
     font-weight: bold;
@@ -374,7 +312,6 @@
 
   #addBtn {
     width: 100%;
-    padding: 12px;
   }
 
   @media (min-width: 576px) {
@@ -389,8 +326,6 @@
     gap: 8px;
     justify-content: center;
     margin: 10px 0;
-    position: relative;
-    z-index: 10;
   }
 
   #exportBtn,
@@ -400,7 +335,7 @@
     flex: 1;
     min-width: 110px;
     margin: 0;
-    padding: 12px 0; /* 增大按钮尺寸，便于触摸 */
+    padding: 10px 0;
     font-size: 15px;
     border-radius: 8px;
   }
@@ -433,7 +368,7 @@
     border: 1.5px solid #d1d5db;
     color: #374151;
     border-radius: 8px;
-    padding: 12px; /* 增大输入区域，便于触摸 */
+    padding: 10px 12px;
     font-size: 16px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
@@ -468,12 +403,12 @@
 
   .toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #4caf50;
     color: white;
-    padding: 12px 18px;
+    padding: 10px 16px;
     border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     opacity: 0;
@@ -481,7 +416,7 @@
     z-index: 1000;
     text-align: center;
     min-width: 180px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .toast.show {
@@ -495,7 +430,7 @@
     gap: 15px;
     margin-top: 8px;
     color: white;
-    font-size: 1.1rem;
+    font-size: 1.1rem; /* 放大現金、刷卡選項字體 */
     flex-wrap: wrap;
   }
 
@@ -507,19 +442,19 @@
     font-weight: 500;
   }
 
+  /* 放大復選框 */
   .payment-options input[type="checkbox"] {
-    width: 20px; /* 增大复选框，便于触摸 */
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   @media print {
     body {
       background: #fff;
       color: #000;
-      padding-bottom: 0;
     }
 
-    #floatingWindow,
+    #inputArea,
     #addBtn,
     #exportBtn,
     #shareToLineBtn,
@@ -552,6 +487,7 @@
       text-align: center !important;
     }
     
+    /* 打印時保持數量字體較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2) {
       font-size: 16px !important;
@@ -560,7 +496,7 @@
   }
 
   .spacer {
-    height: 20px;
+    height: 80px;
   }
 
   @media (max-width: 360px) {
@@ -581,6 +517,7 @@
       font-size: 11px;
     }
     
+    /* 小屏幕上數量字體仍保持較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect,
@@ -590,14 +527,6 @@
     
     .payment-options {
       font-size: 1rem;
-    }
-    
-    #captureArea h2 {
-      font-size: 1.8rem;
-    }
-
-    #windowTitle {
-      font-size: 14px;
     }
   }
 </style>
@@ -660,21 +589,13 @@
 
   <div id="toast" class="toast">✅ 圖片已上傳備份</div>
 
-  <!-- 可移动浮窗 -->
-  <div id="floatingWindow">
-    <div id="windowHeader">
-      <div id="windowTitle">新增品項</div>
-      <div id="windowControls">
-        <button id="minimizeBtn" class="windowControlBtn">-</button>
-        <button id="closeBtn" class="windowControlBtn">×</button>
-      </div>
-    </div>
-    <div id="inputArea">
-      <select id="nameInput"></select>
-      <select id="qtyInput"></select>
-      <button id="addBtn">➕ 新增品項</button>
-    </div>
+  <div id="inputArea">
+    <select id="nameInput"></select>
+    <select id="qtyInput"></select>
+    <button id="addBtn">➕ 新增品項</button>
   </div>
+
+  <div class="spacer"></div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
@@ -682,10 +603,7 @@
 
     let allProducts = [];
     let selectedProducts = [];
-    let lineName = '';
-    let isDragging = false;
-    let offsetX, offsetY;
-    let isMinimized = false;
+    let lineName = ''; // 存儲LINE名稱
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -705,16 +623,8 @@
     const clearImageBtn = document.getElementById("clearImageBtn");
     const buyerInput = document.getElementById("buyerInput");
     const calculatorDisplay = document.getElementById("calculatorDisplay");
-    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn");
+    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn"); // 重置按鈕
     const toast = document.getElementById("toast");
-    
-    // 浮窗相关元素
-    const floatingWindow = document.getElementById("floatingWindow");
-    const windowHeader = document.getElementById("windowHeader");
-    const windowTitle = document.getElementById("windowTitle");
-    const minimizeBtn = document.getElementById("minimizeBtn");
-    const closeBtn = document.getElementById("closeBtn");
-    const inputArea = document.getElementById("inputArea");
 
     // 初始化數量選擇下拉框
     for (let i = 1; i <= 20; i++) {
@@ -726,26 +636,29 @@
 
     // 設置試算者名稱
     function setupLineName() {
+      // 嘗試從本地存儲獲取
       lineName = localStorage.getItem('lineName') || '';
       
       if (!lineName) {
+        // 首次使用，提示輸入試算者名稱
         const input = prompt('請輸入您的『試算者名稱』\n（僅需輸入一次，可隨時重置）：');
         if (input && input.trim()) {
           lineName = input.trim();
-          localStorage.setItem('lineName', lineName);
+          localStorage.setItem('lineName', lineName); // 保存到本地存儲
         } else {
           lineName = '未設定';
         }
       }
       
+      // 顯示試算者名稱
       calculatorDisplay.value = lineName;
     }
 
     // 重置試算者名稱
     function resetLineName() {
       if (confirm('確定要重置試算者名稱嗎？')) {
-        localStorage.removeItem('lineName');
-        setupLineName();
+        localStorage.removeItem('lineName'); // 清除本地存儲
+        setupLineName(); // 重新設置名稱
         showToast('試算者名稱已重置');
       }
     }
@@ -770,8 +683,6 @@
 
     // 渲染表格
     function renderTable() {
-      const scrollPosition = window.scrollY;
-      
       reportBody.innerHTML = "";
       let totalPrice = 0;
       let totalPv = 0;
@@ -832,8 +743,6 @@
           renderTable();
         };
       });
-      
-      window.scrollTo(0, scrollPosition);
     }
 
     // 添加產品
@@ -851,8 +760,6 @@
         return;
       }
 
-      const scrollPosition = window.scrollY;
-      
       const exists = selectedProducts.find(p => p.name === selectedName);
       if (exists) {
         exists.qty += qty;
@@ -861,10 +768,6 @@
       }
 
       renderTable();
-      
-      window.scrollTo(0, scrollPosition);
-      
-      qtyInput.value = 1;
     }
 
     // 匯出圖片
@@ -989,177 +892,14 @@
       setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
-    // 浮窗拖动功能 - 增加触摸事件支持
-    function setupFloatingWindow() {
-      // 从本地存储加载窗口位置
-      const savedPosition = localStorage.getItem('floatingWindowPosition');
-      if (savedPosition) {
-        const { x, y } = JSON.parse(savedPosition);
-        floatingWindow.style.left = `${x}px`;
-        floatingWindow.style.top = `${y}px`;
-      } else {
-        // 默认位置：右下角
-        const defaultX = window.innerWidth - floatingWindow.offsetWidth - 20;
-        const defaultY = 20;
-        floatingWindow.style.left = `${defaultX}px`;
-        floatingWindow.style.top = `${defaultY}px`;
-      }
-
-      // 鼠标/触摸开始事件 - 开始拖动
-      function startDrag(e) {
-        isDragging = true;
-        floatingWindow.classList.add('dragging');
-        
-        // 获取触摸/鼠标位置
-        let clientX, clientY;
-        if (e.type.startsWith('touch')) {
-          // 触摸事件
-          clientX = e.touches[0].clientX;
-          clientY = e.touches[0].clientY;
-        } else {
-          // 鼠标事件
-          clientX = e.clientX;
-          clientY = e.clientY;
-        }
-        
-        // 计算相对位置
-        const rect = floatingWindow.getBoundingClientRect();
-        offsetX = clientX - rect.left;
-        offsetY = clientY - rect.top;
-        
-        // 防止拖动时选中文本
-        e.preventDefault();
-      }
-
-      // 鼠标/触摸移动事件 - 拖动窗口
-      function moveDrag(e) {
-        if (!isDragging) return;
-        
-        // 获取触摸/鼠标位置
-        let clientX, clientY;
-        if (e.type.startsWith('touch')) {
-          // 触摸事件
-          clientX = e.touches[0].clientX;
-          clientY = e.touches[0].clientY;
-        } else {
-          // 鼠标事件
-          clientX = e.clientX;
-          clientY = e.clientY;
-        }
-        
-        // 计算新位置
-        const x = clientX - offsetX;
-        const y = clientY - offsetY;
-        
-        // 限制窗口在可视区域内
-        const maxX = window.innerWidth - floatingWindow.offsetWidth;
-        const maxY = window.innerHeight - floatingWindow.offsetHeight;
-        const constrainedX = Math.max(0, Math.min(x, maxX));
-        const constrainedY = Math.max(0, Math.min(y, maxY));
-        
-        // 设置新位置
-        floatingWindow.style.left = `${constrainedX}px`;
-        floatingWindow.style.top = `${constrainedY}px`;
-        
-        // 防止触摸事件的默认行为
-        if (e.type.startsWith('touch')) {
-          e.preventDefault();
-        }
-      }
-
-      // 鼠标/触摸结束事件 - 结束拖动
-      function endDrag() {
-        if (isDragging) {
-          isDragging = false;
-          floatingWindow.classList.remove('dragging');
-          
-          // 保存位置到本地存储
-          const position = {
-            x: parseInt(floatingWindow.style.left),
-            y: parseInt(floatingWindow.style.top)
-          };
-          localStorage.setItem('floatingWindowPosition', JSON.stringify(position));
-        }
-      }
-
-      // 添加鼠标事件监听
-      windowHeader.addEventListener('mousedown', startDrag);
-      document.addEventListener('mousemove', moveDrag);
-      document.addEventListener('mouseup', endDrag);
-      
-      // 添加触摸事件监听（支持手机拖动）
-      windowHeader.addEventListener('touchstart', startDrag);
-      document.addEventListener('touchmove', moveDrag);
-      document.addEventListener('touchend', endDrag);
-
-      // 窗口最小化/还原功能
-      minimizeBtn.addEventListener('click', () => {
-        isMinimized = !isMinimized;
-        if (isMinimized) {
-          inputArea.style.display = 'none';
-          minimizeBtn.textContent = '+';
-          windowTitle.textContent = '點擊展開';
-        } else {
-          inputArea.style.display = window.innerWidth >= 576 ? 'flex' : 'flex';
-          minimizeBtn.textContent = '-';
-          windowTitle.textContent = '新增品項';
-        }
-      });
-
-      // 关闭/显示窗口功能
-      closeBtn.addEventListener('click', () => {
-        if (floatingWindow.style.display !== 'none') {
-          floatingWindow.style.display = 'none';
-          closeBtn.textContent = '⧉';
-          windowTitle.textContent = '已關閉，點擊打開';
-        } else {
-          floatingWindow.style.display = 'block';
-          closeBtn.textContent = '×';
-          windowTitle.textContent = isMinimized ? '點擊展開' : '新增品項';
-        }
-      });
-
-      // 窗口大小变化时调整位置
-      window.addEventListener('resize', () => {
-        const rect = floatingWindow.getBoundingClientRect();
-        const maxX = window.innerWidth - floatingWindow.offsetWidth;
-        const maxY = window.innerHeight - floatingWindow.offsetHeight;
-        
-        const constrainedX = Math.max(0, Math.min(rect.left, maxX));
-        const constrainedY = Math.max(0, Math.min(rect.top, maxY));
-        
-        floatingWindow.style.left = `${constrainedX}px`;
-        floatingWindow.style.top = `${constrainedY}px`;
-        
-        if (!isMinimized) {
-          inputArea.style.display = window.innerWidth >= 576 ? 'flex' : 'flex';
-        }
-      });
-    }
-
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
-    resetCalculatorBtn.addEventListener("click", resetLineName);
-
-    // 支持按Enter键添加产品
-    qtyInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        addProduct();
-      }
-    });
-
-    nameInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        addProduct();
-      }
-    });
+    resetCalculatorBtn.addEventListener("click", resetLineName); // 綁定重置按鈕事件
 
     // 頁面加載時初始化
     window.onload = () => {
-      setupLineName();
+      setupLineName(); // 設置LINE名稱
       loadProducts();
-      setupFloatingWindow();
-      adjustTableDisplay();
     };
 
     // 處理窗口大小變化
