@@ -96,6 +96,27 @@
     text-align: center;
   }
 
+  .calculator-container {
+    display: flex;
+    gap: 5px;
+  }
+
+  #resetCalculatorBtn {
+    padding: 10px;
+    background-color: var(--button-grey);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    width: 40px;
+  }
+
+  #resetCalculatorBtn:hover {
+    background-color: #555;
+  }
+
   #nameInput option {
     padding: 12px 10px;
     line-height: 1.6;
@@ -438,7 +459,8 @@
     #exportBtn,
     #shareToLineBtn,
     #clearImageBtn,
-    #nativeShareBtn {
+    #nativeShareBtn,
+    #resetCalculatorBtn {
       display: none !important;
     }
 
@@ -526,7 +548,10 @@
         </label>
         <label>
           <span>試算者：</span>
-          <input type="text" id="calculatorDisplay" readonly />
+          <div class="calculator-container">
+            <input type="text" id="calculatorDisplay" readonly />
+            <button id="resetCalculatorBtn" title="重置試算者名稱">↺</button>
+          </div>
         </label>
       </div>
     </div>
@@ -597,7 +622,8 @@
     const nativeShareBtn = document.getElementById("nativeShareBtn");
     const clearImageBtn = document.getElementById("clearImageBtn");
     const buyerInput = document.getElementById("buyerInput");
-    const calculatorDisplay = document.getElementById("calculatorDisplay"); // 改為顯示框
+    const calculatorDisplay = document.getElementById("calculatorDisplay");
+    const resetCalculatorBtn = document.getElementById("resetCalculatorBtn"); // 重置按鈕
     const toast = document.getElementById("toast");
 
     // 初始化數量選擇下拉框
@@ -608,14 +634,14 @@
       qtyInput.appendChild(option);
     }
 
-    // 獲取並設置試算者名稱
+    // 設置試算者名稱
     function setupLineName() {
       // 嘗試從本地存儲獲取
       lineName = localStorage.getItem('lineName') || '';
       
       if (!lineName) {
         // 首次使用，提示輸入試算者名稱
-        const input = prompt('請輸入您的『試算者名稱』\n（僅需輸入一次）：');
+        const input = prompt('請輸入您的『試算者名稱』\n（僅需輸入一次，可隨時重置）：');
         if (input && input.trim()) {
           lineName = input.trim();
           localStorage.setItem('lineName', lineName); // 保存到本地存儲
@@ -626,6 +652,15 @@
       
       // 顯示試算者名稱
       calculatorDisplay.value = lineName;
+    }
+
+    // 重置試算者名稱
+    function resetLineName() {
+      if (confirm('確定要重置試算者名稱嗎？')) {
+        localStorage.removeItem('lineName'); // 清除本地存儲
+        setupLineName(); // 重新設置名稱
+        showToast('試算者名稱已重置');
+      }
     }
 
     // 加載產品數據
@@ -859,6 +894,7 @@
 
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
+    resetCalculatorBtn.addEventListener("click", resetLineName); // 綁定重置按鈕事件
 
     // 頁面加載時初始化
     window.onload = () => {
