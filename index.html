@@ -140,7 +140,7 @@
     transition: all 0.3s ease;
   }
 
-  /* 特别加大数量列的字体 */
+  /* 特別加大數量列的字體 */
   #reportTable th:nth-child(2),
   #reportTable td:nth-child(2),
   .qtySelect {
@@ -163,7 +163,7 @@
       font-size: 14px;
     }
     
-    /* 大屏幕上进一步加大数量列的字体 */
+    /* 大屏幕上進一步加大數量列的字體 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect {
@@ -253,7 +253,7 @@
     border: none;
   }
 
-  /* 特别加大数量选择框的字体 */
+  /* 特別加大數量選擇框的字體 */
   #qtyInput {
     font-size: 18px !important;
     font-weight: bold;
@@ -342,7 +342,7 @@
   }
 
   #buyerInput,
-  #calculatorInput {
+  #calculatorDisplay {
     background-color: #f9fafb;
     border: 1.5px solid #d1d5db;
     color: #374151;
@@ -357,21 +357,24 @@
 
   @media (min-width: 768px) {
     #buyerInput,
-    #calculatorInput {
+    #calculatorDisplay {
       font-size: 18px;
     }
   }
 
-  #buyerInput:focus,
-  #calculatorInput:focus {
+  #buyerInput:focus {
     border-color: #2563eb;
     box-shadow: 0 0 8px 2px rgba(37, 99, 235, 0.3);
     outline: none;
     background-color: #ffffff;
   }
 
-  #buyerInput::placeholder,
-  #calculatorInput::placeholder {
+  #calculatorDisplay {
+    background-color: #e9ecef;
+    cursor: default;
+  }
+
+  #buyerInput::placeholder {
     color: #9ca3af;
     font-weight: 400;
     text-align: center;
@@ -406,7 +409,7 @@
     gap: 15px;
     margin-top: 8px;
     color: white;
-    font-size: 1.1rem; /* 放大现金、刷卡选项字体 */
+    font-size: 1.1rem; /* 放大現金、刷卡選項字體 */
     flex-wrap: wrap;
   }
 
@@ -418,7 +421,7 @@
     font-weight: 500;
   }
 
-  /* 放大复选框 */
+  /* 放大復選框 */
   .payment-options input[type="checkbox"] {
     width: 18px;
     height: 18px;
@@ -462,7 +465,7 @@
       text-align: center !important;
     }
     
-    /* 打印时保持数量字体较大 */
+    /* 打印時保持數量字體較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2) {
       font-size: 16px !important;
@@ -492,7 +495,7 @@
       font-size: 11px;
     }
     
-    /* 小屏幕上数量字体仍保持较大 */
+    /* 小屏幕上數量字體仍保持較大 */
     #reportTable th:nth-child(2),
     #reportTable td:nth-child(2),
     .qtySelect,
@@ -523,7 +526,7 @@
         </label>
         <label>
           <span>試算者：</span>
-          <input type="text" placeholder="輸入試算者" id="calculatorInput" />
+          <input type="text" id="calculatorDisplay" readonly />
         </label>
       </div>
     </div>
@@ -575,6 +578,7 @@
 
     let allProducts = [];
     let selectedProducts = [];
+    let lineName = ''; // 存儲LINE名稱
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -593,7 +597,7 @@
     const nativeShareBtn = document.getElementById("nativeShareBtn");
     const clearImageBtn = document.getElementById("clearImageBtn");
     const buyerInput = document.getElementById("buyerInput");
-    const calculatorInput = document.getElementById("calculatorInput");
+    const calculatorDisplay = document.getElementById("calculatorDisplay"); // 改為顯示框
     const toast = document.getElementById("toast");
 
     // 初始化數量選擇下拉框
@@ -602,6 +606,26 @@
       option.value = i;
       option.textContent = i;
       qtyInput.appendChild(option);
+    }
+
+    // 獲取並設置試算者名稱
+    function setupLineName() {
+      // 嘗試從本地存儲獲取
+      lineName = localStorage.getItem('lineName') || '';
+      
+      if (!lineName) {
+        // 首次使用，提示輸入試算者名稱
+        const input = prompt('請輸入您的『試算者名稱』（僅需輸入一次）：');
+        if (input && input.trim()) {
+          lineName = input.trim();
+          localStorage.setItem('lineName', lineName); // 保存到本地存儲
+        } else {
+          lineName = '未設定';
+        }
+      }
+      
+      // 顯示試算者名稱
+      calculatorDisplay.value = lineName;
     }
 
     // 加載產品數據
@@ -773,7 +797,7 @@
         if (result.success) {
           const imageUrl = result.data.url;
           const buyerName = buyerInput.value.trim() || "未填";
-          const calculatorName = calculatorInput.value.trim() || "未填";
+          const calculatorName = lineName || "未設定";
           const lineShareUrl = `https://line.me/R/msg/text/?${encodeURIComponent(
             `康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`
           )}`;
@@ -804,7 +828,7 @@
         const filesArray = [new File([blob], "康園試算報表.png", { type: blob.type })];
 
         const buyer = buyerInput.value.trim() || "未填";
-        const calculator = calculatorInput.value.trim() || "未填";
+        const calculator = lineName || "未設定";
         const shareText = `康園試算報表\n購買者：${buyer}\n試算者：${calculator}`;
 
         await navigator.share({
@@ -836,8 +860,9 @@
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
 
-    // 頁面加載時加載產品
+    // 頁面加載時初始化
     window.onload = () => {
+      setupLineName(); // 設置LINE名稱
       loadProducts();
     };
 
@@ -860,4 +885,3 @@
   </script>
 </body>
 </html>
-    
