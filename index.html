@@ -637,7 +637,7 @@
     const toast = document.getElementById("toast");
 
     // 初始化數量選擇下拉框
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= 99; i++) {
       const option = document.createElement("option");
       option.value = i;
       option.textContent = i;
@@ -725,7 +725,7 @@
         totalPv += subtotalPv;
 
         const tr = document.createElement("tr");
-        const qtyOptions = Array.from({ length: 20 }, (_, i) => {
+        const qtyOptions = Array.from({ length: 99 }, (_, i) => {
           const val = i + 1;
           return `<option value="${val}" ${val === item.qty ? "selected" : ""}>${val}</option>`;
         }).join("");
