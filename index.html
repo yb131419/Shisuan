@@ -644,29 +644,56 @@
       qtyInput.appendChild(option);
     }
 
-    // 【核心修正】加強新入會草本提醒功能 - 雙重監聽確保觸發
+    // 【核心修正1】加強新入會草本提醒功能 - 雙重監聽確保觸發
     // 方法1：change事件（標準選擇變更）
     nameInput.addEventListener('change', function() {
       checkHerbalNewMember(this.value);
+      // 選擇品項後自動調整數量下拉框的可選範圍
+      adjustQtySelectOptions(this.value);
     });
 
     // 方法2：input事件（覆蓋更多選擇場景，如鍵盤操作、程式變更）
     nameInput.addEventListener('input', function() {
       checkHerbalNewMember(this.value);
+      adjustQtySelectOptions(this.value);
     });
 
     // 單獨提取提醒判斷函數，確保邏輯一致
     function checkHerbalNewMember(selectedValue) {
       const trimmedValue = selectedValue.trim();
       // 放寬匹配條件，確保各種類似名稱都能觸發（如「新入會-草本」「草本新入會」等）
-      const isHerbal = trimmedValue.includes('草本') || trimmedValue.includes('草藥');
-      const isNewMember = trimmedValue.includes('新入會') || trimmedValue.includes('新會員') || trimmedValue.includes('入會');
+      const isHerbal = trimmedValue.includes('草本');
+      const isNewMember = trimmedValue.includes('新入會') ;
       
       if (isHerbal && isNewMember) {
         // 使用setTimeout確保alert在DOM更新後執行，避免影響畫面
         setTimeout(() => {
           alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
         }, 100);
+      }
+    }
+
+    // 【核心修正2】根據選擇的品項調整數量下拉框的可選範圍
+    function adjustQtySelectOptions(selectedValue) {
+      const trimmedValue = selectedValue.trim();
+      let maxQty = 99; // 預設最大數量
+      
+      // 規則1：新入會相關品項（包含「新入會」關鍵字）限1個
+      if (trimmedValue.includes('新入會') || trimmedValue.includes('新會員') || trimmedValue.includes('入會')) {
+        maxQty = 1;
+      }
+      // 規則2：2711AB(4)相關品項限2組
+      else if (trimmedValue.includes('2711AB') && trimmedValue.includes('(4)')) {
+        maxQty = 2;
+      }
+      
+      // 重新生成數量下拉框選項
+      qtyInput.innerHTML = '';
+      for (let i = 1; i <= maxQty; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = i;
+        qtyInput.appendChild(option);
       }
     }
 
@@ -716,6 +743,14 @@
         selectedProducts = [];
         saveSelectedProducts(); // 清空本地存儲
         renderTable();
+        // 重置數量下拉框為預設狀態（1-99）
+        qtyInput.innerHTML = '';
+        for (let i = 1; i <= 99; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = i;
+          qtyInput.appendChild(option);
+        }
         showToast('報表已重置');
       }
     }
@@ -736,26 +771,48 @@
         // 加載產品後立即檢查是否已選擇新入會草本（防止頁面刷新後仍選中但未提醒）
         setTimeout(() => {
           checkHerbalNewMember(nameInput.value);
+          adjustQtySelectOptions(nameInput.value);
         }, 300);
       } catch (error) {
         alert("讀取商品失敗: " + error);
       }
     }
 
-    // 渲染表格
+    // 【核心修正3】渲染表格時檢查數量限制（防止手動修改DOM跳過限制）
     function renderTable() {
       reportBody.innerHTML = "";
       let totalPrice = 0;
       let totalPv = 0;
 
       selectedProducts.forEach((item, idx) => {
+        const trimmedName = item.name.trim();
+        let maxQty = 99;
+        
+        // 重新應用數量限制規則
+        if (trimmedName.includes('新入會') || trimmedName.includes('新會員') || trimmedName.includes('入會')) {
+          maxQty = 1;
+          // 強制修正數量（如果超過限制）
+          if (item.qty > maxQty) {
+            item.qty = maxQty;
+            saveSelectedProducts();
+          }
+        } else if (trimmedName.includes('2711AB') && trimmedName.includes('(4)')) {
+          maxQty = 2;
+          // 強制修正數量（如果超過限制）
+          if (item.qty > maxQty) {
+            item.qty = maxQty;
+            saveSelectedProducts();
+          }
+        }
+
         const subtotalPrice = item.price * item.qty;
         const subtotalPv = item.pv * item.qty;
         totalPrice += subtotalPrice;
         totalPv += subtotalPv;
 
         const tr = document.createElement("tr");
-        const qtyOptions = Array.from({ length: 99 }, (_, i) => {
+        // 生成符合限制的數量選項
+        const qtyOptions = Array.from({ length: maxQty }, (_, i) => {
           const val = i + 1;
           return `<option value="${val}" ${val === item.qty ? "selected" : ""}>${val}</option>`;
         }).join("");
@@ -796,7 +853,7 @@
         };
       });
 
-      // 數量下拉變更事件
+      // 數量下拉變更事件（保持限制檢查）
       document.querySelectorAll(".qtySelect").forEach(select => {
         select.onchange = e => {
           const idx = parseInt(e.target.dataset.index);
@@ -808,13 +865,31 @@
       });
     }
 
-    // 添加產品
+    // 【核心修正4】添加產品時再次檢查數量限制（雙重保障）
     function addProduct() {
       const selectedName = nameInput.value;
       const qty = parseInt(qtyInput.value);
       if (!selectedName || qty <= 0) {
         alert("請選擇品項與數量");
         return;
+      }
+
+      // 再次驗證數量限制（防止跳過下拉框限制的場景）
+      const trimmedName = selectedName.trim();
+      let maxQty = 99;
+      
+      if (trimmedName.includes('新入會') || trimmedName.includes('新會員') || trimmedName.includes('入會')) {
+        maxQty = 1;
+        if (qty > maxQty) {
+          alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
+          qty = maxQty;
+        }
+      } else if (trimmedName.includes('2711AB') && trimmedName.includes('(4)')) {
+        maxQty = 2;
+        if (qty > maxQty) {
+          alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
+          qty = maxQty;
+        }
       }
 
       const product = allProducts.find(p => p.name === selectedName);
@@ -825,6 +900,12 @@
 
       const exists = selectedProducts.find(p => p.name === selectedName);
       if (exists) {
+        // 檢查現有數量+新增數量是否超過限制
+        const totalQty = exists.qty + qty;
+        if (totalQty > maxQty) {
+          alert(`⚠️ 該品項限購${maxQty}個/組，目前已選${exists.qty}個/組，無法再新增`);
+          return;
+        }
         exists.qty += qty;
       } else {
         selectedProducts.push({ ...product, qty });
