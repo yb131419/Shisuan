@@ -41,21 +41,21 @@
     overflow-x: auto;
   }
 
-  /* 增大标题字体并确保居中 */
+  /* 增大標題字體並確保居中 */
   #captureArea h2 {
     text-align: center;
-    font-size: 2rem; /* 基础字体更大 */
+    font-size: 2rem; /* 基礎字體更大 */
     font-weight: bold;
     color: #ffffff;
     margin: 0 0 15px 0;
-    padding: 10px 0; /* 增加内边距 */
+    padding: 10px 0; /* 增加內邊距 */
     line-height: 1.3;
-    width: 100%; /* 确保全宽 */
+    width: 100%; /* 確保全寬 */
   }
 
   @media (min-width: 768px) {
     #captureArea h2 {
-      font-size: 2.4rem; /* 大屏幕字体更大 */
+      font-size: 2.4rem; /* 大屏幕字體更大 */
     }
   }
 
@@ -593,7 +593,7 @@
     <button id="shareToLineBtn">📩 上傳備份</button>
     <button id="nativeShareBtn">📱 分享圖片</button>
     <button id="clearImageBtn">❌ 清除圖片</button>
-    <button id="resetReportBtn">🔄 重置報表</button> <!-- 新增报表重置按钮 -->
+    <button id="resetReportBtn">🔄 重置報表</button> <!-- 新增報表重置按鈕 -->
   </div>
 
   <div id="toast" class="toast">✅ 圖片已上傳備份</div>
@@ -630,7 +630,7 @@
     const shareToLineBtn = document.getElementById("shareToLineBtn");
     const nativeShareBtn = document.getElementById("nativeShareBtn");
     const clearImageBtn = document.getElementById("clearImageBtn");
-    const resetReportBtn = document.getElementById("resetReportBtn"); // 报表重置按钮
+    const resetReportBtn = document.getElementById("resetReportBtn"); // 報表重置按鈕
     const buyerInput = document.getElementById("buyerInput");
     const calculatorDisplay = document.getElementById("calculatorDisplay");
     const resetCalculatorBtn = document.getElementById("resetCalculatorBtn");
@@ -644,7 +644,16 @@
       qtyInput.appendChild(option);
     }
 
-    // 从本地存储加载选中的产品
+    // 監聽品項選擇變化，添加新入會（草本）提醒
+    nameInput.addEventListener('change', function() {
+      const selectedValue = this.value;
+      // 匹配「新入會（草本）」選項（考慮可能的文字變化，使用包含匹配）
+      if (selectedValue.includes('新入會') && selectedValue.includes('草本')) {
+        alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+      }
+    });
+
+    // 從本地存儲加載選中的產品
     function loadSelectedProducts() {
       const saved = localStorage.getItem('selectedProducts');
       if (saved) {
@@ -653,7 +662,7 @@
       }
     }
 
-    // 保存选中的产品到本地存储
+    // 保存選中的產品到本地存儲
     function saveSelectedProducts() {
       localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
     }
@@ -684,11 +693,11 @@
       }
     }
 
-    // 重置报表（清除所有品项数据）
+    // 重置報表（清除所有品項數據）
     function resetReport() {
       if (confirm('確定要清空所有品項記錄嗎？')) {
         selectedProducts = [];
-        saveSelectedProducts(); // 清空本地存储
+        saveSelectedProducts(); // 清空本地存儲
         renderTable();
         showToast('報表已重置');
       }
@@ -800,7 +809,7 @@
         selectedProducts.push({ ...product, qty });
       }
 
-      saveSelectedProducts(); // 保存新增的产品
+      saveSelectedProducts(); // 保存新增的產品
       renderTable();
     }
 
@@ -929,13 +938,13 @@
     // 事件監聽
     addBtn.addEventListener("click", addProduct);
     resetCalculatorBtn.addEventListener("click", resetLineName);
-    resetReportBtn.addEventListener("click", resetReport); // 绑定报表重置事件
+    resetReportBtn.addEventListener("click", resetReport); // 綁定報表重置事件
 
     // 頁面加載時初始化
     window.onload = () => {
       setupLineName();
       loadProducts();
-      loadSelectedProducts(); // 加载保存的品项数据
+      loadSelectedProducts(); // 加載保存的品項數據
     };
 
     // 處理窗口大小變化
