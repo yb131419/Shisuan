@@ -613,6 +613,7 @@
     let allProducts = [];
     let selectedProducts = [];
     let lineName = '';
+    let lastSelectedProduct = ''; // 記錄上次選擇的產品，避免重復提醒
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -646,10 +647,15 @@
 
     // 監聽品項選擇變化，添加新入會（草本）提醒
     nameInput.addEventListener('change', function() {
-      const selectedValue = this.value;
-      // 匹配「新入會（草本）」選項（考慮可能的文字變化，使用包含匹配）
-      if (selectedValue.includes('新入會') && selectedValue.includes('草本')) {
+      const selectedValue = this.value.trim();
+      // 精確匹配包含「新入會」和「草本」的選項，且與上次選擇不同時才提醒
+      const isHerbalNewMember = selectedValue.includes('新入會') && selectedValue.includes('草本');
+      
+      if (isHerbalNewMember && selectedValue !== lastSelectedProduct) {
         alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+        lastSelectedProduct = selectedValue; // 更新上次選擇的產品
+      } else if (!isHerbalNewMember) {
+        lastSelectedProduct = ''; // 清空上次選擇記錄
       }
     });
 
