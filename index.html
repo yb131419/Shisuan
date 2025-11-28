@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
@@ -613,7 +613,6 @@
     let allProducts = [];
     let selectedProducts = [];
     let lineName = '';
-    let lastSelectedProduct = ''; // 記錄上次選擇的產品，避免重復提醒
 
     const nameInput = document.getElementById("nameInput");
     const qtyInput = document.getElementById("qtyInput");
@@ -645,19 +644,31 @@
       qtyInput.appendChild(option);
     }
 
-    // 監聽品項選擇變化，添加新入會（草本）提醒
+    // 【核心修正】加強新入會草本提醒功能 - 雙重監聽確保觸發
+    // 方法1：change事件（標準選擇變更）
     nameInput.addEventListener('change', function() {
-      const selectedValue = this.value.trim();
-      // 精確匹配包含「新入會」和「草本」的選項，且與上次選擇不同時才提醒
-      const isHerbalNewMember = selectedValue.includes('新入會') && selectedValue.includes('草本');
-      
-      if (isHerbalNewMember && selectedValue !== lastSelectedProduct) {
-        alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
-        lastSelectedProduct = selectedValue; // 更新上次選擇的產品
-      } else if (!isHerbalNewMember) {
-        lastSelectedProduct = ''; // 清空上次選擇記錄
-      }
+      checkHerbalNewMember(this.value);
     });
+
+    // 方法2：input事件（覆蓋更多選擇場景，如鍵盤操作、程式變更）
+    nameInput.addEventListener('input', function() {
+      checkHerbalNewMember(this.value);
+    });
+
+    // 單獨提取提醒判斷函數，確保邏輯一致
+    function checkHerbalNewMember(selectedValue) {
+      const trimmedValue = selectedValue.trim();
+      // 放寬匹配條件，確保各種類似名稱都能觸發（如「新入會-草本」「草本新入會」等）
+      const isHerbal = trimmedValue.includes('草本') || trimmedValue.includes('草藥');
+      const isNewMember = trimmedValue.includes('新入會') || trimmedValue.includes('新會員') || trimmedValue.includes('入會');
+      
+      if (isHerbal && isNewMember) {
+        // 使用setTimeout確保alert在DOM更新後執行，避免影響畫面
+        setTimeout(() => {
+          alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+        }, 100);
+      }
+    }
 
     // 從本地存儲加載選中的產品
     function loadSelectedProducts() {
@@ -722,6 +733,10 @@
           opt.textContent = item.name;
           nameInput.appendChild(opt);
         });
+        // 加載產品後立即檢查是否已選擇新入會草本（防止頁面刷新後仍選中但未提醒）
+        setTimeout(() => {
+          checkHerbalNewMember(nameInput.value);
+        }, 300);
       } catch (error) {
         alert("讀取商品失敗: " + error);
       }
