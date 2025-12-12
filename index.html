@@ -678,14 +678,18 @@
       const trimmedValue = selectedValue.trim();
       let maxQty = 99; // 預設最大數量
       
-      // 規則1：新入會相關品項（包含「新入會」關鍵字）限1個
-      if (trimmedValue.includes('新入會') || trimmedValue.includes('新會員') || trimmedValue.includes('入會')) {
-        maxQty = 1;
-      }
-      // 規則2：2711AB(4)相關品項限2組
-      else if (trimmedValue.includes('2711AB') && trimmedValue.includes('(4)')) {
-        maxQty = 2;
-      }
+// 規則1：新入會相關品項（包含「新入會」關鍵字）限1個
+if (trimmedValue.includes('新入會') || trimmedValue.includes('新會員') || trimmedValue.includes('入會')) {
+  maxQty = 1;
+}
+// 規則2：2711AB(4)相關品項限2組
+else if (trimmedValue.includes('2711AB') && trimmedValue.includes('(4)')) {
+  maxQty = 2;
+}
+// 規則3：777Q（含全角Ｑ）相關品項限2個
+else if (trimmedValue.includes('777Q') || trimmedValue.includes('777Ｑ')) {
+  maxQty = 2;
+}
       
       // 重新生成數量下拉框選項
       qtyInput.innerHTML = '';
