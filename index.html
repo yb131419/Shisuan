@@ -15,24 +15,20 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  /* 按钮美化变量 - 缩小按钮尺寸（除新增品项按钮） */
-  --btn-shadow:0 4px 15px rgba(0,0,0,0.2);
-  --btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
-  --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);
-  --btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-  --btn-radius:8px;
-  --btn-padding:8px 14px;
+  --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
+  --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  --btn-radius:8px;--btn-padding:8px 14px;
 }
 * {box-sizing:border-box;margin:0;padding:0;}
-body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-#authContainer {width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
-#authLoading {width:100%;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
+body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;position:relative;}
+#authContainer {width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;top:0;left:0;z-index:9999;}
+#authLoading {width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;position:relative;}
 .loader {width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;}
 @keyframes spin {to {transform:rotate(360deg);}}
 @keyframes pulse {from {box-shadow:0 0 15px rgba(0,209,178,0.3);}to {box-shadow:0 0 25px rgba(0,209,178,0.6);}}
 #authLoading h3 {margin:0 0 8px 0;font-size:1.2rem;color:var(--highlight);font-weight:600;}
 #authLoading p {margin:0;font-size:0.95rem;color:#bbb;line-height:1.6;}
-#authStatusBar {background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;width:100%;max-width:600px;}
+#authStatusBar {background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;width:100%;max-width:600px;z-index:9998;}
 .super-admin {color:var(--super);font-weight:bold;}
 .vip-admin {color:var(--vip);font-weight:bold;}
 .normal {color:var(--highlight);font-weight:bold;}
@@ -41,8 +37,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .super-admin-username,.vip-admin-username {background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;text-shadow:0 0 8px rgba(255,255,255,0.3);}
 .super-admin-username {background-image:var(--super-username);}
 .vip-admin-username {background-image:var(--vip-username);}
-#captureArea {background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
-/* 标题字号调小一号 */
+#captureArea {background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;z-index:1;}
 #captureArea h2 {text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
 @media (min-width:768px) {#captureArea h2 {font-size:2.2rem;}}
 .userInputs {display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
@@ -51,37 +46,12 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .userInputs label span {text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input {padding:10px;font-size:16px;background:#333;color:var(--text);border:none;border-radius:6px;width:100%;text-align:center;}
 .calculator-container {display:flex;gap:5px;}
-/* 高质感按钮统一样式 */
-.btn {
-  border:1px solid rgba(255,255,255,0.8);
-  border-radius:var(--btn-radius);
-  padding:var(--btn-padding);
-  font-size:13px;
-  font-weight:600;color:#fff;cursor:pointer;
-  box-shadow:var(--btn-shadow);transition:var(--btn-transition);
-  display:inline-flex;align-items:center;justify-content:center;
-  gap:6px;text-decoration:none;
-  -webkit-tap-highlight-color:transparent;
-  position:relative;overflow:hidden;
-}
-.btn::before {
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
-  transition:all 0.6s ease;
-}
+.btn {border:1px solid rgba(255,255,255,0.8);border-radius:var(--btn-radius);padding:var(--btn-padding);font-size:13px;font-weight:600;color:#fff;cursor:pointer;box-shadow:var(--btn-shadow);transition:var(--btn-transition);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;}
+.btn::before {content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:all 0.6s ease;}
 .btn:hover::before {left:100%;}
-.btn:hover {
-  transform:translateY(-1px);
-  box-shadow:var(--btn-hover-shadow);
-}
-.btn:active {
-  transform:translateY(1px);
-  box-shadow:var(--btn-active-shadow);
-}
-.btn:disabled {
-  opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);
-}
-/* 功能按钮样式 */
+.btn:hover {transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
+.btn:active {transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
+.btn:disabled {opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
 .btn-primary {background:linear-gradient(145deg,#00bfa5,#009e8a);}
 .btn-primary:hover {background:linear-gradient(145deg,#00ccb2,#00a98e);}
 .btn-warning {background:linear-gradient(145deg,#ff9800,#e68900);}
@@ -90,29 +60,13 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .btn-grey:hover {background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
 .btn-danger {background:linear-gradient(145deg,#ff5252,#d32f2f);}
 .btn-danger:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);}
-/* 按钮尺寸适配 */
 .btn-sm {padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md {padding:7px 12px;font-size:12px;border-radius:6px;}
 .btn-lg {padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
-/* 重置计算器按钮样式 */
-#resetCalculatorBtn {
-  width:35px;height:35px;border-radius:5px;background:var(--btn-grey);
-  color:#fff;border:1px solid rgba(255,255,255,0.8);
-  cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;
-  transition:var(--btn-transition);
-}
+#resetCalculatorBtn {width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;border:1px solid rgba(255,255,255,0.8);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);}
 #resetCalculatorBtn:hover {background:#555;transform:scale(1.05);}
 #resetCalculatorBtn:active {transform:scale(0.95);}
-/* 新增品项按钮放大 - 核心修改 */
-#addBtn {
-  min-width:180px !important;
-  padding:16px 24px !important;
-  font-size:18px !important;
-  font-weight:700 !important;
-  border-radius:12px !important;
-  height:auto !important;
-}
+#addBtn {min-width:180px !important;padding:16px 24px !important;font-size:18px !important;font-weight:700 !important;border-radius:12px !important;height:auto !important;}
 #nameInput option {padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable {width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;}
 #reportTable th:nth-child(1),#reportTable td:nth-child(1) {width:22%;}
@@ -125,21 +79,12 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #reportTable th,#reportTable td {border:1px solid #d1d5db;padding:6px 4px;text-align:center;white-space:nowrap;transition:all 0.3s ease;}
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect {font-size:16px !important;font-weight:bold !important;}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6) {font-weight:500;text-align:center !important;}
-@media (min-width:768px) {
-  #reportTable th,#reportTable td {padding:8px 5px;font-size:14px;}
-  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:18px !important;}
-}
+@media (min-width:768px) {#reportTable th,#reportTable td {padding:8px 5px;font-size:14px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:18px !important;}}
 #reportTable thead {background:linear-gradient(90deg,#2b6cb0,#3182ce);color:#fff;font-weight:600;}
 #reportTable tbody tr:nth-child(odd) {background:#f3f4f6;}
 #reportTable tbody tr:nth-child(even) {background:#e5e7eb;}
 #reportTable tbody tr:hover {background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
-.deleteBtn {
-  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
-  border:1px solid rgba(255,255,255,0.8);
-  color:#fff;border-radius:4px;padding:2px;cursor:pointer;
-  font-size:11px;display:inline-block;margin:0 auto;
-  transition:var(--btn-transition);
-}
+.deleteBtn {writing-mode:vertical-rl;text-orientation:upright;background:var(--error);border:1px solid rgba(255,255,255,0.8);color:#fff;border-radius:4px;padding:2px;cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;transition:var(--btn-transition);}
 .deleteBtn:hover {transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
 .deleteBtn:active {transform:scale(0.95);}
 .deleteBtn:disabled {opacity:0.7;cursor:not-allowed;transform:none;}
@@ -147,36 +92,22 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .summaryBox .extra {display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done {color:#4caf50;font-weight:bold;}
 #totalPriceCellDup, #totalPvCellDup, #pvDiff, #pvDiff2 {display:inline-block;min-width:60px;text-align:center;}
-#inputArea {display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
+#inputArea {display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;z-index:1;}
 @media (min-width:576px) {#inputArea {flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput {background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;font-size:16px;border-radius:6px;border:none;}
 #qtyInput {font-size:18px !important;font-weight:bold;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:90px;margin:0;}
-#previewImage {
-  display:none;width:100% !important;max-width:600px;margin:15px auto !important;
-  border:2px solid #888;border-radius:10px;
-  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;
-}
+#previewImage {display:none;width:100% !important;max-width:600px;margin:15px auto !important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;z-index:1;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn {display:none;}
-#buyerInput,#calculatorDisplay {
-  background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
-  padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;width:100%;font-weight:500;
-}
+#buyerInput,#calculatorDisplay {background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;width:100%;font-weight:500;}
 @media (min-width:768px) {#buyerInput,#calculatorDisplay {font-size:18px;}}
 #buyerInput:focus {border-color:#2563eb;box-shadow:0 0 8px 2px rgba(37,99,235,0.3);outline:none;background:#fff;}
 #calculatorDisplay {background:#e9ecef;cursor:default;}
 #buyerInput::placeholder {color:#9ca3af;font-weight:400;text-align:center;}
-.toast {
-  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
-  background:var(--grad-secondary);color:#fff;padding:12px 20px;border-radius:8px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.5s ease,transform 0.5s ease;
-  z-index:1000;text-align:center;min-width:200px;font-size:15px;
-  border:1px solid rgba(255,255,255,0.1);
-}
+.toast {position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--grad-secondary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.5s ease,transform 0.5s ease;z-index:1000;text-align:center;min-width:200px;font-size:15px;border:1px solid rgba(255,255,255,0.1);}
 .toast.show {opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error {background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning {background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
-/* 现金/刷卡勾选框放大 - 核心修改 */
 .payment-options {display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
 .payment-options label {display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"] {width:24px;height:24px;cursor:pointer;}
@@ -196,26 +127,13 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}
   .payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}
   #authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}
-  /* 移动端新增品项按钮也保持大尺寸 */
   #addBtn {min-width:150px !important;padding:14px 20px !important;font-size:16px !important;}
 }
-#error-message {
-  display:none;background:linear-gradient(145deg,#4a0000,#2a0000);
-  border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;
-  margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);
-}
+#error-message {display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);z-index:9999;}
 #error-message #error-content {margin-bottom:15px;}
-#error-message button {
-  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;
-  border:1px solid rgba(255,255,255,0.8);
-  padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;
-  font-weight:500;transition:var(--btn-transition);
-}
-#error-message button:hover {
-  background:linear-gradient(145deg,#ff6b6b,#e53935);
-  transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,82,82,0.3);
-}
-.button-group {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
+#error-message button {background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.8);padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);}
+#error-message button:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,82,82,0.3);}
+.button-group {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;z-index:1;}
 </style>
 </head>
 <body>
@@ -234,8 +152,8 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
     <h2>
       🌿 康園試算報表
       <div class="payment-options">
-        <label><input type="checkbox" id="cashOption" /> 現金</label>
-        <label><input type="checkbox" id="cardOption" /> 刷卡</label>
+        <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
+        <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
       </div>
     </h2>
     <div class="userInputs">  
@@ -300,41 +218,26 @@ const MAX_NORMAL_USER_USAGE=10;
 let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
 let userUsageRecord=JSON.parse(localStorage.getItem('userUsageRecord'))||{};
 const els={
-  nameInput:document.getElementById("nameInput"),
-  qtyInput:document.getElementById("qtyInput"),
-  addBtn:document.getElementById("addBtn"),
-  reportBody:document.getElementById("reportBody"),
-  totalPriceCellDup:document.getElementById("totalPriceCellDup"),
-  totalPvCellDup:document.getElementById("totalPvCellDup"),
-  pvDiff:document.getElementById("pvDiff"),
-  pvDiff2:document.getElementById("pvDiff2"),
-  pvMessage1:document.getElementById("pvMessage1"),
-  pvMessage2:document.getElementById("pvMessage2"),
-  exportBtn:document.getElementById("exportBtn"),
-  previewImage:document.getElementById("previewImage"),
-  shareToLineBtn:document.getElementById("shareToLineBtn"),
-  nativeShareBtn:document.getElementById("nativeShareBtn"),
-  clearImageBtn:document.getElementById("clearImageBtn"),
-  resetReportBtn:document.getElementById("resetReportBtn"),
-  buyerInput:document.getElementById("buyerInput"),
-  calculatorDisplay:document.getElementById("calculatorDisplay"),
-  resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),
-  toast:document.getElementById("toast"),
-  authLoading:document.getElementById("authLoading"),
-  authStatusBar:document.getElementById("authStatusBar"),
-  captureArea:document.getElementById("captureArea"),
-  inputArea:document.getElementById("inputArea"),
-  buttonGroup:document.querySelector(".button-group"),
-  errorMessage:document.getElementById("error-message"),
-  errorContent:document.getElementById("error-content"),
-  authLoadingTitle:document.querySelector("#authLoading h3"),
+  nameInput:document.getElementById("nameInput"),qtyInput:document.getElementById("qtyInput"),
+  addBtn:document.getElementById("addBtn"),reportBody:document.getElementById("reportBody"),
+  totalPriceCellDup:document.getElementById("totalPriceCellDup"),totalPvCellDup:document.getElementById("totalPvCellDup"),
+  pvDiff:document.getElementById("pvDiff"),pvDiff2:document.getElementById("pvDiff2"),
+  pvMessage1:document.getElementById("pvMessage1"),pvMessage2:document.getElementById("pvMessage2"),
+  exportBtn:document.getElementById("exportBtn"),previewImage:document.getElementById("previewImage"),
+  shareToLineBtn:document.getElementById("shareToLineBtn"),nativeShareBtn:document.getElementById("nativeShareBtn"),
+  clearImageBtn:document.getElementById("clearImageBtn"),resetReportBtn:document.getElementById("resetReportBtn"),
+  buyerInput:document.getElementById("buyerInput"),calculatorDisplay:document.getElementById("calculatorDisplay"),
+  resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),toast:document.getElementById("toast"),
+  authLoading:document.getElementById("authLoading"),authStatusBar:document.getElementById("authStatusBar"),
+  captureArea:document.getElementById("captureArea"),inputArea:document.getElementById("inputArea"),
+  buttonGroup:document.querySelector(".button-group"),errorMessage:document.getElementById("error-message"),
+  errorContent:document.getElementById("error-content"),authLoadingTitle:document.querySelector("#authLoading h3"),
   authLoadingDesc:document.querySelector("#authLoading p")
 };
 // 初始化數量選擇框
 for(let i=1;i<=99;i++){
   const option=document.createElement("option");
-  option.value=i;
-  option.textContent=i;
+  option.value=i;option.textContent=i;
   els.qtyInput.appendChild(option);
 }
 // 事件綁定
@@ -365,8 +268,7 @@ function adjustQtySelectOptions(selectedValue){
   els.qtyInput.innerHTML='';
   for(let i=1;i<=maxQty;i++){
     const option=document.createElement("option");
-    option.value=i;
-    option.textContent=i;
+    option.value=i;option.textContent=i;
     els.qtyInput.appendChild(option);
   }
 }
@@ -379,7 +281,7 @@ function loadSelectedProds(){
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 // 保存使用記錄
 function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
-// 設置試算者名稱（支持用户自行填写）
+// 設置試算者名稱
 function setupLineName(){
   lineName=localStorage.getItem('lineName')||userInfo?.displayName||'';
   if(!lineName||lineName==='未知用戶名'){
@@ -387,13 +289,16 @@ function setupLineName(){
     lineName=input?.trim()||'未設定';
     localStorage.setItem('lineName',lineName);
   }
+  // 強制更新顯示
   els.calculatorDisplay.value=lineName;
 }
-// 重置試算者名稱（支持用户重新填写）
+// 重置試算者名稱 - 修復更新問題
 function resetLineName(){
   if(confirm('確定要修改試算者名稱嗎？')){
     localStorage.removeItem('lineName');
     setupLineName();
+    // 立即更新顯示
+    els.calculatorDisplay.value=lineName;
     showToast('試算者名稱已更新');
   }
 }
@@ -418,19 +323,12 @@ async function syncRecordResetToBackend(){
       }
     };
     const data={
-      action:'recordReset',
-      userId:userInfo.userId,
-      displayName:userInfo.displayName,
-      callback:callbackName,
-      dataType:'resetRecord'
+      action:'recordReset',userId:userInfo.userId,displayName:userInfo.displayName,
+      callback:callbackName,dataType:'resetRecord'
     };
     $.ajax({
-      url:API_URL,
-      dataType:'jsonp',
-      jsonp:'callback',
-      jsonpCallback:callbackName,
-      timeout:JSONP_TIMEOUT,
-      data:data,
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,data:data,
       error:function(xhr,status,error){
         delete window[callbackName];
         const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡':`扣次同步失敗：${error}`;
@@ -461,22 +359,13 @@ async function syncDeleteToBackend(){
       }
     };
     const data={
-      action:'recordDelete',
-      userId:userInfo.userId,
-      displayName:userInfo.displayName,
-      usageCount:userUsageRecord[userInfo.userId]||0,
-      timestamp:new Date().getTime(),
-      callback:callbackName,
-      dataType:'deleteRecord'
+      action:'recordDelete',userId:userInfo.userId,displayName:userInfo.displayName,
+      usageCount:userUsageRecord[userInfo.userId]||0,timestamp:new Date().getTime(),
+      callback:callbackName,dataType:'deleteRecord'
     };
     $.ajax({
-      url:API_URL,
-      dataType:'jsonp',
-      jsonp:'callback',
-      jsonpCallback:callbackName,
-      timeout:JSONP_TIMEOUT,
-      cache:false,
-      data:data,
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,cache:false,data:data,
       error:function(xhr,status,error){
         delete window[callbackName];
         const errorMsg=status==='timeout'?'刪除扣次同步超時，請檢查網絡後重試':`刪除扣次同步失敗：${error||'網絡錯誤'}`;
@@ -524,8 +413,7 @@ async function loadProducts(){
     els.nameInput.innerHTML="";
     data.forEach(item=>{
       const opt=document.createElement("option");
-      opt.value=item.name;
-      opt.textContent=item.name;
+      opt.value=item.name;opt.textContent=item.name;
       els.nameInput.appendChild(opt);
     });
     setTimeout(()=>{checkHerbalNewMember(els.nameInput.value);adjustQtySelectOptions(els.nameInput.value);},300);
@@ -578,8 +466,7 @@ function renderTable(){
   // 修复刪除按鈕點擊事件
   document.querySelectorAll(".deleteBtn").forEach(btn=>{
     btn.onclick=async e=>{
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault();e.stopPropagation();
       if(btn.disabled) return;
       const idx=parseInt(e.target.dataset.index);
       const isPrivilegeUser=authStatus?.isVip||authStatus?.isSuperAdmin;
@@ -596,8 +483,7 @@ function renderTable(){
           return;
         }
       }
-      btn.disabled=true;
-      btn.textContent="處理中";
+      btn.disabled=true;btn.textContent="處理中";
       try{
         selectedProds.splice(idx,1);
         saveSelectedProds();
@@ -754,7 +640,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片 - 移除扣次逻辑
+// 匯出圖片
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
