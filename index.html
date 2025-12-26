@@ -188,12 +188,12 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   <img id="previewImage" alt="預覽匯出圖片" />
   <div class="button-group">
     <button id="exportBtn">📤 報表轉圖片</button>
-    <button id="shareToLineBtn">📩 上傳備份</button>
+    <button id="shareToLineBtn">📱 安卓分享</button>
     <button id="nativeShareBtn">📱 分享圖片</button>
     <button id="clearImageBtn">❌ 清除圖片</button>
     <button id="resetReportBtn">🔄 重置報表</button>
   </div>
-  <div id="toast" class="toast">✅ 圖片已上傳備份</div>
+  <div id="toast" class="toast">✅ 圖片已上傳</div>
   <div id="inputArea">
     <select id="nameInput"></select>
     <select id="qtyInput"></select>
@@ -203,7 +203,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
-const LIFF_ID="2007434020-R4ZBmV47";
+const LIFF_ID="2008578880-zlK2U8dQ";
 const JSONP_TIMEOUT=15000; // 延長超時時間，確保後端請求完成
 const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV112=112000;
@@ -745,7 +745,7 @@ async function shareToLine(){
       const calculatorName=lineName||"未設定";
       const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`)}`;
       window.open(lineShareUrl,"_blank");
-      showToast("✅ 圖片已上傳備份");
+      showToast("✅ 圖片已上傳");
     }else{
       showToast("圖片上傳失敗，請稍後再試", 'error');
     }
@@ -753,7 +753,7 @@ async function shareToLine(){
     showToast(`圖片上傳錯誤: ${error.message||'未知錯誤'}`, 'error');
   }finally{
     els.shareToLineBtn.disabled=false;
-    els.shareToLineBtn.textContent="📩 上傳備份";
+    els.shareToLineBtn.textContent="📩 圖片上傳";
   }
 }
 // 原生分享
