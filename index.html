@@ -8,7 +8,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-:root {--bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);--grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);--loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);--super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;}
+:root {
+  --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;
+  --error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;
+  --grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+  --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
+  --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
+  --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
+  /* 按钮美化变量 */
+  --btn-shadow:0 4px 15px rgba(0,0,0,0.2);
+  --btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
+  --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);
+  --btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  --btn-radius:10px;
+  --btn-padding:12px 20px;
+}
 * {box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
 #authContainer {width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
@@ -36,8 +50,55 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .userInputs label span {text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input {padding:10px;font-size:16px;background:#333;color:var(--text);border:none;border-radius:6px;width:100%;text-align:center;}
 .calculator-container {display:flex;gap:5px;}
-#resetCalculatorBtn {padding:10px;background:var(--btn-grey);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;width:40px;}
-#resetCalculatorBtn:hover {background:#555;}
+/* 高质感按钮统一样式 */
+.btn {
+  border:none;border-radius:var(--btn-radius);padding:var(--btn-padding);
+  font-size:15px;font-weight:600;color:#fff;cursor:pointer;
+  box-shadow:var(--btn-shadow);transition:var(--btn-transition);
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;
+}
+.btn::before {
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transition:all 0.6s ease;
+}
+.btn:hover::before {left:100%;}
+.btn:hover {
+  transform:translateY(-2px);
+  box-shadow:var(--btn-hover-shadow);
+}
+.btn:active {
+  transform:translateY(1px);
+  box-shadow:var(--btn-active-shadow);
+}
+.btn:disabled {
+  opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);
+}
+/* 功能按钮样式 */
+.btn-primary {background:linear-gradient(145deg,#00bfa5,#009e8a);}
+.btn-primary:hover {background:linear-gradient(145deg,#00ccb2,#00a98e);}
+.btn-warning {background:linear-gradient(145deg,#ff9800,#e68900);}
+.btn-warning:hover {background:linear-gradient(145deg,#ffa726,#f59e0b);}
+.btn-grey {background:linear-gradient(145deg,#3a3a3a,#2a2a2a);}
+.btn-grey:hover {background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
+.btn-danger {background:linear-gradient(145deg,#ff5252,#d32f2f);}
+.btn-danger:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);}
+/* 按钮尺寸适配 */
+.btn-sm {padding:8px 12px;font-size:12px;border-radius:6px;}
+.btn-md {padding:10px 16px;font-size:14px;border-radius:8px;}
+.btn-lg {padding:14px 24px;font-size:17px;border-radius:10px;width:100%;}
+/* 重置计算器按钮 */
+#resetCalculatorBtn {
+  width:40px;height:40px;border-radius:6px;background:var(--btn-grey);
+  color:#fff;border:none;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:var(--btn-transition);
+}
+#resetCalculatorBtn:hover {background:#555;transform:scale(1.05);}
+#resetCalculatorBtn:active {transform:scale(0.95);}
 #nameInput option {padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable {width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;}
 #reportTable th:nth-child(1),#reportTable td:nth-child(1) {width:22%;}
@@ -50,12 +111,23 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #reportTable th,#reportTable td {border:1px solid #d1d5db;padding:6px 4px;text-align:center;white-space:nowrap;transition:all 0.3s ease;}
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect {font-size:16px !important;font-weight:bold !important;}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6) {font-weight:500;text-align:center !important;}
-@media (min-width:768px) {#reportTable th,#reportTable td {padding:8px 5px;font-size:14px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:18px !important;}}
+@media (min-width:768px) {
+  #reportTable th,#reportTable td {padding:8px 5px;font-size:14px;}
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:18px !important;}
+}
 #reportTable thead {background:linear-gradient(90deg,#2b6cb0,#3182ce);color:#fff;font-weight:600;}
 #reportTable tbody tr:nth-child(odd) {background:#f3f4f6;}
 #reportTable tbody tr:nth-child(even) {background:#e5e7eb;}
 #reportTable tbody tr:hover {background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
-.deleteBtn {writing-mode:vertical-rl;text-orientation:upright;background:var(--error);border:none;color:#fff;border-radius:4px;padding:2px;cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;}
+.deleteBtn {
+  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
+  border:none;color:#fff;border-radius:4px;padding:2px;cursor:pointer;
+  font-size:11px;display:inline-block;margin:0 auto;
+  transition:var(--btn-transition);
+}
+.deleteBtn:hover {transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
+.deleteBtn:active {transform:scale(0.95);}
+.deleteBtn:disabled {opacity:0.7;cursor:not-allowed;transform:none;}
 .summaryBox {text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
 .summaryBox .extra {display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done {color:#4caf50;font-weight:bold;}
@@ -64,70 +136,69 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 @media (min-width:576px) {#inputArea {flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput {background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;font-size:16px;border-radius:6px;border:none;}
 #qtyInput {font-size:18px !important;font-weight:bold;}
-/* 新增品項按鈕優化 - 加大點擊區域、提升點擊體驗 */
-#addBtn {
-  width:100%;
-  min-width:150px;
-  padding:14px 12px;
-  font-size:17px;
-  border-radius:8px;
-  border:none;
-  background:linear-gradient(145deg,#00bfa5,#009e8a);
-  box-shadow:0 4px 8px rgba(0,191,165,0.3);
-  color:#fff;
-  cursor:pointer;
-  transition:all 0.3s ease;
-  text-align:center;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-}
-@media (min-width:576px) {#addBtn {width:150px;}}
-#addBtn:hover {background:linear-gradient(145deg,#00ccb2,#00a98e);transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,191,165,0.4);}
-#addBtn:disabled {background:var(--btn-grey);cursor:not-allowed;transform:none;box-shadow:none;}
-#addBtn:active {transform:translateY(1px);}
-/* 按鈕組樣式保持 */
-#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {background:linear-gradient(145deg,#00bfa5,#009e8a);box-shadow:0 4px 8px rgba(0,191,165,0.3);color:#fff;cursor:pointer;transition:all 0.3s ease;text-align:center;font-size:15px;border:none;border-radius:8px;padding:10px 0;}
-#exportBtn:hover,#shareToLineBtn:hover,#nativeShareBtn:hover,#resetReportBtn:hover {background:linear-gradient(145deg,#00ccb2,#00a98e);transform:translateY(-2px);}
-#exportBtn:disabled,#shareToLineBtn:disabled,#resetReportBtn:disabled {background:var(--btn-grey);cursor:not-allowed;transform:none;box-shadow:none;}
-.button-group {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
+#addBtn {min-width:150px;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:110px;margin:0;}
-#clearImageBtn {background:var(--btn-grey);}
-#clearImageBtn:hover {background:#555;}
-#clearImageBtn:disabled {background:#2a2a2a;cursor:not-allowed;}
-#resetReportBtn {background:#ff9800;}
-#resetReportBtn:hover {background:#ffa726;}
-#resetReportBtn:disabled {background:#b36a00;cursor:not-allowed;}
-/* 預覽圖優化 - 更清晰的樣式 */
 #previewImage {
-  display:none;
-  width:100% !important;
-  max-width:600px;
-  margin:15px auto !important;
-  border:2px solid #888;
-  border-radius:10px;
-  image-rendering:-webkit-optimize-contrast;
-  image-rendering:pixelated;
+  display:none;width:100% !important;max-width:600px;margin:15px auto !important;
+  border:2px solid #888;border-radius:10px;
+  image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;
 }
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn {display:none;}
-#buyerInput,#calculatorDisplay {background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;width:100%;font-weight:500;}
+#buyerInput,#calculatorDisplay {
+  background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
+  padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;width:100%;font-weight:500;
+}
 @media (min-width:768px) {#buyerInput,#calculatorDisplay {font-size:18px;}}
 #buyerInput:focus {border-color:#2563eb;box-shadow:0 0 8px 2px rgba(37,99,235,0.3);outline:none;background:#fff;}
 #calculatorDisplay {background:#e9ecef;cursor:default;}
 #buyerInput::placeholder {color:#9ca3af;font-weight:400;text-align:center;}
-.toast {position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--grad-secondary);color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.5s ease,transform 0.5s ease;z-index:1000;text-align:center;min-width:200px;font-size:15px;border:1px solid rgba(255,255,255,0.1);}
+.toast {
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:var(--grad-secondary);color:#fff;padding:12px 20px;border-radius:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);opacity:0;transition:opacity 0.5s ease,transform 0.5s ease;
+  z-index:1000;text-align:center;min-width:200px;font-size:15px;
+  border:1px solid rgba(255,255,255,0.1);
+}
 .toast.show {opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error {background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning {background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
 .payment-options {display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
 .payment-options label {display:flex;align-items:center;gap:8px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"] {width:18px;height:18px;}
-@media print {body {background:#fff;color:#000;}#authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn {display:none !important;}#captureArea {box-shadow:none;background:#fff;color:#000;display:block !important;}#reportTable th {background:#ccc !important;color:#000 !important;}.deleteBtn {display:none !important;}.summaryBox {color:#000 !important;}#reportTable td, #reportTable th {text-align:center !important;}#reportTable th:nth-child(2),#reportTable td:nth-child(2) {font-size:16px !important;font-weight:bold !important;}}
+@media print {
+  body {background:#fff;color:#000;}
+  #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn {display:none !important;}
+  #captureArea {box-shadow:none;background:#fff;color:#000;display:block !important;}
+  #reportTable th {background:#ccc !important;color:#000 !important;}
+  .deleteBtn {display:none !important;}.summaryBox {color:#000 !important;}
+  #reportTable td, #reportTable th {text-align:center !important;}
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2) {font-size:16px !important;font-weight:bold !important;}
+}
 .spacer {height:80px;}
-@media (max-width:360px) {.userInputs .row {gap:5px;}.userInputs label {font-size:13px;}.userInputs input {font-size:15px;padding:8px;}#reportTable {font-size:11px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}.payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}#authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}#addBtn {min-width:130px;padding:12px 10px;font-size:16px;}}
-#error-message {display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);}
+@media (max-width:360px) {
+  .userInputs .row {gap:5px;}.userInputs label {font-size:13px;}
+  .userInputs input {font-size:15px;padding:8px;}#reportTable {font-size:11px;}
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}
+  .payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}
+  #authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}
+  #addBtn {min-width:130px;padding:12px 10px;font-size:16px;}
+}
+#error-message {
+  display:none;background:linear-gradient(145deg,#4a0000,#2a0000);
+  border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;
+  margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);
+}
 #error-message #error-content {margin-bottom:15px;}
-#error-message button {background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin-top:10px;font-weight:500;transition:all 0.3s ease;}
-#error-message button:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,82,82,0.3);}
+#error-message button {
+  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;
+  padding:10px 20px;border-radius:8px;cursor:pointer;margin-top:10px;
+  font-weight:500;transition:var(--btn-transition);
+}
+#error-message button:hover {
+  background:linear-gradient(145deg,#ff6b6b,#e53935);
+  transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,82,82,0.3);
+}
+.button-group {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
 </style>
 </head>
 <body>
@@ -187,24 +258,24 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   </div>
   <img id="previewImage" alt="預覽匯出圖片" />
   <div class="button-group">
-    <button id="exportBtn">📤 報表轉圖片</button>
-    <button id="shareToLineBtn">📱 安卓分享</button>
-    <button id="nativeShareBtn">📱 分享圖片</button>
-    <button id="clearImageBtn">❌ 清除圖片</button>
-    <button id="resetReportBtn">🔄 重置報表</button>
+    <button id="exportBtn" class="btn btn-primary">📤 報表轉圖片</button>
+    <button id="shareToLineBtn" class="btn btn-primary">📱 安卓分享</button>
+    <button id="nativeShareBtn" class="btn btn-primary">📱 分享圖片</button>
+    <button id="clearImageBtn" class="btn btn-grey">❌ 清除圖片</button>
+    <button id="resetReportBtn" class="btn btn-warning">🔄 重置報表</button>
   </div>
   <div id="toast" class="toast">✅ 圖片已上傳</div>
   <div id="inputArea">
     <select id="nameInput"></select>
     <select id="qtyInput"></select>
-    <button id="addBtn">➕ 新增品項</button>
+    <button id="addBtn" class="btn btn-primary btn-lg">➕ 新增品項</button>
   </div>
   <div class="spacer"></div>
   <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
 const LIFF_ID="2008578880-zlK2U8dQ";
-const JSONP_TIMEOUT=15000; // 延長超時時間，確保後端請求完成
+const JSONP_TIMEOUT=15000;
 const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV112=112000;
 const TARGET_PV220=220000;
@@ -249,7 +320,7 @@ for(let i=1;i<=99;i++){
   option.textContent=i;
   els.qtyInput.appendChild(option);
 }
-// 事件綁定優化 - 確保事件正確綁定
+// 事件綁定
 els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
 els.nameInput.addEventListener('input',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
 els.addBtn.addEventListener("click",addProduct);
@@ -313,35 +384,39 @@ function resetLineName(){
 async function syncRecordResetToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
+    // 生成唯一回调名称
+    const callbackName=`recordResetCallback_${Date.now()}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName]; // 销毁回调函数
+      if(resp.status==="success"){
+        const backendUsageCount=resp.usageCount||0;
+        userUsageRecord[userInfo.userId]=backendUsageCount;
+        saveUserUsageRecord();
+        authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
+        updateAuthStatusBar();
+        checkUserRemainingTimes();
+        resolve(true);
+      }else{
+        showToast(`後端扣次失敗：${resp.message||'未知錯誤'}`, 'error');
+        resolve(false);
+      }
+    };
     const data={
       action:'recordReset',
       userId:userInfo.userId,
       displayName:userInfo.displayName,
-      callback:'recordResetCallback',
+      callback:callbackName,
       dataType:'resetRecord'
     };
     $.ajax({
       url:API_URL,
       dataType:'jsonp',
       jsonp:'callback',
-      jsonpCallback:'recordResetCallback',
+      jsonpCallback:callbackName,
       timeout:JSONP_TIMEOUT,
       data:data,
-      success:function(resp){
-        if(resp.status==="success"){
-          const backendUsageCount=resp.usageCount||0;
-          userUsageRecord[userInfo.userId]=backendUsageCount;
-          saveUserUsageRecord();
-          authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
-          updateAuthStatusBar();
-          checkUserRemainingTimes();
-          resolve(true);
-        }else{
-          showToast(`後端扣次失敗：${resp.message||'未知錯誤'}`, 'error');
-          resolve(false);
-        }
-      },
       error:function(xhr,status,error){
+        delete window[callbackName]; // 销毁回调函数
         const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡':`扣次同步失敗：${error}`;
         showToast(errorMsg, 'error');
         reject(new Error(errorMsg));
@@ -349,44 +424,48 @@ async function syncRecordResetToBackend(){
     });
   });
 }
-// 修復刪除扣次同步後端函數 - 確保參數正確、返回值處理完善
+// 修复删除扣次同步後端函數 - 动态生成唯一回调名称
 async function syncDeleteToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
-    // 構造更詳細的請求參數，確保後端能正確識別
+    // 生成唯一回调名称，避免冲突
+    const callbackName=`recordDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+    // 注册回调函数
+    window[callbackName]=function(resp){
+      delete window[callbackName]; // 请求完成后销毁回调函数
+      if(resp&&resp.status==="success"){
+        const backendUsageCount=Number(resp.usageCount)||0;
+        userUsageRecord[userInfo.userId]=backendUsageCount;
+        saveUserUsageRecord();
+        authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
+        updateAuthStatusBar();
+        checkUserRemainingTimes();
+        resolve(true);
+      }else{
+        showToast(`後端扣次失敗：${resp?.message||'未知錯誤'}`, 'error');
+        resolve(false);
+      }
+    };
+    // 構造請求參數
     const data={
       action:'recordDelete',
       userId:userInfo.userId,
       displayName:userInfo.displayName,
       usageCount:userUsageRecord[userInfo.userId]||0,
-      timestamp:new Date().getTime(), // 增加時間戳，避免緩存
-      callback:'recordDeleteCallback',
+      timestamp:new Date().getTime(),
+      callback:callbackName,
       dataType:'deleteRecord'
     };
     $.ajax({
       url:API_URL,
       dataType:'jsonp',
       jsonp:'callback',
-      jsonpCallback:'recordDeleteCallback',
+      jsonpCallback:callbackName,
       timeout:JSONP_TIMEOUT,
-      cache:false, // 禁用緩存
+      cache:false,
       data:data,
-      success:function(resp){
-        if(resp&&resp.status==="success"){
-          // 強制使用後端返回的次數，確保數據一致
-          const backendUsageCount=Number(resp.usageCount)||0;
-          userUsageRecord[userInfo.userId]=backendUsageCount;
-          saveUserUsageRecord();
-          authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
-          updateAuthStatusBar();
-          checkUserRemainingTimes();
-          resolve(true);
-        }else{
-          showToast(`後端扣次失敗：${resp?.message||'未知錯誤'}`, 'error');
-          resolve(false);
-        }
-      },
       error:function(xhr,status,error){
+        delete window[callbackName]; // 销毁回调函数
         const errorMsg=status==='timeout'?'刪除扣次同步超時，請檢查網絡後重試':`刪除扣次同步失敗：${error||'網絡錯誤'}`;
         showToast(errorMsg, 'error');
         reject(new Error(errorMsg));
@@ -483,19 +562,19 @@ function renderTable(){
   els.pvDiff2.textContent=diff2>0?diff2:0;
   els.pvMessage1.innerHTML=totalPv>=TARGET_PV112?'<span class="done">🎉 已達標</span>':'';
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
-  // 修復刪除按鈕點擊事件 - 確保扣次邏輯正確執行
+  // 修复刪除按鈕點擊事件
   document.querySelectorAll(".deleteBtn").forEach(btn=>{
     btn.onclick=async e=>{
-      e.preventDefault(); // 阻止默認行為
-      e.stopPropagation(); // 阻止事件冒泡
+      e.preventDefault();
+      e.stopPropagation();
+      // 防止重复点击
+      if(btn.disabled) return;
       const idx=parseInt(e.target.dataset.index);
       const isPrivilegeUser=authStatus?.isVip||authStatus?.isSuperAdmin;
-      // 驗證用戶狀態
       if(!authStatus||authStatus.isExpired){
         showToast('賬號已過期，無法執行刪除操作', 'error');
         return;
       }
-      // 普通用戶扣次驗證
       if(!isPrivilegeUser){
         if(authStatus.remainingTimes<=0){
           showToast('使用次數已用完，無法刪除品項', 'error');
@@ -505,15 +584,12 @@ function renderTable(){
           return;
         }
       }
-      // 禁用按鈕防止重複點擊
       btn.disabled=true;
       btn.textContent="處理中";
       try{
-        // 先刪除本地記錄
         selectedProds.splice(idx,1);
         saveSelectedProds();
         renderTable();
-        // 普通用戶執行扣次同步
         if(!isPrivilegeUser){
           const syncSuccess=await syncDeleteToBackend();
           if(syncSuccess){
@@ -526,12 +602,9 @@ function renderTable(){
         }
       }catch(error){
         showToast(`刪除失敗：${error.message}`, 'error');
-        // 還原數據
         renderTable();
       }finally{
-        // 恢復按鈕狀態
-        btn.disabled=false;
-        btn.textContent="刪除";
+        // 这里不需要恢复按钮状态，因为renderTable会重新生成按钮
       }
     };
   });
@@ -545,9 +618,8 @@ function renderTable(){
     };
   });
 }
-// 新增品項 - 優化點擊響應，確保邏輯穩定
+// 新增品項
 function addProduct(){
-  // 立即禁用按鈕防止重複點擊
   els.addBtn.disabled=true;
   els.addBtn.textContent="處理中...";
   try{
@@ -603,7 +675,6 @@ function addProduct(){
   }catch(error){
     showToast(`新增失敗：${error.message}`, 'error');
   }finally{
-    // 恢復按鈕狀態
     els.addBtn.disabled=false;
     els.addBtn.textContent="➕ 新增品項";
   }
@@ -673,7 +744,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片 - 進一步提升畫質
+// 匯出圖片
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -687,27 +758,14 @@ async function exportToImage(){
     const lastCol=reportTable.querySelector('th:last-child');
     const lastColWidth=lastCol?lastCol.offsetWidth:0;
     const captureWidth=tableWidth-lastColWidth;
-    // 進一步提升截圖比例，移動端3倍，桌面端4倍
     const scale=window.innerWidth<768?3:4;
-    // 優化html2canvas參數，提升畫質
     const canvas=await html2canvas(els.captureArea,{
-      scale:scale,
-      useCORS:true,
-      allowTaint:true,
-      backgroundColor:null,
-      logging:false,
-      letterRendering:true,
-      useTransform:true,
-      dpi:300, // 設置300DPI高清輸出
-      scaleMethod:'highQuality', // 高質量縮放
-      width:captureWidth,
-      windowWidth:captureWidth,
-      windowHeight:els.captureArea.offsetHeight,
-      scrollX:0,
-      scrollY:0,
-      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn') // 忽略不需要的元素
+      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
+      logging:false,letterRendering:true,useTransform:true,dpi:300,
+      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
+      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
+      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
-    // 生成最高質量的圖片
     const dataUrl=canvas.toDataURL("image/png",1.0);
     els.previewImage.src=dataUrl;
     els.previewImage.style.display="block";
@@ -827,45 +885,36 @@ const showError=(msg)=>{
 // 後端驗證用戶
 const verifyUserFromBackend=(profile)=>{
   return new Promise((resolve,reject)=>{
+    const callbackName=`verifyCallback_${Date.now()}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      if(resp.status==="success"){
+        const backendUsageCount=resp.usageCount||0;
+        userUsageRecord[profile.userId]=backendUsageCount;
+        saveUserUsageRecord();
+        const expiryData=calculateRemainingDaysByDate(resp.expiryDate||PERMANENT_EXPIRY_DATE);
+        resolve({
+          ...resp,displayName:profile.displayName,remainingDays:expiryData.remainingDays,
+          displayExpiryDate:expiryData.displayDate,isExpired:expiryData.isExpired,
+          isVip:resp.isVip===true,isSuperAdmin:resp.isSuperAdmin===true,
+          remainingTimes:resp.remainingTimes||(MAX_NORMAL_USER_USAGE-backendUsageCount)
+        });
+      }else{
+        showError(resp.message||"用戶驗證失敗");
+        resolve(null);
+      }
+    };
     const decodedToken=liff.getDecodedIDToken();
     const userId=profile.userId||decodedToken?.sub||"";
-    const displayName=profile.displayName||'LINE用戶';
     const data={
-      action:'verifyUser',
-      userId:userId,
-      displayName:displayName,
-      callback:'verifyCallback',
-      dataType:'userVerify'
+      action:'verifyUser',userId:userId,displayName:profile.displayName,
+      callback:callbackName,dataType:'userVerify'
     };
     $.ajax({
-      url:API_URL,
-      dataType:'jsonp',
-      jsonp:'callback',
-      jsonpCallback:'verifyCallback',
-      timeout:JSONP_TIMEOUT,
-      data:data,
-      success:function(resp){
-        if(resp.status==="success"){
-          const backendUsageCount=resp.usageCount||0;
-          userUsageRecord[userId]=backendUsageCount;
-          saveUserUsageRecord();
-          const expiryData=calculateRemainingDaysByDate(resp.expiryDate||PERMANENT_EXPIRY_DATE);
-          resolve({
-            ...resp,
-            displayName:displayName,
-            remainingDays:expiryData.remainingDays,
-            displayExpiryDate:expiryData.displayDate,
-            isExpired:expiryData.isExpired,
-            isVip:resp.isVip===true,
-            isSuperAdmin:resp.isSuperAdmin===true,
-            remainingTimes:resp.remainingTimes||(MAX_NORMAL_USER_USAGE-backendUsageCount)
-          });
-        }else{
-          showError(resp.message||"用戶驗證失敗");
-          resolve(null);
-        }
-      },
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,data:data,
       error:function(xhr,status,error){
+        delete window[callbackName];
         const errorMsg=status==='timeout'?'驗證超時，請檢查網絡後重新嘗試':`驗證失敗：${error||'未知網絡錯誤'}`;
         showError(errorMsg);
         reject(new Error(errorMsg));
@@ -873,10 +922,6 @@ const verifyUserFromBackend=(profile)=>{
     });
   });
 };
-// 註冊全局回調函數
-window.verifyCallback=function(resp){};
-window.recordResetCallback=function(resp){};
-window.recordDeleteCallback=function(resp){};
 // 初始化LIFF和授權
 async function initLiffAndAuth(){
   try{
@@ -898,14 +943,10 @@ async function initLiffAndAuth(){
       return;
     }
     authStatus={
-      isVip:authData.isVip,
-      isSuperAdmin:authData.isSuperAdmin,
-      remainingDays:authData.remainingDays,
-      displayExpiryDate:authData.displayExpiryDate,
-      expiryDate:authData.expiryDate,
-      usageCount:authData.usageCount||0,
-      isExpired:authData.isExpired,
-      remainingTimes:authData.remainingTimes||0
+      isVip:authData.isVip,isSuperAdmin:authData.isSuperAdmin,
+      remainingDays:authData.remainingDays,displayExpiryDate:authData.displayExpiryDate,
+      expiryDate:authData.expiryDate,usageCount:authData.usageCount||0,
+      isExpired:authData.isExpired,remainingTimes:authData.remainingTimes||0
     };
     els.authLoading.style.display='none';
     els.captureArea.style.display='block';
