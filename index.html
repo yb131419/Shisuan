@@ -15,13 +15,13 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  /* 按钮美化变量 - 缩小按钮尺寸 */
+  /* 按钮美化变量 - 缩小按钮尺寸（除新增品项按钮） */
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);
   --btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);
   --btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-  --btn-radius:8px; /* 缩小圆角 */
-  --btn-padding:8px 14px; /* 缩小内边距 */
+  --btn-radius:8px;
+  --btn-padding:8px 14px;
 }
 * {box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
@@ -42,20 +42,21 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .super-admin-username {background-image:var(--super-username);}
 .vip-admin-username {background-image:var(--vip-username);}
 #captureArea {background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
-#captureArea h2 {text-align:center;font-size:2rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
-@media (min-width:768px) {#captureArea h2 {font-size:2.4rem;}}
+/* 标题字号调小一号 */
+#captureArea h2 {text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
+@media (min-width:768px) {#captureArea h2 {font-size:2.2rem;}}
 .userInputs {display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row {display:flex;gap:10px;width:100%;}
 .userInputs label {flex:1;display:flex;flex-direction:column;font-size:14px;color:#bbb;}
 .userInputs label span {text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input {padding:10px;font-size:16px;background:#333;color:var(--text);border:none;border-radius:6px;width:100%;text-align:center;}
 .calculator-container {display:flex;gap:5px;}
-/* 高质感按钮统一样式 - 核心修改：添加白色边框 + 缩小尺寸 */
+/* 高质感按钮统一样式 */
 .btn {
-  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  border:1px solid rgba(255,255,255,0.8);
   border-radius:var(--btn-radius);
   padding:var(--btn-padding);
-  font-size:13px;/* 缩小字体 */
+  font-size:13px;
   font-weight:600;color:#fff;cursor:pointer;
   box-shadow:var(--btn-shadow);transition:var(--btn-transition);
   display:inline-flex;align-items:center;justify-content:center;
@@ -70,7 +71,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 }
 .btn:hover::before {left:100%;}
 .btn:hover {
-  transform:translateY(-1px);/* 缩小悬浮偏移 */
+  transform:translateY(-1px);
   box-shadow:var(--btn-hover-shadow);
 }
 .btn:active {
@@ -89,20 +90,29 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .btn-grey:hover {background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
 .btn-danger {background:linear-gradient(145deg,#ff5252,#d32f2f);}
 .btn-danger:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);}
-/* 按钮尺寸适配 - 整体缩小 */
+/* 按钮尺寸适配 */
 .btn-sm {padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md {padding:7px 12px;font-size:12px;border-radius:6px;}
 .btn-lg {padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
-/* 重置计算器按钮 - 缩小 + 白色边框 */
+/* 重置计算器按钮样式 */
 #resetCalculatorBtn {
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);
-  color:#fff;border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  color:#fff;border:1px solid rgba(255,255,255,0.8);
   cursor:pointer;font-size:14px;
   display:flex;align-items:center;justify-content:center;
   transition:var(--btn-transition);
 }
 #resetCalculatorBtn:hover {background:#555;transform:scale(1.05);}
 #resetCalculatorBtn:active {transform:scale(0.95);}
+/* 新增品项按钮放大 - 核心修改 */
+#addBtn {
+  min-width:180px !important;
+  padding:16px 24px !important;
+  font-size:18px !important;
+  font-weight:700 !important;
+  border-radius:12px !important;
+  height:auto !important;
+}
 #nameInput option {padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable {width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;}
 #reportTable th:nth-child(1),#reportTable td:nth-child(1) {width:22%;}
@@ -125,7 +135,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #reportTable tbody tr:hover {background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn {
   writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
-  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  border:1px solid rgba(255,255,255,0.8);
   color:#fff;border-radius:4px;padding:2px;cursor:pointer;
   font-size:11px;display:inline-block;margin:0 auto;
   transition:var(--btn-transition);
@@ -141,8 +151,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 @media (min-width:576px) {#inputArea {flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput {background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;font-size:16px;border-radius:6px;border:none;}
 #qtyInput {font-size:18px !important;font-weight:bold;}
-#addBtn {min-width:120px;/* 缩小按钮宽度 */}
-#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:90px;margin:0;/* 缩小按钮宽度 */}
+#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:90px;margin:0;}
 #previewImage {
   display:none;width:100% !important;max-width:600px;margin:15px auto !important;
   border:2px solid #888;border-radius:10px;
@@ -167,9 +176,10 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .toast.show {opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error {background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning {background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
+/* 现金/刷卡勾选框放大 - 核心修改 */
 .payment-options {display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
-.payment-options label {display:flex;align-items:center;gap:8px;color:#fff;font-weight:500;}
-.payment-options input[type="checkbox"] {width:18px;height:18px;}
+.payment-options label {display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
+.payment-options input[type="checkbox"] {width:24px;height:24px;cursor:pointer;}
 @media print {
   body {background:#fff;color:#000;}
   #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn {display:none !important;}
@@ -186,7 +196,8 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}
   .payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}
   #authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}
-  #addBtn {min-width:100px;padding:8px 8px;font-size:14px;/* 缩小按钮 */}
+  /* 移动端新增品项按钮也保持大尺寸 */
+  #addBtn {min-width:150px !important;padding:14px 20px !important;font-size:16px !important;}
 }
 #error-message {
   display:none;background:linear-gradient(145deg,#4a0000,#2a0000);
@@ -196,7 +207,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #error-message #error-content {margin-bottom:15px;}
 #error-message button {
   background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;
-  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  border:1px solid rgba(255,255,255,0.8);
   padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;
   font-weight:500;transition:var(--btn-transition);
 }
@@ -368,22 +379,22 @@ function loadSelectedProds(){
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 // 保存使用記錄
 function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
-// 設置試算者名稱
+// 設置試算者名稱（支持用户自行填写）
 function setupLineName(){
   lineName=localStorage.getItem('lineName')||userInfo?.displayName||'';
   if(!lineName||lineName==='未知用戶名'){
-    const input=prompt('請輸入您的『試算者名稱』\n（僅需輸入一次，可隨時重置）：');
+    const input=prompt('請輸入您的『試算者名稱』\n（可隨時點擊重置按鈕修改）：');
     lineName=input?.trim()||'未設定';
     localStorage.setItem('lineName',lineName);
   }
   els.calculatorDisplay.value=lineName;
 }
-// 重置試算者名稱
+// 重置試算者名稱（支持用户重新填写）
 function resetLineName(){
-  if(confirm('確定要重置試算者名稱嗎？')){
+  if(confirm('確定要修改試算者名稱嗎？')){
     localStorage.removeItem('lineName');
     setupLineName();
-    showToast('試算者名稱已重置');
+    showToast('試算者名稱已更新');
   }
 }
 // 同步重置記錄到後端
@@ -771,7 +782,6 @@ async function exportToImage(){
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
-    // 已移除扣次逻辑
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
