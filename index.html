@@ -15,13 +15,13 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  /* 按钮美化变量 */
+  /* 按钮美化变量 - 缩小按钮尺寸 */
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);
   --btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);
   --btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-  --btn-radius:10px;
-  --btn-padding:12px 20px;
+  --btn-radius:8px; /* 缩小圆角 */
+  --btn-padding:8px 14px; /* 缩小内边距 */
 }
 * {box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
@@ -50,13 +50,16 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .userInputs label span {text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input {padding:10px;font-size:16px;background:#333;color:var(--text);border:none;border-radius:6px;width:100%;text-align:center;}
 .calculator-container {display:flex;gap:5px;}
-/* 高质感按钮统一样式 */
+/* 高质感按钮统一样式 - 核心修改：添加白色边框 + 缩小尺寸 */
 .btn {
-  border:none;border-radius:var(--btn-radius);padding:var(--btn-padding);
-  font-size:15px;font-weight:600;color:#fff;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  border-radius:var(--btn-radius);
+  padding:var(--btn-padding);
+  font-size:13px;/* 缩小字体 */
+  font-weight:600;color:#fff;cursor:pointer;
   box-shadow:var(--btn-shadow);transition:var(--btn-transition);
   display:inline-flex;align-items:center;justify-content:center;
-  gap:8px;text-decoration:none;
+  gap:6px;text-decoration:none;
   -webkit-tap-highlight-color:transparent;
   position:relative;overflow:hidden;
 }
@@ -67,7 +70,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 }
 .btn:hover::before {left:100%;}
 .btn:hover {
-  transform:translateY(-2px);
+  transform:translateY(-1px);/* 缩小悬浮偏移 */
   box-shadow:var(--btn-hover-shadow);
 }
 .btn:active {
@@ -86,14 +89,15 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .btn-grey:hover {background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
 .btn-danger {background:linear-gradient(145deg,#ff5252,#d32f2f);}
 .btn-danger:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);}
-/* 按钮尺寸适配 */
-.btn-sm {padding:8px 12px;font-size:12px;border-radius:6px;}
-.btn-md {padding:10px 16px;font-size:14px;border-radius:8px;}
-.btn-lg {padding:14px 24px;font-size:17px;border-radius:10px;width:100%;}
-/* 重置计算器按钮 */
+/* 按钮尺寸适配 - 整体缩小 */
+.btn-sm {padding:6px 10px;font-size:11px;border-radius:5px;}
+.btn-md {padding:7px 12px;font-size:12px;border-radius:6px;}
+.btn-lg {padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
+/* 重置计算器按钮 - 缩小 + 白色边框 */
 #resetCalculatorBtn {
-  width:40px;height:40px;border-radius:6px;background:var(--btn-grey);
-  color:#fff;border:none;cursor:pointer;font-size:16px;
+  width:35px;height:35px;border-radius:5px;background:var(--btn-grey);
+  color:#fff;border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  cursor:pointer;font-size:14px;
   display:flex;align-items:center;justify-content:center;
   transition:var(--btn-transition);
 }
@@ -121,7 +125,8 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #reportTable tbody tr:hover {background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn {
   writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
-  border:none;color:#fff;border-radius:4px;padding:2px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  color:#fff;border-radius:4px;padding:2px;cursor:pointer;
   font-size:11px;display:inline-block;margin:0 auto;
   transition:var(--btn-transition);
 }
@@ -136,8 +141,8 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 @media (min-width:576px) {#inputArea {flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput {background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;font-size:16px;border-radius:6px;border:none;}
 #qtyInput {font-size:18px !important;font-weight:bold;}
-#addBtn {min-width:150px;}
-#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:110px;margin:0;}
+#addBtn {min-width:120px;/* 缩小按钮宽度 */}
+#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn {flex:1;min-width:90px;margin:0;/* 缩小按钮宽度 */}
 #previewImage {
   display:none;width:100% !important;max-width:600px;margin:15px auto !important;
   border:2px solid #888;border-radius:10px;
@@ -181,7 +186,7 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}
   .payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}
   #authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}
-  #addBtn {min-width:130px;padding:12px 10px;font-size:16px;}
+  #addBtn {min-width:100px;padding:8px 8px;font-size:14px;/* 缩小按钮 */}
 }
 #error-message {
   display:none;background:linear-gradient(145deg,#4a0000,#2a0000);
@@ -191,7 +196,8 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 #error-message #error-content {margin-bottom:15px;}
 #error-message button {
   background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;
-  padding:10px 20px;border-radius:8px;cursor:pointer;margin-top:10px;
+  border:1px solid rgba(255,255,255,0.8);/* 白色边框 */
+  padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;
   font-weight:500;transition:var(--btn-transition);
 }
 #error-message button:hover {
@@ -384,10 +390,9 @@ function resetLineName(){
 async function syncRecordResetToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
-    // 生成唯一回调名称
     const callbackName=`recordResetCallback_${Date.now()}`;
     window[callbackName]=function(resp){
-      delete window[callbackName]; // 销毁回调函数
+      delete window[callbackName];
       if(resp.status==="success"){
         const backendUsageCount=resp.usageCount||0;
         userUsageRecord[userInfo.userId]=backendUsageCount;
@@ -416,7 +421,7 @@ async function syncRecordResetToBackend(){
       timeout:JSONP_TIMEOUT,
       data:data,
       error:function(xhr,status,error){
-        delete window[callbackName]; // 销毁回调函数
+        delete window[callbackName];
         const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡':`扣次同步失敗：${error}`;
         showToast(errorMsg, 'error');
         reject(new Error(errorMsg));
@@ -424,15 +429,13 @@ async function syncRecordResetToBackend(){
     });
   });
 }
-// 修复删除扣次同步後端函數 - 动态生成唯一回调名称
+// 修复删除扣次同步後端函數
 async function syncDeleteToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
-    // 生成唯一回调名称，避免冲突
     const callbackName=`recordDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
-    // 注册回调函数
     window[callbackName]=function(resp){
-      delete window[callbackName]; // 请求完成后销毁回调函数
+      delete window[callbackName];
       if(resp&&resp.status==="success"){
         const backendUsageCount=Number(resp.usageCount)||0;
         userUsageRecord[userInfo.userId]=backendUsageCount;
@@ -446,7 +449,6 @@ async function syncDeleteToBackend(){
         resolve(false);
       }
     };
-    // 構造請求參數
     const data={
       action:'recordDelete',
       userId:userInfo.userId,
@@ -465,7 +467,7 @@ async function syncDeleteToBackend(){
       cache:false,
       data:data,
       error:function(xhr,status,error){
-        delete window[callbackName]; // 销毁回调函数
+        delete window[callbackName];
         const errorMsg=status==='timeout'?'刪除扣次同步超時，請檢查網絡後重試':`刪除扣次同步失敗：${error||'網絡錯誤'}`;
         showToast(errorMsg, 'error');
         reject(new Error(errorMsg));
@@ -567,7 +569,6 @@ function renderTable(){
     btn.onclick=async e=>{
       e.preventDefault();
       e.stopPropagation();
-      // 防止重复点击
       if(btn.disabled) return;
       const idx=parseInt(e.target.dataset.index);
       const isPrivilegeUser=authStatus?.isVip||authStatus?.isSuperAdmin;
@@ -603,9 +604,7 @@ function renderTable(){
       }catch(error){
         showToast(`刪除失敗：${error.message}`, 'error');
         renderTable();
-      }finally{
-        // 这里不需要恢复按钮状态，因为renderTable会重新生成按钮
-      }
+      }finally{}
     };
   });
   // 數量選擇框事件
@@ -744,7 +743,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片
+// 匯出圖片 - 移除扣次逻辑
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -772,10 +771,7 @@ async function exportToImage(){
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
-    if(!authStatus.isVip&&!authStatus.isSuperAdmin){
-      recordUserUsage();
-      checkUserRemainingTimes();
-    }
+    // 已移除扣次逻辑
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
