@@ -15,7 +15,6 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  /* 按钮美化变量 - 缩小按钮尺寸（除新增品项按钮） */
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);
   --btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);
@@ -25,8 +24,9 @@
 }
 * {box-sizing:border-box;margin:0;padding:0;}
 body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-#authContainer {width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
-#authLoading {width:100%;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
+/* 修复：授权加载框居中显示 */
+#authContainer {position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;z-index:9999;background:var(--bg);}
+#authLoading {width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
 .loader {width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;}
 @keyframes spin {to {transform:rotate(360deg);}}
 @keyframes pulse {from {box-shadow:0 0 15px rgba(0,209,178,0.3);}to {box-shadow:0 0 25px rgba(0,209,178,0.6);}}
@@ -42,7 +42,6 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .super-admin-username {background-image:var(--super-username);}
 .vip-admin-username {background-image:var(--vip-username);}
 #captureArea {background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
-/* 标题字号调小一号 */
 #captureArea h2 {text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
 @media (min-width:768px) {#captureArea h2 {font-size:2.2rem;}}
 .userInputs {display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
@@ -51,7 +50,6 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .userInputs label span {text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input {padding:10px;font-size:16px;background:#333;color:var(--text);border:none;border-radius:6px;width:100%;text-align:center;}
 .calculator-container {display:flex;gap:5px;}
-/* 高质感按钮统一样式 */
 .btn {
   border:1px solid rgba(255,255,255,0.8);
   border-radius:var(--btn-radius);
@@ -70,18 +68,9 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   transition:all 0.6s ease;
 }
 .btn:hover::before {left:100%;}
-.btn:hover {
-  transform:translateY(-1px);
-  box-shadow:var(--btn-hover-shadow);
-}
-.btn:active {
-  transform:translateY(1px);
-  box-shadow:var(--btn-active-shadow);
-}
-.btn:disabled {
-  opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);
-}
-/* 功能按钮样式 */
+.btn:hover {transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
+.btn:active {transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
+.btn:disabled {opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
 .btn-primary {background:linear-gradient(145deg,#00bfa5,#009e8a);}
 .btn-primary:hover {background:linear-gradient(145deg,#00ccb2,#00a98e);}
 .btn-warning {background:linear-gradient(145deg,#ff9800,#e68900);}
@@ -90,11 +79,9 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .btn-grey:hover {background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
 .btn-danger {background:linear-gradient(145deg,#ff5252,#d32f2f);}
 .btn-danger:hover {background:linear-gradient(145deg,#ff6b6b,#e53935);}
-/* 按钮尺寸适配 */
 .btn-sm {padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md {padding:7px 12px;font-size:12px;border-radius:6px;}
 .btn-lg {padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
-/* 重置计算器按钮样式 */
 #resetCalculatorBtn {
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);
   color:#fff;border:1px solid rgba(255,255,255,0.8);
@@ -104,7 +91,6 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 }
 #resetCalculatorBtn:hover {background:#555;transform:scale(1.05);}
 #resetCalculatorBtn:active {transform:scale(0.95);}
-/* 新增品项按钮放大 - 核心修改 */
 #addBtn {
   min-width:180px !important;
   padding:16px 24px !important;
@@ -176,7 +162,6 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
 .toast.show {opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error {background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning {background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
-/* 现金/刷卡勾选框放大 - 核心修改 */
 .payment-options {display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
 .payment-options label {display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"] {width:24px;height:24px;cursor:pointer;}
@@ -196,7 +181,6 @@ body {background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans T
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size:15px !important;}
   .payment-options {font-size:1rem;}#authStatusBar {font-size:12px;}
   #authLoading {padding:30px 20px;}.loader {width:40px;height:40px;}
-  /* 移动端新增品项按钮也保持大尺寸 */
   #addBtn {min-width:150px !important;padding:14px 20px !important;font-size:16px !important;}
 }
 #error-message {
@@ -379,21 +363,22 @@ function loadSelectedProds(){
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 // 保存使用記錄
 function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
-// 設置試算者名稱（支持用户自行填写）
-function setupLineName(){
+// 設置試算者名稱（修复：增加forcePrompt参数强制弹出输入框）
+function setupLineName(forcePrompt=false){
+  if(forcePrompt) localStorage.removeItem('lineName');
   lineName=localStorage.getItem('lineName')||userInfo?.displayName||'';
-  if(!lineName||lineName==='未知用戶名'){
+  // 修复：forcePrompt时强制弹出输入框
+  if(forcePrompt||!lineName||lineName==='未知用戶名'){
     const input=prompt('請輸入您的『試算者名稱』\n（可隨時點擊重置按鈕修改）：');
     lineName=input?.trim()||'未設定';
     localStorage.setItem('lineName',lineName);
   }
   els.calculatorDisplay.value=lineName;
 }
-// 重置試算者名稱（支持用户重新填写）
+// 重置試算者名稱（修复：调用setupLineName并传入forcePrompt=true）
 function resetLineName(){
   if(confirm('確定要修改試算者名稱嗎？')){
-    localStorage.removeItem('lineName');
-    setupLineName();
+    setupLineName(true);
     showToast('試算者名稱已更新');
   }
 }
