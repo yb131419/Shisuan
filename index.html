@@ -841,7 +841,7 @@ async function initLiffAndAuth(){
     }
     const profile=await liff.getProfile();
     userInfo={userId:profile.userId,displayName:profile.displayName};
-    updateAuthLoadingText("彥彬試算系統","核對用戶權限中...");
+    updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
     const authData=await verifyUserFromBackend(profile);
     if(!authData)return;
     if(authData.isExpired){
