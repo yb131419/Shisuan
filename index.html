@@ -78,27 +78,22 @@ body {
 }
 #resetCalculatorBtn:hover {background: #555;}
 #nameInput option {padding: 12px 10px;line-height: 1.6;font-size: 16px;height: auto;white-space: normal;}
-/* 表格样式紧凑化优化 - 核心修改部分 */
 #reportTable {
-  width: 100%;min-width: 260px; /* 降低最小宽度，适配小屏幕 */
-  border-collapse: collapse;font-size: 11px; /* 整体缩小字体 */
+  width: 100%;min-width: 260px;border-collapse: collapse;font-size: 11px;
   border-radius: 10px;overflow: hidden;background: #f9fafb;color: #374151;margin: 0 auto;
 }
-/* 调整列宽，更紧凑分配 */
-#reportTable th:nth-child(1),#reportTable td:nth-child(1) {width: 20%;} /* 品項名稱缩窄 */
-#reportTable th:nth-child(2),#reportTable td:nth-child(2) {width: 8%;}  /* 數量缩窄 */
-#reportTable th:nth-child(3),#reportTable td:nth-child(3) {width: 10%;} /* 單價缩窄 */
-#reportTable th:nth-child(4),#reportTable td:nth-child(4) {width: 8%;}  /* PV缩窄 */
-#reportTable th:nth-child(5),#reportTable td:nth-child(5) {width: 14%;} /* 小計金額缩窄 */
-#reportTable th:nth-child(6),#reportTable td:nth-child(6) {width: 14%;} /* 小計PV缩窄 */
-#reportTable th:nth-child(7),#reportTable td:nth-child(7) {width: 8%;}  /* 操作缩窄 */
+#reportTable th:nth-child(1),#reportTable td:nth-child(1) {width: 20%;}
+#reportTable th:nth-child(2),#reportTable td:nth-child(2) {width: 8%;}
+#reportTable th:nth-child(3),#reportTable td:nth-child(3) {width: 10%;}
+#reportTable th:nth-child(4),#reportTable td:nth-child(4) {width: 8%;}
+#reportTable th:nth-child(5),#reportTable td:nth-child(5) {width: 14%;}
+#reportTable th:nth-child(6),#reportTable td:nth-child(6) {width: 14%;}
+#reportTable th:nth-child(7),#reportTable td:nth-child(7) {width: 8%;}
 #reportTable th,#reportTable td {
-  border: 1px solid #d1d5db;padding: 4px 2px; /* 减少内边距，更紧凑 */
-  text-align: center;white-space: nowrap;transition: all 0.3s ease;
+  border: 1px solid #d1d5db;padding: 4px 2px;text-align: center;white-space: nowrap;transition: all 0.3s ease;
 }
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect {font-size: 14px !important;font-weight: bold !important;}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6) {font-weight: 500;text-align: center !important;}
-/* 大屏适配微调，保持紧凑 */
 @media (min-width:768px) {
   #reportTable th,#reportTable td {padding: 6px 3px;font-size: 12px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size: 16px !important;}
@@ -109,23 +104,21 @@ body {
 #reportTable tbody tr:hover {background: #1e88e5;color: #fff;font-weight: bold;transform: scale(1.01);}
 .deleteBtn {
   writing-mode: vertical-rl;text-orientation: upright;background: var(--error);border: none;
-  color: #fff;border-radius: 4px;padding: 1px;cursor: pointer;font-size: 10px; /* 缩小删除按钮字体 */
-  display: inline-block;margin: 0 auto;width: 18px; /* 固定操作按钮宽度 */
+  color: #fff;border-radius: 4px;padding: 1px;cursor: pointer;font-size: 10px;
+  display: inline-block;margin: 0 auto;width: 18px;
 }
-/* 表格样式优化结束 */
 .summaryBox {
   text-align: center;margin-top: 13px;font-size: 1rem;font-weight: bold;
   color: var(--highlight);line-height: 1.6;
 }
 .summaryBox .extra {
   display: block;font-size: 0.9rem;color: var(--accent);margin-top: 4px;
-  font-weight: bold; /* 统一字体粗细 */
+  font-weight: bold;
 }
 .summaryBox .done {color: #4caf50;font-weight: bold;}
 #totalPriceCellDup, #totalPvCellDup, #pvDiff, #pvDiff2 {
   display: inline-block;min-width: 60px;text-align: center;
-  font-size: 0.9rem; /* 统一字体大小 */
-  font-weight: bold; /* 统一字体粗细 */
+  font-size: 0.9rem;font-weight: bold;
 }
 #inputArea {
   display: flex;flex-direction: column;gap: 10px;margin: 15px 0 30px 0;
@@ -207,7 +200,7 @@ body {
   .userInputs .row {gap: 5px;}
   .userInputs label {font-size: 13px;}
   .userInputs input {font-size: 15px;padding: 8px;}
-  #reportTable {font-size: 10px;} /* 超小屏进一步缩小表格字体 */
+  #reportTable {font-size: 10px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput {font-size: 13px !important;}
   .payment-options {font-size: 1rem;}
   #authStatusBar {font-size: 12px;}
@@ -310,10 +303,8 @@ const PERMANENT_EXPIRY_DATE = "9999/12/31";
 const TARGET_PV112 = 112000;
 const TARGET_PV220 = 220000;
 const MAX_NORMAL_USER_USAGE = 10;
-
 let products = [], selectedProds = [], lineName = '', userInfo = null, authStatus = null;
 let userUsageRecord = JSON.parse(localStorage.getItem('userUsageRecord')) || {};
-
 const nameInput = document.getElementById("nameInput");
 const qtyInput = document.getElementById("qtyInput");
 const addBtn = document.getElementById("addBtn");
@@ -343,14 +334,12 @@ const errorMessage = document.getElementById("error-message");
 const errorContent = document.getElementById("error-content");
 const authLoadingTitle = authLoading.querySelector("h3");
 const authLoadingDesc = authLoading.querySelector("p");
-
 for (let i = 1; i <= 99; i++) {
   const option = document.createElement("option");
   option.value = i;
   option.textContent = i;
   qtyInput.appendChild(option);
 }
-
 nameInput.addEventListener('change', function() {
   checkHerbalNewMember(this.value);
   adjustQtySelectOptions(this.value);
@@ -359,7 +348,6 @@ nameInput.addEventListener('input', function() {
   checkHerbalNewMember(this.value);
   adjustQtySelectOptions(this.value);
 });
-
 function checkHerbalNewMember(selectedValue) {
   const val = selectedValue.trim();
   if (val.includes('草本') && val.includes('新入會')) {
@@ -368,7 +356,6 @@ function checkHerbalNewMember(selectedValue) {
     }, 100);
   }
 }
-
 function adjustQtySelectOptions(selectedValue) {
   const val = selectedValue.trim();
   let maxQty = 99;
@@ -385,7 +372,6 @@ function adjustQtySelectOptions(selectedValue) {
     qtyInput.appendChild(option);
   }
 }
-
 function loadSelectedProds() {
   const saved = localStorage.getItem('selectedProducts');
   if (saved) {
@@ -393,15 +379,12 @@ function loadSelectedProds() {
     renderTable();
   }
 }
-
 function saveSelectedProds() {
   localStorage.setItem('selectedProducts', JSON.stringify(selectedProds));
 }
-
 function saveUserUsageRecord() {
   localStorage.setItem('userUsageRecord', JSON.stringify(userUsageRecord));
 }
-
 function setupLineName() {
   lineName = localStorage.getItem('lineName') || userInfo?.displayName || '';
   if (!lineName || lineName === '未知用戶名') {
@@ -415,7 +398,6 @@ function setupLineName() {
   }
   calculatorDisplay.value = lineName;
 }
-
 function resetLineName() {
   if (confirm('確定要重置試算者名稱嗎？')) {
     localStorage.removeItem('lineName');
@@ -423,7 +405,6 @@ function resetLineName() {
     showToast('試算者名稱已重置');
   }
 }
-
 function syncRecordResetToBackend() {
   return new Promise((resolve, reject) => {
     if (!userInfo || authStatus.isVip || authStatus.isSuperAdmin) {
@@ -466,14 +447,11 @@ function syncRecordResetToBackend() {
     });
   });
 }
-
 async function resetReport() {
   if (!authStatus || authStatus.isExpired) return;
   if (!confirm('確定要清空所有品項記錄嗎？')) return;
-  
   const isPrivilegeUser = authStatus.isVip || authStatus.isSuperAdmin;
   let isDeducted = false;
-  
   if (!isPrivilegeUser && authStatus.remainingTimes > 0) {
     resetReportBtn.disabled = true;
     resetReportBtn.textContent = "處理中...";
@@ -487,19 +465,16 @@ async function resetReport() {
       resetReportBtn.textContent = "🔄 重置報表";
     }
   }
-  
   selectedProds = [];
   saveSelectedProds();
   renderTable();
   adjustQtySelectOptions(nameInput.value);
-  
   if (isDeducted) {
     showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning');
   } else {
     showToast('報表已重置');
   }
 }
-
 async function loadProducts() {
   try {
     const res = await fetch(`${API_URL}?action=all`);
@@ -520,7 +495,6 @@ async function loadProducts() {
     showToast(`讀取商品失敗: ${error.message || '未知錯誤'}`, 'error');
   }
 }
-
 function renderTable() {
   reportBody.innerHTML = "";
   let totalPrice = 0, totalPv = 0;
@@ -572,7 +546,6 @@ function renderTable() {
   pvDiff2.textContent = diff2 > 0 ? diff2 : 0;
   pvMessage1.innerHTML = totalPv >= TARGET_PV112 ? '<span class="done">🎉 已達標</span>' : '';
   pvMessage2.innerHTML = totalPv >= TARGET_PV220 ? '<span class="done">🎉 已達標</span>' : '';
-  
   document.querySelectorAll(".deleteBtn").forEach(btn => {
     btn.onclick = e => {
       const idx = parseInt(e.target.dataset.index);
@@ -590,7 +563,6 @@ function renderTable() {
     };
   });
 }
-
 function addProduct() {
   if (!authStatus) {
     showToast('請先完成用戶權限驗證', 'error');
@@ -640,12 +612,7 @@ function addProduct() {
   }
   saveSelectedProds();
   renderTable();
-  if (!isPrivilegeUser) {
-    recordUserUsage();
-    checkUserRemainingTimes();
-  }
 }
-
 function checkUserRemainingTimes() {
   if (!authStatus) return false;
   const isPrivilegeUser = authStatus.isVip || authStatus.isSuperAdmin;
@@ -681,7 +648,6 @@ function checkUserRemainingTimes() {
     return true;
   }
 }
-
 function recordUserUsage() {
   if (!authStatus) return;
   const isPrivilegeUser = authStatus.isVip || authStatus.isSuperAdmin;
@@ -694,7 +660,6 @@ function recordUserUsage() {
   authStatus.remainingTimes = MAX_NORMAL_USER_USAGE - userUsageRecord[userId];
   updateAuthStatusBar();
 }
-
 function updateAuthStatusBar() {
   if (!authStatus || !userInfo) return;
   let statusHtml = '';
@@ -726,7 +691,6 @@ function updateAuthStatusBar() {
   authStatusBar.innerHTML = statusHtml;
   authStatusBar.style.display = 'block';
 }
-
 exportBtn.addEventListener("click", async () => {
   if (!checkUserRemainingTimes()) return;
   if (selectedProds.length === 0) {
@@ -753,10 +717,6 @@ exportBtn.addEventListener("click", async () => {
     shareToLineBtn.style.display = "inline-block";
     nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
     clearImageBtn.style.display = "inline-block";
-    if (!authStatus.isVip && !authStatus.isSuperAdmin) {
-      recordUserUsage();
-      checkUserRemainingTimes();
-    }
   } catch (error) {
     showToast(`匯出失敗：${error.message || '未知錯誤'}`, 'error');
   } finally {
@@ -765,7 +725,6 @@ exportBtn.addEventListener("click", async () => {
     exportBtn.textContent = "📤 報表轉圖片";
   }
 });
-
 shareToLineBtn.addEventListener("click", async () => {
   if (!authStatus) return;
   if (!previewImage.src) {
@@ -803,7 +762,6 @@ shareToLineBtn.addEventListener("click", async () => {
     shareToLineBtn.textContent = "📩 上傳備份";
   }
 });
-
 nativeShareBtn.addEventListener("click", async () => {
   if (!authStatus) return;
   if (!navigator.share || !previewImage.src) {
@@ -826,7 +784,6 @@ nativeShareBtn.addEventListener("click", async () => {
     showToast(`分享失敗: ${error.message || '未知錯誤'}`, 'error');
   }
 });
-
 clearImageBtn.addEventListener("click", () => {
   previewImage.style.display = "none";
   previewImage.src = "";
@@ -834,7 +791,6 @@ clearImageBtn.addEventListener("click", () => {
   nativeShareBtn.style.display = "none";
   clearImageBtn.style.display = "none";
 });
-
 function showToast(message, type = 'success') {
   toast.textContent = message;
   toast.className = 'toast';
@@ -842,7 +798,6 @@ function showToast(message, type = 'success') {
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3000);
 }
-
 const calculateRemainingDaysByDate = (expiryDateStr) => {
   try {
     if (expiryDateStr === PERMANENT_EXPIRY_DATE) return {
@@ -894,7 +849,6 @@ const calculateRemainingDaysByDate = (expiryDateStr) => {
     };
   }
 };
-
 const showError = (msg) => {
   authLoading.style.display = 'none';
   captureArea.style.display = 'none';
@@ -908,7 +862,6 @@ const showError = (msg) => {
     </div>`;
   errorMessage.style.display = 'block';
 };
-
 const verifyUserFromBackend = (profile) => {
   return new Promise((resolve, reject) => {
     const decodedToken = liff.getDecodedIDToken();
@@ -959,10 +912,8 @@ const verifyUserFromBackend = (profile) => {
     });
   });
 };
-
 window.verifyCallback = function (resp) {};
 window.recordResetCallback = function (resp) {};
-
 async function initLiffAndAuth() {
   try {
     updateAuthLoadingText("正在初始化LINE登錄", "請稍候...");
@@ -972,7 +923,6 @@ async function initLiffAndAuth() {
       scope: 'profile openid email'
     });
     loadProducts();
-    
     if (!liff.isLoggedIn()) {
       updateAuthLoadingText("請先登錄LINE賬號", "將自動跳轉至登錄頁面...");
       liff.login({ redirectUri: window.location.href });
@@ -1015,17 +965,14 @@ async function initLiffAndAuth() {
     showToast(`初始化失敗：${errorMsg}`, 'error');
   }
 }
-
 function updateAuthLoadingText(title, desc) {
   if (authLoadingTitle) authLoadingTitle.textContent = title;
   if (authLoadingDesc) authLoadingDesc.innerHTML = desc;
 }
-
 window.addEventListener('resize', () => {
   const table = document.getElementById('reportTable');
   table.style.fontSize = window.innerWidth < 360 ? '10px' : '11px';
 });
-
 function initApp() {
   if (window.jQuery) {
     initLiffAndAuth();
@@ -1043,7 +990,6 @@ function initApp() {
     }, 100);
   }
 }
-
 addBtn.addEventListener("click", addProduct);
 resetCalculatorBtn.addEventListener("click", resetLineName);
 resetReportBtn.addEventListener("click", resetReport);
