@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>彥彬🌿試算系統（驗證版）</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title> 彥彬🌿試算系統 </title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{--bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);--grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);--loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);--super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;--btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);--btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);--btn-radius:8px;--btn-padding:8px 14px;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -112,76 +112,76 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 </style>
 </head>
 <body>
-  <div id="authContainer">
-    <div id="error-message">
-      <div id="error-content"></div>
-    </div>
-    <div id="authLoading">
-      <div class="loader"></div>
-      <h3>正在驗證用戶權限</h3>
-      <p>請稍候...</p>
-    </div>
+<div id="authContainer">
+  <div id="error-message">
+    <div id="error-content"></div>
   </div>
-  <div id="authStatusBar" style="display: none;"></div>
-  <div id="captureArea">
-    <h2>
-      🌿 康園試算報表
-      <div class="payment-options">
-        <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
-        <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
-      </div>
-    </h2>
-    <div class="userInputs">  
-      <div class="row">
-        <label>
-          <span>購買者：</span>
-          <input type="text" placeholder="輸入購買者" id="buyerInput" />
-        </label>
-        <label>
-          <span>試算者：</span>
-          <div class="calculator-container">
-            <input type="text" id="calculatorDisplay" readonly />
-            <button id="resetCalculatorBtn" title="重置試算者名稱">↺</button>
-          </div>
-        </label>
-      </div>
+  <div id="authLoading">
+    <div class="loader"></div>
+    <h3>正在驗證用戶權限</h3>
+    <p>請稍候...</p>
+  </div>
+</div>
+<div id="authStatusBar" style="display: none;"></div>
+<div id="captureArea">
+  <h2>
+    🌿 康園試算報表
+    <div class="payment-options">
+      <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
+      <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
     </div>
-    <table id="reportTable" aria-label="試算報表">
-      <thead>
-        <tr>
-          <th>品項名稱</th>
-          <th>數量</th>
-          <th>單價</th>
-          <th>PV</th>
-          <th>小計金額</th>
-          <th>小計PV</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="reportBody"></tbody>
-    </table>
-    <div class="summaryBox" aria-live="polite">
-      總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
-      <span class="extra">距 11.2萬 PV：<span id="pvDiff">112000</span> <span id="pvMessage1"></span></span>
-      <span class="extra">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
+  </h2>
+  <div class="userInputs">  
+    <div class="row">
+      <label>
+        <span>購買者：</span>
+        <input type="text" placeholder="輸入購買者" id="buyerInput" />
+      </label>
+      <label>
+        <span>試算者：</span>
+        <div class="calculator-container">
+          <input type="text" id="calculatorDisplay" readonly />
+          <button id="resetCalculatorBtn" title="重置試算者名稱">↺</button>
+        </div>
+      </label>
     </div>
   </div>
-  <img id="previewImage" alt="預覽匯出圖片" />
-  <div class="button-group">
-    <button id="exportBtn" class="btn btn-primary">📤 報表轉圖片</button>
-    <button id="shareToLineBtn" class="btn btn-primary">📱 安卓分享</button>
-    <button id="nativeShareBtn" class="btn btn-primary">📱 分享圖片</button>
-    <button id="clearImageBtn" class="btn btn-grey">❌ 清除圖片</button>
-    <button id="resetReportBtn" class="btn btn-warning">🔄 重置報表</button>
+  <table id="reportTable" aria-label="試算報表">
+    <thead>
+      <tr>
+        <th>品項名稱</th>
+        <th>數量</th>
+        <th>單價</th>
+        <th>PV</th>
+        <th>小計金額</th>
+        <th>小計PV</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="reportBody"></tbody>
+  </table>
+  <div class="summaryBox" aria-live="polite">
+    總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
+    <span class="extra">距 11.2萬 PV：<span id="pvDiff">112000</span> <span id="pvMessage1"></span></span>
+    <span class="extra">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
   </div>
-  <div id="toast" class="toast">✅ 圖片已上傳</div>
-  <div id="inputArea">
-    <select id="nameInput"></select>
-    <select id="qtyInput"></select>
-    <button id="addBtn" class="btn btn-primary btn-lg">➕ 新增品項</button>
-  </div>
-  <div class="spacer"></div>
-  <script>
+</div>
+<img id="previewImage" alt="預覽匯出圖片" />
+<div class="button-group">
+  <button id="exportBtn" class="btn btn-primary">📤 報表轉圖片</button>
+  <button id="shareToLineBtn" class="btn btn-primary">📱 安卓分享</button>
+  <button id="nativeShareBtn" class="btn btn-primary">📱 分享圖片</button>
+  <button id="clearImageBtn" class="btn btn-grey">❌ 清除圖片</button>
+  <button id="resetReportBtn" class="btn btn-warning">🔄 重置報表</button>
+</div>
+<div id="toast" class="toast">✅ 圖片已上傳</div>
+<div id="inputArea">
+  <select id="nameInput"></select>
+  <select id="qtyInput"></select>
+  <button id="addBtn" class="btn btn-primary btn-lg">➕ 新增品項</button>
+</div>
+<div class="spacer"></div>
+<script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
 const LIFF_ID="2008578880-zlK2U8dQ";
@@ -266,15 +266,15 @@ function adjustQtySelectOptions(selectedValue){
 // 加載已選商品
 function loadSelectedProds(){
   const saved=localStorage.getItem('selectedProducts');
-  if(saved){selectedProds=JSON.parse(saved);renderTable();}
+  if(saved)selectedProds=JSON.parse(saved);
+  renderTable();
 }
 // 保存已選商品
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 // 保存使用記錄
 function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
-// 設置試算者名稱（支持用户自行填写）
+// 設置試算者名稱
 function setupLineName(isReset=false){
-  // 重置操作強制彈出輸入框
   if(isReset){
     const input=prompt('請輸入您的『試算者名稱』\n（可隨時點擊重置按鈕修改）：');
     lineName=input?.trim()||'未設定';
@@ -289,11 +289,11 @@ function setupLineName(isReset=false){
   }
   els.calculatorDisplay.value=lineName;
 }
-// 重置試算者名稱（支持用户重新填写）
+// 重置試算者名稱
 function resetLineName(){
   if(confirm('確定要修改試算者名稱嗎？')){
     localStorage.removeItem('lineName');
-    setupLineName(true); // 傳遞重置標識，強制彈出輸入框
+    setupLineName(true);
     showToast('試算者名稱已更新');
   }
 }
@@ -340,7 +340,7 @@ async function syncRecordResetToBackend(){
     });
   });
 }
-// 修复删除扣次同步後端函數
+// 同步刪除扣次到後端
 async function syncDeleteToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
@@ -475,7 +475,7 @@ function renderTable(){
   els.pvDiff2.textContent=diff2>0?diff2:0;
   els.pvMessage1.innerHTML=totalPv>=TARGET_PV112?'<span class="done">🎉 已達標</span>':'';
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
-  // 修复刪除按鈕點擊事件
+  // 刪除按鈕事件
   document.querySelectorAll(".deleteBtn").forEach(btn=>{
     btn.onclick=async e=>{
       e.preventDefault();
@@ -609,7 +609,7 @@ function checkUserRemainingTimes(){
     els.exportBtn.disabled=true;els.addBtn.disabled=true;els.shareToLineBtn.disabled=true;els.resetReportBtn.disabled=true;
     return false;
   }else{
-    els.exportBtn.disabled=false;els.addBtn.disabled=false;els.shareToLineBtn.disabled=false;els.resetReportBtn.disabled=false;
+    els.exportBtn.disabled=false;els.addBtn.disabled=false;els.shareToLineBtn.disabled=true;els.resetReportBtn.disabled=false;
     return true;
   }
 }
@@ -654,7 +654,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片 - 移除扣次逻辑
+// 匯出圖片
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -832,40 +832,62 @@ const verifyUserFromBackend=(profile)=>{
 async function initLiffAndAuth(){
   try{
     updateAuthLoadingText("正在驗證","請稍候...");
+    // 嘗試初始化LIFF
     await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
     loadProducts();
+    // 未登錄則跳轉登錄
     if(!liff.isLoggedIn()){
       updateAuthLoadingText("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
       liff.login({redirectUri:window.location.href});
       return;
     }
+    // 獲取用戶信息
     const profile=await liff.getProfile();
     userInfo={userId:profile.userId,displayName:profile.displayName};
     updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
+    // 後端驗證
     const authData=await verifyUserFromBackend(profile);
     if(!authData)return;
     if(authData.isExpired){
       showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
       return;
     }
+    // 保存授權狀態
     authStatus={
       isVip:authData.isVip,isSuperAdmin:authData.isSuperAdmin,
       remainingDays:authData.remainingDays,displayExpiryDate:authData.displayExpiryDate,
       expiryDate:authData.expiryDate,usageCount:authData.usageCount||0,
       isExpired:authData.isExpired,remainingTimes:authData.remainingTimes||0
     };
+    // 顯示業務界面
     els.authLoading.style.display='none';
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
+    // 初始化業務數據
     setupLineName();
     loadSelectedProds();
     checkUserRemainingTimes();
     updateAuthStatusBar();
     showToast(`歡迎回來，${userInfo.displayName}！`);
   }catch(error){
-    const errorMsg=error.message||'未知初始化錯誤';
-    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請刷新頁面重試");
+    let errorMsg=error.message||'未知初始化錯誤';
+    // 針對Access Token過期的特殊處理
+    if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
+      errorMsg='登錄狀態已過期，將自動重新登錄';
+      showToast(errorMsg, 'warning');
+      // 主動觸發重新登錄
+      setTimeout(()=>{
+        if(liff.isLoggedIn()){
+          liff.logout().then(()=>{
+            liff.login({redirectUri:window.location.href});
+          });
+        }else{
+          liff.login({redirectUri:window.location.href});
+        }
+      },1500);
+    }
+    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請等待自動重試或手動刷新頁面");
     showToast(`初始化失敗：${errorMsg}`, 'error');
   }
 }
@@ -876,15 +898,17 @@ function updateAuthLoadingText(title,desc){
 }
 // 初始化應用
 function initApp(){
-  if(window.jQuery){initLiffAndAuth();}
-  else{
+  if(window.jQuery){
+    initLiffAndAuth();
+  }else{
     let waitCount=0;
     const interval=setInterval(()=>{
       waitCount++;
       if(window.jQuery||waitCount>=50){
         clearInterval(interval);
-        if(window.jQuery){initLiffAndAuth();}
-        else{
+        if(window.jQuery){
+          initLiffAndAuth();
+        }else{
           updateAuthLoadingText("jQuery加載失敗","請檢查網絡或刷新頁面");
           showToast('jQuery加載失敗', 'error');
         }
@@ -892,6 +916,6 @@ function initApp(){
     },100);
   }
 }
-  </script>
+</script>
 </body>
 </html>
