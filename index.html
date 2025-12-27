@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title> 彥彬🌿試算系統 </title>
+<title>彥彬🌿試算系統</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -221,7 +221,8 @@ const els={
   errorMessage:document.getElementById("error-message"),
   errorContent:document.getElementById("error-content"),
   authLoadingTitle:document.querySelector("#authLoading h3"),
-  authLoadingDesc:document.querySelector("#authLoading p")
+  authLoadingDesc:document.querySelector("#authLoading p"),
+  reportTable:document.getElementById("reportTable")
 };
 // 初始化數量選擇框
 for(let i=1;i<=99;i++){
@@ -409,11 +410,7 @@ async function resetReport(){
   saveSelectedProds();
   renderTable();
   adjustQtySelectOptions(els.nameInput.value);
-  if(isDeducted){
-    showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning');
-  }else{
-    showToast('報表已重置');
-  }
+  isDeducted?showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning'):showToast('報表已重置');
 }
 // 加載商品列表
 async function loadProducts(){
@@ -504,11 +501,7 @@ function renderTable(){
         renderTable();
         if(!isPrivilegeUser){
           const syncSuccess=await syncDeleteToBackend();
-          if(syncSuccess){
-            showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning');
-          }else{
-            showToast('刪除成功但扣次同步失敗，請手動核對次數', 'warning');
-          }
+          syncSuccess?showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning'):showToast('刪除成功但扣次同步失敗，請手動核對次數', 'warning');
         }else{
           showToast('品項已刪除');
         }
@@ -654,26 +647,41 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片
+// 匯出圖片（核心優化：解決留白問題）
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
   els.exportBtn.textContent="匯出中...";
+  // 獲取操作欄元素並隱藏
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
-  opCells.forEach(el=>el.style.display="none");
+  opCells.forEach(el=>{el.style.display="none";});
+  // 強制重繪表格，獲取精準寬度
+  els.reportTable.offsetWidth;
+  const tableWidth=els.reportTable.offsetWidth;
+  const lastCol=els.reportTable.querySelector('th:last-child');
+  const lastColWidth=lastCol?lastCol.offsetWidth:0;
+  const captureWidth=tableWidth - lastColWidth;
+  // 臨時調整截圖容器寬度，避免留白
+  const originalCaptureWidth=els.captureArea.style.width;
+  els.captureArea.style.width=`${captureWidth}px`;
   try{
-    const reportTable=document.getElementById('reportTable');
-    const tableWidth=reportTable.offsetWidth;
-    const lastCol=reportTable.querySelector('th:last-child');
-    const lastColWidth=lastCol?lastCol.offsetWidth:0;
-    const captureWidth=tableWidth-lastColWidth;
     const scale=window.innerWidth<768?3:4;
     const canvas=await html2canvas(els.captureArea,{
-      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
-      logging:false,letterRendering:true,useTransform:true,dpi:300,
-      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
-      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
+      scale:scale,
+      useCORS:true,
+      allowTaint:true,
+      backgroundColor:null,
+      logging:false,
+      letterRendering:true,
+      useTransform:true,
+      dpi:300,
+      scaleMethod:'highQuality',
+      width:captureWidth,
+      windowWidth:captureWidth,
+      windowHeight:els.captureArea.offsetHeight,
+      scrollX:0,
+      scrollY:0,
       ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
     const dataUrl=canvas.toDataURL("image/png",1.0);
@@ -685,7 +693,9 @@ async function exportToImage(){
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
-    opCells.forEach(el=>el.style.display="");
+    // 還原操作欄與容器寬度
+    opCells.forEach(el=>{el.style.display="";});
+    els.captureArea.style.width=originalCaptureWidth;
     els.exportBtn.disabled=false;
     els.exportBtn.textContent="📤 報表轉圖片";
   }
@@ -832,39 +842,32 @@ const verifyUserFromBackend=(profile)=>{
 async function initLiffAndAuth(){
   try{
     updateAuthLoadingText("正在驗證","請稍候...");
-    // 嘗試初始化LIFF
     await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
     loadProducts();
-    // 未登錄則跳轉登錄
     if(!liff.isLoggedIn()){
       updateAuthLoadingText("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
       liff.login({redirectUri:window.location.href});
       return;
     }
-    // 獲取用戶信息
     const profile=await liff.getProfile();
     userInfo={userId:profile.userId,displayName:profile.displayName};
     updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
-    // 後端驗證
     const authData=await verifyUserFromBackend(profile);
     if(!authData)return;
     if(authData.isExpired){
       showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
       return;
     }
-    // 保存授權狀態
     authStatus={
       isVip:authData.isVip,isSuperAdmin:authData.isSuperAdmin,
       remainingDays:authData.remainingDays,displayExpiryDate:authData.displayExpiryDate,
       expiryDate:authData.expiryDate,usageCount:authData.usageCount||0,
       isExpired:authData.isExpired,remainingTimes:authData.remainingTimes||0
     };
-    // 顯示業務界面
     els.authLoading.style.display='none';
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
-    // 初始化業務數據
     setupLineName();
     loadSelectedProds();
     checkUserRemainingTimes();
@@ -872,19 +875,11 @@ async function initLiffAndAuth(){
     showToast(`歡迎回來，${userInfo.displayName}！`);
   }catch(error){
     let errorMsg=error.message||'未知初始化錯誤';
-    // 針對Access Token過期的特殊處理
     if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
       errorMsg='登錄狀態已過期，將自動重新登錄';
       showToast(errorMsg, 'warning');
-      // 主動觸發重新登錄
       setTimeout(()=>{
-        if(liff.isLoggedIn()){
-          liff.logout().then(()=>{
-            liff.login({redirectUri:window.location.href});
-          });
-        }else{
-          liff.login({redirectUri:window.location.href});
-        }
+        liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
       },1500);
     }
     updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請等待自動重試或手動刷新頁面");
@@ -906,12 +901,10 @@ function initApp(){
       waitCount++;
       if(window.jQuery||waitCount>=50){
         clearInterval(interval);
-        if(window.jQuery){
-          initLiffAndAuth();
-        }else{
+        window.jQuery?initLiffAndAuth():(()=>{
           updateAuthLoadingText("jQuery加載失敗","請檢查網絡或刷新頁面");
           showToast('jQuery加載失敗', 'error');
-        }
+        })();
       }
     },100);
   }
