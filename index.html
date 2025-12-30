@@ -250,12 +250,12 @@ function checkHerbalNewMember(selectedValue){
     setTimeout(()=>{alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');},100);
   }
 }
-// 調整數量選擇框選項（新增777Q(4)限2組）
+// 調整數量選擇框選項
 function adjustQtySelectOptions(selectedValue){
   const val=selectedValue.trim();
   let maxQty=99;
   if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
-  else if((val.includes('2711AB')||val.includes('777Q'))&&val.includes('(4)'))maxQty=2;
+  else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
   els.qtyInput.innerHTML='';
   for(let i=1;i<=maxQty;i++){
     const option=document.createElement("option");
@@ -430,7 +430,7 @@ async function loadProducts(){
     showToast(`讀取商品失敗: ${error.message||'未知錯誤'}`, 'error');
   }
 }
-// 渲染表格（新增777Q(4)限2組判斷）
+// 渲染表格
 function renderTable(){
   els.reportBody.innerHTML="";
   let totalPrice=0,totalPv=0;
@@ -438,7 +438,7 @@ function renderTable(){
     const val=item.name.trim();
     let maxQty=99;
     if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
-    else if((val.includes('2711AB')||val.includes('777Q'))&&val.includes('(4)'))maxQty=2;
+    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
     if(item.qty>maxQty){item.qty=maxQty;saveSelectedProds();}
     const subtotalPrice=item.price*item.qty;
     const subtotalPv=item.pv*item.qty;
@@ -521,7 +521,7 @@ function renderTable(){
     };
   });
 }
-// 新增品項（新增777Q(4)限2組判斷與提示）
+// 新增品項
 function addProduct(){
   els.addBtn.disabled=true;
   els.addBtn.textContent="處理中...";
@@ -543,17 +543,18 @@ function addProduct(){
     }
     const val=selectedName.trim();
     let maxQty=99;
-    let prodTipName='';
     if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')){
       maxQty=1;
-      prodTipName=val;
-    }else if((val.includes('2711AB')||val.includes('777Q'))&&val.includes('(4)')){
+      if(qty>maxQty){
+        alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
+        qty=maxQty;
+      }
+    }else if(val.includes('2711AB')&&val.includes('(4)')){
       maxQty=2;
-      prodTipName=val.includes('2711AB')?'2711AB(4)':'777Q(4)';
-    }
-    if(qty>maxQty && prodTipName){
-      alert(`⚠️ ${prodTipName}限購${maxQty}組，已自動調整數量為${maxQty}`);
-      qty=maxQty;
+      if(qty>maxQty){
+        alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
+        qty=maxQty;
+      }
     }
     const product=products.find(p=>p.name===selectedName);
     if(!product){
@@ -646,29 +647,41 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片
+// 匯出圖片（核心優化：解決留白問題）
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
   els.exportBtn.textContent="匯出中...";
-  // 隱藏操作欄
+  // 獲取操作欄元素並隱藏
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
+  // 強制重繪表格，獲取精準寬度
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=tableWidth - lastColWidth;
+  // 臨時調整截圖容器寬度，避免留白
   const originalCaptureWidth=els.captureArea.style.width;
   els.captureArea.style.width=`${captureWidth}px`;
   try{
     const scale=window.innerWidth<768?3:4;
     const canvas=await html2canvas(els.captureArea,{
-      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
-      logging:false,letterRendering:true,useTransform:true,dpi:300,
-      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
-      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
+      scale:scale,
+      useCORS:true,
+      allowTaint:true,
+      backgroundColor:null,
+      logging:false,
+      letterRendering:true,
+      useTransform:true,
+      dpi:300,
+      scaleMethod:'highQuality',
+      width:captureWidth,
+      windowWidth:captureWidth,
+      windowHeight:els.captureArea.offsetHeight,
+      scrollX:0,
+      scrollY:0,
       ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
     const dataUrl=canvas.toDataURL("image/png",1.0);
@@ -680,7 +693,7 @@ async function exportToImage(){
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
-    // 還原
+    // 還原操作欄與容器寬度
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
     els.exportBtn.disabled=false;
