@@ -27,7 +27,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 .super-admin-username,.vip-admin-username{background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;text-shadow:0 0 8px rgba(255,255,255,0.3);}
 .super-admin-username{background-image:var(--super-username);}
 .vip-admin-username{background-image:var(--vip-username);}
-#captureArea{background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 30px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
+#captureArea{background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
 #captureArea h2{text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
 @media (min-width:768px){#captureArea h2{font-size:2.2rem;}}
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
@@ -58,7 +58,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 #resetCalculatorBtn:active{transform:scale(0.95);}
 #addBtn{min-width:180px!important;padding:16px 24px!important;font-size:18px!important;font-weight:700!important;border-radius:12px!important;height:auto!important;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
-#reportTable{width:100%;min-width:320px;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;}
+#reportTable{width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;}
 #reportTable th:nth-child(1),#reportTable td:nth-child(1){width:22%;}
 #reportTable th:nth-child(2),#reportTable td:nth-child(2){width:10%;}
 #reportTable th:nth-child(3),#reportTable td:nth-child(3){width:12%;}
@@ -86,6 +86,9 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;font-size:16px;border-radius:6px;border:none;}
 #qtyInput{font-size:18px!important;font-weight:bold;}
+#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
+#previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
+#shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;width:100%;font-weight:500;}
 @media (min-width:768px){#buyerInput,#calculatorDisplay{font-size:18px;}}
 #buyerInput:focus{border-color:#2563eb;box-shadow:0 0 8px 2px rgba(37,99,235,0.3);outline:none;background:#fff;}
@@ -643,13 +646,13 @@ async function exportToImage(){
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
-  const captureWidth=(tableWidth - lastColWidth) + 140;
+  const captureWidth=(tableWidth - lastColWidth) + 60;
   const originalCaptureWidth=els.captureArea.style.width;
   const originalPaddingRight=els.captureArea.style.paddingRight;
   const originalPaddingLeft=els.captureArea.style.paddingLeft;
   els.captureArea.style.width=`${captureWidth}px`;
-  els.captureArea.style.paddingLeft="50px";
-  els.captureArea.style.paddingRight="50px";
+  els.captureArea.style.paddingLeft="30px";
+  els.captureArea.style.paddingRight="30px";
   try{
     const scale=window.innerWidth<768?3:4;
     const canvas=await html2canvas(els.captureArea,{
