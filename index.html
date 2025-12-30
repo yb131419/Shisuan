@@ -655,25 +655,26 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片（解決右側截斷問題，增加寬度余量）
+// 匯出圖片（解決右側截斷：增加60px寬度余量+30px右內邊距，雙重保障）
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
   els.exportBtn.textContent="匯出中...";
-  // 獲取操作欄元素並隱藏
+  // 隱藏操作列（最後一列）
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
-  // 強制重繪表格，獲取精準寬度
+  // 強制重繪獲取精準寬度
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
-  // 增加60px寬度余量，確保右側不截斷且略寬
+  // 核心修改：增加60px寬度余量，避免右側截斷
   const captureWidth=(tableWidth - lastColWidth) + 60;
-  // 臨時調整截圖容器寬度和右內邊距，雙重保障
+  // 保存原始樣式，用於還原
   const originalCaptureWidth=els.captureArea.style.width;
   const originalPaddingRight=els.captureArea.style.paddingRight;
+  // 臨時調整容器寬度和右內邊距，雙重保障不截斷
   els.captureArea.style.width=`${captureWidth}px`;
   els.captureArea.style.paddingRight="30px";
   try{
@@ -694,7 +695,7 @@ async function exportToImage(){
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
-    // 還原操作欄、容器寬度和內邊距
+    // 還原操作列和容器樣式
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
     els.captureArea.style.paddingRight=originalPaddingRight;
