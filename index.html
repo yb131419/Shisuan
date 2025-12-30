@@ -63,8 +63,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 #reportTable th:nth-child(2),#reportTable td:nth-child(2){width:10%;}
 #reportTable th:nth-child(3),#reportTable td:nth-child(3){width:12%;}
 #reportTable th:nth-child(4),#reportTable td:nth-child(4){width:12%;}
-#reportTable th:nth-child(5),#reportTable td:nth-child(5){width:12%;}/* 小計金額宽度缩小（原16%） */
-#reportTable th:nth-child(6),#reportTable td:nth-child(6){width:12%;}/* 小計PV宽度缩小（原16%） */
+#reportTable th:nth-child(5),#reportTable td:nth-child(5){width:16%;}
+#reportTable th:nth-child(6),#reportTable td:nth-child(6){width:16%;}
 #reportTable th:nth-child(7),#reportTable td:nth-child(7){width:12%;}
 #reportTable th,#reportTable td{border:1px solid #d1d5db;padding:6px 4px;text-align:center;white-space:nowrap;transition:all 0.3s ease;}
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
@@ -655,7 +655,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片（核心優化：解決留白問題）
+// 匯出圖片（解決右側截斷問題，增加寬度余量）
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -669,10 +669,13 @@ async function exportToImage(){
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
-  const captureWidth=tableWidth - lastColWidth;
-  // 臨時調整截圖容器寬度，避免留白
+  // 增加60px寬度余量，確保右側不截斷且略寬
+  const captureWidth=(tableWidth - lastColWidth) + 60;
+  // 臨時調整截圖容器寬度和右內邊距，雙重保障
   const originalCaptureWidth=els.captureArea.style.width;
+  const originalPaddingRight=els.captureArea.style.paddingRight;
   els.captureArea.style.width=`${captureWidth}px`;
+  els.captureArea.style.paddingRight="30px";
   try{
     const scale=window.innerWidth<768?3:4;
     const canvas=await html2canvas(els.captureArea,{
@@ -691,9 +694,10 @@ async function exportToImage(){
   }catch(error){
     showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
   }finally{
-    // 還原操作欄與容器寬度
+    // 還原操作欄、容器寬度和內邊距
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
+    els.captureArea.style.paddingRight=originalPaddingRight;
     els.exportBtn.disabled=false;
     els.exportBtn.textContent="📤 報表轉圖片";
   }
