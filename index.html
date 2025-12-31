@@ -190,7 +190,8 @@ const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV112=112000;
 const TARGET_PV220=220000;
 const MAX_NORMAL_USER_USAGE=10;
-let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
+const DEDUCT_INTERVAL=180000;//3分鐘毫秒數
+let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null,lastDeductTime=0;
 let userUsageRecord=JSON.parse(localStorage.getItem('userUsageRecord'))||{};
 const els={
   nameInput:document.getElementById("nameInput"),
@@ -476,8 +477,12 @@ function renderTable(){
           showToast('使用次數已用完，無法刪除品項', 'error');
           return;
         }
-        if(!confirm(`刪除此品項將扣除1次使用次數，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`)){
-          return;
+        const now=Date.now();
+        const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
+        if(!isWithinInterval){
+          if(!confirm(`刪除此品項將扣除1次使用次數，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`)){
+            return;
+          }
         }
       }
       btn.disabled=true;
@@ -487,8 +492,19 @@ function renderTable(){
         saveSelectedProds();
         renderTable();
         if(!isPrivilegeUser){
-          const syncSuccess=await syncDeleteToBackend();
-          syncSuccess?showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning'):showToast('刪除成功但扣次同步失敗，請手動核對次數', 'warning');
+          const now=Date.now();
+          const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
+          if(!isWithinInterval){
+            const syncSuccess=await syncDeleteToBackend();
+            if(syncSuccess){
+              lastDeductTime=now;
+              showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次（3分鐘內連續刪除不扣次）`, 'warning');
+            }else{
+              showToast('刪除成功但扣次同步失敗，請手動核對次數', 'warning');
+            }
+          }else{
+            showToast('品項已刪除（3分鐘內連續刪除，不扣除使用次數）', 'success');
+          }
         }else{
           showToast('品項已刪除');
         }
