@@ -191,7 +191,9 @@ const TARGET_PV112=112000;
 const TARGET_PV220=220000;
 const MAX_NORMAL_USER_USAGE=10;
 const DEDUCT_INTERVAL=180000;
-let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null,lastDeductTime=0;
+let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
+// 修复：从localStorage持久化读取lastDeductTime，避免内存丢失
+let lastDeductTime = parseInt(localStorage.getItem('lastDeductTime')) || 0;
 let userUsageRecord=JSON.parse(localStorage.getItem('userUsageRecord'))||{};
 const els={
   nameInput:document.getElementById("nameInput"),
@@ -348,7 +350,7 @@ async function syncDeleteToBackend(){
         checkUserRemainingTimes();
         resolve(true);
       }else{
-        showToast(`後端扣次失敗：${resp?.message||'未知錯誤'}`, 'error');
+        showToast(`後端未扣次：${resp?.message||'3分鐘內重複操作，無需扣次'}`, 'warning');
         resolve(false);
       }
     };
@@ -468,12 +470,10 @@ function renderTable(){
       if(btn.disabled) return;
       const idx=parseInt(e.target.dataset.index);
       const isPrivilegeUser=authStatus?.isVip||authStatus?.isSuperAdmin;
-      // 權限與過期判斷
       if(!authStatus||authStatus.isExpired){
         showToast('賬號已過期，無法執行刪除操作', 'error');
         return;
       }
-      // 普通用戶判斷
       if(!isPrivilegeUser){
         if(authStatus.remainingTimes<=0){
           showToast('使用次數已用完，無法刪除品項', 'error');
@@ -481,7 +481,6 @@ function renderTable(){
         }
         const now=Date.now();
         const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
-        // 超過3分鐘才彈出確認框
         if(!isWithinInterval&&!confirm(`刪除此品項將扣除1次使用次數，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`)){
           return;
         }
@@ -489,21 +488,21 @@ function renderTable(){
       btn.disabled=true;
       btn.textContent="處理中";
       try{
-        // 刪除品項
         selectedProds.splice(idx,1);
         saveSelectedProds();
         renderTable();
-        // 普通用戶扣次邏輯（3分鐘內不重複扣）
         if(!isPrivilegeUser){
           const now=Date.now();
           const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
           if(!isWithinInterval){
             const syncSuccess=await syncDeleteToBackend();
             if(syncSuccess){
-              lastDeductTime=now; // 成功扣次後更新時間
+              // 修复：同步成功后，持久化更新lastDeductTime
+              lastDeductTime = now;
+              localStorage.setItem('lastDeductTime', lastDeductTime.toString());
               showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次（3分鐘內連續刪除不扣次）`, 'warning');
             }else{
-              showToast('刪除成功但扣次同步失敗，請手動核對次數', 'warning');
+              showToast('品項已刪除，後端未扣次（3分鐘內重複操作/同步失敗）', 'warning');
             }
           }else{
             showToast('品項已刪除（3分鐘內連續刪除，不扣除使用次數）', 'success');
