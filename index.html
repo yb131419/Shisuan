@@ -191,9 +191,8 @@ const TARGET_PV112=112000;
 const TARGET_PV220=220000;
 const MAX_NORMAL_USER_USAGE=10;
 const DEDUCT_INTERVAL=180000;
-let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
-// 修复：从localStorage持久化读取lastDeductTime，避免内存丢失
-let lastDeductTime = parseInt(localStorage.getItem('lastDeductTime')) || 0;
+let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null,isDeleting=false;
+let lastDeductTime=parseInt(localStorage.getItem('lastDeductTime'))||0;
 let userUsageRecord=JSON.parse(localStorage.getItem('userUsageRecord'))||{};
 const els={
   nameInput:document.getElementById("nameInput"),
@@ -242,14 +241,21 @@ els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
 els.nativeShareBtn.addEventListener("click",nativeShare);
 els.clearImageBtn.addEventListener("click",clearImage);
+els.reportBody.addEventListener("click",async function(e){
+  const btn=e.target.closest('.deleteBtn');
+  if(!btn||isDeleting||btn.disabled)return;
+  await handleDelete(btn);
+});
 window.addEventListener('resize',()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';});
 window.onload=initApp;
+
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
   if(val.includes('草本')&&val.includes('新入會')){
     setTimeout(()=>{alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');},100);
   }
 }
+
 function adjustQtySelectOptions(selectedValue){
   const val=selectedValue.trim();
   let maxQty=99;
@@ -264,13 +270,16 @@ function adjustQtySelectOptions(selectedValue){
     els.qtyInput.appendChild(option);
   }
 }
+
 function loadSelectedProds(){
   const saved=localStorage.getItem('selectedProducts');
   if(saved)selectedProds=JSON.parse(saved);
   renderTable();
 }
+
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
+
 function setupLineName(isReset=false){
   if(isReset){
     const input=prompt('請輸入您的『試算者名稱』\n（可隨時點擊重置按鈕修改）：');
@@ -286,6 +295,7 @@ function setupLineName(isReset=false){
   }
   els.calculatorDisplay.value=lineName;
 }
+
 function resetLineName(){
   if(confirm('確定要修改試算者名稱嗎？')){
     localStorage.removeItem('lineName');
@@ -293,6 +303,7 @@ function resetLineName(){
     showToast('試算者名稱已更新');
   }
 }
+
 async function syncRecordResetToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
@@ -335,6 +346,7 @@ async function syncRecordResetToBackend(){
     });
   });
 }
+
 async function syncDeleteToBackend(){
   if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
   return new Promise((resolve,reject)=>{
@@ -380,6 +392,7 @@ async function syncDeleteToBackend(){
     });
   });
 }
+
 async function resetReport(){
   if(!authStatus||authStatus.isExpired)return;
   if(!confirm('確定要清空所有品項記錄嗎？'))return;
@@ -404,6 +417,7 @@ async function resetReport(){
   adjustQtySelectOptions(els.nameInput.value);
   isDeducted?showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning'):showToast('報表已重置');
 }
+
 async function loadProducts(){
   try{
     const res=await fetch(`${API_URL}?action=all&t=${new Date().getTime()}`,{cache:'no-cache'});
@@ -421,6 +435,7 @@ async function loadProducts(){
     showToast(`讀取商品失敗: ${error.message||'未知錯誤'}`, 'error');
   }
 }
+
 function renderTable(){
   els.reportBody.innerHTML="";
   let totalPrice=0,totalPv=0;
@@ -463,62 +478,6 @@ function renderTable(){
   els.pvDiff2.textContent=diff2>0?diff2:0;
   els.pvMessage1.innerHTML=totalPv>=TARGET_PV112?'<span class="done">🎉 已達標</span>':'';
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
-  document.querySelectorAll(".deleteBtn").forEach(btn=>{
-    btn.onclick=async e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      if(btn.disabled) return;
-      const idx=parseInt(e.target.dataset.index);
-      const isPrivilegeUser=authStatus?.isVip||authStatus?.isSuperAdmin;
-      if(!authStatus||authStatus.isExpired){
-        showToast('賬號已過期，無法執行刪除操作', 'error');
-        return;
-      }
-      if(!isPrivilegeUser){
-        if(authStatus.remainingTimes<=0){
-          showToast('使用次數已用完，無法刪除品項', 'error');
-          return;
-        }
-        const now=Date.now();
-        const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
-        if(!isWithinInterval&&!confirm(`刪除此品項將扣除1次使用次數，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`)){
-          return;
-        }
-      }
-      btn.disabled=true;
-      btn.textContent="處理中";
-      try{
-        selectedProds.splice(idx,1);
-        saveSelectedProds();
-        renderTable();
-        if(!isPrivilegeUser){
-          const now=Date.now();
-          const isWithinInterval=now - lastDeductTime < DEDUCT_INTERVAL;
-          if(!isWithinInterval){
-            const syncSuccess=await syncDeleteToBackend();
-            if(syncSuccess){
-              // 修复：同步成功后，持久化更新lastDeductTime
-              lastDeductTime = now;
-              localStorage.setItem('lastDeductTime', lastDeductTime.toString());
-              showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次（3分鐘內連續刪除不扣次）`, 'warning');
-            }else{
-              showToast('品項已刪除，後端未扣次（3分鐘內重複操作/同步失敗）', 'warning');
-            }
-          }else{
-            showToast('品項已刪除（3分鐘內連續刪除，不扣除使用次數）', 'success');
-          }
-        }else{
-          showToast('品項已刪除');
-        }
-      }catch(error){
-        showToast(`刪除失敗：${error.message}`, 'error');
-        renderTable();
-      }finally{
-        btn.disabled=false;
-        btn.textContent="刪除";
-      }
-    };
-  });
   document.querySelectorAll(".qtySelect").forEach(select=>{
     select.onchange=e=>{
       const idx=parseInt(e.target.dataset.index);
@@ -528,6 +487,63 @@ function renderTable(){
     };
   });
 }
+
+async function handleDelete(btn){
+  if(isDeleting||!authStatus||authStatus.isExpired){
+    showToast('賬號已過期或操作中，無法執行刪除', 'error');
+    return;
+  }
+  const idx=parseInt(btn.dataset.index);
+  const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
+  // 普通用戶判斷
+  if(!isPrivilegeUser){
+    if(authStatus.remainingTimes<=0){
+      showToast('使用次數已用完，無法刪除品項', 'error');
+      return;
+    }
+    const now=Date.now();
+    const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
+    if(!isWithinInterval&&!confirm(`刪除此品項將扣除1次使用次數，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`)){
+      return;
+    }
+  }
+  // 鎖定操作+禁用按鈕
+  isDeleting=true;
+  btn.disabled=true;
+  btn.textContent="處理中";
+  try{
+    const now=Date.now();
+    const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
+    // 刪除品項
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
+    renderTable();
+    // 普通用戶扣次邏輯
+    if(!isPrivilegeUser&&!isWithinInterval){
+      const syncSuccess=await syncDeleteToBackend();
+      if(syncSuccess){
+        lastDeductTime=now;
+        localStorage.setItem('lastDeductTime',lastDeductTime.toString());
+        showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次（3分鐘內連續刪除不扣次）`, 'warning');
+      }else{
+        showToast('品項已刪除，後端未扣次（3分鐘內重複操作/同步失敗）', 'warning');
+      }
+    }else if(!isPrivilegeUser&&isWithinInterval){
+      showToast('品項已刪除（3分鐘內連續刪除，不扣除使用次數）', 'success');
+    }else{
+      showToast('品項已刪除', 'success');
+    }
+  }catch(error){
+    showToast(`刪除失敗：${error.message}`, 'error');
+    renderTable();
+  }finally{
+    // 解鎖+恢復按鈕
+    isDeleting=false;
+    btn.disabled=false;
+    btn.textContent="刪除";
+  }
+}
+
 function addProduct(){
   els.addBtn.disabled=true;
   els.addBtn.textContent="處理中...";
@@ -594,6 +610,7 @@ function addProduct(){
     els.addBtn.textContent="➕ 新增品項";
   }
 }
+
 function checkUserRemainingTimes(){
   if(!authStatus)return false;
   const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
@@ -617,6 +634,7 @@ function checkUserRemainingTimes(){
     return true;
   }
 }
+
 function recordUserUsage(){
   if(!authStatus)return;
   const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
@@ -629,6 +647,7 @@ function recordUserUsage(){
   authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-userUsageRecord[userId];
   updateAuthStatusBar();
 }
+
 function updateAuthStatusBar(){
   if(!authStatus||!userInfo)return;
   let statusHtml='';
@@ -656,6 +675,7 @@ function updateAuthStatusBar(){
   els.authStatusBar.innerHTML=statusHtml;
   els.authStatusBar.style.display='block';
 }
+
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -667,7 +687,7 @@ async function exportToImage(){
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
-  const captureWidth=(tableWidth - lastColWidth) + 60;
+  const captureWidth=(tableWidth-lastColWidth)+60;
   const originalCaptureWidth=els.captureArea.style.width;
   const originalPaddingRight=els.captureArea.style.paddingRight;
   const originalPaddingLeft=els.captureArea.style.paddingLeft;
@@ -700,6 +720,7 @@ async function exportToImage(){
     els.exportBtn.textContent="📤 報表轉圖片";
   }
 }
+
 async function shareToLine(){
   if(!authStatus)return;
   if(!els.previewImage.src){alert("請先匯出圖片");return;}
@@ -729,6 +750,7 @@ async function shareToLine(){
     els.shareToLineBtn.textContent="📩 圖片上傳";
   }
 }
+
 async function nativeShare(){
   if(!authStatus)return;
   if(!navigator.share||!els.previewImage.src){alert("無法使用原生分享");return;}
@@ -744,6 +766,7 @@ async function nativeShare(){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
   }
 }
+
 function clearImage(){
   els.previewImage.style.display="none";
   els.previewImage.src="";
@@ -751,6 +774,7 @@ function clearImage(){
   els.nativeShareBtn.style.display="none";
   els.clearImageBtn.style.display="none";
 }
+
 function showToast(message,type='success'){
   els.toast.textContent=message;
   els.toast.className='toast';
@@ -758,6 +782,7 @@ function showToast(message,type='success'){
   els.toast.classList.add("show");
   setTimeout(()=>els.toast.classList.remove("show"),3000);
 }
+
 const calculateRemainingDaysByDate=(expiryDateStr)=>{
   try{
     if(expiryDateStr===PERMANENT_EXPIRY_DATE)return{displayDate:"永久有效",remainingDays:"永久有效",isExpired:false};
@@ -784,6 +809,7 @@ const calculateRemainingDaysByDate=(expiryDateStr)=>{
     return{displayDate:"計算錯誤",remainingDays:"計算錯誤",isExpired:true};
   }
 };
+
 const showError=(msg)=>{
   els.authLoading.style.display='none';
   els.captureArea.style.display='none';
@@ -792,6 +818,7 @@ const showError=(msg)=>{
   els.errorContent.innerHTML=`<p class="font-medium">${msg}</p><div class="mt-3 flex justify-center"><button onclick="window.location.reload()" class="text-white hover:text-[#fff]">重新嘗試</button></div>`;
   els.errorMessage.style.display='block';
 };
+
 const verifyUserFromBackend=(profile)=>{
   return new Promise((resolve,reject)=>{
     const callbackName=`verifyCallback_${Date.now()}`;
@@ -831,6 +858,7 @@ const verifyUserFromBackend=(profile)=>{
     });
   });
 };
+
 async function initLiffAndAuth(){
   try{
     updateAuthLoadingText("正在驗證","請稍候...");
@@ -878,10 +906,12 @@ async function initLiffAndAuth(){
     showToast(`初始化失敗：${errorMsg}`, 'error');
   }
 }
+
 function updateAuthLoadingText(title,desc){
   if(els.authLoadingTitle)els.authLoadingTitle.textContent=title;
   if(els.authLoadingDesc)els.authLoadingDesc.innerHTML=desc;
 }
+
 function initApp(){
   if(window.jQuery){
     initLiffAndAuth();
