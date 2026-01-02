@@ -495,7 +495,6 @@ async function handleDelete(btn){
   }
   const idx=parseInt(btn.dataset.index);
   const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
-  // 普通用戶判斷與提示
   if(!isPrivilegeUser){
     if(authStatus.remainingTimes<=0){
       showToast('使用次數已用完，無法刪除品項', 'error');
@@ -503,7 +502,6 @@ async function handleDelete(btn){
     }
     const now=Date.now();
     const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
-    // 明確提示3分鐘內不扣次
     const confirmMsg=isWithinInterval
       ? `刪除此品項（3分鐘內連續操作，不扣除使用次數），當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`
       : `刪除此品項將扣除1次使用次數，3分鐘內連續刪除不扣次，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`;
@@ -511,18 +509,15 @@ async function handleDelete(btn){
       return;
     }
   }
-  // 鎖定操作+禁用按鈕
   isDeleting=true;
   btn.disabled=true;
   btn.textContent="處理中";
   try{
     const now=Date.now();
     const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
-    // 刪除品項
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
-    // 普通用戶扣次邏輯（確保不重複扣次）
     if(!isPrivilegeUser&&!isWithinInterval){
       const syncSuccess=await syncDeleteToBackend();
       if(syncSuccess){
@@ -541,7 +536,6 @@ async function handleDelete(btn){
     showToast(`刪除失敗：${error.message}`, 'error');
     renderTable();
   }finally{
-    // 解鎖+恢復按鈕
     isDeleting=false;
     btn.disabled=false;
     btn.textContent="刪除";
@@ -819,7 +813,7 @@ const showError=(msg)=>{
   els.captureArea.style.display='none';
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
-  els.errorContent.innerHTML=`<p class="font-medium">${msg}</p><div class="mt-3 flex justify-center"><button onclick="window.location.reload()" class="text-white hover:text-[#fff]">重新嘗試</button></div>`;
+  els.errorContent.innerHTML=`<p class="font-medium">${msg}</p>`;
   els.errorMessage.style.display='block';
 };
 
