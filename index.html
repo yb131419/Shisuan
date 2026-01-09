@@ -259,7 +259,7 @@ function checkHerbalNewMember(selectedValue){
 function adjustQtySelectOptions(selectedValue){
   const val=selectedValue.trim();
   let maxQty=99;
-  if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
+  if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')||val.includes('三寶')||val.includes('回春'))maxQty=1;
   else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
   else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
   els.qtyInput.innerHTML='';
