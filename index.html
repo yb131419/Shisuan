@@ -18,6 +18,7 @@
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
+  /* 新增高質感黃色變量 */
   --period-active:linear-gradient(145deg,#ffd700,#f0c800);
   --period-hover:linear-gradient(145deg,#ffe033,#ffd700);
   --period-border:#ffd700;
@@ -28,7 +29,6 @@
 body{
   background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding-top:60px; /* 给顶部状态栏预留空间 */
 }
 #authContainer{
   position:fixed;top:0;left:0;width:100%;height:100vh;
@@ -42,12 +42,11 @@ body{
   transition:all 0.5s ease;
 }
 #authStatusBar{
-  position:fixed;top:0;left:0;z-index:999;
-  background:var(--grad-secondary);padding:12px 18px;border-radius:0;
-  margin:0;font-size:14px;text-align:center;
-  border:none;border-bottom:1px solid rgba(0,209,178,0.3);
-  box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  display:none;width:100%;max-width:none;
+  position:sticky;top:10px;z-index:999;
+  background:var(--grad-secondary);padding:12px 18px;border-radius:12px;
+  margin-bottom:20px;font-size:14px;text-align:center;
+  border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  display:none;width:100%;max-width:600px;
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);
@@ -83,6 +82,7 @@ body{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;
   margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;
 }
+/* 優化時長選項樣式 - 高質感黃色點擊效果 */
 .period-options{
   display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;
 }
@@ -296,7 +296,7 @@ body{
   width:24px;height:24px;cursor:pointer;
 }
 @media print{
-  body{background:#fff;color:#000;padding-top:0;}
+  body{background:#fff;color:#000;}
   #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,
   #exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,
   #resetCalculatorBtn,#resetReportBtn{display:none!important;}
@@ -481,7 +481,7 @@ for(let i=1;i<=99;i++){
   option.textContent=i;
   els.qtyInput.appendChild(option);
 }
-// 時長選項點擊事件（僅視覺效果，無強制選擇邏輯）
+// 新增時長選項點擊事件
 document.querySelectorAll('.period-box').forEach(box=>{
   box.addEventListener('click',function(){
     document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
