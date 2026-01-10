@@ -10,8 +10,8 @@
 <style>
 :root{--bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);--grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);--loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);--super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;--btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);--btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);--btn-radius:8px;--btn-padding:8px 14px;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-#authContainer{width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;min-height:80vh;justify-content:center;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+#authContainer{width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
 #authLoading{width:100%;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
 .loader{width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -30,12 +30,6 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 #captureArea{background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
 #captureArea h2{text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
 @media (min-width:768px){#captureArea h2{font-size:2.2rem;}}
-.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
-.payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
-.payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
-.period-options{display:flex;justify-content:center;gap:15px;margin-top:15px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
-.period-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
-.period-options input[type="checkbox"]{width:30px;height:30px;cursor:pointer;}
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
 .userInputs label{flex:1;display:flex;flex-direction:column;font-size:14px;color:#bbb;}
@@ -104,9 +98,12 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
+.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
+.payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
+.payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{body{background:#fff;color:#000;}#authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}#captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}#reportTable th{background:#ccc!important;color:#000!important;}.deleteBtn{display:none!important;}.summaryBox{color:#000!important;}#reportTable td,#reportTable th{text-align:center!important;}#reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}}
 .spacer{height:80px;}
-@media (max-width:360px){.userInputs .row{gap:5px;}.userInputs label{font-size:13px;}.userInputs input{font-size:15px;padding:8px;}#reportTable{font-size:11px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}.payment-options,.period-options{font-size:1rem;}#authStatusBar{font-size:12px;}#authLoading{padding:30px 20px;}.loader{width:40px;height:40px;}#addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}}
+@media (max-width:360px){.userInputs .row{gap:5px;}.userInputs label{font-size:13px;}.userInputs input{font-size:15px;padding:8px;}#reportTable{font-size:11px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}.payment-options{font-size:1rem;}#authStatusBar{font-size:12px;}#authLoading{padding:30px 20px;}.loader{width:40px;height:40px;}#addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}}
 #error-message{display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);}
 #error-message #error-content{margin-bottom:15px;}
 #error-message button{background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.8);padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);}
@@ -132,12 +129,6 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
     <div class="payment-options">
       <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
       <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
-    </div>
-    <div class="period-options">
-      <label><input type="checkbox" id="oneMonthOption" /> 📅 一個月</label>
-      <label><input type="checkbox" id="threeMonthOption" /> 📅 三個月</label>
-      <label><input type="checkbox" id="sixMonthOption" /> 📅 半年</label>
-      <label><input type="checkbox" id="oneYearOption" /> 📅 一年</label>
     </div>
   </h2>
   <div class="userInputs">  
