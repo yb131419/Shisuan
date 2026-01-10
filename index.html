@@ -11,14 +11,14 @@
 :root{--bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);--grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);--loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);--super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;--btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);--btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);--btn-radius:8px;--btn-padding:8px 14px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-#authContainer{width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;align-items:center;}
-#authLoading{width:100%;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
+#authContainer{width:100%;height:100vh;display:flex;justify-content:center;align-items:center;position:fixed;top:0;left:0;z-index:9999;}
+#authLoading{width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;}
 .loader{width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes pulse{from{box-shadow:0 0 15px rgba(0,209,178,0.3);}to{box-shadow:0 0 25px rgba(0,209,178,0.6);}}
 #authLoading h3{margin:0 0 8px 0;font-size:1.2rem;color:var(--highlight);font-weight:600;}
 #authLoading p{margin:0;font-size:0.95rem;color:#bbb;line-height:1.6;}
-#authStatusBar{background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;width:100%;max-width:600px;}
+#authStatusBar{background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none;width:100%;max-width:600px;position:sticky;top:10px;z-index:999;}
 .super-admin{color:var(--super);font-weight:bold;}
 .vip-admin{color:var(--vip);font-weight:bold;}
 .normal{color:var(--highlight);font-weight:bold;}
@@ -30,6 +30,9 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 #captureArea{background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;}
 #captureArea h2{text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;}
 @media (min-width:768px){#captureArea h2{font-size:2.2rem;}}
+/* 新增時間選項樣式 */
+.time-options{display:flex;justify-content:center;gap:10px;margin:10px 0;padding:10px 0;flex-wrap:wrap;}
+.time-box{border:1px solid rgba(255,255,255,0.8);border-radius:8px;padding:8px 15px;text-align:center;font-size:14px;color:var(--text);min-width:80px;}
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
 .userInputs label{flex:1;display:flex;flex-direction:column;font-size:14px;color:#bbb;}
@@ -103,7 +106,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{body{background:#fff;color:#000;}#authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}#captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}#reportTable th{background:#ccc!important;color:#000!important;}.deleteBtn{display:none!important;}.summaryBox{color:#000!important;}#reportTable td,#reportTable th{text-align:center!important;}#reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}}
 .spacer{height:80px;}
-@media (max-width:360px){.userInputs .row{gap:5px;}.userInputs label{font-size:13px;}.userInputs input{font-size:15px;padding:8px;}#reportTable{font-size:11px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}.payment-options{font-size:1rem;}#authStatusBar{font-size:12px;}#authLoading{padding:30px 20px;}.loader{width:40px;height:40px;}#addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}}
+@media (max-width:360px){.userInputs .row{gap:5px;}.userInputs label{font-size:13px;}.userInputs input{font-size:15px;padding:8px;}#reportTable{font-size:11px;}#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}.payment-options{font-size:1rem;}#authStatusBar{font-size:12px;}#authLoading{padding:30px 20px;}.loader{width:40px;height:40px;}#addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}.time-box{min-width:70px;padding:6px 10px;font-size:13px;}}
 #error-message{display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);color:#fef2f2;padding:20px;border-radius:16px;margin:20px auto;max-width:400px;text-align:center;box-shadow:var(--shadow);}
 #error-message #error-content{margin-bottom:15px;}
 #error-message button{background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.8);padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);}
@@ -129,6 +132,13 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC
     <div class="payment-options">
       <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
       <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
+    </div>
+    <!-- 新增時間選項框 -->
+    <div class="time-options">
+      <div class="time-box">一個月</div>
+      <div class="time-box">三個月</div>
+      <div class="time-box">半年</div>
+      <div class="time-box">一年</div>
     </div>
   </h2>
   <div class="userInputs">  
@@ -883,6 +893,7 @@ async function initLiffAndAuth(){
       isExpired:authData.isExpired,remainingTimes:authData.remainingTimes||0
     };
     els.authLoading.style.display='none';
+    els.authContainer.style.display='none'; // 隱藏驗證容器
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
