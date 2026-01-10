@@ -18,13 +18,18 @@
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
+  /* 新增高質感黃色變量 */
+  --period-active:linear-gradient(145deg,#ffd700,#f0c800);
+  --period-hover:linear-gradient(145deg,#ffe033,#ffd700);
+  --period-border:#ffd700;
+  --period-shadow:0 0 15px rgba(255,215,0,0.5);
+  --period-text:#000;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
 }
-/* 登錄驗證畫面居中樣式 */
 #authContainer{
   position:fixed;top:0;left:0;width:100%;height:100vh;
   display:flex;justify-content:center;align-items:center;
@@ -36,7 +41,6 @@ body{
   box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);
   transition:all 0.5s ease;
 }
-/* 登錄狀態欄頂部固定 */
 #authStatusBar{
   position:sticky;top:10px;z-index:999;
   background:var(--grad-secondary);padding:12px 18px;border-radius:12px;
@@ -78,17 +82,38 @@ body{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;
   margin:0 0 15px 0;padding:10px 0;line-height:1.3;width:100%;
 }
-/* 新增時長選項樣式 */
+/* 優化時長選項樣式 - 高質感黃色點擊效果 */
 .period-options{
   display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;
 }
 .period-box{
-  border:1px solid #e0e0e0;border-radius:6px;padding:8px 15px;
-  color:#e0e0e0;font-size:14px;
+  border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;
+  color:#e0e0e0;font-size:14px;cursor:pointer;
+  transition:all 0.3s ease;position:relative;overflow:hidden;
+  background:transparent;
+}
+.period-box:hover{
+  border-color:var(--period-border);
+  background:var(--period-hover);
+  color:var(--period-text);
+  transform:translateY(-2px);
+  box-shadow:var(--period-shadow);
+}
+.period-box.active{
+  border-color:var(--period-border);
+  background:var(--period-active);
+  color:var(--period-text);
+  font-weight:bold;
+  box-shadow:var(--period-shadow);
+}
+.period-box.active::after{
+  content:'';position:absolute;bottom:2px;right:2px;
+  width:12px;height:12px;background:var(--period-text);
+  border-radius:50%;opacity:0.8;
 }
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
-  .period-box{font-size:16px;padding:10px 20px;}
+  .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
 }
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
@@ -347,7 +372,6 @@ body{
       <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
       <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
     </div>
-    <!-- 新增時長選項區域 -->
     <div class="period-options">
       <div class="period-box">一個月</div>
       <div class="period-box">三個月</div>
@@ -457,6 +481,13 @@ for(let i=1;i<=99;i++){
   option.textContent=i;
   els.qtyInput.appendChild(option);
 }
+// 新增時長選項點擊事件
+document.querySelectorAll('.period-box').forEach(box=>{
+  box.addEventListener('click',function(){
+    document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
 // 事件綁定
 els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
 els.nameInput.addEventListener('input',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
@@ -1134,7 +1165,6 @@ async function initLiffAndAuth(){
       isExpired:authData.isExpired,remainingTimes:authData.remainingTimes||0
     };
     els.authLoading.style.display='none';
-    // 隱藏登錄容器（居中層）
     document.getElementById('authContainer').style.display='none';
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
