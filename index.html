@@ -836,9 +836,9 @@ function clearImage(){
   els.clearImageBtn.style.display="none";
 }
 
-// 顯示提示框
 function showToast(message,type='success'){
-  els.toast.textContent=message;
+  // 关键修改：替换 \n 为 <br>，并用 innerHTML 赋值
+  els.toast.innerHTML=message.replace(/\n/g, '<br>');
   els.toast.className='toast';
   els.toast.classList.add(type);
   els.toast.classList.add("show");
@@ -957,7 +957,7 @@ async function initLiffAndAuth(){
       loadSelectedProds();
       checkUserRemainingTimes();
       updateAuthStatusBar();
-     showToast(`歡迎💎尊爵用戶💎\n\n${userInfo.displayName}\n\n（驗證一次\n\n保留24小時）`);
+     showToast(`歡迎💎尊爵用戶💎<br>${userInfo.displayName}<br>驗證一次<br>保留24小時<br>`);
       return;
     }
     
