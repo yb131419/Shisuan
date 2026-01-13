@@ -9,19 +9,19 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
-  --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;--highlight:#40c4ff;
-  --error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;--super:#d4af37;--vip:#00bfa5;
-  --grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+  --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;
+  --highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;
+  --super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
-  --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);/* 修改为白色系 */
-  --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);/* 修改为白色系 */
-  --period-border:#ffffff;/* 修改为白色 */
-  --period-shadow:0 0 15px rgba(255,255,255,0.5);/* 修改为白色阴影 */
+  /* 修改：时长选项改为白色主题 */
+  --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
+  --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
+  --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
   --period-text:#000;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -34,23 +34,19 @@ body{
   width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
   box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;
 }
+/* 修改：登录状态栏可隐藏，增加关闭按钮和过渡效果 */
 #authStatusBar{
   position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
   font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  display:none;width:100%;max-width:600px;
+  display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-/* 新增：重置验证按钮样式 */
-#resetAuthBtn{
-  width:100%;margin-top:8px;padding:6px 0;border-radius:6px;background:linear-gradient(145deg,#444,#222);
-  color:#fff;border:1px solid rgba(255,255,255,0.2);font-size:12px;font-weight:500;cursor:pointer;
-  transition:var(--btn-transition);box-shadow:0 2px 8px rgba(0,0,0,0.2);
+#authStatusBar .close-status{
+  position:absolute;top:5px;right:10px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);
+  color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;
+  transition:var(--btn-transition);
 }
-#resetAuthBtn:hover{
-  background:linear-gradient(145deg,#555,#333);transform:translateY(-1px);
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);border-color:rgba(255,255,255,0.4);
-}
-#resetAuthBtn:active{
-  transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,0.2);
+#authStatusBar .close-status:hover{
+  background:rgba(255,255,255,0.2);transform:scale(1.1);
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
@@ -79,20 +75,23 @@ body{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;
   line-height:1.3;width:100%;
 }
-.period-options{
-  display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;
-}
+.period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;}
+/* 修改：时长选项白色高级质感样式 */
 .period-box{
-  border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;
-  cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;background:transparent;
+  border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
+  font-weight:500;
 }
 .period-box:hover{
   border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
   transform:translateY(-2px);box-shadow:var(--period-shadow);
+  background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
 }
 .period-box.active{
   border-color:var(--period-border);background:var(--period-active);color:var(--period-text);
   font-weight:bold;box-shadow:var(--period-shadow);
+  background-image:linear-gradient(145deg,#ffffff,#e8e8e8);
+  transform:translateY(-1px);
 }
 .period-box.active::after{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
@@ -125,9 +124,7 @@ body{
 .btn:hover::before{left:100%;}
 .btn:hover{transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
 .btn:active{transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
-.btn:disabled{
-  opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);
-}
+.btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
 .btn-primary{background:linear-gradient(145deg,#00bfa5,#009e8a);}
 .btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);}
 .btn-warning{background:linear-gradient(145deg,#ff9800,#e68900);}
@@ -174,9 +171,10 @@ body{
 #reportTable tbody tr:nth-child(even){background:#e5e7eb;}
 #reportTable tbody tr:hover{background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn{
-  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);border:1px solid rgba(255,255,255,0.8);
-  color:#fff;border-radius:4px;padding:2px;cursor:pointer;font-size:11px;display:inline-block;
-  margin:0 auto;transition:var(--btn-transition);
+  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
+  border:1px solid rgba(255,255,255,0.8);color:#fff;border-radius:4px;padding:2px;
+  cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;
+  transition:var(--btn-transition);
 }
 .deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
 .deleteBtn:active{transform:scale(0.95);}
@@ -185,10 +183,7 @@ body{
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
-#inputArea{
-  display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;
-  display:none;width:100%;max-width:600px;
-}
+#inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
   background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;
@@ -196,11 +191,7 @@ body{
 }
 #qtyInput{font-size:18px!important;font-weight:bold;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
-#previewImage{
-  display:none;width:100%!important;max-width:600px;margin:15px auto!important;
-  border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;
-  image-rendering:pixelated;
-}
+#previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{
   background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
@@ -221,37 +212,32 @@ body{
   min-width:200px;font-size:15px;border:1px solid rgba(255,255,255,0.1);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
-.toast.error{
-  background:linear-gradient(145deg,#4a0000,#2a0000);
-  border-color:rgba(255,82,82,0.3);
-}
-.toast.warning{
-  background:linear-gradient(145deg,#4a3200,#2a1e00);
-  border-color:rgba(255,152,0,0.3);
-}
-.payment-options{
-  display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;
-  font-size:1.1rem;flex-wrap:wrap;
-}
+.toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
+.toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
+.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
 .payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,
-  #clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn,#resetAuthBtn{display:none!important;}
+  #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
-  .deleteBtn{display:none!important;}.summaryBox{color:#000!important;}
+  .deleteBtn{display:none!important;}
+  .summaryBox{color:#000!important;}
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
 }
 .spacer{height:80px;}
 @media (max-width:360px){
-  .userInputs .row{gap:5px;}.userInputs label{font-size:13px;}
-  .userInputs input{font-size:15px;padding:8px;}#reportTable{font-size:11px;}
+  .userInputs .row{gap:5px;}
+  .userInputs label{font-size:13px;}
+  .userInputs input{font-size:15px;padding:8px;}
+  #reportTable{font-size:11px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
-  .payment-options{font-size:1rem;}#authStatusBar{font-size:12px;}
-  #authLoading{padding:30px 20px;}.loader{width:40px;height:40px;}
+  .payment-options{font-size:1rem;}
+  #authStatusBar{font-size:12px;}
+  #authLoading{padding:30px 20px;}
+  .loader{width:40px;height:40px;}
   #addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}
   .period-box{padding:6px 10px;font-size:12px;}
 }
@@ -262,18 +248,14 @@ body{
 }
 #error-message #error-content{margin-bottom:15px;}
 #error-message button{
-  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;
-  border:1px solid rgba(255,255,255,0.8);padding:8px 16px;border-radius:6px;
-  cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);
+  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.8);
+  padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);
 }
 #error-message button:hover{
   background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
-.button-group{
-  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;
-  display:none;width:100%;max-width:600px;
-}
+.button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
 </style>
 </head>
 <body>
@@ -287,7 +269,10 @@ body{
     <p>請稍候...</p>
   </div>
 </div>
-<div id="authStatusBar" style="display: none;"></div>
+<!-- 修改：增加关闭按钮 -->
+<div id="authStatusBar" style="display: none;">
+  <button class="close-status" title="隱藏狀態欄">✕</button>
+</div>
 <div id="captureArea">
   <h2>
     🌿 康園試算報表
@@ -434,6 +419,15 @@ document.querySelectorAll('.period-box').forEach(box=>{
   });
 });
 
+// 修改：添加状态栏关闭按钮事件
+document.querySelector('.close-status').addEventListener('click',function(){
+  els.authStatusBar.style.opacity='0';
+  setTimeout(()=>{
+    els.authStatusBar.style.display='none';
+    els.authStatusBar.style.opacity='1';
+  },300);
+});
+
 // 事件綁定
 els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
 els.nameInput.addEventListener('input',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
@@ -511,27 +505,6 @@ function resetLineName(){
     setupLineName(true);
     showToast('試算者名稱已更新');
   }
-}
-
-// 新增：重置验证和工作表函数
-function resetAuthAndWorksheet(){
-  if(!confirm('確定要重置驗證狀態和工作表嗎？\n此操作將清除當前所有數據並重新驗證用戶權限！'))return;
-  
-  // 清除本地缓存
-  localStorage.removeItem(`authCache_${userInfo?.userId||''}`);
-  localStorage.removeItem('selectedProducts');
-  localStorage.removeItem('userUsageRecord');
-  localStorage.removeItem('lastDeductTime');
-  localStorage.removeItem('lineName');
-  
-  // 重置变量
-  selectedProds=[];
-  userUsageRecord={};
-  lastDeductTime=0;
-  authStatus=null;
-  
-  // 重新加载页面
-  window.location.reload();
 }
 
 // 同步重置記錄到後端
@@ -895,7 +868,6 @@ function updateAuthStatusBar(){
       <span class="super-admin">👑 超級管理員 👑</span> | 
       用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
-      <button id="resetAuthBtn" onclick="resetAuthAndWorksheet()">🔄 重置驗證與工作表</button>
     `;
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
@@ -903,17 +875,27 @@ function updateAuthStatusBar(){
       <span class="vip-admin">💎 尊爵用戶 💎</span> | 
       用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
-      <button id="resetAuthBtn" onclick="resetAuthAndWorksheet()">🔄 重置驗證與工作表</button>
     `;
   }else{
     statusHtml=`
       <span class="normal">🪙 普通用戶 🪙</span> | 
       用戶名：${userInfo.displayName}
       <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
-      <button id="resetAuthBtn" onclick="resetAuthAndWorksheet()">🔄 重置驗證與工作表</button>
     `;
   }
-  els.authStatusBar.innerHTML=statusHtml;
+  // 修改：将状态内容插入到关闭按钮之后
+  els.authStatusBar.innerHTML = `
+    <button class="close-status" title="隱藏狀態欄">✕</button>
+    ${statusHtml}
+  `;
+  // 重新绑定关闭按钮事件
+  els.authStatusBar.querySelector('.close-status').addEventListener('click',function(){
+    els.authStatusBar.style.opacity='0';
+    setTimeout(()=>{
+      els.authStatusBar.style.display='none';
+      els.authStatusBar.style.opacity='1';
+    },300);
+  });
   els.authStatusBar.style.display='block';
 }
 
@@ -1022,8 +1004,7 @@ function clearImage(){
 
 // 顯示提示框
 function showToast(message,type='success'){
-  // 关键修改：替换 \n 为 <br>，并用 innerHTML 赋值
-  els.toast.innerHTML=message.replace(/\n/g, '<br>');
+  els.toast.textContent=message;
   els.toast.className='toast';
   els.toast.classList.add(type);
   els.toast.classList.add("show");
@@ -1142,7 +1123,7 @@ async function initLiffAndAuth(){
       loadSelectedProds();
       checkUserRemainingTimes();
       updateAuthStatusBar();
-      showToast(`歡迎💎尊爵用戶💎<br>${userInfo.displayName}<br>驗證一次<br>保留24小時<br>`);
+      showToast(`歡迎💎尊爵用戶💎，${userInfo.displayName}！（驗證一次<br>保留24小時）`);
       return;
     }
     
@@ -1173,36 +1154,35 @@ async function initLiffAndAuth(){
       setTimeout(()=>{
         liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
       },1500);
+
     }
-    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請等待自動重試或手動刷新頁面");
-    showToast(`初始化失敗：${errorMsg}`, 'error');
+    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
   }
 }
 
-// 更新登錄加載文本
-function updateAuthLoadingText(title,desc){
-  if(els.authLoadingTitle)els.authLoadingTitle.textContent=title;
-  if(els.authLoadingDesc)els.authLoadingDesc.innerHTML=desc;
+// 更新授权加载提示文本
+function updateAuthLoadingText(title, desc) {
+  if (els.authLoadingTitle) els.authLoadingTitle.textContent = title;
+  if (els.authLoadingDesc) els.authLoadingDesc.innerHTML = desc;
 }
 
-// 初始化應用
-function initApp(){
-  if(window.jQuery){
-    initLiffAndAuth();
-  }else{
-    let waitCount=0;
-    const interval=setInterval(()=>{
-      waitCount++;
-      if(window.jQuery||waitCount>=50){
-        clearInterval(interval);
-        window.jQuery?initLiffAndAuth():(()=>{
-          updateAuthLoadingText("jQuery加載失敗","請檢查網絡或刷新頁面");
-          showToast('jQuery加載失敗', 'error');
-        })();
-      }
-    },100);
+// 初始化应用
+async function initApp() {
+  try {
+    // 适配小屏幕表格字体大小
+    els.reportTable.style.fontSize = window.innerWidth < 360 ? '11px' : '12px';
+    // 初始化LIFF和授权
+    await initLiffAndAuth();
+  } catch (error) {
+    showError(`應用初始化失敗：${error.message||'未知錯誤'}`);
   }
 }
-</script>
-</body>
-</html>
+
+// 错误提示框的关闭按钮（补充绑定）
+document.querySelector('#error-message button')?.addEventListener('click', function() {
+  els.errorMessage.style.display = 'none';
+  // 尝试重新加载页面
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+});
