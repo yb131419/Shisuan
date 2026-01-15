@@ -40,45 +40,81 @@ body{
   font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-/* 替换原有的 close-status 样式 */
+/* 高质感关闭按钮样式 - 替换原有 close-status 样式 */
 #authStatusBar .close-status {
   position: absolute;
   top: 5px;
   right: 10px;
-  /* 贴合字体的尺寸：宽度28px（适配更大字体），高度45px（更紧凑贴合文字） */
   width: 28px;
   height: 45px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #ffffff, #f0f0f0);
-  color: #000; /* 黑色字体 */
-  border: 1px solid #000; /* 黑色边框 */
+  /* 细腻的白色渐变，模拟微立体效果 */
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  color: #000; /* 纯黑字体保证可读性 */
+  /* 极细黑色边框，提升精致感 */
+  border: 1px solid #222;
   cursor: pointer;
-  /* 字体再放大一号：从14px改为16px */
   font-size: 16px;
+  /* 核心居中布局 */
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--btn-transition);
+  text-align: center;
+  vertical-align: middle;
+  /* 丝滑过渡动画 */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* 垂直文字排版 */
   writing-mode: vertical-rl;
   text-orientation: upright;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  /* 移除多余内边距，让边框更贴合文字 */
+  /* 多层次阴影，模拟浮雕质感 */
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
   padding: 0;
-  font-weight: bold; /* 加粗字体增强显示效果 */
-  /* 调整行高，让文字完全居中贴合按钮 */
+  font-weight: 700; /* 加粗字体，提升力量感 */
   line-height: 1;
+  margin: 0;
+  outline: none;
+  /* 防止文字模糊 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 触摸反馈优化 */
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Hover 状态 - 强化交互质感 */
 #authStatusBar .close-status:hover {
-  background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  border-color: #000;
+  /* 更深的渐变，模拟按压前的轻抬效果 */
+  background: linear-gradient(145deg, #f8f8f8, #eaeaea);
+  /* 轻微上移+增强阴影，提升立体感 */
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  /* 边框微亮，提升精致度 */
+  border-color: #111;
+  /* 文字轻微提亮，增加呼吸感 */
+  color: #111;
 }
 
+/* Active 状态 - 模拟物理按压效果 */
 #authStatusBar .close-status:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  /* 反向渐变，模拟凹陷效果 */
+  background: linear-gradient(145deg, #eaeaea, #f0f0f0);
+  /* 复位位置+收缩阴影，模拟按压 */
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(0,0,0,0.1),
+    inset 0 -1px 0 rgba(255,255,255,0.8);
+}
+
+/* 聚焦状态优化（可选，提升可访问性） */
+#authStatusBar .close-status:focus-visible {
+  outline: 2px solid #0071e3;
+  outline-offset: 2px;
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
