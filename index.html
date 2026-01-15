@@ -324,6 +324,17 @@ body{
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
+/* 高质感黄色用户名样式 */
+.toast-highlight-name {
+  background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 </style>
 </head>
 <body>
@@ -1193,7 +1204,7 @@ async function initLiffAndAuth(){
       loadSelectedProds();
       checkUserRemainingTimes();
       updateAuthStatusBar();
-      showToast(`歡迎💎尊爵用戶💎<br>${userInfo.displayName}<br>驗證一次後<br>短時間不在驗證<br>`);
+      showToast(`歡迎💎尊爵用戶💎<br><span class="toast-highlight-name">${userInfo.displayName}</span><br>驗證一次後<br>短時間不在驗證<br>`);
       return;
     }
     
