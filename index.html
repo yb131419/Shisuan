@@ -45,16 +45,16 @@ body{
   position: absolute;
   top: 5px;
   right: 10px;
-  /* 缩小按钮尺寸：宽度25px，高度50px */
-  width: 25px;
-  height: 50px;
+  /* 贴合字体的尺寸：宽度28px（适配更大字体），高度45px（更紧凑贴合文字） */
+  width: 28px;
+  height: 45px;
   border-radius: 8px;
-  background: linear-gradient(145deg, #d32f2f, #b71c1c);
-  color: #fff; /* 白色字体 */
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  color: #000; /* 黑色字体 */
   border: 1px solid #000; /* 黑色边框 */
   cursor: pointer;
-  /* 放大字体：从12px改为14px */
-  font-size: 14px;
+  /* 字体再放大一号：从14px改为16px */
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,26 +62,20 @@ body{
   writing-mode: vertical-rl;
   text-orientation: upright;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  padding: 2px;
-  /* 字体黑色描边（微调适配更大字体） */
-  text-shadow: -1px -1px 0 #000,
-                1px -1px 0 #000,
-               -1px  1px 0 #000,
-                1px  1px 0 #000;
-  font-weight: bold; /* 加粗字体增强描边效果 */
+  /* 移除多余内边距，让边框更贴合文字 */
+  padding: 0;
+  font-weight: bold; /* 加粗字体增强显示效果 */
+  /* 调整行高，让文字完全居中贴合按钮 */
+  line-height: 1;
 }
 
 #authStatusBar .close-status:hover {
-  background: linear-gradient(145deg, #e53935, #c62828);
+  background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   border-color: #000;
 }
 
-#authStatusBar .close-status:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-}
 #authStatusBar .close-status:active {
   transform: translateY(1px);
   box-shadow: 0 1px 4px rgba(0,0,0,0.3);
