@@ -45,34 +45,42 @@ body{
   position: absolute;
   top: 5px;
   right: 10px;
-  width: 30px;
-  height: 60px;
+  /* 尺寸适当加大 */
+  width: 36px;
+  height: 70px;
   border-radius: 8px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
+  /* 红色渐变底色 */
+  background: linear-gradient(145deg, #d32f2f, #b71c1c);
+  /* 白色字体 + 黑色文字描边 */
+  color: #ffffff;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  /* 黑色边框增强对比 */
+  border: 2px solid #000000;
   cursor: pointer;
-  font-size: 12px;
+  /* 字体稍大 */
+  font-size: 14px;
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: var(--btn-transition);
   writing-mode: vertical-rl;
   text-orientation: upright;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
   padding: 2px;
 }
 
 #authStatusBar .close-status:hover {
-  background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(0,0,0,0.3));
+  /* hover时更亮的红色渐变 */
+  background: linear-gradient(145deg, #ff5252, #d32f2f);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  border-color: #222222;
 }
 
 #authStatusBar .close-status:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
