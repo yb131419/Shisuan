@@ -40,13 +40,39 @@ body{
   font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-#authStatusBar .close-status{
-  position:absolute;top:5px;right:10px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);
-  color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;
-  transition:var(--btn-transition);
+/* 替换原有的 close-status 样式 */
+#authStatusBar .close-status {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 60px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--btn-transition);
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  padding: 2px;
 }
-#authStatusBar .close-status:hover{
-  background:rgba(255,255,255,0.2);transform:scale(1.1);
+
+#authStatusBar .close-status:hover {
+  background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(0,0,0,0.3));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.3);
+}
+
+#authStatusBar .close-status:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
@@ -857,3 +883,338 @@ function recordUserUsage(){
   authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-userUsageRecord[userId];
   updateAuthStatusBar();
 }
+
+// 更新授權狀態欄
+function updateAuthStatusBar(){
+  if(!authStatus||!userInfo)return;
+  let statusHtml='';
+  if(authStatus.isSuperAdmin){
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
+    statusHtml=`
+      <span class="super-admin">👑 超級管理員 👑</span> | 
+      用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
+      <br/>有效期限：${expiryText}
+    `;
+  }else if(authStatus.isVip){
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
+    statusHtml=`
+      <span class="vip-admin">💎 尊爵用戶 💎</span> | 
+      用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
+      <br/>有效期限：${expiryText}
+    `;
+  }else{
+    statusHtml=`
+      <span class="normal">🪙 普通用戶 🪙</span> | 
+      用戶名：${userInfo.displayName}
+      <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
+    `;
+  }
+// 替换状态栏HTML生成部分的按钮文本
+els.authStatusBar.innerHTML = `
+  <button class="close-status" title="隱藏狀態欄">關閉</button>
+  ${statusHtml}
+`;
+  // 重新绑定关闭按钮事件
+// 2. 更新授权状态栏时的重新绑定
+els.authStatusBar.querySelector('.close-status').addEventListener('click',function(){
+  els.authStatusBar.style.opacity='0';
+  setTimeout(()=>{
+    els.authStatusBar.style.display='none';
+    els.authStatusBar.style.opacity='1';
+  },300);
+});
+  els.authStatusBar.style.display='block';
+}
+
+// 匯出圖片
+async function exportToImage(){
+  if(!checkUserRemainingTimes())return;
+  if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
+  els.exportBtn.disabled=true;
+  els.exportBtn.textContent="匯出中...";
+  const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+  opCells.forEach(el=>{el.style.display="none";});
+  els.reportTable.offsetWidth;
+  const tableWidth=els.reportTable.offsetWidth;
+  const lastCol=els.reportTable.querySelector('th:last-child');
+  const lastColWidth=lastCol?lastCol.offsetWidth:0;
+  const captureWidth=(tableWidth-lastColWidth)+60;
+  const originalCaptureWidth=els.captureArea.style.width;
+  const originalPaddingRight=els.captureArea.style.paddingRight;
+  const originalPaddingLeft=els.captureArea.style.paddingLeft;
+  els.captureArea.style.width=`${captureWidth}px`;
+  els.captureArea.style.paddingLeft="30px";
+  els.captureArea.style.paddingRight="30px";
+  try{
+    const scale=window.innerWidth<768?3:4;
+    const canvas=await html2canvas(els.captureArea,{
+      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
+      logging:false,letterRendering:true,useTransform:true,dpi:300,
+      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
+      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
+      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
+    });
+    const dataUrl=canvas.toDataURL("image/png",1.0);
+    els.previewImage.src=dataUrl;
+    els.previewImage.style.display="block";
+    els.shareToLineBtn.style.display="inline-block";
+    els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
+    els.clearImageBtn.style.display="inline-block";
+  }catch(error){
+    showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
+  }finally{
+    opCells.forEach(el=>{el.style.display="";});
+    els.captureArea.style.width=originalCaptureWidth;
+    els.captureArea.style.paddingRight=originalPaddingRight;
+    els.captureArea.style.paddingLeft=originalPaddingLeft;
+    els.exportBtn.disabled=false;
+    els.exportBtn.textContent="📤 報表轉圖片";
+  }
+}
+
+// 分享到LINE
+async function shareToLine(){
+  if(!authStatus)return;
+  if(!els.previewImage.src){alert("請先匯出圖片");return;}
+  els.shareToLineBtn.disabled=true;
+  els.shareToLineBtn.textContent="上傳中...";
+  try{
+    const base64Data=els.previewImage.src.split(",")[1];
+    const formData=new FormData();
+    formData.append("image",base64Data);
+    formData.append("key",IMGBB_API_KEY);
+    const res=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:formData,});
+    const result=await res.json();
+    if(result.success){
+      const imageUrl=result.data.url;
+      const buyerName=els.buyerInput.value.trim()||"未填";
+      const calculatorName=lineName||"未設定";
+      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`)}`;
+      window.open(lineShareUrl,"_blank");
+      showToast("✅ 圖片已上傳");
+    }else{
+      showToast("圖片上傳失敗，請稍後再試", 'error');
+    }
+  }catch(error){
+    showToast(`圖片上傳錯誤: ${error.message||'未知錯誤'}`, 'error');
+  }finally{
+    els.shareToLineBtn.disabled=false;
+    els.shareToLineBtn.textContent="📩 圖片上傳";
+  }
+}
+
+// 原生分享
+async function nativeShare(){
+  if(!authStatus)return;
+  if(!navigator.share||!els.previewImage.src){alert("無法使用原生分享");return;}
+  try{
+    const response=await fetch(els.previewImage.src);
+    const blob=await response.blob();
+    const filesArray=[new File([blob],"康園試算報表.png",{type:blob.type})];
+    const buyer=els.buyerInput.value.trim()||"未填";
+    const calculator=lineName||"未設定";
+    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}`;
+    await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
+  }catch(error){
+    showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
+  }
+}
+
+// 清除圖片
+function clearImage(){
+  els.previewImage.style.display="none";
+  els.previewImage.src="";
+  els.shareToLineBtn.style.display="none";
+  els.nativeShareBtn.style.display="none";
+  els.clearImageBtn.style.display="none";
+}
+
+// 顯示提示框
+function showToast(message,type='success'){
+  // 关键修改：替换 \n 为 <br>，并用 innerHTML 赋值
+  els.toast.innerHTML=message.replace(/\n/g, '<br>');
+  els.toast.className='toast';
+  els.toast.classList.add(type);
+  els.toast.classList.add("show");
+  setTimeout(()=>els.toast.classList.remove("show"),3000);
+}
+
+// 計算剩餘天數
+const calculateRemainingDaysByDate=(expiryDateStr)=>{
+  try{
+    if(expiryDateStr===PERMANENT_EXPIRY_DATE)return{displayDate:"永久有效",remainingDays:"永久有效",isExpired:false};
+    const dateReg=/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/;
+    if(!dateReg.test(expiryDateStr))return{displayDate:"格式錯誤",remainingDays:"格式錯誤",isExpired:true};
+    const dateParts=expiryDateStr.replace(/-/g,'/').split('/').map(Number);
+    const [year,month,day]=dateParts;
+    const expiryDate=new Date(year,month-1,day,23,59,59,999);
+    const now=new Date();
+    if(isNaN(expiryDate.getTime()))return{displayDate:"日期無效",remainingDays:"日期無效",isExpired:true};
+    const oneDayMs=1000*3600*24;
+    const timeDiff=expiryDate.getTime()-now.getTime();
+    let dayDiff=Math.ceil(timeDiff/oneDayMs);
+    const fmtMonth=String(month).padStart(2,'0');
+    const fmtDay=String(day).padStart(2,'0');
+    const displayDate=`${year}/${fmtMonth}/${fmtDay}`;
+    let remainingDaysText,isExpired=false;
+    if(timeDiff<0){remainingDaysText="<span class='expired'>已過期</span>";isExpired=true;}
+    else if(dayDiff===0){remainingDaysText="<span class='warning'>最後1天</span>";isExpired=false;}
+    else if(dayDiff<=30){remainingDaysText=`<span class='warning'>${dayDiff} 天</span>`;isExpired=false;}
+    else{remainingDaysText=`${dayDiff} 天`;isExpired=false;}
+    return{displayDate,remainingDays:remainingDaysText,isExpired};
+  }catch(e){
+    return{displayDate:"計算錯誤",remainingDays:"計算錯誤",isExpired:true};
+  }
+};
+
+// 顯示錯誤
+const showError=(msg)=>{
+  els.authLoading.style.display='none';
+  els.captureArea.style.display='none';
+  els.inputArea.style.display='none';
+  els.buttonGroup.style.display='none';
+  els.errorContent.innerHTML=`<p class="font-medium">${msg}</p>`;
+  els.errorMessage.style.display='block';
+};
+
+// 後端驗證用戶
+const verifyUserFromBackend=(profile)=>{
+  return new Promise((resolve,reject)=>{
+    const callbackName=`verifyCallback_${Date.now()}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      if(resp.status==="success"){
+        const backendUsageCount=resp.usageCount||0;
+        userUsageRecord[profile.userId]=backendUsageCount;
+        saveUserUsageRecord();
+        const expiryData=calculateRemainingDaysByDate(resp.expiryDate||PERMANENT_EXPIRY_DATE);
+        const authData={
+          ...resp,displayName:profile.displayName,remainingDays:expiryData.remainingDays,
+          displayExpiryDate:expiryData.displayDate,isExpired:expiryData.isExpired,
+          isVip:resp.isVip===true,isSuperAdmin:resp.isSuperAdmin===true,
+          remainingTimes:resp.remainingTimes||(MAX_NORMAL_USER_USAGE-backendUsageCount)
+        };
+        // 保存VIP/超管的當天驗證緩存
+        if(authData.isVip||authData.isSuperAdmin){
+          saveTodayAuthCache(profile.userId,authData);
+        }
+        resolve(authData);
+      }else{
+        showError(resp.message||"用戶驗證失敗");
+        resolve(null);
+      }
+    };
+    const decodedToken=liff.getDecodedIDToken();
+    const userId=profile.userId||decodedToken?.sub||"";
+    const data={
+      action:'verifyUser',userId:userId,displayName:profile.displayName,
+      callback:callbackName,dataType:'userVerify'
+    };
+    $.ajax({
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,data:data,
+      error:function(xhr,status,error){
+        delete window[callbackName];
+        const errorMsg=status==='timeout'?'驗證超時，請檢查網絡後重新嘗試':`驗證失敗：${error||'未知網絡錯誤'}`;
+        showError(errorMsg);
+        reject(new Error(errorMsg));
+      }
+    });
+  });
+};
+
+// 初始化LIFF和授權
+async function initLiffAndAuth(){
+  try{
+    updateAuthLoadingText("正在驗證","請稍候...");
+    await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
+    loadProducts();
+    if(!liff.isLoggedIn()){
+      updateAuthLoadingText("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
+      liff.login({redirectUri:window.location.href});
+      return;
+    }
+    const profile=await liff.getProfile();
+    userInfo={userId:profile.userId,displayName:profile.displayName};
+    
+    // 檢查是否是VIP/超管且有當天有效驗證緩存
+    const isPrivilegeUserCached=isTodayValidAuth(profile.userId);
+    if(isPrivilegeUserCached){
+      // 使用緩存的驗證數據
+      authStatus=JSON.parse(localStorage.getItem(`authCache_${profile.userId}`)).data;
+      els.authLoading.style.display='none';
+      document.getElementById('authContainer').style.display='none';
+      els.captureArea.style.display='block';
+      els.inputArea.style.display='flex';
+      els.buttonGroup.style.display='flex';
+      setupLineName();
+      loadSelectedProds();
+      checkUserRemainingTimes();
+      updateAuthStatusBar();
+      showToast(`歡迎💎尊爵用戶💎<br>${userInfo.displayName}<br>驗證一次<br>保留24小時<br>`);
+      return;
+    }
+    
+    // 普通用戶或緩存過期，走正常驗證流程
+    updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
+    const authData=await verifyUserFromBackend(profile);
+    if(!authData)return;
+    if(authData.isExpired){
+      showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
+      return;
+    }
+    authStatus=authData;
+    els.authLoading.style.display='none';
+    document.getElementById('authContainer').style.display='none';
+    els.captureArea.style.display='block';
+    els.inputArea.style.display='flex';
+    els.buttonGroup.style.display='flex';
+    setupLineName();
+    loadSelectedProds();
+    checkUserRemainingTimes();
+    updateAuthStatusBar();
+    showToast(`歡迎回來，${userInfo.displayName}！`);
+  }catch(error){
+    let errorMsg=error.message||'未知初始化錯誤';
+    if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
+      errorMsg='登錄狀態已過期，將自動重新登錄';
+      showToast(errorMsg, 'warning');
+      setTimeout(()=>{
+        liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
+      },1500);
+
+    }
+    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
+  }
+}
+
+// 更新授权加载提示文本
+function updateAuthLoadingText(title, desc) {
+  if (els.authLoadingTitle) els.authLoadingTitle.textContent = title;
+  if (els.authLoadingDesc) els.authLoadingDesc.innerHTML = desc;
+}
+
+// 初始化应用
+async function initApp() {
+  try {
+    // 适配小屏幕表格字体大小
+    els.reportTable.style.fontSize = window.innerWidth < 360 ? '11px' : '12px';
+    // 初始化LIFF和授权
+    await initLiffAndAuth();
+  } catch (error) {
+    showError(`應用初始化失敗：${error.message||'未知錯誤'}`);
+  }
+}
+
+// 1. 初始绑定
+document.querySelector('.close-status').addEventListener('click',function(){
+  els.authStatusBar.style.opacity='0';
+  setTimeout(()=>{
+    els.authStatusBar.style.display='none';
+    els.authStatusBar.style.opacity='1';
+  },300);
+});
+
+</script>
+</body>
+</html>
