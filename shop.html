@@ -698,6 +698,14 @@
       else if (trimmedValue.includes('限12組') || trimmedValue.includes('上限12')) {
         maxQty = 12;
       }
+           // 規則6：限12組/上限12相關品項
+      else if (trimmedValue.includes('限1組') || trimmedValue.includes('上限1')) {
+        maxQty = 1;
+      }
+                 // 規則7：限12組/上限12相關品項
+      else if (trimmedValue.includes('限6組') || trimmedValue.includes('上限6')) {
+        maxQty = 6;
+      }
       
       // 重新生成數量下拉框選項
       qtyInput.innerHTML = '';
