@@ -706,6 +706,10 @@
       else if (trimmedValue.includes('限6組') || trimmedValue.includes('上限6')) {
         maxQty = 6;
       }
+                   // 規則8：限4組/上限4相關品項
+      else if (trimmedValue.includes('限4組') || trimmedValue.includes('上限6')) {
+        maxQty = 4;
+      }
       
       // 重新生成數量下拉框選項
       qtyInput.innerHTML = '';
