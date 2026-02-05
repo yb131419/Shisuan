@@ -590,7 +590,7 @@
   
   <div class="button-group">
     <button id="exportBtn">📤 報表轉圖片</button>
-    <button id="shareToLineBtn">📩 上傳備份</button>
+    <button id="shareToLineBtn">📩 安桌分享</button>
     <button id="nativeShareBtn">📱 分享圖片</button>
     <button id="clearImageBtn">❌ 清除圖片</button>
     <button id="resetReportBtn">🔄 重置報表</button> <!-- 新增報表重置按鈕 -->
@@ -658,20 +658,30 @@
       adjustQtySelectOptions(this.value);
     });
 
-    // 單獨提取提醒判斷函數，確保邏輯一致
-    function checkHerbalNewMember(selectedValue) {
-      const trimmedValue = selectedValue.trim();
-      // 放寬匹配條件，確保各種類似名稱都能觸發（如「新入會-草本」「草本新入會」等）
-      const isHerbal = trimmedValue.includes('草本');
-      const isNewMember = trimmedValue.includes('新入會') ;
-      
-      if (isHerbal && isNewMember) {
-        // 使用setTimeout確保alert在DOM更新後執行，避免影響畫面
-        setTimeout(() => {
-          alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
-        }, 100);
-      }
-    }
+// 單獨提取提醒判斷函數，確保邏輯一致
+function checkHerbalNewMember(selectedValue) {
+  const trimmedValue = selectedValue.trim();
+  // 放寬匹配條件，確保各種類似名稱都能觸發（如「新入會-草本」「草本新入會」等）
+  const isHerbal = trimmedValue.includes('草本');
+  const isNewMember = trimmedValue.includes('新入會');
+  // 新增完售关键词检测（支持「完售」「售罄」「已售完」等常见表述）
+  const isSoldOut = trimmedValue.includes('完售') || trimmedValue.includes('售罄') || trimmedValue.includes('已售完');
+  
+  // 草本新入會提醒邏輯
+  if (isHerbal && isNewMember) {
+    // 使用setTimeout確保alert在DOM更新後執行，避免影響畫面
+    setTimeout(() => {
+      alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+    }, 100);
+  }
+
+  // 新增完售提醒邏輯
+  if (isSoldOut) {
+    setTimeout(() => {
+      alert('⚠️ 商品完售提醒：\n\n該商品當前已『完售』');
+    }, 100);
+  }
+}
 
     // 【核心修正2】根據選擇的品項調整數量下拉框的可選範圍（新增限3、限12規則）
     function adjustQtySelectOptions(selectedValue) {
