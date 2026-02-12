@@ -7,7 +7,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
 <style>
 :root{
   --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;
@@ -16,13 +15,9 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  /* iOS 26 按钮变量 */
-  --btn-shadow:0 1px 3px rgba(0,0,0,0.08);
-  --btn-hover-shadow:0 2px 8px rgba(0,0,0,0.12);
-  --btn-active-shadow:0 1px 2px rgba(0,0,0,0.08);
-  --btn-transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --btn-radius:18px; /* iOS 26 超大圆角 */
-  --btn-padding:10px 20px;
+  --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
+  --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  --btn-radius:8px;--btn-padding:8px 14px;
   /* 修改：时长选项改为白色主题 */
   --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
   --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
@@ -183,147 +178,40 @@ body{
   border-radius:6px;width:100%;text-align:center;
 }
 .calculator-container{display:flex;gap:5px;}
-
-/* ===================== iOS 26 按钮核心样式 ===================== */
 .btn{
-  /* iOS 26 核心特征：无边框+极简设计 */
-  border: none;
-  border-radius: var(--btn-radius); /* 超大圆角 */
-  padding: var(--btn-padding);
-  font-size: 15px; /* iOS 26 统一字号 */
-  font-weight: 500; /* iOS 系统字体权重 */
-  color: #fff;
-  cursor: pointer;
-  box-shadow: var(--btn-shadow);
-  transition: var(--btn-transition);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
-  position: relative;
-  overflow: hidden;
-  /* iOS 26 文字抗锯齿 */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  border:1px solid rgba(255,255,255,0.8);border-radius:var(--btn-radius);padding:var(--btn-padding);
+  font-size:13px;font-weight:600;color:#fff;cursor:pointer;box-shadow:var(--btn-shadow);
+  transition:var(--btn-transition);display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;text-decoration:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;
 }
-
-/* iOS 26 按钮高光效果（更细腻） */
 .btn::before{
-  content:'';
-  position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
-  transition:all 0.4s ease;
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  transition:all 0.6s ease;
 }
-
-/* iOS 26 交互状态 */
 .btn:hover::before{left:100%;}
-.btn:hover{
-  transform: translateY(-1px);
-  box-shadow: var(--btn-hover-shadow);
-  opacity: 0.95;
-}
-.btn:active{
-  transform: translateY(0);
-  box-shadow: var(--btn-active-shadow);
-  opacity: 0.9;
-}
-.btn:disabled{
-  opacity: 0.6;
-  cursor:not-allowed;
-  transform:none;
-  box-shadow: var(--btn-shadow);
-}
-
-/* iOS 26 按钮配色（更贴近系统） */
-.btn-primary{
-  background: #0071e3; /* iOS 26 蓝色主按钮 */
-}
-.btn-primary:hover{
-  background: #0077ed;
-}
-.btn-warning{
-  background: #ff9f0a; /* iOS 26 黄色警告按钮 */
-}
-.btn-warning:hover{
-  background: #ffaa29;
-}
-.btn-grey{
-  background: #86868b; /* iOS 26 灰色按钮 */
-}
-.btn-grey:hover{
-  background: #929297;
-}
-.btn-danger{
-  background: #ff3b30; /* iOS 26 红色危险按钮 */
-}
-.btn-danger:hover{
-  background: #ff453a;
-}
-
-/* iOS 26 按钮尺寸变体 */
-.btn-sm{
-  padding:6px 14px;
-  font-size:13px;
-  border-radius:12px;
-}
-.btn-md{
-  padding:8px 16px;
-  font-size:14px;
-  border-radius:14px;
-}
-.btn-lg{
-  padding:12px 24px;
-  font-size:16px;
-  border-radius:20px;
-  width:100%;
-}
-
-/* iOS 26 重置计算器按钮 */
+.btn:hover{transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
+.btn:active{transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
+.btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
+.btn-primary{background:linear-gradient(145deg,#00bfa5,#009e8a);}
+.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);}
+.btn-warning{background:linear-gradient(145deg,#ff9800,#e68900);}
+.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);}
+.btn-grey{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);}
+.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
+.btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);}
+.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53935);}
+.btn-sm{padding:6px 10px;font-size:11px;border-radius:5px;}
+.btn-md{padding:7px 12px;font-size:12px;border-radius:6px;}
+.btn-lg{padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
 #resetCalculatorBtn{
-  width:40px;
-  height:40px;
-  border-radius:20px; /* 圆形按钮 */
-  background: #86868b; /* iOS 26 灰色 */
-  color:#fff;
-  border:none;
-  cursor:pointer;
-  font-size:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:var(--btn-transition);
+  width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
+  border:1px solid rgba(255,255,255,0.8);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
 }
-#resetCalculatorBtn:hover{
-  background:#929297;
-  transform:scale(1.05);
-}
-#resetCalculatorBtn:active{
-  transform:scale(0.95);
-  background:#7a7a7f;
-}
-
-/* iOS 26 添加按钮强化 */
-#addBtn{
-  min-width:180px!important;
-  padding:18px 28px!important;
-  font-size:18px!important;
-  font-weight:500!important;
-  border-radius:24px!important;
-  height:auto!important;
-  background: #0071e3!important;
-}
-#addBtn:hover{
-  background: #0077ed!important;
-}
-
-/* ===================== 按钮样式结束 ===================== */
-
+#resetCalculatorBtn:hover{background:#555;transform:scale(1.05);}
+#resetCalculatorBtn:active{transform:scale(0.95);}
+#addBtn{min-width:180px!important;padding:16px 24px!important;font-size:18px!important;font-weight:700!important;border-radius:12px!important;height:auto!important;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable{
   width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;
@@ -428,21 +316,12 @@ body{
 }
 #error-message #error-content{margin-bottom:15px;}
 #error-message button{
-  /* iOS 26 错误提示按钮样式 */
-  background: #ff3b30;
-  color:#fff;
-  border:none;
-  padding:8px 20px;
-  border-radius:12px;
-  cursor:pointer;
-  margin-top:10px;
-  font-weight:500;
-  transition:var(--btn-transition);
+  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.8);
+  padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);
 }
 #error-message button:hover{
-  background: #ff453a;
-  transform:translateY(-2px);
-  box-shadow:0 4px 12px rgba(255,82,82,0.2);
+  background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
 /* 高质感黄色用户名样式 */
@@ -457,7 +336,6 @@ body{
   -moz-osx-font-smoothing: grayscale;
 }
 </style>
-
 </head>
 <body>
 <div id="authContainer">
