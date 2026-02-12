@@ -16,217 +16,318 @@
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
   --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
-  --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
-  --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
-  --btn-radius:8px;--btn-padding:8px 14px;
-  /* iOS 18 风格调整：更细腻的白色主题渐变和阴影 */
-  --period-active:linear-gradient(145deg,#ffffff,#f8f8f8);
-  --period-hover:linear-gradient(145deg,#ffffff,#f5f5f5);
-  --period-border:rgba(255,255,255,0.9);--period-shadow:0 0 20px rgba(255,255,255,0.15);
+  /* iOS 26 按钮变量 */
+  --btn-shadow:0 1px 3px rgba(0,0,0,0.08);
+  --btn-hover-shadow:0 2px 8px rgba(0,0,0,0.12);
+  --btn-active-shadow:0 1px 2px rgba(0,0,0,0.08);
+  --btn-transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --btn-radius:18px; /* iOS 26 超大圆角 */
+  --btn-padding:10px 20px;
+  /* 修改：时长选项改为白色主题 */
+  --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
+  --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
+  --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
   --period-text:#000;
-  /* iOS 18 新增：玻璃拟态变量 */
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-blur: blur(12px);
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+*{box-sizing:border-box;margin:0;padding:0;}
 body{
-  background:var(--bg);color:var(--text);font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  /* iOS 18 高画质：精准的抗锯齿和色彩渲染 */
-  text-rendering:optimizeLegibility;
-  color-adjust:exact;
-  -webkit-print-color-adjust:exact;
 }
-#authContainer{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:var(--glass-blur);}
+#authContainer{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;z-index:9999;background:rgba(0,0,0,0.8);}
 #authLoading{
-  width:100%;max-width:400px;
-  /* iOS 18 玻璃拟态 + 细腻渐变 */
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  border-radius:24px;/* iOS 18 更大更圆润的圆角 */
-  padding:40px 25px;text-align:center;
-  /* iOS 18 细腻阴影：多层叠加更自然 */
-  box-shadow:0 4px 20px rgba(0,0,0,0.1), 0 8px 30px rgba(0,0,0,0.08);
-  transition:all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
+  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;
 }
-/* iOS 18 风格：登录状态栏玻璃拟态 + 更细腻的过渡 */
+/* 修改：登录状态栏可隐藏，增加关闭按钮和过渡效果 */
 #authStatusBar{
-  position:sticky;top:10px;z-index:999;
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  padding:12px 18px;border-radius:16px;margin-bottom:20px;
-  font-size:14px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);
-  display:none;width:100%;max-width:600px;transition:all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
+  font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-/* iOS 18 高质感关闭按钮：更符合iOS设计语言 */
+/* 高质感关闭按钮样式 - 替换原有 close-status 样式 */
 #authStatusBar .close-status {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 30px;
-  border-radius: 15px; /* 完美圆形 */
-  /* iOS 18 细腻的白色质感 */
-  background: linear-gradient(145deg, #ffffff, #fafafa);
-  color: #1d1d1f; /* iOS 系统黑色 */
-  border: 1px solid rgba(0,0,0,0.05);
+  top: 5px;
+  right: 10px;
+  width: 28px;
+  height: 45px;
+  border-radius: 8px;
+  /* 细腻的白色渐变，模拟微立体效果 */
+  background: linear-gradient(145deg, #ffffff, #f5f5f5);
+  color: #000; /* 纯黑字体保证可读性 */
+  /* 极细黑色边框，提升精致感 */
+  border: 1px solid #222;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
+  /* 核心居中布局 */
   display: flex;
   align-items: center;
   justify-content: center;
-  /* iOS 18 丝滑过渡 */
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  /* 消除文字模糊 */
+  text-align: center;
+  vertical-align: middle;
+  /* 丝滑过渡动画 */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* 垂直文字排版 */
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  /* 多层次阴影，模拟浮雕质感 */
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+  padding: 0;
+  font-weight: 700; /* 加粗字体，提升力量感 */
+  line-height: 1;
+  margin: 0;
+  outline: none;
+  /* 防止文字模糊 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 触摸反馈优化 */
+  -webkit-tap-highlight-color: transparent;
 }
-/* iOS 18 Hover 状态：更自然的交互反馈 */
+
+/* Hover 状态 - 强化交互质感 */
 #authStatusBar .close-status:hover {
-  background: linear-gradient(145deg, #f8f8f8, #f0f0f0);
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  /* 更深的渐变，模拟按压前的轻抬效果 */
+  background: linear-gradient(145deg, #f8f8f8, #eaeaea);
+  /* 轻微上移+增强阴影，提升立体感 */
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  /* 边框微亮，提升精致度 */
+  border-color: #111;
+  /* 文字轻微提亮，增加呼吸感 */
+  color: #111;
 }
-/* iOS 18 Active 状态：真实的按压感 */
+
+/* Active 状态 - 模拟物理按压效果 */
 #authStatusBar .close-status:active {
-  transform: scale(0.98);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  background: linear-gradient(145deg, #f0f0f0, #f5f5f5);
+  /* 反向渐变，模拟凹陷效果 */
+  background: linear-gradient(145deg, #eaeaea, #f0f0f0);
+  /* 复位位置+收缩阴影，模拟按压 */
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(0,0,0,0.1),
+    inset 0 -1px 0 rgba(255,255,255,0.8);
+}
+
+/* 聚焦状态优化（可选，提升可访问性） */
+#authStatusBar .close-status:focus-visible {
+  outline: 2px solid #0071e3;
+  outline-offset: 2px;
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
   animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;
-  /* iOS 18 加载器光影效果 */
-  box-shadow:0 0 15px rgba(0,209,178,0.15);
 }
 @keyframes spin{to{transform:rotate(360deg);}}
-@keyframes pulse{
-  from{box-shadow:0 0 15px rgba(0,209,178,0.15);}
-  to{box-shadow:0 0 25px rgba(0,209,178,0.3);}
-}
-#authLoading h3{margin:0 0 8px 0;font-size:1.2rem;color:var(--highlight);font-weight:600;letter-spacing:-0.3px;}
-#authLoading p{margin:0;font-size:0.95rem;color:#bbb;line-height:1.6;letter-spacing:0.2px;}
+@keyframes pulse{from{box-shadow:0 0 15px rgba(0,209,178,0.3);}to{box-shadow:0 0 25px rgba(0,209,178,0.6);}}
+#authLoading h3{margin:0 0 8px 0;font-size:1.2rem;color:var(--highlight);font-weight:600;}
+#authLoading p{margin:0;font-size:0.95rem;color:#bbb;line-height:1.6;}
 .super-admin{color:var(--super);font-weight:bold;}
 .vip-admin{color:var(--vip);font-weight:bold;}
 .normal{color:var(--highlight);font-weight:bold;}
 .expired{color:var(--error);font-weight:bold;}
-.remaining-days-yellow{color:var(--yellow);font-weight:bold;text-shadow:0 0 8px rgba(255,215,0,0.2);}
+.remaining-days-yellow{color:var(--yellow);font-weight:bold;text-shadow:0 0 5px rgba(255,215,0,0.5);}
 .super-admin-username,.vip-admin-username{
   background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;
-  text-shadow:0 0 8px rgba(255,255,255,0.15);
+  text-shadow:0 0 8px rgba(255,255,255,0.3);
 }
 .super-admin-username{background-image:var(--super-username);}
 .vip-admin-username{background-image:var(--vip-username);}
 #captureArea{
-  /* iOS 18 玻璃拟态面板 */
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  box-shadow:0 8px 32px rgba(0,0,0,0.1);
-  color:var(--text);padding:20px 15px;border-radius:20px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
+  background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
+  color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
 }
 #captureArea h2{
-  text-align:center;font-size:1.8rem;font-weight:600;color:#fff;margin:0 0 15px 0;padding:10px 0;
-  line-height:1.3;width:100%;letter-spacing:-0.5px;
+  text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;
+  line-height:1.3;width:100%;
 }
 .period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;}
-/* iOS 18 风格：时长选项高质感设计 */
+/* 修改：时长选项白色高级质感样式 */
 .period-box{
-  border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
-  transition:all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);position:relative;overflow:hidden;background:var(--glass-bg);
-  font-weight:500;backdrop-filter:var(--glass-blur);
+  border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
+  font-weight:500;
 }
 .period-box:hover{
   border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
   transform:translateY(-2px);box-shadow:var(--period-shadow);
+  background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
 }
 .period-box.active{
   border-color:var(--period-border);background:var(--period-active);color:var(--period-text);
-  font-weight:600;box-shadow:0 0 20px rgba(255,255,255,0.1);
+  font-weight:bold;box-shadow:var(--period-shadow);
+  background-image:linear-gradient(145deg,#ffffff,#e8e8e8);
   transform:translateY(-1px);
 }
 .period-box.active::after{
-  content:'';position:absolute;bottom:4px;right:4px;width:10px;height:10px;
-  background:var(--period-text);border-radius:50%;opacity:0.9;
+  content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
+  background:var(--period-text);border-radius:50%;opacity:0.8;
 }
 @media (min-width:768px){
-  #captureArea h2{font-size:2.2rem;letter-spacing:-0.8px;}
-  .period-box{font-size:16px;padding:10px 20px;border-radius:14px;}
+  #captureArea h2{font-size:2.2rem;}
+  .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
 }
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
 .userInputs label{flex:1;display:flex;flex-direction:column;font-size:14px;color:#bbb;}
 .userInputs label span{text-align:center;margin-bottom:4px;font-size:15px;}
 .userInputs input{
-  padding:12px 10px;font-size:16px;
-  /* iOS 18 输入框风格：玻璃拟态 */
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  color:var(--text);border-radius:12px;width:100%;text-align:center;
-  transition:all 0.3s ease;
-}
-/* iOS 18 输入框焦点状态 */
-.userInputs input:focus{
-  outline:none;
-  border-color:rgba(0,209,178,0.5);
-  box-shadow:0 0 0 4px rgba(0,209,178,0.1);
+  padding:10px;font-size:16px;background:#333;color:var(--text);border:none;
+  border-radius:6px;width:100%;text-align:center;
 }
 .calculator-container{display:flex;gap:5px;}
+
+/* ===================== iOS 26 按钮核心样式 ===================== */
 .btn{
-  /* iOS 18 按钮玻璃拟态 */
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  border-radius:12px;/* iOS 18 更大圆角 */
-  padding:var(--btn-padding);
-  font-size:13px;font-weight:600;color:#fff;cursor:pointer;
-  box-shadow:0 2px 10px rgba(0,0,0,0.08);
-  transition:var(--btn-transition);display:inline-flex;align-items:center;justify-content:center;
-  gap:6px;text-decoration:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;
+  /* iOS 26 核心特征：无边框+极简设计 */
+  border: none;
+  border-radius: var(--btn-radius); /* 超大圆角 */
+  padding: var(--btn-padding);
+  font-size: 15px; /* iOS 26 统一字号 */
+  font-weight: 500; /* iOS 系统字体权重 */
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: var(--btn-transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+  /* iOS 26 文字抗锯齿 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* iOS 26 按钮高光效果（更细腻） */
 .btn::before{
-  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
-  transition:all 0.5s ease;
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  transition:all 0.4s ease;
 }
+
+/* iOS 26 交互状态 */
 .btn:hover::before{left:100%;}
-.btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,0.12);}
-.btn:active{transform:translateY(0);box-shadow:0 1px 5px rgba(0,0,0,0.08);}
-.btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
-/* iOS 18 按钮色彩优化 */
-.btn-primary{background:linear-gradient(145deg,#00bfa5,#009e8a);border:1px solid rgba(255,255,255,0.1);}
-.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);}
-.btn-warning{background:linear-gradient(145deg,#ff9800,#e68900);border:1px solid rgba(255,255,255,0.1);}
-.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);}
-.btn-grey{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);border:1px solid rgba(255,255,255,0.1);}
-.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
-.btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);border:1px solid rgba(255,255,255,0.1);}
-.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53935);}
-.btn-sm{padding:6px 10px;font-size:11px;border-radius:8px;}
-.btn-md{padding:7px 12px;font-size:12px;border-radius:10px;}
-.btn-lg{padding:10px 20px;font-size:14px;border-radius:12px;width:100%;}
-#resetCalculatorBtn{
-  width:38px;height:38px;border-radius:10px;
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  color:#fff;cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
+.btn:hover{
+  transform: translateY(-1px);
+  box-shadow: var(--btn-hover-shadow);
+  opacity: 0.95;
 }
-#resetCalculatorBtn:hover{background:rgba(255,255,255,0.12);transform:scale(1.05);}
-#resetCalculatorBtn:active{transform:scale(0.95);}
-#addBtn{min-width:180px!important;padding:16px 24px!important;font-size:18px!important;font-weight:600!important;border-radius:16px!important;height:auto!important;}
+.btn:active{
+  transform: translateY(0);
+  box-shadow: var(--btn-active-shadow);
+  opacity: 0.9;
+}
+.btn:disabled{
+  opacity: 0.6;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow: var(--btn-shadow);
+}
+
+/* iOS 26 按钮配色（更贴近系统） */
+.btn-primary{
+  background: #0071e3; /* iOS 26 蓝色主按钮 */
+}
+.btn-primary:hover{
+  background: #0077ed;
+}
+.btn-warning{
+  background: #ff9f0a; /* iOS 26 黄色警告按钮 */
+}
+.btn-warning:hover{
+  background: #ffaa29;
+}
+.btn-grey{
+  background: #86868b; /* iOS 26 灰色按钮 */
+}
+.btn-grey:hover{
+  background: #929297;
+}
+.btn-danger{
+  background: #ff3b30; /* iOS 26 红色危险按钮 */
+}
+.btn-danger:hover{
+  background: #ff453a;
+}
+
+/* iOS 26 按钮尺寸变体 */
+.btn-sm{
+  padding:6px 14px;
+  font-size:13px;
+  border-radius:12px;
+}
+.btn-md{
+  padding:8px 16px;
+  font-size:14px;
+  border-radius:14px;
+}
+.btn-lg{
+  padding:12px 24px;
+  font-size:16px;
+  border-radius:20px;
+  width:100%;
+}
+
+/* iOS 26 重置计算器按钮 */
+#resetCalculatorBtn{
+  width:40px;
+  height:40px;
+  border-radius:20px; /* 圆形按钮 */
+  background: #86868b; /* iOS 26 灰色 */
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:var(--btn-transition);
+}
+#resetCalculatorBtn:hover{
+  background:#929297;
+  transform:scale(1.05);
+}
+#resetCalculatorBtn:active{
+  transform:scale(0.95);
+  background:#7a7a7f;
+}
+
+/* iOS 26 添加按钮强化 */
+#addBtn{
+  min-width:180px!important;
+  padding:18px 28px!important;
+  font-size:18px!important;
+  font-weight:500!important;
+  border-radius:24px!important;
+  height:auto!important;
+  background: #0071e3!important;
+}
+#addBtn:hover{
+  background: #0077ed!important;
+}
+
+/* ===================== 按钮样式结束 ===================== */
+
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable{
-  width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:16px;
-  overflow:hidden;background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  color:#374151;margin:0 auto;
-  border:1px solid var(--glass-border);
+  width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;
+  overflow:hidden;background:#f9fafb;color:#374151;margin:0 auto;
 }
 #reportTable th:nth-child(1),#reportTable td:nth-child(1){width:22%;}
 #reportTable th:nth-child(2),#reportTable td:nth-child(2){width:10%;}
@@ -236,126 +337,122 @@ body{
 #reportTable th:nth-child(6),#reportTable td:nth-child(6){width:16%;}
 #reportTable th:nth-child(7),#reportTable td:nth-child(7){width:12%;}
 #reportTable th,#reportTable td{
-  border:none;padding:8px 6px;text-align:center;white-space:nowrap;
+  border:1px solid #d1d5db;padding:6px 4px;text-align:center;white-space:nowrap;
   transition:all 0.3s ease;
-  border-bottom:1px solid rgba(255,255,255,0.05);
 }
-#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:600!important;}
+#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6){font-weight:500;text-align:center!important;}
 @media (min-width:768px){
-  #reportTable th,#reportTable td{padding:10px 8px;font-size:14px;}
+  #reportTable th,#reportTable td{padding:8px 5px;font-size:14px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:18px!important;}
 }
 #reportTable thead{background:linear-gradient(90deg,#2b6cb0,#3182ce);color:#fff;font-weight:600;}
-#reportTable tbody tr:nth-child(odd){background:rgba(255,255,255,0.03);}
-#reportTable tbody tr:nth-child(even){background:rgba(255,255,255,0.01);}
-#reportTable tbody tr:hover{background:rgba(0, 191, 165, 0.1);color:#fff;font-weight:500;transform:scale(1.01);}
+#reportTable tbody tr:nth-child(odd){background:#f3f4f6;}
+#reportTable tbody tr:nth-child(even){background:#e5e7eb;}
+#reportTable tbody tr:hover{background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn{
-  writing-mode:vertical-rl;text-orientation:upright;
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  color:#ff5252;border-radius:8px;padding:4px;
+  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
+  border:1px solid rgba(255,255,255,0.8);color:#fff;border-radius:4px;padding:2px;
   cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;
   transition:var(--btn-transition);
 }
-.deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 10px rgba(255,82,82,0.2);}
+.deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
-.summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:600;color:var(--highlight);line-height:1.6;letter-spacing:0.2px;}
+.summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
-.summaryBox .done{color:#4caf50;font-weight:600;}
+.summaryBox .done{color:#4caf50;font-weight:bold;}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  color:var(--text);flex:1;text-align:center;padding:12px 10px;
-  font-size:16px;border-radius:12px;
+  background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;
+  font-size:16px;border-radius:6px;border:none;
 }
-#qtyInput{font-size:18px!important;font-weight:600;}
-/* iOS 18 输入框焦点效果 */
-#nameInput:focus, #qtyInput:focus, #buyerInput:focus, #calculatorDisplay:focus{
-  outline:none;
-  border-color:rgba(0,209,178,0.5);
-  box-shadow:0 0 0 4px rgba(0,209,178,0.1);
-}
+#qtyInput{font-size:18px!important;font-weight:bold;}
+#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
+#previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
+#shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1.5px solid var(--glass-border);
-  color:#374151;border-radius:12px;
-  padding:12px 14px;font-size:16px;transition:all 0.3s ease;
+  background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
+  padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;
   width:100%;font-weight:500;
 }
 @media (min-width:768px){#buyerInput,#calculatorDisplay{font-size:18px;}}
+#buyerInput:focus{
+  border-color:#2563eb;box-shadow:0 0 8px 2px rgba(37,99,235,0.3);
+  outline:none;background:#fff;
+}
+#calculatorDisplay{background:#e9ecef;cursor:default;}
+#buyerInput::placeholder{color:#9ca3af;font-weight:400;text-align:center;}
 .toast{
-  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  color:#fff;padding:14px 24px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.15);
-  opacity:0;transition:opacity 0.4s ease,transform 0.4s ease;z-index:1000;text-align:center;
-  min-width:200px;font-size:15px;
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--grad-secondary);
+  color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  opacity:0;transition:opacity 0.5s ease,transform 0.5s ease;z-index:1000;text-align:center;
+  min-width:200px;font-size:15px;border:1px solid rgba(255,255,255,0.1);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
-.toast.error{background:rgba(255,82,82,0.15);border-color:rgba(255,82,82,0.3);}
-.toast.warning{background:rgba(255,152,0,0.15);border-color:rgba(255,152,0,0.3);}
+.toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
+.toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
 .payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
 .payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
-.payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;accent-color:var(--accent);}
+.payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
   #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
-  #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;border:none;}
+  #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
   .summaryBox{color:#000!important;}
-  #reportTable td,#reportTable th{text-align:center!important;border-bottom:1px solid #ddd;}
-  #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:600!important;}
+  #reportTable td,#reportTable th{text-align:center!important;}
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
 }
 .spacer{height:80px;}
 @media (max-width:360px){
   .userInputs .row{gap:5px;}
   .userInputs label{font-size:13px;}
-  .userInputs input{font-size:15px;padding:10px;}
+  .userInputs input{font-size:15px;padding:8px;}
   #reportTable{font-size:11px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
   .payment-options{font-size:1rem;}
-  #authStatusBar{font-size:12px;padding:10px 15px;}
-  #authLoading{padding:30px 20px;border-radius:20px;}
+  #authStatusBar{font-size:12px;}
+  #authLoading{padding:30px 20px;}
   .loader{width:40px;height:40px;}
-  #addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;border-radius:14px!important;}
-  .period-box{padding:6px 10px;font-size:12px;border-radius:10px;}
+  #addBtn{min-width:150px!important;padding:14px 20px!important;font-size:16px!important;}
+  .period-box{padding:6px 10px;font-size:12px;}
 }
 #error-message{
-  display:none;
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  border:1px solid rgba(255,82,82,0.3);
-  color:#fef2f2;padding:20px;border-radius:20px;margin:20px auto;max-width:400px;text-align:center;
-  box-shadow:0 8px 32px rgba(0,0,0,0.15);
+  display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);
+  color:#fef2f2;padding:20px;border-radius:16px;margin:20px auto;max-width:400px;text-align:center;
+  box-shadow:var(--shadow);
 }
 #error-message #error-content{margin-bottom:15px;}
 #error-message button{
-  background:linear-gradient(145deg,#ff5252,#d32f2f);color:#fff;border:none;border:1px solid rgba(255,255,255,0.1);
-  padding:8px 16px;border-radius:10px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);
+  /* iOS 26 错误提示按钮样式 */
+  background: #ff3b30;
+  color:#fff;
+  border:none;
+  padding:8px 20px;
+  border-radius:12px;
+  cursor:pointer;
+  margin-top:10px;
+  font-weight:500;
+  transition:var(--btn-transition);
 }
 #error-message button:hover{
-  background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);
+  background: #ff453a;
+  transform:translateY(-2px);
   box-shadow:0 4px 12px rgba(255,82,82,0.2);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
-/* iOS 18 高质感黄色用户名样式 */
+/* 高质感黄色用户名样式 */
 .toast-highlight-name {
   background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
