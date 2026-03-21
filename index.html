@@ -525,7 +525,7 @@ els.reportBody.addEventListener("click",async function(e){
 window.addEventListener('resize',()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';});
 window.onload=initApp;
 
-// 草本新入會提醒 - 自動新增對應品項
+// 草本新入會提醒 - 自動新增對應品項（修正重複添加問題）
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
   
@@ -533,24 +533,28 @@ function checkHerbalNewMember(selectedValue){
   if(val.includes('新入會(草本）男')){
     // 延遲執行確保商品列表已加載
     setTimeout(()=>{
-      // 1. 先添加「新入會(草本）男」本身（數量1）
-      addSpecificProduct(val, 1);
-      // 2. 新增入*會「 211 」數量2
-      addSpecificProduct('入*會「 211 」', 1);
+      // 1. 檢查並添加「新入會(草本）男」本身（僅在不存在時添加）
+      if(!selectedProds.find(p => p.name === val)){
+        addSpecificProduct(val, 1);
+      }
+      // 2. 新增入*會「 211 」數量2（重複添加時會自動檢查數量限制）
+      addSpecificProduct('入*會「 211 」', 2);
       // 3. 新增入*會「 101 」數量2
-      addSpecificProduct('入*會「 101 」', 1);
+      addSpecificProduct('入*會「 101 」', 2);
       alert('📋 已自動新增男生款草本組合：\n\n新入會(草本）男 + 211 x 2 + 101 x 2');
     }, 300);
   }
   // 女生款：新入會(草本）女
   else if(val.includes('新入會(草本）女')){
     setTimeout(()=>{
-      // 1. 先添加「新入會(草本）女」本身（數量1）
-      addSpecificProduct(val, 1);
+      // 1. 檢查並添加「新入會(草本）女」本身（僅在不存在時添加）
+      if(!selectedProds.find(p => p.name === val)){
+        addSpecificProduct(val, 1);
+      }
       // 2. 新增入*會「 211 」數量2
-      addSpecificProduct('入*會「 211 」', 1);
+      addSpecificProduct('入*會「 211 」', 2);
       // 3. 新增入*會「 707 」數量2
-      addSpecificProduct('入*會「 707 」', 1);
+      addSpecificProduct('入*會「 707 」', 2);
       alert('📋 已自動新增女生款草本組合：\n\n新入會(草本）女 + 211 x 2 + 707 x 2');
     }, 300);
   }
@@ -562,7 +566,7 @@ function checkHerbalNewMember(selectedValue){
   }
 }
 
-// 輔助函數：新增指定品項和數量
+// 輔助函數：新增指定品項和數量（增強重複檢查）
 function addSpecificProduct(productName, qty) {
   // 查找商品
   const product = products.find(p => p.name === productName);
@@ -583,6 +587,11 @@ function addSpecificProduct(productName, qty) {
     else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 2;
     else if (productName.includes('777Q') && productName.includes('(4)')) maxQty = 2;
     else if (productName.includes('火山甘露') && productName.includes('限4盒')) maxQty = 4;
+
+    // 對於新入會相關品項，直接跳過重複添加（避免超過maxQty=1）
+    if (productName.includes('新入會') && totalQty > maxQty) {
+      return; // 不提示，直接跳過重複添加
+    }
 
     if (totalQty > maxQty) {
       alert(`⚠️ ${productName} 限購${maxQty}個/組，目前已選${exists.qty}個/組，無法再新增`);
