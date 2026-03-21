@@ -525,29 +525,75 @@ els.reportBody.addEventListener("click",async function(e){
 window.addEventListener('resize',()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';});
 window.onload=initApp;
 
-// 草本新入會提醒
+// 草本新入會提醒 - 自動新增對應品項
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
-  if(val.includes('草本')&&val.includes('新入會')){
-    setTimeout(()=>{alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');},100);
+  
+  // 男生款：新入會(草本）男
+  if(val.includes('新入會(草本）男')){
+    // 延遲執行確保商品列表已加載
+    setTimeout(()=>{
+      // 新增入*會「 211 」數量2
+      addSpecificProduct('入*會「 211 」', 2);
+      // 新增入*會「 101 」數量2
+      addSpecificProduct('入*會「 101 」', 2);
+      alert('📋 已自動新增男生款草本組合：\n\n211 x 2 + 101 x 2');
+    }, 300);
+  }
+  // 女生款：新入會(草本）女
+  else if(val.includes('新入會(草本）女')){
+    setTimeout(()=>{
+      // 新增入*會「 211 」數量2
+      addSpecificProduct('入*會「 211 」', 2);
+      // 新增入*會「 707 」數量2
+      addSpecificProduct('入*會「 707 」', 2);
+      alert('📋 已自動新增女生款草本組合：\n\n211 x 2 + 707 x 2');
+    }, 300);
+  }
+  // 通用提醒（保留原有邏輯）
+  else if(val.includes('草本')&&val.includes('新入會')){
+    setTimeout(()=>{
+      alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+    },100);
   }
 }
 
-// 調整數量選擇框選項
-function adjustQtySelectOptions(selectedValue){
-  const val=selectedValue.trim();
-  let maxQty=99;
-  if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')||val.includes('三寶')||val.includes('回春'))maxQty=1;
-  else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
-  else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
-  else if(val.includes('火山甘露')&&val.includes('限4盒'))maxQty=4;
-  els.qtyInput.innerHTML='';
-  for(let i=1;i<=maxQty;i++){
-    const option=document.createElement("option");
-    option.value=i;
-    option.textContent=i;
-    els.qtyInput.appendChild(option);
+// 輔助函數：新增指定品項和數量
+function addSpecificProduct(productName, qty) {
+  // 查找商品
+  const product = products.find(p => p.name === productName);
+  if (!product) {
+    alert(`⚠️ 找不到品項：${productName}`);
+    return;
   }
+
+  // 檢查是否已存在該品項
+  const exists = selectedProds.find(p => p.name === productName);
+  if (exists) {
+    // 如果已存在，更新數量（確保不超過限制）
+    const totalQty = exists.qty + qty;
+    let maxQty = 99;
+    
+    // 檢查數量限制（與原有邏輯保持一致）
+    if (productName.includes('新入會') || productName.includes('新會員') || productName.includes('入會')) maxQty = 1;
+    else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 2;
+    else if (productName.includes('777Q') && productName.includes('(4)')) maxQty = 2;
+    else if (productName.includes('火山甘露') && productName.includes('限4盒')) maxQty = 4;
+
+    if (totalQty > maxQty) {
+      alert(`⚠️ ${productName} 限購${maxQty}個/組，目前已選${exists.qty}個/組，無法再新增`);
+      return;
+    }
+    
+    exists.qty = totalQty;
+  } else {
+    // 新增品項
+    selectedProds.push({...product, qty});
+  }
+
+  // 保存並重新渲染表格
+  saveSelectedProds();
+  renderTable();
 }
 
 // 加載已選商品
