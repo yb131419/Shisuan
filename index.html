@@ -525,135 +525,44 @@ els.reportBody.addEventListener("click",async function(e){
 window.addEventListener('resize',()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';});
 window.onload=initApp;
 
-// 標記是否選擇了草本新入會選項
-let isHerbalNewMemberSelected = ''; // 'male' | 'female' | ''
-
-// 草本新入會提醒 - 僅標記選擇狀態，不立即新增
-function checkHerbalNewMember(selectedValue) {
-  const val = selectedValue.trim();
+// 草本新入會提醒 - 自動新增對應品項（修正重複添加問題）
+function checkHerbalNewMember(selectedValue){
+  const val=selectedValue.trim();
   
   // 男生款：新入會(草本）男
-  if (val.includes('新入會(草本）男')) {
-    isHerbalNewMemberSelected = 'male';
-    // 保留提醒，但不立即新增
-    setTimeout(() => {
-      alert('📋 男生款草本組合提醒：\n\n點擊「新增品項」按鈕將自動添加：\n新入會(草本）男 + 211 x 2 + 101 x 2');
-    }, 100);
+  if(val.includes('新入會(草本）男')){
+    // 延遲執行確保商品列表已加載
+    setTimeout(()=>{
+      // 1. 檢查並添加「新入會(草本）男」本身（僅在不存在時添加）
+      if(!selectedProds.find(p => p.name === val)){
+        addSpecificProduct(val, 1);
+      }
+      // 2. 新增入*會「 211 」數量2（重複添加時會自動檢查數量限制）
+      addSpecificProduct('入*會「 211 」', 1);
+      // 3. 新增入*會「 101 」數量2
+      addSpecificProduct('入*會「 101 」', 1);
+      alert('📋 已自動新增男生款草本組合：\n\n新入會(草本）男 + 211 x 2 + 101 x 2');
+    }, 300);
   }
   // 女生款：新入會(草本）女
-  else if (val.includes('新入會(草本）女')) {
-    isHerbalNewMemberSelected = 'female';
-    setTimeout(() => {
-      alert('📋 女生款草本組合提醒：\n\n點擊「新增品項」按鈕將自動添加：\n新入會(草本）女 + 211 x 2 + 707 x 2');
-    }, 100);
+  else if(val.includes('新入會(草本）女')){
+    setTimeout(()=>{
+      // 1. 檢查並添加「新入會(草本）女」本身（僅在不存在時添加）
+      if(!selectedProds.find(p => p.name === val)){
+        addSpecificProduct(val, 1);
+      }
+      // 2. 新增入*會「 211 」數量2
+      addSpecificProduct('入*會「 211 」', 1);
+      // 3. 新增入*會「 707 」數量2
+      addSpecificProduct('入*會「 707 」', 1);
+      alert('📋 已自動新增女生款草本組合：\n\n新入會(草本）女 + 211 x 2 + 707 x 2');
+    }, 300);
   }
   // 通用提醒（保留原有邏輯）
-  else if (val.includes('草本') && val.includes('新入會')) {
-    isHerbalNewMemberSelected = '';
-    setTimeout(() => {
+  else if(val.includes('草本')&&val.includes('新入會')){
+    setTimeout(()=>{
       alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
-    }, 100);
-  } else {
-    isHerbalNewMemberSelected = '';
-  }
-}
-
-// 修改原有的 addProduct 函數，在新增時處理草本組合自動添加
-function addProduct() {
-  els.addBtn.disabled = true;
-  els.addBtn.textContent = "處理中...";
-  try {
-    if (!authStatus) {
-      showToast('請先完成用戶權限驗證', 'error');
-      return;
-    }
-    const isPrivilegeUser = authStatus.isVip || authStatus.isSuperAdmin;
-    if (!isPrivilegeUser && authStatus.remainingTimes <= 0) {
-      showToast(`普通用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次），請聯繫管理員升級`, 'error');
-      return;
-    }
-    const selectedName = els.nameInput.value;
-    let qty = parseInt(els.qtyInput.value);
-    if (!selectedName || qty <= 0) {
-      alert("請選擇品項與數量");
-      return;
-    }
-
-    // ========== 新增：處理草本新入會自動添加邏輯 ==========
-    let isHerbalAdded = false;
-    if (isHerbalNewMemberSelected === 'male') {
-      // 男生款自動添加
-      addSpecificProduct(selectedName, 1); // 添加主選項
-      addSpecificProduct('入*會「 211 」', 1);
-      addSpecificProduct('入*會「 101 」', 1);
-      isHerbalAdded = true;
-      showToast('📋 已自動新增男生款草本組合：\n\n新入會(草本）男 + 211 x 2 + 101 x 2');
-      isHerbalNewMemberSelected = ''; // 重置標記
-    } else if (isHerbalNewMemberSelected === 'female') {
-      // 女生款自動添加
-      addSpecificProduct(selectedName, 1); // 添加主選項
-      addSpecificProduct('入*會「 211 」', 1);
-      addSpecificProduct('入*會「 707 」', 1);
-      isHerbalAdded = true;
-      showToast('📋 已自動新增女生款草本組合：\n\n新入會(草本）女 + 211 x 2 + 707 x 2');
-      isHerbalNewMemberSelected = ''; // 重置標記
-    }
-    // ========== 結束：草本新入會自動添加邏輯 ==========
-
-    // 如果不是草本組合，執行原有新增邏輯
-    if (!isHerbalAdded) {
-      const val = selectedName.trim();
-      let maxQty = 99;
-      if (val.includes('新入會') || val.includes('新會員') || val.includes('入會')) {
-        maxQty = 1;
-        if (qty > maxQty) {
-          alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
-          qty = maxQty;
-        }
-      } else if (val.includes('2711AB') && val.includes('(4)')) {
-        maxQty = 2;
-        if (qty > maxQty) {
-          alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
-          qty = maxQty;
-        }
-      } else if (val.includes('777Q') && val.includes('(4)')) {
-        maxQty = 2;
-        if (qty > maxQty) {
-          alert(`⚠️ 火山甘露限購${maxQty}組，已自動調整數量為${maxQty}`);
-          qty = maxQty;
-        }
-      } else if (val.includes('火山甘露') && val.includes('限4盒')) {
-        maxQty = 4;
-        if (qty > maxQty) {
-          alert(`⚠️ 火山甘露購${maxQty}盒，已自動調整數量為${maxQty}`);
-          qty = maxQty;
-        }
-      }
-      const product = products.find(p => p.name === selectedName);
-      if (!product) {
-        alert("找不到該品項");
-        return;
-      }
-      const exists = selectedProds.find(p => p.name === selectedName);
-      if (exists) {
-        const totalQty = exists.qty + qty;
-        if (totalQty > maxQty) {
-          alert(`⚠️ 該品項限購${maxQty}個/組，目前已選${exists.qty}個/組，無法再新增`);
-          return;
-        }
-        exists.qty += qty;
-      } else {
-        selectedProds.push({ ...product, qty });
-      }
-      saveSelectedProds();
-      renderTable();
-      showToast('品項已新增');
-    }
-  } catch (error) {
-    showToast(`新增失敗：${error.message}`, 'error');
-  } finally {
-    els.addBtn.disabled = false;
-    els.addBtn.textContent = "➕ 新增品項";
+    },100);
   }
 }
 
