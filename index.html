@@ -533,21 +533,25 @@ function checkHerbalNewMember(selectedValue){
   if(val.includes('新入會(草本）男')){
     // 延遲執行確保商品列表已加載
     setTimeout(()=>{
-      // 新增入*會「 211 」數量2
+      // 1. 先添加「新入會(草本）男」本身（數量1）
+      addSpecificProduct(val, 1);
+      // 2. 新增入*會「 211 」數量2
       addSpecificProduct('入*會「 211 」', 2);
-      // 新增入*會「 101 」數量2
+      // 3. 新增入*會「 101 」數量2
       addSpecificProduct('入*會「 101 」', 2);
-      alert('📋 已自動新增男生款草本組合：\n\n211 x 2 + 101 x 2');
+      alert('📋 已自動新增男生款草本組合：\n\n新入會(草本）男 + 211 x 2 + 101 x 2');
     }, 300);
   }
   // 女生款：新入會(草本）女
   else if(val.includes('新入會(草本）女')){
     setTimeout(()=>{
-      // 新增入*會「 211 」數量2
+      // 1. 先添加「新入會(草本）女」本身（數量1）
+      addSpecificProduct(val, 1);
+      // 2. 新增入*會「 211 」數量2
       addSpecificProduct('入*會「 211 」', 2);
-      // 新增入*會「 707 」數量2
+      // 3. 新增入*會「 707 」數量2
       addSpecificProduct('入*會「 707 」', 2);
-      alert('📋 已自動新增女生款草本組合：\n\n211 x 2 + 707 x 2');
+      alert('📋 已自動新增女生款草本組合：\n\n新入會(草本）女 + 211 x 2 + 707 x 2');
     }, 300);
   }
   // 通用提醒（保留原有邏輯）
