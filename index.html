@@ -147,6 +147,13 @@
       animation: successPulse 0.6s ease-in-out;
       background: #ff4444 !important;
     }
+
+    /* 重新登入按鈕樣式 */
+    #reloginBtn {
+      margin-top: 12px;
+      background: #448aff !important;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -200,6 +207,7 @@
           <span class="loader"></span>
           <span class="btn-text">確認預約</span>
         </button>
+        <button type="button" id="reloginBtn">🔁 重新登入 LINE</button>
       </div>
     </form>
   </main>
@@ -210,10 +218,24 @@
       LIFF_ID: "2008578880-lCRzVTyk"
     };
 
-    let submitBtn, btnText, infoForm;
+    let submitBtn, btnText, infoForm, reloginBtn;
     let isSubmitting = false;
     let isSubmittedSuccess = false;
     let timeDataMap = {};
+
+    // ==========================
+    // 🔴 重新登入機制（核心）
+    // ==========================
+    async function relogin() {
+      try {
+        await liff.logout();
+        setTimeout(() => {
+          liff.login({ redirectUri: window.location.href });
+        }, 300);
+      } catch (e) {
+        alert("請重新開啟頁面");
+      }
+    }
 
     window.handleResponse = function(response) {
       try {
@@ -294,13 +316,33 @@
       return new Intl.DateTimeFormat('zh-CN', opt).format(d).replace(/\//g, '-');
     }
 
+    // ==========================
+    // 🟢 穩定型 LIFF 初始化
+    // ==========================
     async function initLiff() {
-      try {
-        await liff.init({ liffId: CONFIG.LIFF_ID });
-        if (!liff.isLoggedIn()) liff.login();
-        const p = await liff.getProfile();
-        document.getElementById('lineId').value = p.userId || "";
-      } catch (e) {}
+      let retryCount = 0;
+      const maxRetry = 2;
+
+      async function tryInit() {
+        try {
+          await liff.init({ liffId: CONFIG.LIFF_ID });
+          if (!liff.isLoggedIn()) {
+            reloginBtn.style.display = 'block';
+            return;
+          }
+          const p = await liff.getProfile();
+          document.getElementById('lineId').value = p.userId || "";
+          reloginBtn.style.display = 'none';
+        } catch (e) {
+          retryCount++;
+          if (retryCount <= maxRetry) {
+            setTimeout(tryInit, 800);
+          } else {
+            reloginBtn.style.display = 'block';
+          }
+        }
+      }
+      tryInit();
     }
 
     function loadScript(data = {}) {
@@ -322,7 +364,11 @@
       submitBtn = document.getElementById('submitBtn');
       btnText = submitBtn.querySelector('.btn-text');
       infoForm = document.getElementById('infoForm');
+      reloginBtn = document.getElementById('reloginBtn');
       document.getElementById('date').value = getTaipeiDate();
+
+      // 綁定重新登入
+      reloginBtn.addEventListener('click', relogin);
 
       await initLiff();
       await loadScript();
@@ -347,7 +393,11 @@
         if (!at) return alert("請選擇預約時段");
         if (!name) return alert("請輸入姓名");
         if (!phone) return alert("請輸入電話");
-        if (!lineId) return alert("請使用LINE開啟");
+        if (!lineId) {
+          alert("請點擊「重新登入 LINE」");
+          reloginBtn.style.display = "block";
+          return;
+        }
 
         isSubmitting = true;
         submitBtn.disabled = true;
