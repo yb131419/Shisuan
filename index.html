@@ -6,7 +6,7 @@
   <title>莫凡韓式皮膚管理</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400,500,700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #f8f9fa;
@@ -154,7 +154,7 @@
     /* 登入按鈕 */
     #loginBtn {
       background: #06c755 !important;
-      margin-top: 8px;
+      display: block !important;
     }
   </style>
 </head>
@@ -225,12 +225,15 @@
     let isSubmittedSuccess = false;
     let timeDataMap = {};
 
-    // 穩定登入
+    // 強制登入（手機專用）
     async function login() {
       try {
+        if (!liff.isInit()) {
+          await liff.init({ liffId: CONFIG.LIFF_ID });
+        }
         liff.login({ redirectUri: window.location.href });
       } catch (e) {
-        alert("請在LINE內開啟");
+        alert("請在LINE內開啟此頁面使用");
       }
     }
 
@@ -313,7 +316,7 @@
       return new Intl.DateTimeFormat('zh-CN', opt).format(d).replace(/\//g, '-');
     }
 
-    // 載入指令
+    // 穩定載入
     function loadScript(data = {}) {
       return new Promise(resolve => {
         const params = new URLSearchParams(data);
@@ -337,17 +340,20 @@
       loginBtn = document.getElementById('loginBtn');
       document.getElementById('date').value = getTaipeiDate();
 
+      // 綁定登入
       loginBtn.addEventListener('click', login);
 
-      // 自動檢查登入
-      try {
-        await liff.init({ liffId: CONFIG.LIFF_ID });
-        if (liff.isLoggedIn()) {
-          const p = await liff.getProfile();
-          document.getElementById('lineId').value = p.userId;
-          loginBtn.style.display = "none";
-        }
-      } catch (e) {}
+      // 自動檢查
+      setTimeout(async () => {
+        try {
+          await liff.init({ liffId: CONFIG.LIFF_ID });
+          if (liff.isLoggedIn()) {
+            const p = await liff.getProfile();
+            document.getElementById('lineId').value = p.userId;
+            loginBtn.style.display = "none";
+          }
+        } catch (e) {}
+      }, 500);
 
       await loadScript();
 
@@ -355,6 +361,7 @@
         updateTimeOptions(this.value);
       });
 
+      // 提交表單
       infoForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (isSubmitting || isSubmittedSuccess) return;
