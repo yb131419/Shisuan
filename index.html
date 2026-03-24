@@ -151,10 +151,10 @@
       background: #ff4444 !important;
     }
 
-    /* 登入按鈕 */
-    #loginBtn {
-      background: #06c755 !important;
-      display: block !important;
+    /* LIFF 登入按鈕樣式 */
+    #liffLoginBtn {
+      background: #00B900 !important;
+      display: block;
     }
   </style>
 </head>
@@ -209,7 +209,9 @@
           <span class="loader"></span>
           <span class="btn-text">確認預約</span>
         </button>
-        <button type="button" id="loginBtn">✅ 點我登入LINE</button>
+
+        <!-- 🔥 新增的 LIFF 登入按鈕 -->
+        <button type="button" id="liffLoginBtn">🔐 LIFF 會員登入</button>
       </div>
     </form>
   </main>
@@ -220,24 +222,32 @@
       LIFF_ID: "2008578880-lCRzVTyk"
     };
 
-    let submitBtn, btnText, infoForm, loginBtn;
+    let submitBtn, btnText, infoForm, liffLoginBtn;
     let isSubmitting = false;
     let isSubmittedSuccess = false;
     let timeDataMap = {};
 
-    // 強制登入（手機專用）
-    async function login() {
+    // ======================================
+    // ✅ 全新 LIFF 登入功能（手機穩定版）
+    // ======================================
+    async function initLiffLogin() {
       try {
         if (!liff.isInit()) {
           await liff.init({ liffId: CONFIG.LIFF_ID });
         }
-        liff.login({ redirectUri: window.location.href });
-      } catch (e) {
-        alert("請在LINE內開啟此頁面使用");
+        if (!liff.isLoggedIn()) {
+          liff.login({ redirectUri: window.location.href });
+        } else {
+          const profile = await liff.getProfile();
+          document.getElementById('lineId').value = profile.userId;
+          liffLoginBtn.style.display = "none";
+        }
+      } catch (err) {
+        alert("請在 LINE 內開啟此頁面進行登入");
       }
     }
 
-    // 回調處理
+    // JSONP 回調
     window.handleResponse = function(response) {
       try {
         isSubmitting = false;
@@ -316,7 +326,6 @@
       return new Intl.DateTimeFormat('zh-CN', opt).format(d).replace(/\//g, '-');
     }
 
-    // 穩定載入
     function loadScript(data = {}) {
       return new Promise(resolve => {
         const params = new URLSearchParams(data);
@@ -337,23 +346,23 @@
       submitBtn = document.getElementById('submitBtn');
       btnText = submitBtn.querySelector('.btn-text');
       infoForm = document.getElementById('infoForm');
-      loginBtn = document.getElementById('loginBtn');
+      liffLoginBtn = document.getElementById('liffLoginBtn');
       document.getElementById('date').value = getTaipeiDate();
 
-      // 綁定登入
-      loginBtn.addEventListener('click', login);
+      // 綁定登入按鈕點擊
+      liffLoginBtn.addEventListener('click', initLiffLogin);
 
-      // 自動檢查
+      // 自動檢查登入狀態
       setTimeout(async () => {
         try {
           await liff.init({ liffId: CONFIG.LIFF_ID });
           if (liff.isLoggedIn()) {
             const p = await liff.getProfile();
             document.getElementById('lineId').value = p.userId;
-            loginBtn.style.display = "none";
+            liffLoginBtn.style.display = "none";
           }
         } catch (e) {}
-      }, 500);
+      }, 300);
 
       await loadScript();
 
@@ -361,7 +370,6 @@
         updateTimeOptions(this.value);
       });
 
-      // 提交表單
       infoForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (isSubmitting || isSubmittedSuccess) return;
@@ -379,7 +387,7 @@
         if (!name) return alert("請輸入姓名");
         if (!phone) return alert("請輸入電話");
         if (!lineId) {
-          alert("請點擊綠色按鈕登入LINE");
+          alert("請點擊下方按鈕完成 LIFF 登入");
           return;
         }
 
