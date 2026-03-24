@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>莫凡韓式皮膚管理</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
@@ -91,6 +91,9 @@
     }
     .btn-container {
       margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     button {
       width: 100%;
@@ -148,10 +151,9 @@
       background: #ff4444 !important;
     }
 
-    /* 重新登入按鈕樣式 */
-    #reloginBtn {
-      margin-top: 12px;
-      background: #448aff !important;
+    /* 全新登入按鈕 */
+    #loginBtn {
+      background: #06c755 !important;
       display: none;
     }
   </style>
@@ -207,7 +209,7 @@
           <span class="loader"></span>
           <span class="btn-text">確認預約</span>
         </button>
-        <button type="button" id="reloginBtn">🔁 重新登入 LINE</button>
+        <button type="button" id="loginBtn">✅ 點我登入LINE</button>
       </div>
     </form>
   </main>
@@ -218,25 +220,28 @@
       LIFF_ID: "2008578880-lCRzVTyk"
     };
 
-    let submitBtn, btnText, infoForm, reloginBtn;
+    let submitBtn, btnText, infoForm, loginBtn;
     let isSubmitting = false;
     let isSubmittedSuccess = false;
     let timeDataMap = {};
 
-    // ==========================
-    // 🔴 重新登入機制（核心）
-    // ==========================
-    async function relogin() {
+    // 登入按鈕（手機專用穩定版）
+    async function login() {
       try {
-        await liff.logout();
-        setTimeout(() => {
+        await liff.init({ liffId: CONFIG.LIFF_ID });
+        if (!liff.isLoggedIn()) {
           liff.login({ redirectUri: window.location.href });
-        }, 300);
+          return;
+        }
+        const p = await liff.getProfile();
+        document.getElementById('lineId').value = p.userId;
+        loginBtn.style.display = "none";
       } catch (e) {
-        alert("請重新開啟頁面");
+        alert("請在LINE內開啟使用");
       }
     }
 
+    // JSONP 回調
     window.handleResponse = function(response) {
       try {
         isSubmitting = false;
@@ -273,11 +278,11 @@
           setTimeout(resetButtonState, 2000);
         }
       } catch (e) {
-        console.error(e);
         resetButtonState();
       }
     };
 
+    // 時段格式化
     function formatTimeLabel(timeValue) {
       if (!timeValue) return "";
       const hour = parseInt(timeValue.split(':')[0]);
@@ -286,6 +291,7 @@
       return `晚上 ${timeValue}`;
     }
 
+    // 更新時段
     function updateTimeOptions(selectedDate) {
       const timeSelect = document.getElementById('appointTime');
       if (!selectedDate) {
@@ -302,6 +308,7 @@
       });
     }
 
+    // 按鈕重置
     function resetButtonState() {
       if (isSubmittedSuccess) return;
       submitBtn.disabled = false;
@@ -310,41 +317,14 @@
       isSubmitting = false;
     }
 
+    // 取得台北日期
     function getTaipeiDate() {
       const d = new Date();
       const opt = { timeZone:'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit' };
       return new Intl.DateTimeFormat('zh-CN', opt).format(d).replace(/\//g, '-');
     }
 
-    // ==========================
-    // 🟢 穩定型 LIFF 初始化
-    // ==========================
-    async function initLiff() {
-      let retryCount = 0;
-      const maxRetry = 2;
-
-      async function tryInit() {
-        try {
-          await liff.init({ liffId: CONFIG.LIFF_ID });
-          if (!liff.isLoggedIn()) {
-            reloginBtn.style.display = 'block';
-            return;
-          }
-          const p = await liff.getProfile();
-          document.getElementById('lineId').value = p.userId || "";
-          reloginBtn.style.display = 'none';
-        } catch (e) {
-          retryCount++;
-          if (retryCount <= maxRetry) {
-            setTimeout(tryInit, 800);
-          } else {
-            reloginBtn.style.display = 'block';
-          }
-        }
-      }
-      tryInit();
-    }
-
+    // 穩定載入
     function loadScript(data = {}) {
       return new Promise(resolve => {
         const params = new URLSearchParams(data);
@@ -360,23 +340,40 @@
       });
     }
 
+    // 初始化
     document.addEventListener('DOMContentLoaded', async () => {
       submitBtn = document.getElementById('submitBtn');
       btnText = submitBtn.querySelector('.btn-text');
       infoForm = document.getElementById('infoForm');
-      reloginBtn = document.getElementById('reloginBtn');
+      loginBtn = document.getElementById('loginBtn');
       document.getElementById('date').value = getTaipeiDate();
 
-      // 綁定重新登入
-      reloginBtn.addEventListener('click', relogin);
+      // 綁定登入
+      loginBtn.addEventListener('click', login);
 
-      await initLiff();
+      // 自動檢查登入
+      try {
+        await liff.init({ liffId: CONFIG.LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const p = await liff.getProfile();
+          document.getElementById('lineId').value = p.userId;
+          loginBtn.style.display = "none";
+        } else {
+          loginBtn.style.display = "block";
+        }
+      } catch (e) {
+        loginBtn.style.display = "block";
+      }
+
+      // 載入日期
       await loadScript();
 
+      // 日期切換
       document.getElementById('appointDate').addEventListener('change', function() {
         updateTimeOptions(this.value);
       });
 
+      // 表單提交
       infoForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (isSubmitting || isSubmittedSuccess) return;
@@ -394,8 +391,8 @@
         if (!name) return alert("請輸入姓名");
         if (!phone) return alert("請輸入電話");
         if (!lineId) {
-          alert("請點擊「重新登入 LINE」");
-          reloginBtn.style.display = "block";
+          alert("請點擊綠色按鈕登入LINE");
+          loginBtn.style.display = "block";
           return;
         }
 
