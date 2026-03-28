@@ -143,7 +143,7 @@ body{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;
   line-height:1.3;width:100%;
 }
-.period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;}
+.period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
 /* 修改：时长选项白色高级质感样式 */
 .period-box{
   border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
@@ -165,9 +165,14 @@ body{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
 }
+.period-input{
+  padding:8px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#000;
+  font-size:14px;width:80px;text-align:center;outline:none;
+}
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
   .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
+  .period-input{font-size:16px;padding:10px 12px;width:100px;}
 }
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
@@ -363,7 +368,7 @@ body{
       <div class="period-box">一個月</div>
       <div class="period-box">三個月</div>
       <div class="period-box">半年</div>
-      <div class="period-box">一年</div>
+      <input type="number" class="period-input" placeholder="自訂月數" min="1" max="99" id="customPeriod">
     </div>
   </h2>
   <div class="userInputs">  
@@ -459,7 +464,10 @@ const els={
   errorContent:document.getElementById("error-content"),
   authLoadingTitle:document.querySelector("#authLoading h3"),
   authLoadingDesc:document.querySelector("#authLoading p"),
-  reportTable:document.getElementById("reportTable")
+  reportTable:document.getElementById("reportTable"),
+  cashOption:document.getElementById("cashOption"),
+  cardOption:document.getElementById("cardOption"),
+  customPeriod:document.getElementById("customPeriod")
 };
 
 // 工具函數：獲取當天日期（YYYYMMDD）
@@ -495,6 +503,7 @@ document.querySelectorAll('.period-box').forEach(box=>{
   box.addEventListener('click',function(){
     document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
+    els.customPeriod.value='';
   });
 });
 
@@ -517,6 +526,7 @@ els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
 els.nativeShareBtn.addEventListener("click",nativeShare);
 els.clearImageBtn.addEventListener("click",clearImage);
+els.cashOption.addEventListener("change",handleCashGift);
 els.reportBody.addEventListener("click",async function(e){
   const btn=e.target.closest('.deleteBtn');
   if(!btn||isDeleting||btn.disabled)return;
@@ -564,6 +574,29 @@ function checkHerbalNewMember(selectedValue){
       alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
     },100);
   }
+}
+
+// 現金自動贈品邏輯：每2萬現金 → 贈送 211(30) x1
+function handleCashGift(){
+  if(!els.cashOption.checked){
+    // 取消現金時，移除所有贈品
+    selectedProds = selectedProds.filter(p => !p.name.includes('211(30)'));
+    saveSelectedProds();
+    renderTable();
+    return;
+  }
+
+  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
+  const giftQty = Math.floor(totalPrice / 20000);
+  
+  if(giftQty <= 0) return;
+
+  // 先移除舊贈品
+  selectedProds = selectedProds.filter(p => !p.name.includes('211(30)'));
+  
+  // 新增對應數量贈品
+  addSpecificProduct('211(30)', giftQty);
+  showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
 }
 
 // 輔助函數：新增指定品項和數量（增強重複檢查）
@@ -832,6 +865,8 @@ function renderTable(){
       selectedProds[idx].qty=parseInt(e.target.value);
       saveSelectedProds();
       renderTable();
+      // 金額變更時重新計算現金贈品
+      if(els.cashOption.checked) handleCashGift();
     };
   });
 }
@@ -867,6 +902,9 @@ async function handleDelete(btn){
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
+    // 刪除後重新計算現金贈品
+    if(els.cashOption.checked) handleCashGift();
+    
     if(!isPrivilegeUser&&!isWithinInterval){
       const syncSuccess=await syncDeleteToBackend();
       if(syncSuccess){
@@ -956,6 +994,8 @@ function addProduct(){
     }
     saveSelectedProds();
     renderTable();
+    // 新增商品後重新計算現金贈品
+    if(els.cashOption.checked) handleCashGift();
     showToast('品項已新增');
   }catch(error){
     showToast(`新增失敗：${error.message}`, 'error');
