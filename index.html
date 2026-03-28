@@ -138,6 +138,19 @@ body{
 #captureArea{
   background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
   color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
+  position: relative;
+}
+/* 右上角彥彬水印 */
+#watermark {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 500;
+  opacity: 0.9;
+  z-index: 10;
+  pointer-events: none;
 }
 #captureArea h2{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;
@@ -299,6 +312,7 @@ body{
   .summaryBox{color:#000!important;}
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
+  #watermark {display: none!important;}
 }
 .spacer{height:80px;}
 @media (max-width:360px){
@@ -358,6 +372,7 @@ body{
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
 <div id="captureArea">
+  <div id="watermark">彥彬</div>
   <h2>
     🌿 康園試算報表
     <div class="payment-options">
@@ -467,7 +482,8 @@ const els={
   reportTable:document.getElementById("reportTable"),
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
-  customPeriod:document.getElementById("customPeriod")
+  customPeriod:document.getElementById("customPeriod"),
+  watermark:document.getElementById("watermark")
 };
 
 // 工具函數：獲取當天日期（YYYYMMDD）
@@ -1133,6 +1149,9 @@ async function exportToImage(){
   // 建立自訂時長文字節點，讓html2canvas能正確擷取
   const periodInput = els.customPeriod;
   let periodTextNode = null;
+  let activePeriod = document.querySelector('.period-box.active');
+  
+  // 修正：優先使用自訂時長，沒有則使用選中的選項
   if (periodInput.value.trim() !== '') {
     const periodWrap = document.createElement('div');
     periodWrap.className = 'period-box active';
@@ -1143,6 +1162,16 @@ async function exportToImage(){
     document.body.appendChild(periodWrap);
     periodTextNode = periodWrap;
     periodInput.style.display = 'none';
+  } else if (activePeriod) {
+    // 沒有自訂時長，使用已選擇的選項
+    const periodWrap = document.createElement('div');
+    periodWrap.className = 'period-box active';
+    periodWrap.textContent = activePeriod.textContent;
+    periodWrap.style.position = 'absolute';
+    periodWrap.style.top = '-9999px';
+    periodWrap.style.left = '-9999px';
+    document.body.appendChild(periodWrap);
+    periodTextNode = periodWrap;
   }
 
   els.reportTable.offsetWidth;
