@@ -207,7 +207,7 @@ body{
 .btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);}
 .btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);}
 .btn-sm{padding:6px 10px;font-size:11px;border-radius:5px;}
-.btn-md{padding:7px 12px;font-size:12px;border-radius:6px;}
+.btn-md{padding:12px 16px;font-size:16px;border-radius:8px;min-width:140px;}
 .btn-lg{padding:18px 12px!important;font-size:18px!important;border-radius:10px!important;width:48%;height:auto;line-height:1.2;}
 #resetCalculatorBtn{
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
@@ -216,7 +216,7 @@ body{
 }
 #resetCalculatorBtn:hover{background:#555;transform:scale(1.05);}
 #resetCalculatorBtn:active{transform:scale(0.95);}
-#addBtn{min-width:180px!important;padding:16px 24px!important;font-size:18px!important;font-weight:700!important;border-radius:12px!important;height:auto!important;}
+#addBtn{width:100%!important;padding:16px 24px!important;font-size:18px!important;font-weight:700!important;border-radius:12px!important;height:auto!important;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable{
   width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;
@@ -539,8 +539,21 @@ window.onload=initApp;
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
   
+  // 9號款：新入會(9號）
+  if(val.includes('新入會(9號）')){
+    // 延遲執行確保商品列表已加載
+    setTimeout(()=>{
+      // 1. 檢查並添加「新入會(9號）」本身（僅在不存在時添加）
+      if(!selectedProds.find(p => p.name === val)){
+        addSpecificProduct(val, 1);
+      }
+      // 2. 新增入*會「 9號兩組」數量1
+      addSpecificProduct('入*會「 9號兩組」', 1);
+      alert('📋 已自動新增9號組合：\n\n新入會(9號） + 9號兩組 x1');
+    }, 300);
+  }
   // 男生款：新入會(草本）男
-  if(val.includes('新入會(草本）男')){
+  else if(val.includes('新入會(草本）男')){
     // 延遲執行確保商品列表已加載
     setTimeout(()=>{
       // 1. 檢查並添加「新入會(草本）男」本身（僅在不存在時添加）
