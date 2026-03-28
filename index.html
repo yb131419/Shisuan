@@ -580,7 +580,7 @@ function checkHerbalNewMember(selectedValue){
 function handleCashGift(){
   if(!els.cashOption.checked){
     // 取消現金時，移除所有贈品
-    selectedProds = selectedProds.filter(p => !p.name.includes('211(30)'));
+    selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
     saveSelectedProds();
     renderTable();
     return;
@@ -592,10 +592,10 @@ function handleCashGift(){
   if(giftQty <= 0) return;
 
   // 先移除舊贈品
-  selectedProds = selectedProds.filter(p => !p.name.includes('211(30)'));
+  selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
   
   // 新增對應數量贈品
-  addSpecificProduct('211(30)', giftQty);
+  addSpecificProduct('贈品 211(30)', giftQty);
   showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
 }
 
