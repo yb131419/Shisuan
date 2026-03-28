@@ -1129,6 +1129,22 @@ async function exportToImage(){
   els.exportBtn.disabled=true;
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
+  
+  // 建立自訂時長文字節點，讓html2canvas能正確擷取
+  const periodInput = els.customPeriod;
+  let periodTextNode = null;
+  if (periodInput.value.trim() !== '') {
+    const periodWrap = document.createElement('div');
+    periodWrap.className = 'period-box active';
+    periodWrap.textContent = periodInput.value + '個月';
+    periodWrap.style.position = 'absolute';
+    periodWrap.style.top = '-9999px';
+    periodWrap.style.left = '-9999px';
+    document.body.appendChild(periodWrap);
+    periodTextNode = periodWrap;
+    periodInput.style.display = 'none';
+  }
+
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
@@ -1163,6 +1179,12 @@ async function exportToImage(){
     els.captureArea.style.paddingRight=originalPaddingRight;
     els.captureArea.style.paddingLeft=originalPaddingLeft;
     els.exportBtn.disabled=false;
+    
+    // 還原自訂時長輸入框與清除臨節點
+    if (periodTextNode) {
+      els.customPeriod.style.display = '';
+      document.body.removeChild(periodTextNode);
+    }
   }
 }
 
