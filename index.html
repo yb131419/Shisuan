@@ -205,10 +205,10 @@ body{
 .btn-grey{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);}
 .btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
 .btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);}
-.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53935);}
+.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);}
 .btn-sm{padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md{padding:7px 12px;font-size:12px;border-radius:6px;}
-.btn-lg{padding:9px 18px;font-size:14px;border-radius:8px;width:100%;}
+.btn-lg{padding:18px 12px!important;font-size:18px!important;border-radius:10px!important;width:48%;height:auto;line-height:1.2;}
 #resetCalculatorBtn{
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
   border:1px solid rgba(255,255,255,0.8);cursor:pointer;font-size:14px;
@@ -325,7 +325,7 @@ body{
   padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px;font-weight:500;transition:var(--btn-transition);
 }
 #error-message button:hover{
-  background:linear-gradient(145deg,#ff6b6b,#e53935);transform:translateY(-2px);
+  background:linear-gradient(145deg,#ff6b6b,#e53939);transform:translateY(-2px);
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
@@ -408,11 +408,11 @@ body{
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
-  <button id="exportBtn" class="btn btn-primary">📤 報表轉圖片</button>
-  <button id="shareToLineBtn" class="btn btn-primary">📱 安卓分享</button>
-  <button id="nativeShareBtn" class="btn btn-primary">📱 分享圖片</button>
-  <button id="clearImageBtn" class="btn btn-grey">❌ 清除圖片</button>
-  <button id="resetReportBtn" class="btn btn-warning">🔄 重置報表</button>
+  <button id="exportBtn" class="btn btn-primary btn-lg">📤 報表轉圖片</button>
+  <button id="resetReportBtn" class="btn btn-warning btn-lg">🔄 重置報表</button>
+  <button id="shareToLineBtn" class="btn btn-primary btn-md">📱 安卓分享</button>
+  <button id="nativeShareBtn" class="btn btn-primary btn-md">📱 分享圖片</button>
+  <button id="clearImageBtn" class="btn btn-grey btn-md">❌ 清除圖片</button>
 </div>
 <div id="toast" class="toast">✅ 圖片已上傳</div>
 <div id="inputArea">
@@ -778,7 +778,6 @@ async function resetReport(){
   let isDeducted=false;
   if(!isPrivilegeUser&&authStatus.remainingTimes>0){
     els.resetReportBtn.disabled=true;
-    els.resetReportBtn.textContent="處理中...";
     try{
       const syncSuccess=await syncRecordResetToBackend();
       isDeducted=syncSuccess;
@@ -786,7 +785,6 @@ async function resetReport(){
       showToast(error.message, 'error');
     }finally{
       els.resetReportBtn.disabled=false;
-      els.resetReportBtn.textContent="🔄 重置報表";
     }
   }
   selectedProds=[];
@@ -932,7 +930,6 @@ async function handleDelete(btn){
 // 新增商品
 function addProduct(){
   els.addBtn.disabled=true;
-  els.addBtn.textContent="處理中...";
   try{
     if(!authStatus){
       showToast('請先完成用戶權限驗證', 'error');
@@ -1001,7 +998,33 @@ function addProduct(){
     showToast(`新增失敗：${error.message}`, 'error');
   }finally{
     els.addBtn.disabled=false;
-    els.addBtn.textContent="➕ 新增品項";
+  }
+}
+
+// 動態調整數量下拉選項（修復限定組數錯誤）
+function adjustQtySelectOptions(productName) {
+  if (!productName) return;
+  let maxQty = 99;
+  const val = productName.trim();
+  
+  // 嚴格按照規則設定最大數量
+  if (val.includes('新入會') || val.includes('新會員') || val.includes('入會')) {
+    maxQty = 1;
+  } else if (val.includes('2711AB') && val.includes('(4)')) {
+    maxQty = 2;
+  } else if (val.includes('777Q') && val.includes('(4)')) {
+    maxQty = 2;
+  } else if (val.includes('火山甘露') && val.includes('限4盒')) {
+    maxQty = 4;
+  }
+
+  // 清空並重新生成正確的數量選項
+  els.qtyInput.innerHTML = '';
+  for (let i = 1; i <= maxQty; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    els.qtyInput.appendChild(option);
   }
 }
 
@@ -1091,7 +1114,6 @@ async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
-  els.exportBtn.textContent="匯出中...";
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
   els.reportTable.offsetWidth;
@@ -1128,7 +1150,6 @@ async function exportToImage(){
     els.captureArea.style.paddingRight=originalPaddingRight;
     els.captureArea.style.paddingLeft=originalPaddingLeft;
     els.exportBtn.disabled=false;
-    els.exportBtn.textContent="📤 報表轉圖片";
   }
 }
 
@@ -1137,7 +1158,6 @@ async function shareToLine(){
   if(!authStatus)return;
   if(!els.previewImage.src){alert("請先匯出圖片");return;}
   els.shareToLineBtn.disabled=true;
-  els.shareToLineBtn.textContent="上傳中...";
   try{
     const base64Data=els.previewImage.src.split(",")[1];
     const formData=new FormData();
@@ -1159,7 +1179,6 @@ async function shareToLine(){
     showToast(`圖片上傳錯誤: ${error.message||'未知錯誤'}`, 'error');
   }finally{
     els.shareToLineBtn.disabled=false;
-    els.shareToLineBtn.textContent="📩 圖片上傳";
   }
 }
 
