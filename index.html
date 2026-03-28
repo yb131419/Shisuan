@@ -1151,8 +1151,9 @@ async function exportToImage(){
   let periodTextNode = null;
   let activePeriod = document.querySelector('.period-box.active');
   
-  // 修正：優先使用自訂時長，沒有則使用選中的選項
+  // ========== 修復：正確處理自訂時長截圖 ==========
   if (periodInput.value.trim() !== '') {
+    // 自訂時長優先
     const periodWrap = document.createElement('div');
     periodWrap.className = 'period-box active';
     periodWrap.textContent = periodInput.value + '個月';
@@ -1163,7 +1164,7 @@ async function exportToImage(){
     periodTextNode = periodWrap;
     periodInput.style.display = 'none';
   } else if (activePeriod) {
-    // 沒有自訂時長，使用已選擇的選項
+    // 使用已選擇的選項
     const periodWrap = document.createElement('div');
     periodWrap.className = 'period-box active';
     periodWrap.textContent = activePeriod.textContent;
@@ -1173,6 +1174,7 @@ async function exportToImage(){
     document.body.appendChild(periodWrap);
     periodTextNode = periodWrap;
   }
+  // ============================================
 
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
