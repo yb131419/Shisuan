@@ -178,14 +178,9 @@ body{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
 }
-.period-input{
-  padding:8px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#000;
-  font-size:14px;width:80px;text-align:center;outline:none;
-}
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
   .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
-  .period-input{font-size:16px;padding:10px 12px;width:100px;}
 }
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
@@ -384,7 +379,6 @@ body{
       <div class="period-box">一個月</div>
       <div class="period-box">三個月</div>
       <div class="period-box">半年</div>
-      <input type="number" class="period-input" placeholder="自訂" min="1" max="99" id="customPeriod">
     </div>
   </h2>
   <div class="userInputs">  
@@ -483,7 +477,6 @@ const els={
   reportTable:document.getElementById("reportTable"),
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
-  customPeriod:document.getElementById("customPeriod"),
   watermark:document.getElementById("watermark")
 };
 
@@ -520,7 +513,6 @@ document.querySelectorAll('.period-box').forEach(box=>{
   box.addEventListener('click',function(){
     document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
-    els.customPeriod.value='';
   });
 });
 
@@ -1147,48 +1139,6 @@ async function exportToImage(){
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
-  // ============================================
-  // 🔴 關鍵修復：讓自訂輸入框的文字「真的出現在畫面」
-  // ============================================
-  const periodInput = els.customPeriod;
-  let periodTextNode = null;
-  let activePeriod = document.querySelector('.period-box.active');
-  let periodDisplayText = "";
-
-  // 優先使用「自訂輸入框」的內容
-  if (periodInput.value.trim() !== '') {
-    periodDisplayText = periodInput.value.trim() + " 個月";
-  } 
-  // 沒有輸入才使用點選的按鈕
-  else if (activePeriod) {
-    periodDisplayText = activePeriod.textContent.trim();
-  }
-
-  // 建立一個「真的會被截圖」的節點
-  if (periodDisplayText) {
-    const periodContainer = document.querySelector('.period-options');
-    
-    // 先把原本的輸入框隱藏
-    periodInput.style.display = 'none';
-
-    // 建立新的文字標籤
-    periodTextNode = document.createElement('div');
-    periodTextNode.className = 'period-box active';
-    periodTextNode.textContent = periodDisplayText;
-    periodTextNode.style.cssText = `
-      border:1px solid #e0e0e0;
-      border-radius:8px;
-      padding:8px 15px;
-      background:#fff;
-      color:#000;
-      font-weight:bold;
-    `;
-
-    // 加入畫面（真正出現在截圖範圍內）
-    periodContainer.appendChild(periodTextNode);
-  }
-  // ============================================
-
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
@@ -1223,12 +1173,6 @@ async function exportToImage(){
     els.captureArea.style.paddingRight=originalPaddingRight;
     els.captureArea.style.paddingLeft=originalPaddingLeft;
     els.exportBtn.disabled=false;
-    
-    // 還原畫面
-    if (periodTextNode) {
-      periodTextNode.remove();
-      els.customPeriod.style.display = '';
-    }
   }
 }
 
