@@ -1145,34 +1145,32 @@ async function exportToImage(){
   els.exportBtn.disabled=true;
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
-  
+
   // 建立自訂時長文字節點，讓html2canvas能正確擷取
   const periodInput = els.customPeriod;
   let periodTextNode = null;
   let activePeriod = document.querySelector('.period-box.active');
-  
-  // ========== 修復：正確處理自訂時長截圖 ==========
+  let periodValue = "";
+
+  // ========== 修復：輸入文字能正確轉圖片 ==========
   if (periodInput.value.trim() !== '') {
-    // 自訂時長優先
-    const periodWrap = document.createElement('div');
-    periodWrap.className = 'period-box active';
-    periodWrap.textContent = periodInput.value + '個月';
-    periodWrap.style.position = 'absolute';
-    periodWrap.style.top = '-9999px';
-    periodWrap.style.left = '-9999px';
-    document.body.appendChild(periodWrap);
-    periodTextNode = periodWrap;
-    periodInput.style.display = 'none';
+    // 有輸入數字 → 直接用輸入的數字
+    periodValue = periodInput.value.trim() + "個月";
   } else if (activePeriod) {
-    // 使用已選擇的選項
-    const periodWrap = document.createElement('div');
-    periodWrap.className = 'period-box active';
-    periodWrap.textContent = activePeriod.textContent;
-    periodWrap.style.position = 'absolute';
-    periodWrap.style.top = '-9999px';
-    periodWrap.style.left = '-9999px';
-    document.body.appendChild(periodWrap);
-    periodTextNode = periodWrap;
+    // 沒輸入 → 用點選的時長
+    periodValue = activePeriod.textContent.trim();
+  }
+
+  // 建立一個真正能被截圖抓到的文字節點
+  if (periodValue) {
+    periodTextNode = document.createElement('div');
+    periodTextNode.className = 'period-box active';
+    periodTextNode.textContent = periodValue;
+    periodTextNode.style.position = 'absolute';
+    periodTextNode.style.top = '-9999px';
+    periodTextNode.style.left = '-9999px';
+    document.body.appendChild(periodTextNode);
+    periodInput.style.display = 'none';
   }
   // ============================================
 
@@ -1211,7 +1209,7 @@ async function exportToImage(){
     els.captureArea.style.paddingLeft=originalPaddingLeft;
     els.exportBtn.disabled=false;
     
-    // 還原自訂時長輸入框與清除臨節點
+    // 還原
     if (periodTextNode) {
       els.customPeriod.style.display = '';
       document.body.removeChild(periodTextNode);
