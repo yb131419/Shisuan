@@ -639,7 +639,7 @@ function addSpecificProduct(productName, qty) {
     
     // 檢查數量限制（與原有邏輯保持一致）
     if (productName.includes('新入會') || productName.includes('新會員') || productName.includes('入會')) maxQty = 1;
-    else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 2;
+    else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 1;
     else if (productName.includes('777Q') && productName.includes('(4)')) maxQty = 2;
     else if (productName.includes('火山甘露') && productName.includes('限4盒')) maxQty = 4;
 
@@ -843,7 +843,7 @@ function renderTable(){
     const val=item.name.trim();
     let maxQty=99;
     if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
-    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
+    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=1;
     else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
     else if(val.includes('火山甘露')&&val.includes('限4盒'))maxQty=4;
     if(item.qty>maxQty){item.qty=maxQty;saveSelectedProds();}
