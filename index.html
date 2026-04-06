@@ -260,51 +260,6 @@ body{
 .deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
-
-/* ====================== PV達標儀式感 CSS ====================== */
-@keyframes target-complete {
-  0% { transform: scale(1); text-shadow: 0 0 10px #ffd700,0 0 20px #ff9800; }
-  50% { transform: scale(1.2); text-shadow: 0 0 20px #ffd700,0 0 40px #ff9800,0 0 60px #ff5252; }
-  100% { transform: scale(1); text-shadow: 0 0 10px #ffd700,0 0 20px #ff9800; }
-}
-@keyframes rainbow-text {
-  0% { color: #ff5252; }
-  20% { color: #ff9800; }
-  40% { color: #ffeb3b; }
-  60% { color: #4caf50; }
-  80% { color: #2196f3; }
-  100% { color: #9c27b0; }
-}
-@keyframes summary-glow {
-  0% { box-shadow: 0 0 15px rgba(255,215,0,0.4); transform: scale(1); }
-  50% { box-shadow: 0 0 30px rgba(255,215,0,0.8),0 0 50px rgba(255,152,0,0.6); transform: scale(1.02); }
-  100% { box-shadow: 0 0 15px rgba(255,215,0,0.4); transform: scale(1); }
-}
-@keyframes table-flash {
-  0% { background: #fff9c4; }
-  50% { background: #ffecb3; }
-  100% { background: #fff9c4; }
-}
-.pv-target-complete {
-  animation: target-complete 1s ease-in-out infinite alternate !important;
-  font-weight: 900 !important;
-  display: inline-block !important;
-}
-.pv-rainbow-text {
-  animation: rainbow-text 1.5s linear infinite !important;
-  font-weight: 900 !important;
-}
-.summary-box-celebration {
-  animation: summary-glow 1.5s ease-in-out infinite alternate !important;
-  padding: 12px !important;
-  border-radius: 12px !important;
-  background: rgba(255,215,0,0.05) !important;
-}
-.table-row-celebration {
-  animation: table-flash 0.8s ease-in-out infinite !important;
-}
-/* ============================================================ */
-
 .summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
@@ -930,40 +885,8 @@ function renderTable(){
   const diff3=TARGET_PV300-totalPv;
   els.pvDiff2.textContent=diff2>0?diff2:0;
   els.pvDiff3.textContent=diff3>0?diff3:0;
-  
-  // ====================== PV達標儀式感 JS ======================
-  let is220Complete = totalPv >= TARGET_PV220;
-  let is300Complete = totalPv >= TARGET_PV300;
-  let summaryBox = document.querySelector('.summaryBox');
-  let tableRows = document.querySelectorAll('#reportTable tbody tr');
-
-  // 重置所有動畫
-  summaryBox.classList.remove('summary-box-celebration');
-  els.pvMessage2.classList.remove('pv-target-complete','pv-rainbow-text');
-  els.pvMessage3.classList.remove('pv-target-complete','pv-rainbow-text');
-  tableRows.forEach(row => row.classList.remove('table-row-celebration'));
-
-  // 22萬PV達標
-  if(is220Complete){
-    els.pvMessage2.innerHTML='<span class="done pv-target-complete pv-rainbow-text">🎉 22萬PV已達標！</span>';
-    summaryBox.classList.add('summary-box-celebration');
-    tableRows.forEach(row => row.classList.add('table-row-celebration'));
-    setTimeout(()=>showToast('🎉 恭喜達成22萬PV目標！'),300);
-  }else{
-    els.pvMessage2.innerHTML='';
-  }
-
-  // 30萬PV達標
-  if(is300Complete){
-    els.pvMessage3.innerHTML='<span class="done pv-target-complete pv-rainbow-text">🎉 30萬PV已達標！</span>';
-    summaryBox.classList.add('summary-box-celebration');
-    tableRows.forEach(row => row.classList.add('table-row-celebration'));
-    setTimeout(()=>showToast('🎉 恭喜達成30萬PV目標！'),500);
-  }else{
-    els.pvMessage3.innerHTML='';
-  }
-  // ============================================================
-
+  els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
+  els.pvMessage3.innerHTML=totalPv>=TARGET_PV300?'<span class="done">🎉 已達標</span>':'';
   document.querySelectorAll(".qtySelect").forEach(select=>{
     select.onchange=e=>{
       const idx=parseInt(e.target.dataset.index);
