@@ -260,68 +260,18 @@ body{
 .deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
-
-/* ========== 【高級感優化】22萬 / 30萬 PV 總結區 ========== */
-.summaryBox {
-  margin-top: 16px;
-  font-size: 1rem;
-  font-weight: bold;
-  line-height: 1.6;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
+.summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
+.summaryBox .done{color:#4caf50;font-weight:bold;}
+#totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
+#inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
+@media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
+#nameInput,#qtyInput{
+  background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;
+  font-size:16px;border-radius:6px;border:none;
 }
-.summaryBox .total-row {
-  font-size: 1.1rem;
-  color: var(--highlight);
-  letter-spacing: 1px;
-}
-.summaryBox .pv-rows {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.summaryBox .pv-card {
-  background: linear-gradient(145deg, #252525, #1a1a1a);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 10px 14px;
-  min-width: 150px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  color: #e0e0e0;
-  font-size: 0.95rem;
-}
-.summaryBox .pv-card.done {
-  background: linear-gradient(145deg, #115533, #0c4427);
-  border-color: rgba(76, 175, 80, 0.3);
-  color: #ffffff;
-}
-#totalPriceCellDup, #totalPvCellDup {
-  display: inline-block;
-  min-width: 70px;
-  text-align: center;
-}
-#pvDiff2, #pvDiff3 {
-  display: inline-block;
-  min-width: 70px;
-  text-align: center;
-  font-weight: bold;
-}
-.summaryBox .done-badge {
-  display: inline-block;
-  background: linear-gradient(90deg, #4caf50, #66bb6a);
-  color: #fff;
-  font-size: 0.75rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 4px;
-  font-weight: bold;
-}
-/* ====================================================== */
-
+#qtyInput{font-size:18px!important;font-weight:bold;}
+#exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{
@@ -460,17 +410,11 @@ body{
     </thead>
     <tbody id="reportBody"></tbody>
   </table>
-
-  <!-- ========== 高級感排版：22萬 / 30萬 PV ========== -->
   <div class="summaryBox" aria-live="polite">
-    <div class="total-row">總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span></div>
-    <div class="pv-rows">
-      <div class="pv-card" id="pvCard22">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></div>
-      <div class="pv-card" id="pvCard30">距 30.0萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></div>
-    </div>
+    總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
+    <span class="extra">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
+    <span class="extra">距 30.0萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
   </div>
-  <!-- ============================================ -->
-
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
@@ -511,8 +455,6 @@ const els={
   pvDiff3:document.getElementById("pvDiff3"),
   pvMessage2:document.getElementById("pvMessage2"),
   pvMessage3:document.getElementById("pvMessage3"),
-  pvCard22:document.getElementById("pvCard22"),
-  pvCard30:document.getElementById("pvCard30"),
   exportBtn:document.getElementById("exportBtn"),
   previewImage:document.getElementById("previewImage"),
   shareToLineBtn:document.getElementById("shareToLineBtn"),
@@ -943,15 +885,8 @@ function renderTable(){
   const diff3=TARGET_PV300-totalPv;
   els.pvDiff2.textContent=diff2>0?diff2:0;
   els.pvDiff3.textContent=diff3>0?diff3:0;
-
-  // 達標時自動加上高級感徽章
-  els.pvMessage2.innerHTML = totalPv >= TARGET_PV220 ? '<span class="done-badge">已達標</span>' : '';
-  els.pvMessage3.innerHTML = totalPv >= TARGET_PV300 ? '<span class="done-badge">已達標</span>' : '';
-  
-  // 達標卡片高亮
-  els.pvCard22.classList.toggle('done', totalPv >= TARGET_PV220);
-  els.pvCard30.classList.toggle('done', totalPv >= TARGET_PV300);
-
+  els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
+  els.pvMessage3.innerHTML=totalPv>=TARGET_PV300?'<span class="done">🎉 已達標</span>':'';
   document.querySelectorAll(".qtySelect").forEach(select=>{
     select.onchange=e=>{
       const idx=parseInt(e.target.dataset.index);
