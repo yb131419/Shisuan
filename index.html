@@ -263,7 +263,7 @@ body{
 .summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
-#totalPriceCellDup,#totalPvCellDup,#pvDiff,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
+#totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
@@ -412,8 +412,8 @@ body{
   </table>
   <div class="summaryBox" aria-live="polite">
     總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
-    <span class="extra">距 11.2萬 PV：<span id="pvDiff">112000</span> <span id="pvMessage1"></span></span>
     <span class="extra">距 22.0萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
+    <span class="extra">距 30.0萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
   </div>
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
@@ -437,8 +437,8 @@ const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
 const LIFF_ID="2008578880-zlK2U8dQ";
 const JSONP_TIMEOUT=15000;
 const PERMANENT_EXPIRY_DATE="9999/12/31";
-const TARGET_PV112=112000;
 const TARGET_PV220=220000;
+const TARGET_PV300=300000;
 const MAX_NORMAL_USER_USAGE=3;
 const DEDUCT_INTERVAL=180000;
 let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null,isDeleting=false;
@@ -451,10 +451,10 @@ const els={
   reportBody:document.getElementById("reportBody"),
   totalPriceCellDup:document.getElementById("totalPriceCellDup"),
   totalPvCellDup:document.getElementById("totalPvCellDup"),
-  pvDiff:document.getElementById("pvDiff"),
   pvDiff2:document.getElementById("pvDiff2"),
-  pvMessage1:document.getElementById("pvMessage1"),
+  pvDiff3:document.getElementById("pvDiff3"),
   pvMessage2:document.getElementById("pvMessage2"),
+  pvMessage3:document.getElementById("pvMessage3"),
   exportBtn:document.getElementById("exportBtn"),
   previewImage:document.getElementById("previewImage"),
   shareToLineBtn:document.getElementById("shareToLineBtn"),
@@ -873,12 +873,12 @@ function renderTable(){
   });
   els.totalPriceCellDup.textContent=totalPrice;
   els.totalPvCellDup.textContent=totalPv;
-  const diff1=TARGET_PV112-totalPv;
   const diff2=TARGET_PV220-totalPv;
-  els.pvDiff.textContent=diff1>0?diff1:0;
+  const diff3=TARGET_PV300-totalPv;
   els.pvDiff2.textContent=diff2>0?diff2:0;
-  els.pvMessage1.innerHTML=totalPv>=TARGET_PV112?'<span class="done">🎉 已達標</span>':'';
+  els.pvDiff3.textContent=diff3>0?diff3:0;
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
+  els.pvMessage3.innerHTML=totalPv>=TARGET_PV300?'<span class="done">🎉 已達標</span>':'';
   document.querySelectorAll(".qtySelect").forEach(select=>{
     select.onchange=e=>{
       const idx=parseInt(e.target.dataset.index);
