@@ -1054,6 +1054,8 @@ function adjustQtySelectOptions(productName) {
     maxQty = 2;
   } else if (val.includes('火山甘露') && val.includes('限4盒')) {
     maxQty = 4;
+  } else if (val.includes('2711AB') && val.includes('(1)')) {
+    maxQty = 4;
   }
 
   // 清空並重新生成正確的數量選項
