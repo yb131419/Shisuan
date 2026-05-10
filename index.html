@@ -349,6 +349,53 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* 修正：数量选择框统一大小，贴合数字 */
+#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{
+  font-size:16px!important;
+  font-weight:bold!important;
+  /* 新增统一样式 */
+  width: 42px !important;
+  max-width: 42px !important;
+  padding: 2px 0 !important;
+  text-align: center !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  background: #fff !important;
+  margin: 0 auto !important;
+  display: inline-block !important;
+}
+.qtySelect {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  cursor: pointer !important;
+}
+
+@media (min-width:768px){
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{
+    font-size:18px!important;
+    width: 48px !important;
+    max-width: 48px !important;
+  }
+}
+
+@media (max-width:360px){
+  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{
+    font-size:15px!important;
+    width: 38px !important;
+    max-width: 38px !important;
+  }
+}
+
+/* 顶部数量输入框同步统一样式 */
+#qtyInput{
+  font-size:18px!important;
+  font-weight:bold!important;
+  width: 80px !important;
+  text-align: center !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
+}
 </style>
 </head>
 <body>
@@ -434,7 +481,7 @@ body{
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
-const LIFF_ID="2008578880-zlK2U8dQ";
+const LIFF_ID="2007475335-v0CCltdL";
 const JSONP_TIMEOUT=15000;
 const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV220=220000;
