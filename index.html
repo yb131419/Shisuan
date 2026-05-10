@@ -18,7 +18,7 @@
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
-  /* 修改：时长选项改为白色主题 */
+  /* 修改：時長選項改為白色主題 */
   --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
   --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
   --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
@@ -34,13 +34,13 @@ body{
   width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
   box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;
 }
-/* 修改：登录状态栏可隐藏，增加关闭按钮和过渡效果 */
+/* 修改：登錄狀態欄可隱藏，增加關閉按鈕和過渡效果 */
 #authStatusBar{
   position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
   font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-/* 高质感关闭按钮样式 - 替换原有 close-status 样式 */
+/* 高質感關閉按鈕樣式 - 替換原有 close-status 樣式 */
 #authStatusBar .close-status {
   position: absolute;
   top: 5px;
@@ -48,10 +48,10 @@ body{
   width: 28px;
   height: 45px;
   border-radius: 8px;
-  /* 细腻的白色渐变，模拟微立体效果 */
+  /* 細膩的白色漸變，模擬微立體效果 */
   background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  color: #000; /* 纯黑字体保证可读性 */
-  /* 极细黑色边框，提升精致感 */
+  color: #000; /* 純黑字體保證可讀性 */
+  /* 極細黑色邊框，提升精緻感 */
   border: 1px solid #222;
   cursor: pointer;
   font-size: 16px;
@@ -61,49 +61,49 @@ body{
   justify-content: center;
   text-align: center;
   vertical-align: middle;
-  /* 丝滑过渡动画 */
+  /* 絲滑過渡動畫 */
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   /* 垂直文字排版 */
   writing-mode: vertical-rl;
   text-orientation: upright;
-  /* 多层次阴影，模拟浮雕质感 */
+  /* 多層次陰影，模擬浮雕質感 */
   box-shadow: 
     0 2px 4px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.8),
     inset 0 -1px 0 rgba(0,0,0,0.1);
   padding: 0;
-  font-weight: 700; /* 加粗字体，提升力量感 */
+  font-weight: 700; /* 加粗字體，提升力量感 */
   line-height: 1;
   margin: 0;
   outline: none;
   /* 防止文字模糊 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 触摸反馈优化 */
+  /* 觸摸反饋優化 */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hover 状态 - 强化交互质感 */
+/* Hover 狀態 - 強化交互質感 */
 #authStatusBar .close-status:hover {
-  /* 更深的渐变，模拟按压前的轻抬效果 */
+  /* 更深的漸變，模擬按壓前的輕抬效果 */
   background: linear-gradient(145deg, #f8f8f8, #eaeaea);
-  /* 轻微上移+增强阴影，提升立体感 */
+  /* 輕微上移+增強陰影，提升立體感 */
   transform: translateY(-2px);
   box-shadow: 
     0 4px 8px rgba(0,0,0,0.15),
     inset 0 1px 0 rgba(255,255,255,0.9),
     inset 0 -1px 0 rgba(0,0,0,0.15);
-  /* 边框微亮，提升精致度 */
+  /* 邊框微亮，提升精緻度 */
   border-color: #111;
-  /* 文字轻微提亮，增加呼吸感 */
+  /* 文字輕微提亮，增加呼吸感 */
   color: #111;
 }
 
-/* Active 状态 - 模拟物理按压效果 */
+/* Active 狀態 - 模擬物理按壓效果 */
 #authStatusBar .close-status:active {
-  /* 反向渐变，模拟凹陷效果 */
+  /* 反向漸變，模擬凹陷效果 */
   background: linear-gradient(145deg, #eaeaea, #f0f0f0);
-  /* 复位位置+收缩阴影，模拟按压 */
+  /* 復位位置+收縮陰影，模擬按壓 */
   transform: translateY(0);
   box-shadow: 
     0 1px 2px rgba(0,0,0,0.1),
@@ -111,7 +111,7 @@ body{
     inset 0 -1px 0 rgba(255,255,255,0.8);
 }
 
-/* 聚焦状态优化（可选，提升可访问性） */
+/* 聚焦狀態優化（可選，提升可訪問性） */
 #authStatusBar .close-status:focus-visible {
   outline: 2px solid #0071e3;
   outline-offset: 2px;
@@ -157,7 +157,7 @@ body{
   line-height:1.3;width:100%;
 }
 .period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
-/* 修改：时长选项白色高级质感样式 */
+/* 修改：時長選項白色高級質感樣式 */
 .period-box{
   border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
   transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
@@ -241,12 +241,7 @@ body{
   border:1px solid #d1d5db;padding:6px 4px;text-align:center;white-space:nowrap;
   transition:all 0.3s ease;
 }
-#reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6){font-weight:500;text-align:center!important;}
-@media (min-width:768px){
-  #reportTable th,#reportTable td{padding:8px 5px;font-size:14px;}
-  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:18px!important;}
-}
 #reportTable thead{background:linear-gradient(90deg,#2b6cb0,#3182ce);color:#fff;font-weight:600;}
 #reportTable tbody tr:nth-child(odd){background:#f3f4f6;}
 #reportTable tbody tr:nth-child(even){background:#e5e7eb;}
@@ -270,7 +265,6 @@ body{
   background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;
   font-size:16px;border-radius:6px;border:none;
 }
-#qtyInput{font-size:18px!important;font-weight:bold;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
@@ -315,7 +309,6 @@ body{
   .userInputs label{font-size:13px;}
   .userInputs input{font-size:15px;padding:8px;}
   #reportTable{font-size:11px;}
-  #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
   .payment-options{font-size:1rem;}
   #authStatusBar{font-size:12px;}
   #authLoading{padding:30px 20px;}
@@ -338,7 +331,7 @@ body{
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
-/* 高质感黄色用户名样式 */
+/* 高質感黃色用戶名樣式 */
 .toast-highlight-name {
   background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
   -webkit-background-clip: text;
@@ -350,11 +343,10 @@ body{
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 修正：数量选择框统一大小，贴合数字 */
+/* 修正：數量選擇框統一大小，貼合數字 */
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{
   font-size:16px!important;
   font-weight:bold!important;
-  /* 新增统一样式 */
   width: 42px !important;
   max-width: 42px !important;
   padding: 2px 0 !important;
@@ -370,7 +362,6 @@ body{
   -webkit-appearance: none !important;
   cursor: pointer !important;
 }
-
 @media (min-width:768px){
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{
     font-size:18px!important;
@@ -378,7 +369,6 @@ body{
     max-width: 48px !important;
   }
 }
-
 @media (max-width:360px){
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{
     font-size:15px!important;
@@ -386,8 +376,7 @@ body{
     max-width: 38px !important;
   }
 }
-
-/* 顶部数量输入框同步统一样式 */
+/* 頂部數量輸入框同步統一樣式 */
 #qtyInput{
   font-size:18px!important;
   font-weight:bold!important;
