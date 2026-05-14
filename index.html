@@ -1148,7 +1148,7 @@ function updateAuthStatusBar(){
       用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
       <br/>💖 贊助支持，讓系統持續優化更新
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
     `;
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
@@ -1157,7 +1157,7 @@ function updateAuthStatusBar(){
       用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
       <br/>💖 贊助支持，讓系統持續優化更新
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
     `;
   }else{
     statusHtml=`
@@ -1165,7 +1165,7 @@ function updateAuthStatusBar(){
       用戶名：${userInfo.displayName}
       <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
       <br/>💡 升級解鎖無限使用次數
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">升級解鎖試算系統</a>
     `;
   }
   // 替换状态栏HTML生成部分的按钮文本
