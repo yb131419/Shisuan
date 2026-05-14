@@ -349,6 +349,36 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* 🔥 超质感贊助按鈕樣式 */
+.support-btn {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 5px 14px;
+  /* 金色渐变质感 */
+  background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  /* 胶囊圆角 + 立体阴影 */
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  border: 1px solid rgba(255,255,255,0.2);
+  vertical-align: middle;
+  cursor: pointer;
+}
+/* Hover悬浮效果 */
+.support-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #ffed4e, #ffd700);
+}
+/* 点击按压效果 */
+.support-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
+}
 </style>
 </head>
 <body>
@@ -1117,6 +1147,7 @@ function updateAuthStatusBar(){
       <span class="super-admin">👑 超級管理員 👑</span> | 
       用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
@@ -1124,12 +1155,14 @@ function updateAuthStatusBar(){
       <span class="vip-admin">💎 尊爵用戶 💎</span> | 
       用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }else{
     statusHtml=`
       <span class="normal">🪙 普通用戶 🪙</span> | 
       用戶名：${userInfo.displayName}
       <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }
 // 替换状态栏HTML生成部分的按钮文本
