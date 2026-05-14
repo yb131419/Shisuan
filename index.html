@@ -1147,6 +1147,7 @@ function updateAuthStatusBar(){
       <span class="super-admin">👑 超級管理員 👑</span> | 
       用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
+      <br/>📌 自訂欄位：這裡是你要添加的內容（可自行修改文字/樣式）
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }else if(authStatus.isVip){
@@ -1155,6 +1156,7 @@ function updateAuthStatusBar(){
       <span class="vip-admin">💎 尊爵用戶 💎</span> | 
       用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
       <br/>有效期限：${expiryText}
+      <br/>📌 自訂欄位：這裡是你要添加的內容（可自行修改文字/樣式）
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }else{
@@ -1162,23 +1164,24 @@ function updateAuthStatusBar(){
       <span class="normal">🪙 普通用戶 🪙</span> | 
       用戶名：${userInfo.displayName}
       <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
+      <br/>📌 自訂欄位：這裡是你要添加的內容（可自行修改文字/樣式）
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">贊助試算系統</a>
     `;
   }
-// 替换状态栏HTML生成部分的按钮文本
-els.authStatusBar.innerHTML = `
-  <button class="close-status" title="隱藏狀態欄">關閉</button>
-  ${statusHtml}
-`;
+  // 替换状态栏HTML生成部分的按钮文本
+  els.authStatusBar.innerHTML = `
+    <button class="close-status" title="隱藏狀態欄">關閉</button>
+    ${statusHtml}
+  `;
   // 重新绑定关闭按钮事件
-// 2. 更新授权状态栏时的重新绑定
-els.authStatusBar.querySelector('.close-status').addEventListener('click',function(){
-  els.authStatusBar.style.opacity='0';
-  setTimeout(()=>{
-    els.authStatusBar.style.display='none';
-    els.authStatusBar.style.opacity='1';
-  },300);
-});
+  // 2. 更新授权状态栏时的重新绑定
+  els.authStatusBar.querySelector('.close-status').addEventListener('click',function(){
+    els.authStatusBar.style.opacity='0';
+    setTimeout(()=>{
+      els.authStatusBar.style.display='none';
+      els.authStatusBar.style.opacity='1';
+    },300);
+  });
   els.authStatusBar.style.display='block';
 }
 
