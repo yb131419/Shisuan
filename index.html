@@ -631,7 +631,7 @@ else if(val.includes('草本') && val.includes('新入會')){
 // 新增 2711AB 提醒
 else if(val.includes('2711AB')){
   setTimeout(()=>{
-    alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買一組（4入）');
+    alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買二組(8入）');
   },100);
 }
 }
@@ -882,10 +882,10 @@ function renderTable(){
     const val=item.name.trim();
     let maxQty=99;
     if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
-    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=1;
+    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
     else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
     else if(val.includes('火山甘露')&&val.includes('限4盒'))maxQty=4;
-    else if(val.includes('2711AB')&&val.includes('(1)'))maxQty=4;
+    else if(val.includes('2711AB')&&val.includes('(1)'))maxQty=8;
     if(item.qty>maxQty){item.qty=maxQty;saveSelectedProds();}
     const subtotalPrice=item.price*item.qty;
     const subtotalPv=item.pv*item.qty;
@@ -1035,7 +1035,7 @@ function addProduct(){
         qty=maxQty;
       }
     }else if(val.includes('2711AB')&&val.includes('(1)')){
-      maxQty=4;
+      maxQty=8;
       if(qty>maxQty){
         alert(`⚠️ 2711AB(1)限購${maxQty}盒，已自動調整數量為${maxQty}`);
         qty=maxQty;
@@ -1085,7 +1085,7 @@ function adjustQtySelectOptions(productName) {
   } else if (val.includes('火山甘露') && val.includes('限4盒')) {
     maxQty = 4;
   } else if (val.includes('2711AB') && val.includes('(1)')) {
-    maxQty = 4;
+    maxQty = 8;
   }
 
   // 清空並重新生成正確的數量選項
