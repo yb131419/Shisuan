@@ -1363,69 +1363,86 @@ const verifyUserFromBackend=(profile)=>{
   });
 };
 
-// 初始化LIFF和授權
+// 初始化LIFF和授權【修復登入卡死】
 async function initLiffAndAuth(){
   try{
-    updateAuthLoadingText("正在驗證","請稍候...");
-    await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
-    loadProducts();
-    if(!liff.isLoggedIn()){
-      updateAuthLoadingText("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
-      liff.login({redirectUri:window.location.href});
-      return;
-    }
-    const profile=await liff.getProfile();
-    userInfo={userId:profile.userId,displayName:profile.displayName};
-    
-    // 檢查是否是VIP/超管且有當天有效驗證緩存
-    const isPrivilegeUserCached=isTodayValidAuth(profile.userId);
-    if(isPrivilegeUserCached){
-      // 使用緩存的驗證數據
-      authStatus=JSON.parse(localStorage.getItem(`authCache_${profile.userId}`)).data;
-      els.authLoading.style.display='none';
-      document.getElementById('authContainer').style.display='none';
-      els.captureArea.style.display='block';
-      els.inputArea.style.display='flex';
-      els.buttonGroup.style.display='flex';
-      setupLineName();
-      loadSelectedProds();
-      checkUserRemainingTimes();
-      updateAuthStatusBar();
-      showToast(`歡迎💎尊爵用戶💎<br><span class="toast-highlight-name">${userInfo.displayName}</span><br>驗證一次後<br>短時間不在驗證<br>`);
-      return;
-    }
-    
-    // 普通用戶或緩存過期，走正常驗證流程
-    updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
-    const authData=await verifyUserFromBackend(profile);
-    if(!authData)return;
-    if(authData.isExpired){
-      showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
-      return;
-    }
-    authStatus=authData;
-    els.authLoading.style.display='none';
-    document.getElementById('authContainer').style.display='none';
-    els.captureArea.style.display='block';
-    els.inputArea.style.display='flex';
-    els.buttonGroup.style.display='flex';
-    setupLineName();
-    loadSelectedProds();
-    checkUserRemainingTimes();
-    updateAuthStatusBar();
-    showToast(`歡迎回來，${userInfo.displayName}！`);
-  }catch(error){
-    let errorMsg=error.message||'未知初始化錯誤';
-    if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
-      errorMsg='登錄狀態已過期，將自動重新登錄';
-      showToast(errorMsg, 'warning');
-      setTimeout(()=>{
-        liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
-      },1500);
+    updateAuthLoadingText("正在初始化LIFF","載入LINE登入模組...");
+    // 第一步先初始化LIFF，絕對不能先執行loadProducts
+    await liff.init({
+      liffId:LIFF_ID,
+      withLoginOnExternalBrowser:true,
+      scope:'profile openid email'
+    });
 
+    // 先判斷登入狀態，未登入直接跳轉，不執行後續API
+    if (!liff.isLoggedIn()) {
+      updateAuthLoadingText("需要LINE登入","即將跳轉LINE授權頁...");
+      setTimeout(() => {
+        liff.login({ redirectUri: window.location.href });
+      }, 600);
+      return;
     }
-    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
+
+    // 確認已登入，才載入商品列表（修正順序錯亂BUG）
+    loadProducts();
+    updateAuthLoadingText("彥彬🌿試算系統","正在讀取用戶權限...");
+
+    // 取得LINE個人資料
+    const profile = await liff.getProfile();
+    userInfo = { userId:profile.userId, displayName:profile.displayName };
+    
+    // VIP/管理員當天緩存驗證
+    if(isTodayValidAuth(profile.userId)){
+      authStatus = JSON.parse(localStorage.getItem(`authCache_${profile.userId}`)).data;
+      renderMainSystem();
+      showToast(`歡迎💎尊爵用戶💎<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
+      return;
+    }
+    
+    // 普通用戶後端驗證
+    const authData = await verifyUserFromBackend(profile);
+    if(!authData) {
+      showError("用戶權限驗證失敗，請重整頁面");
+      return;
+    }
+    if(authData.isExpired){
+      showError('您的帳號已過期，無法使用，請聯繫管理員續期');
+      return;
+    }
+
+    authStatus = authData;
+    renderMainSystem();
+    showToast(`歡迎回來，${userInfo.displayName}！`);
+    
+  }catch(error){
+    console.error("LIFF初始化錯誤：", error);
+    // 完整覆蓋token過期關鍵字
+    const tokenExpireWords = ["token expired","Access Token expired","login required","unauthenticated"];
+    const isTokenInvalid = tokenExpireWords.some(word => error.message.includes(word));
+    
+    if (isTokenInvalid) {
+      showToast("登入憑證已過期，重新登入中", "warning");
+      setTimeout(() => {
+        liff.logout();
+        liff.login({ redirectUri: window.location.href });
+      }, 1000);
+      return;
+    }
+    updateAuthLoadingText("初始化失敗", error.message + "<br>請重整頁面重試");
   }
+}
+
+// 抽離頁面顯示邏輯，減少重複程式碼
+function renderMainSystem(){
+  els.authLoading.style.display='none';
+  document.getElementById('authContainer').style.display='none';
+  els.captureArea.style.display='block';
+  els.inputArea.style.display='flex';
+  els.buttonGroup.style.display='flex';
+  setupLineName();
+  loadSelectedProds();
+  checkUserRemainingTimes();
+  updateAuthStatusBar();
 }
 
 // 更新授权加载提示文本
@@ -1446,14 +1463,7 @@ async function initApp() {
   }
 }
 
-// 1. 初始绑定
-document.querySelector('.close-status').addEventListener('click',function(){
-  els.authStatusBar.style.opacity='0';
-  setTimeout(()=>{
-    els.authStatusBar.style.display='none';
-    els.authStatusBar.style.opacity='1';
-  },300);
-});
+
 
 </script>
 </body>
