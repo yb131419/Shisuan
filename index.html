@@ -639,24 +639,35 @@ else if(val.includes('2711AB')){
 // 現金自動贈品邏輯：每2萬現金 → 贈送 211(30) x1
 function handleCashGift(){
   if(!els.cashOption.checked){
-    // 取消現金時，移除所有贈品
+    // 取消现金时，移除所有贈品
+    const hasGift = selectedProds.some(p => p.name.includes('贈品 211(30)'));
     selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
-    saveSelectedProds();
-    renderTable();
+    if (hasGift) {
+      saveSelectedProds();
+      renderTable();
+      showToast('已取消現金贈品');
+    }
     return;
   }
 
   const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
   const giftQty = Math.floor(totalPrice / 20000);
-  
-  if(giftQty <= 0) return;
+  const currentGiftQty = selectedProds.find(p => p.name.includes('贈品 211(30)'))?.qty || 0;
 
-  // 先移除舊贈品
+  // 贈品数量无变化则不操作，避免死循环和重复提示
+  if (giftQty === currentGiftQty) return;
+
+  // 先移除旧贈品
   selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
   
-  // 新增對應數量贈品
-  addSpecificProduct('贈品 211(30)', giftQty);
-  showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
+  // 贈品数量大于0才新增
+  if (giftQty > 0) {
+    addSpecificProduct('贈品 211(30)', giftQty);
+    showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
+  } else {
+    saveSelectedProds();
+    renderTable();
+  }
 }
 
 // 輔助函數：新增指定品項和數量（增強重複檢查）
@@ -1057,6 +1068,8 @@ function addProduct(){
   }
 }
 
+  
+
 // 動態調整數量下拉選項（修復限定組數錯誤）
 function adjustQtySelectOptions(productName) {
   if (!productName) return;
@@ -1191,11 +1204,21 @@ async function exportToImage(){
   try{
     const scale=window.innerWidth<768?3:4;
     const canvas=await html2canvas(els.captureArea,{
-      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
-      logging:false,letterRendering:true,useTransform:true,dpi:300,
-      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
-      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
-      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
+      scale:scale,
+      useCORS:true,
+      allowTaint:false, // 修复：禁止画布污染，跨域图片优先用CORS模式加载
+      backgroundColor:null,
+      logging:false,
+      letterRendering:true,
+      useTransform:true,
+      dpi:300,
+      scaleMethod:'highQuality',
+      width:captureWidth,
+      windowWidth:captureWidth,
+      windowHeight:els.captureArea.offsetHeight,
+      scrollX:0,
+      scrollY:0,
+      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('delete-btn')
     });
     const dataUrl=canvas.toDataURL("image/png",1.0);
     els.previewImage.src=dataUrl;
