@@ -485,6 +485,12 @@ body{
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
 }
+
+#captureArea.exporting {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  overflow: visible !important;
+}
 </style>
 </head>
 <body>
@@ -1242,7 +1248,7 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片 → 電腦+手機 雙版穩定修復版（手機強制左右留白20px）
+// 匯出圖片 → 修復 Uncaught InvalidNodeTypeError + 手機左右留白20px
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -1252,7 +1258,6 @@ async function exportToImage(){
   }
   els.exportBtn.disabled=true;
 
-  // 🔥 手機專屬：強制還原滾動位置 + 清除所有動畫
   window.scrollTo(0,0);
   els.reportBody.querySelectorAll('tr.row-fade-in, tr.row-removing').forEach(tr => {
     tr.classList.remove('row-fade-in', 'row-removing');
@@ -1260,15 +1265,13 @@ async function exportToImage(){
   els.captureArea.classList.remove('screen-enter');
 
   try {
-    // 截圖專用樣式
     els.captureArea.classList.add('exporting');
-    await new Promise(resolve => setTimeout(resolve, 200)); // 手機加長延遲更穩
+    // 手機延長等待，DOM 穩定
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     const target = els.captureArea;
-    // 基礎尺寸限制
     let contentWidth = Math.min(target.scrollWidth, 1080);
     const contentHeight = target.scrollHeight;
-    // 手機強制左右留白 20px 單側，左右總共40px
     const paddingSide = window.innerWidth < 768 ? 20 : 0;
     const finalWidth = contentWidth + paddingSide * 2;
 
@@ -1276,14 +1279,13 @@ async function exportToImage(){
       throw new Error('報表尺寸讀取失敗，請重整頁面');
     }
 
-    // 縮放係數 手機降倍率防崩潰
     let scale = window.innerWidth < 768 ? 1.8 : 2.2;
     const maxPixels = 3000 * 3000;
     while (scale > 1 && (contentWidth * scale * contentHeight * scale) > maxPixels) {
       scale -= 0.3;
     }
 
-    // 截圖原始內容
+    // 關鍵修復：foreignObjectRendering: false 解決手機 Range selectNode 報錯
     const originCanvas = await html2canvas(target, {
       scale: scale,
       useCORS: true,
@@ -1297,26 +1299,24 @@ async function exportToImage(){
       windowWidth: contentWidth,
       windowHeight: contentHeight,
       removeContainer: true,
-      ignoreElements: el => el.id === "previewImage"
+      foreignObjectRendering: false, // 核心修復參數
+      ignoreElements: el => el.id === "previewImage" || !el.parentNode
     });
 
     if (!originCanvas || originCanvas.width === 0 || originCanvas.height === 0) throw new Error('圖片生成失敗');
 
-    // 新建畫布，手機合成左右留白20px
+    // 合成左右留白畫布
     const finalCanvas = document.createElement('canvas');
     const ctx = finalCanvas.getContext('2d');
     finalCanvas.width = finalWidth * scale;
     finalCanvas.height = contentHeight * scale;
-    // 填充背景黑色
     ctx.fillStyle = "#1c1c1c";
     ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-    // 內容繪製到中間，左右預留留白
     ctx.drawImage(originCanvas, paddingSide * scale, 0);
 
-    // 關閉截圖專用樣式
     els.captureArea.classList.remove('exporting');
 
-    // 圖片賦值前清空src，修復手機onload緩存bug
+    // 清空src避免緩存onload失效
     els.previewImage.src = '';
     await new Promise(resolve => {
       els.previewImage.onload = resolve;
@@ -1324,7 +1324,6 @@ async function exportToImage(){
       els.previewImage.style.display = "block";
     });
 
-    // 顯示所有分享按鈕
     els.shareToLineBtn.style.display = "inline-block";
     els.clearImageBtn.style.display = "inline-block";
     if (navigator.share) els.nativeShareBtn.style.display = "inline-block";
@@ -1334,7 +1333,7 @@ async function exportToImage(){
   } catch (error) {
     console.error("匯出錯誤:", error);
     els.captureArea.classList.remove('exporting');
-    showToast(`手機版匯出失敗：${error.message || '請重整頁面再試'}`, "error");
+    showToast(`匯出失敗：${error.message || '請重整頁面再試'}`, "error");
   } finally {
     els.exportBtn.disabled = false;
   }
