@@ -1239,16 +1239,18 @@ async function exportToImage(){
   els.captureArea.style.paddingLeft="30px";
   els.captureArea.style.paddingRight="30px";
 
+  // 偵測是否在LINE內建瀏覽器（LIFF）中，其記憶體/canvas限制比一般手機瀏覽器嚴格許多
+  const ua=navigator.userAgent||'';
+  const isLineInApp=/Line/i.test(ua);
   const isMobile=window.innerWidth<768;
-  const MAX_CANVAS_AREA=16000000; // 留一點餘裕，實際上限約16.7M px
-  const MAX_CANVAS_SIDE=isMobile?4000:8000; // 新增：手機瀏覽器單邊像素也有限制（約4096px），只看面積會漏掉「又高又窄」的報表
+  const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
+  const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
   const captureHeight=els.captureArea.offsetHeight||1;
-  let scale=isMobile?3:4;
+  let scale=isLineInApp?1.5:(isMobile?2:4);
   const estimatedArea=captureWidth*captureHeight*scale*scale;
   if(estimatedArea>MAX_CANVAS_AREA){
     scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
   }
-  // 新增：再依單邊限制夾一次，避免報表過長時高度x scale爆掉單邊上限
   const maxSideScale=Math.min(MAX_CANVAS_SIDE/captureWidth,MAX_CANVAS_SIDE/captureHeight);
   if(scale>maxSideScale){
     scale=Math.max(1,Math.floor(maxSideScale*10)/10);
@@ -1263,7 +1265,7 @@ async function exportToImage(){
       ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
     const timeoutPromise=new Promise((_,reject)=>{
-      setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),20000); // 逾時時間拉長，避免手機效能較弱時誤判
+      setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),20000);
     });
     return Promise.race([capturePromise,timeoutPromise]);
   }
@@ -1273,19 +1275,25 @@ async function exportToImage(){
     try{
       canvas=await attemptCapture(scale);
     }catch(innerErr){
-      // 先等一下，讓可能還在背景跑的舊html2canvas有機會結束，避免兩份同時操作DOM造成反黑
       await new Promise(r=>setTimeout(r,400));
-      canvas=await attemptCapture(Math.max(1,Math.min(scale-1,2)));
+      canvas=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
     }
 
-    let dataUrl;
-    try{
-      dataUrl=canvas.toDataURL("image/png",1.0);
-    }catch(secErr){
-      throw new Error('圖片來源跨網域限制，無法匯出（請確認商品圖片網址支援CORS）');
-    }
+    // 改用 toBlob 取代 toDataURL：大尺寸canvas直接轉base64字串，
+    // 在記憶體受限的LINE內建瀏覽器上很容易崩潰或靜默失敗，
+    // 導致previewImage.src沒被設定、分享按鈕也不會顯示出來。
+    const blob=await new Promise((resolve,reject)=>{
+      canvas.toBlob(b=>{
+        if(b)resolve(b);else reject(new Error('圖片轉換失敗，畫布可能過大，請減少品項後再試'));
+      },'image/png',1.0);
+    });
 
-    els.previewImage.src=dataUrl;
+    if(els.previewImage.dataset.objectUrl){
+      URL.revokeObjectURL(els.previewImage.dataset.objectUrl);
+    }
+    const objectUrl=URL.createObjectURL(blob);
+    els.previewImage.src=objectUrl;
+    els.previewImage.dataset.objectUrl=objectUrl;
     els.previewImage.style.display="block";
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
@@ -1307,13 +1315,19 @@ async function exportToImage(){
   }
 }
 
-// 分享到LINE
 async function shareToLine(){
   if(!authStatus)return;
   if(!els.previewImage.src){alert("請先匯出圖片");return;}
   els.shareToLineBtn.disabled=true;
   try{
-    const base64Data=els.previewImage.src.split(",")[1];
+    const response=await fetch(els.previewImage.src);
+    const blob=await response.blob();
+    const base64Data=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onloadend=()=>resolve(reader.result.split(",")[1]);
+      reader.onerror=()=>reject(new Error('圖片讀取失敗'));
+      reader.readAsDataURL(blob);
+    });
     const formData=new FormData();
     formData.append("image",base64Data);
     formData.append("key",IMGBB_API_KEY);
