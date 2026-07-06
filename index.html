@@ -1218,13 +1218,10 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
-
-// 匯出圖片
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
-  // 保險：截圖前先清掉所有還殘留的 CSS animation class，避免 html2canvas 把還在動畫中的元素拍成空白
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
@@ -1241,16 +1238,43 @@ async function exportToImage(){
   els.captureArea.style.width=`${captureWidth}px`;
   els.captureArea.style.paddingLeft="30px";
   els.captureArea.style.paddingRight="30px";
-  try{
-    const scale=window.innerWidth<768?3:4;
-    const canvas=await html2canvas(els.captureArea,{
-      scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
-      logging:false,letterRendering:true,useTransform:true,dpi:300,
-      scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
-      windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
+
+  // 依裝置與畫布大小動態算出安全 scale，避免超過手機瀏覽器 canvas 像素上限
+  const isMobile=window.innerWidth<768;
+  const MAX_CANVAS_AREA=16000000; // 留一點餘裕，實際上限約16.7M px
+  const captureHeight=els.captureArea.offsetHeight||1;
+  let scale=isMobile?3:4;
+  const estimatedArea=captureWidth*captureHeight*scale*scale;
+  if(estimatedArea>MAX_CANVAS_AREA){
+    scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
+  }
+
+  async function attemptCapture(useScale){
+    return html2canvas(els.captureArea,{
+      scale:useScale,useCORS:true,allowTaint:false,backgroundColor:null,
+      logging:false,letterRendering:true,
+      width:captureWidth,windowWidth:captureWidth,
+      windowHeight:captureHeight,scrollX:0,scrollY:0,
       ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
-    const dataUrl=canvas.toDataURL("image/png",1.0);
+  }
+
+  try{
+    let canvas;
+    try{
+      canvas=await attemptCapture(scale);
+    }catch(innerErr){
+      // 第一次失敗（常見於畫布過大或圖片污染），自動降級 scale 重試一次
+      canvas=await attemptCapture(Math.max(1,scale-1));
+    }
+
+    let dataUrl;
+    try{
+      dataUrl=canvas.toDataURL("image/png",1.0);
+    }catch(secErr){
+      throw new Error('圖片來源跨網域限制，無法匯出（請確認商品圖片網址支援CORS）');
+    }
+
     els.previewImage.src=dataUrl;
     els.previewImage.style.display="block";
     els.shareToLineBtn.style.display="inline-block";
