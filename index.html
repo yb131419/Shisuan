@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>彥彬🌿試算系統</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
@@ -1256,13 +1256,17 @@ async function exportToImage(){
     scale=Math.max(1,Math.floor(maxSideScale*10)/10);
   }
 
-  async function attemptCapture(useScale){
-    const capturePromise=html2canvas(els.captureArea,{
-      scale:useScale,useCORS:true,allowTaint:false,backgroundColor:null,
-      logging:false,letterRendering:true,
-      width:captureWidth,windowWidth:captureWidth,
-      windowHeight:captureHeight,scrollX:0,scrollY:0,
-      ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
+ async function attemptCapture(useScale){
+    const capturePromise=domtoimage.toBlob(els.captureArea,{
+      width:captureWidth*useScale,
+      height:captureHeight*useScale,
+      style:{
+        transform:`scale(${useScale})`,
+        transformOrigin:'top left',
+        width:`${captureWidth}px`,
+        height:`${captureHeight}px`
+      },
+      bgcolor:null
     });
     const timeoutPromise=new Promise((_,reject)=>{
       setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),20000);
@@ -1271,22 +1275,15 @@ async function exportToImage(){
   }
 
   try{
-    let canvas;
+    let blob;
     try{
-      canvas=await attemptCapture(scale);
+      blob=await attemptCapture(scale);
     }catch(innerErr){
       await new Promise(r=>setTimeout(r,400));
-      canvas=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
+      blob=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
     }
 
-    // 改用 toBlob 取代 toDataURL：大尺寸canvas直接轉base64字串，
-    // 在記憶體受限的LINE內建瀏覽器上很容易崩潰或靜默失敗，
-    // 導致previewImage.src沒被設定、分享按鈕也不會顯示出來。
-    const blob=await new Promise((resolve,reject)=>{
-      canvas.toBlob(b=>{
-        if(b)resolve(b);else reject(new Error('圖片轉換失敗，畫布可能過大，請減少品項後再試'));
-      },'image/png',1.0);
-    });
+    if(!blob)throw new Error('圖片產生失敗，回傳為空');
 
     if(els.previewImage.dataset.objectUrl){
       URL.revokeObjectURL(els.previewImage.dataset.objectUrl);
@@ -1298,11 +1295,9 @@ async function exportToImage(){
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
-}catch(error){
+  }catch(error){
     console.error('匯出圖片錯誤詳情:',error);
-    const detail=`${error?.name||''} ${error?.message||''} ${error?.stack?.slice(0,200)||''}`.trim();
-    showToast(`匯出失敗：${detail||'無錯誤訊息（可能是WebView直接中斷）'}`,'error');
-    alert(`除錯用，請截圖回報：\n${detail||'無任何錯誤訊息，canvas可能回傳null或WebView直接崩潰'}`);
+    showToast(`匯出失敗：${error?.message||'未知錯誤'}`, 'error');
   }finally{
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
