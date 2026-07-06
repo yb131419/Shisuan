@@ -1291,7 +1291,7 @@ async function exportToImage(){
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
     els.captureArea.style.paddingRight=originalPaddingRight;
-    els.captureArea.style.paddingLeft=originalPaddingLeft;
+    els.captureArea.style.paddingLeft=originalPaddingLeft; 
     els.exportBtn.disabled=false;
     // 保險：清掉 html2canvas 卡住時殘留、沒被自動移除的複製層（造成畫面反黑的元凶）
     document.querySelectorAll('body > div[style*="position: fixed"]').forEach(el=>{
