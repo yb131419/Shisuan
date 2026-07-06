@@ -33,9 +33,7 @@ body{
 #authContainer{
   position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;flex-direction:column;
   align-items:center;z-index:9999;background:rgba(0,0,0,0.88);overflow-y:auto;padding:30px 12px;
-  transition:opacity 0.35s ease;
 }
-#authContainer.fade-out{opacity:0;}
 /* 登入前的整體容器：登入卡片 + 使用範例圖，一起置中／可捲動（一開始就顯示，內部用讀取中狀態，不再另外彈出「初始化」畫面） */
 #loginWrapper{display:flex;flex-direction:column;gap:18px;width:100%;max-width:420px;margin:auto;}
 /* 卡片內的讀取中狀態（取代舊版獨立的初始化畫面） */
@@ -43,17 +41,11 @@ body{
 .login-loading .loader.small{width:36px;height:36px;margin:0 auto 14px;}
 .login-loading-title{color:var(--highlight);font-weight:600;font-size:1.05rem;margin-bottom:6px;}
 .login-loading-desc{color:#999;font-size:0.85rem;line-height:1.6;}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.screen-enter{animation:fadeInUp 0.4s ease both;}
 @keyframes statusBarIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 .status-in{animation:statusBarIn 0.4s ease;}
 @keyframes avatarPulse{0%,100%{box-shadow:0 0 0 4px rgba(0,209,178,0.15),0 6px 20px rgba(0,0,0,0.5);}50%{box-shadow:0 0 0 8px rgba(0,209,178,0.28),0 6px 24px rgba(0,0,0,0.55);}}
 .btn-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle;}
 .btn-success{background:linear-gradient(145deg,#4caf50,#388e3c)!important;border-color:rgba(129,220,133,0.85)!important;}
-@keyframes rowFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.row-fade-in{animation:rowFadeIn 0.28s ease both;}
-@keyframes rowFadeOut{from{opacity:1;}to{opacity:0;}}
-#reportTable tbody tr.row-removing td{animation:rowFadeOut 0.2s ease forwards;}
 /* 登入畫面卡片：手動點擊登入才會扣次（質感升級版） */
 #loginScreen{
   position:relative;width:100%;overflow:hidden;
@@ -240,12 +232,12 @@ body{
   text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;margin:0 0 15px 0;padding:10px 0;
   line-height:1.3;width:100%;
 }
-.period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
-/* 修改：時長選項白色高級質感樣式 */
+.period-options{display:flex;justify-content:center;gap:6px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
+/* 修改：時長選項白色高級質感樣式（精簡版，確保四個選項一行不換行） */
 .period-box{
-  border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
+  border:1px solid #e0e0e0;border-radius:8px;padding:6px 10px;color:#e0e0e0;font-size:12px;cursor:pointer;
   transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
-  font-weight:500;
+  font-weight:500;white-space:nowrap;flex:0 0 auto;
 }
 .period-box:hover{
   border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
@@ -262,9 +254,29 @@ body{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
 }
+/* 「填日期」內嵌日期填寫框：與其他三個時長選項同一列、樣式一致 */
+.period-date-wrap{
+  display:flex;align-items:center;gap:4px;flex:0 0 auto;white-space:nowrap;
+  border:1px solid #e0e0e0;border-radius:8px;padding:6px 8px;color:#e0e0e0;font-size:12px;font-weight:500;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);background:transparent;
+}
+.period-date-wrap.active{
+  border-color:var(--period-border);color:var(--period-text);font-weight:bold;box-shadow:var(--period-shadow);
+  background-image:linear-gradient(145deg,#ffffff,#e8e8e8);
+}
+.period-date-label{font-size:11px;white-space:nowrap;}
+.period-date-input{
+  border:none;background:transparent;color:inherit;font-size:11px;padding:0;width:88px;
+  font-family:inherit;color-scheme:dark;cursor:pointer;
+}
+.period-date-wrap.active .period-date-input{color-scheme:light;}
+.period-date-input::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer;}
+.period-date-wrap.active .period-date-input::-webkit-calendar-picker-indicator{filter:none;}
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
-  .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
+  .period-box{font-size:13px;padding:7px 14px;border-radius:10px;}
+  .period-date-wrap{font-size:13px;padding:7px 10px;}
+  .period-date-input{font-size:13px;width:100px;}
 }
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
@@ -426,7 +438,9 @@ body{
   .login-avatar{width:60px;height:60px;}
   .loader{width:40px;height:40px;}
   #addBtn{min-width:150px!important;padding:12px 16px!important;font-size:15px!important;}
-  .period-box{padding:6px 10px;font-size:12px;}
+  .period-box{padding:5px 8px;font-size:11px;}
+  .period-date-wrap{padding:5px 6px;font-size:11px;gap:3px;}
+  .period-date-input{font-size:11px;width:76px;}
 }
 #error-message{
   display:none;background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);
@@ -523,9 +537,11 @@ body{
       <div class="period-box">一個月</div>
       <div class="period-box">三個月</div>
       <div class="period-box">六個月</div>
-      <div class="period-box" id="customPeriodBox">📅 自訂日期</div>
+      <label class="period-date-wrap" id="customPeriodWrap" for="customPeriodInput">
+        <span class="period-date-label">📅填日期</span>
+        <input type="date" id="customPeriodInput" class="period-date-input" />
+      </label>
     </div>
-    <input type="date" id="customPeriodInput" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
   </h2>
   <div class="userInputs">  
     <div class="row">
@@ -627,7 +643,7 @@ const els={
   reportTable:document.getElementById("reportTable"),
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
-  customPeriodBox:document.getElementById("customPeriodBox"),
+  customPeriodWrap:document.getElementById("customPeriodWrap"),
   customPeriodInput:document.getElementById("customPeriodInput"),
   watermark:document.getElementById("watermark")
 };
@@ -640,27 +656,22 @@ for(let i=1;i<=99;i++){
   els.qtyInput.appendChild(option);
 }
 
-// 新增時長選項點擊事件（含「自訂日期」：點擊會打開原生日期選擇器，選定後顯示所選日期）
-const DEFAULT_CUSTOM_PERIOD_LABEL='📅 自訂日期';
+// 新增時長選項點擊事件（「填日期」是直接可點的日期填寫框，不需要另外觸發隱藏元件）
 document.querySelectorAll('.period-box').forEach(box=>{
   box.addEventListener('click',function(){
-    if(this.id==='customPeriodBox'){
-      els.customPeriodInput.showPicker?els.customPeriodInput.showPicker():els.customPeriodInput.click();
-      return;
-    }
     document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
-    if(els.customPeriodBox)els.customPeriodBox.textContent=DEFAULT_CUSTOM_PERIOD_LABEL;
+    if(els.customPeriodWrap)els.customPeriodWrap.classList.remove('active');
+    if(els.customPeriodInput)els.customPeriodInput.value='';
   });
 });
 els.customPeriodInput.addEventListener('change',function(){
-  if(!this.value)return;
-  const d=new Date(this.value+'T00:00:00');
-  if(isNaN(d.getTime()))return;
-  const label=`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+  if(!this.value){
+    els.customPeriodWrap.classList.remove('active');
+    return;
+  }
   document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
-  els.customPeriodBox.textContent=`📅 ${label}`;
-  els.customPeriodBox.classList.add('active');
+  els.customPeriodWrap.classList.add('active');
 });
 
 // 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
@@ -863,7 +874,7 @@ async function resetReport(){
   els.cashOption.checked=false;
   els.cardOption.checked=false;
   document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
-  if(els.customPeriodBox)els.customPeriodBox.textContent=DEFAULT_CUSTOM_PERIOD_LABEL;
+  if(els.customPeriodWrap)els.customPeriodWrap.classList.remove('active');
   if(els.customPeriodInput)els.customPeriodInput.value='';
   clearImage();
 
@@ -928,7 +939,6 @@ function renderTable(){
     totalPrice+=subtotalPrice;
     totalPv+=subtotalPv;
     const tr=document.createElement("tr");
-    tr.className="row-fade-in";
     const qtyOptions=Array.from({length:maxQty},(_,i)=>{
       const val=i+1;
       return `<option value="${val}" ${val===item.qty?"selected":""}>${val}</option>`;
@@ -948,10 +958,6 @@ function renderTable(){
     `;
     els.reportBody.appendChild(tr);
   });
-  // 動畫播放完就移除 class（避免 CSS animation 屬性殘留，導致「報表轉圖片」html2canvas 截圖失敗/空白）
-  setTimeout(()=>{
-    els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
-  },320);
   els.totalPriceCellDup.textContent=totalPrice;
   els.totalPvCellDup.textContent=totalPv;
   const diff2=TARGET_PV220-totalPv;
@@ -1000,15 +1006,8 @@ const extraDeleteFromBackend=()=>{
 // 普通用戶「每次登入」限免費刪除 3 次，並會即時提醒剩餘免費次數；
 // 超過 3 次後，每多刪 1 次都會再次向後端確認並扣除 1 次使用次數，
 // 完全阻絕「用刪除規避扣次」的操作空間。
+// 刪除為即時動作、不帶任何動畫效果，確保畫面穩定、報表轉圖片不受影響。
 // ============================================================
-async function animateRowRemoval(btn){
-  const row=btn.closest('tr');
-  if(row){
-    row.classList.add('row-removing');
-    await new Promise(r=>setTimeout(r,200));
-  }
-}
-
 async function handleDelete(btn){
   if(!authStatus||authStatus.isExpired){
     showToast('賬號已過期，無法操作', 'error');
@@ -1021,8 +1020,6 @@ async function handleDelete(btn){
 
   // 尊爵用戶 / 超級管理員：不限次數、免扣
   if(isPrivilege){
-    btn.disabled=true;
-    await animateRowRemoval(btn);
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
@@ -1035,8 +1032,6 @@ async function handleDelete(btn){
 
   // 免費額度內：直接刪除，並提醒剩餘免費次數
   if(usedDeletes<FREE_DELETE_LIMIT){
-    btn.disabled=true;
-    await animateRowRemoval(btn);
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
@@ -1076,7 +1071,6 @@ async function handleDelete(btn){
     }
     authStatus.remainingTimes=result.remainingTimes;
     sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
-    await animateRowRemoval(btn);
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
@@ -1252,43 +1246,19 @@ async function exportToImage(){
     return;
   }
   els.exportBtn.disabled=true;
-  // 保險：截圖前先清掉所有還殘留的 CSS animation class，避免 html2canvas 把還在動畫中的元素拍成空白
-  els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
-  els.captureArea.classList.remove('screen-enter');
 
-  // 用 CSS class 隱藏「操作」欄，讓瀏覽器重新排版後再量測寬高，
-  // 避免「先隱藏、才量測被隱藏元素寬度」導致量到 0 的錯誤（這是先前版本匯出失敗的主因之一）
+  // 用 CSS class 隱藏「操作」欄、加大內距，讓瀏覽器完成排版後再截圖
   els.captureArea.classList.add('exporting');
-  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  await new Promise(r=>setTimeout(r,80));
 
   try{
-    const naturalWidth=Math.ceil(els.captureArea.getBoundingClientRect().width);
-    const naturalHeight=Math.ceil(els.captureArea.scrollHeight);
-    if(!naturalWidth||!naturalHeight){
-      throw new Error('無法量測報表尺寸，請確認畫面已完整顯示後再試一次');
-    }
-
-    // 依畫布總像素動態調整縮放倍率，避免手機瀏覽器 canvas 超出安全上限而產生空白或失敗
-    // （品項越多、表格越長，若還硬用固定的3~4倍縮放，很容易超過手機瀏覽器能處理的畫布上限）
-    const MAX_CANVAS_AREA=4000*4000;
-    let scale=window.innerWidth<768?2.5:3;
-    while(scale>1 && (naturalWidth*scale)*(naturalHeight*scale)>MAX_CANVAS_AREA){
-      scale-=0.5;
-    }
-
+    const scale=window.innerWidth<768?2:2.5;
     const canvas=await html2canvas(els.captureArea,{
       scale:scale,
       useCORS:true,
       allowTaint:true,
       backgroundColor:'#1c1c1c',
-      logging:false,
-      width:naturalWidth,
-      height:naturalHeight,
-      windowWidth:naturalWidth,
-      windowHeight:naturalHeight,
-      scrollX:0,
-      scrollY:0,
-      ignoreElements:el=>el.id==='previewImage'
+      logging:false
     });
 
     if(!canvas||canvas.width===0||canvas.height===0){
@@ -1572,30 +1542,18 @@ async function handleLoginClick(){
 }
 
 // 進入試算介面（登入成功 / 同一分頁內已有有效工作階段時呼叫）
-// 加入淡出/淡入轉場效果，畫面切換更順暢
+// 直接切換畫面，不使用任何動畫效果，確保報表畫面穩定、轉圖片不受影響
 function enterCalculator(){
   const authContainer=document.getElementById('authContainer');
-  authContainer.classList.add('fade-out');
-  setTimeout(()=>{
-    authContainer.style.display='none';
-    authContainer.classList.remove('fade-out');
-    els.loginWrapper.style.display='none';
-    els.captureArea.style.display='block';
-    els.inputArea.style.display='flex';
-    els.buttonGroup.style.display='flex';
-    els.captureArea.classList.add('screen-enter');
-    els.inputArea.classList.add('screen-enter');
-    els.buttonGroup.classList.add('screen-enter');
-    setTimeout(()=>{
-      els.captureArea.classList.remove('screen-enter');
-      els.inputArea.classList.remove('screen-enter');
-      els.buttonGroup.classList.remove('screen-enter');
-    },450);
-    setupLineName();
-    loadSelectedProds();
-    checkUserRemainingTimes();
-    updateAuthStatusBar();
-  },320);
+  authContainer.style.display='none';
+  els.loginWrapper.style.display='none';
+  els.captureArea.style.display='block';
+  els.inputArea.style.display='flex';
+  els.buttonGroup.style.display='flex';
+  setupLineName();
+  loadSelectedProds();
+  checkUserRemainingTimes();
+  updateAuthStatusBar();
 }
 
 // 初始化LIFF和授權
