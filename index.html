@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8"/>
@@ -1249,16 +1248,31 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片 → 修復 Uncaught InvalidNodeTypeError + 手機左右留白20px
+
+// 匯出圖片｜手機卡死按鈕兜底修復 + 強制左右留白20px
 async function exportToImage(){
-  if(!checkUserRemainingTimes())return;
-  if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
-  if(typeof html2canvas!=='function'){
-    showToast('圖片產生元件尚未載入完成，請檢查網路連線後重新整理頁面再試一次','error');
+  // 【最關鍵】全域兜底：無論發生任何錯誤都強制解鎖按鈕
+  let unlockBtn = () => {
+    els.exportBtn.disabled = false;
+    els.captureArea.classList.remove('exporting');
+  };
+
+  if(!checkUserRemainingTimes()){
+    unlockBtn();
     return;
   }
-  els.exportBtn.disabled=true;
+  if(selectedProds.length===0){
+    alert("請先新增至少一個品項，才能匯出圖片！");
+    unlockBtn();
+    return;
+  }
+  if(typeof html2canvas!=='function'){
+    showToast('圖片元件載入失敗，重整頁面再試','error');
+    unlockBtn();
+    return;
+  }
 
+  els.exportBtn.disabled = true;
   window.scrollTo(0,0);
   els.reportBody.querySelectorAll('tr.row-fade-in, tr.row-removing').forEach(tr => {
     tr.classList.remove('row-fade-in', 'row-removing');
@@ -1267,7 +1281,6 @@ async function exportToImage(){
 
   try {
     els.captureArea.classList.add('exporting');
-    // 手機延長等待，DOM 穩定
     await new Promise(resolve => setTimeout(resolve, 300));
 
     const target = els.captureArea;
@@ -1276,17 +1289,15 @@ async function exportToImage(){
     const paddingSide = window.innerWidth < 768 ? 20 : 0;
     const finalWidth = contentWidth + paddingSide * 2;
 
-    if (contentWidth <= 0 || contentHeight <= 0) {
-      throw new Error('報表尺寸讀取失敗，請重整頁面');
-    }
+    if (contentWidth <= 0 || contentHeight <= 0) throw new Error('尺寸讀取失敗');
 
-    let scale = window.innerWidth < 768 ? 1.8 : 2.2;
-    const maxPixels = 3000 * 3000;
+    let scale = window.innerWidth < 768 ? 1.6 : 2.0;
+    const maxPixels = 2600 * 2600;
     while (scale > 1 && (contentWidth * scale * contentHeight * scale) > maxPixels) {
       scale -= 0.3;
     }
 
-    // 關鍵修復：foreignObjectRendering: false 解決手機 Range selectNode 報錯
+    // 手機必備穩定參數，關閉foreignObject杜絕Range報錯
     const originCanvas = await html2canvas(target, {
       scale: scale,
       useCORS: true,
@@ -1300,11 +1311,11 @@ async function exportToImage(){
       windowWidth: contentWidth,
       windowHeight: contentHeight,
       removeContainer: true,
-      foreignObjectRendering: false, // 核心修復參數
+      foreignObjectRendering: false,
       ignoreElements: el => el.id === "previewImage" || !el.parentNode
     });
 
-    if (!originCanvas || originCanvas.width === 0 || originCanvas.height === 0) throw new Error('圖片生成失敗');
+    if (!originCanvas || originCanvas.width === 0) throw new Error('圖片生成失敗');
 
     // 合成左右留白畫布
     const finalCanvas = document.createElement('canvas');
@@ -1315,16 +1326,18 @@ async function exportToImage(){
     ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
     ctx.drawImage(originCanvas, paddingSide * scale, 0);
 
+    // 先清除exporting樣式
     els.captureArea.classList.remove('exporting');
 
-    // 清空src避免緩存onload失效
+    // 處理預覽圖，清空src避免緩存onload失效
     els.previewImage.src = '';
     await new Promise(resolve => {
       els.previewImage.onload = resolve;
-      els.previewImage.src = finalCanvas.toDataURL("image/png", 1.0);
+      els.previewImage.src = finalCanvas.toDataURL("image/png", 0.95);
       els.previewImage.style.display = "block";
     });
 
+    // 顯示分享按鈕
     els.shareToLineBtn.style.display = "inline-block";
     els.clearImageBtn.style.display = "inline-block";
     if (navigator.share) els.nativeShareBtn.style.display = "inline-block";
@@ -1332,11 +1345,11 @@ async function exportToImage(){
     showToast('✅ 圖片已產生');
 
   } catch (error) {
-    console.error("匯出錯誤:", error);
-    els.captureArea.classList.remove('exporting');
+    console.error("匯出異常:", error);
     showToast(`匯出失敗：${error.message || '請重整頁面再試'}`, "error");
   } finally {
-    els.exportBtn.disabled = false;
+    // 雙保險兜底解鎖按鈕，手機崩潰也一定恢復可點擊
+    unlockBtn();
   }
 }
 
