@@ -1239,19 +1239,22 @@ async function exportToImage(){
   els.captureArea.style.paddingLeft="30px";
   els.captureArea.style.paddingRight="30px";
 
-  // 依裝置與畫布大小動態算出安全 scale，避免超過手機瀏覽器 canvas 像素上限
   const isMobile=window.innerWidth<768;
   const MAX_CANVAS_AREA=16000000; // 留一點餘裕，實際上限約16.7M px
+  const MAX_CANVAS_SIDE=isMobile?4000:8000; // 新增：手機瀏覽器單邊像素也有限制（約4096px），只看面積會漏掉「又高又窄」的報表
   const captureHeight=els.captureArea.offsetHeight||1;
   let scale=isMobile?3:4;
   const estimatedArea=captureWidth*captureHeight*scale*scale;
   if(estimatedArea>MAX_CANVAS_AREA){
     scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
   }
+  // 新增：再依單邊限制夾一次，避免報表過長時高度x scale爆掉單邊上限
+  const maxSideScale=Math.min(MAX_CANVAS_SIDE/captureWidth,MAX_CANVAS_SIDE/captureHeight);
+  if(scale>maxSideScale){
+    scale=Math.max(1,Math.floor(maxSideScale*10)/10);
+  }
 
   async function attemptCapture(useScale){
-    // 逾時保護：手機上 html2canvas 偶爾會卡死不回應，超過時間就強制判定失敗，
-    // 讓 finally 一定能執行、按鈕一定能恢復，畫面才不會反黑卡死
     const capturePromise=html2canvas(els.captureArea,{
       scale:useScale,useCORS:true,allowTaint:false,backgroundColor:null,
       logging:false,letterRendering:true,
@@ -1260,7 +1263,7 @@ async function exportToImage(){
       ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
     });
     const timeoutPromise=new Promise((_,reject)=>{
-      setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),12000);
+      setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),20000); // 逾時時間拉長，避免手機效能較弱時誤判
     });
     return Promise.race([capturePromise,timeoutPromise]);
   }
@@ -1270,7 +1273,9 @@ async function exportToImage(){
     try{
       canvas=await attemptCapture(scale);
     }catch(innerErr){
-      canvas=await attemptCapture(Math.max(1,scale-1));
+      // 先等一下，讓可能還在背景跑的舊html2canvas有機會結束，避免兩份同時操作DOM造成反黑
+      await new Promise(r=>setTimeout(r,400));
+      canvas=await attemptCapture(Math.max(1,Math.min(scale-1,2)));
     }
 
     let dataUrl;
