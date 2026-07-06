@@ -23,30 +23,63 @@
   --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
   --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
   --period-text:#000;
+  --gold:#c9a15a;--gold-light:#ffe9b0;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
 }
-#authContainer{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;z-index:9999;background:rgba(0,0,0,0.8);}
+#authContainer{
+  position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;flex-direction:column;
+  align-items:center;z-index:9999;background:rgba(0,0,0,0.88);overflow-y:auto;padding:30px 12px;
+}
 #authLoading{
-  width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
+  width:100%;max-width:400px;margin:auto;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
   box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;
 }
-/* 登入畫面卡片：手動點擊登入才會扣次 */
+/* 登入前的整體容器：登入卡片 + 使用範例圖，一起置中／可捲動 */
+#loginWrapper{display:none;flex-direction:column;gap:18px;width:100%;max-width:420px;margin:auto;}
+/* 登入畫面卡片：手動點擊登入才會扣次（質感升級版） */
 #loginScreen{
-  width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:35px 25px;text-align:center;
-  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.08);display:none;
+  position:relative;width:100%;overflow:hidden;
+  background:linear-gradient(160deg,#1c1c1c 0%,#141414 100%);
+  border-radius:20px;padding:34px 24px 28px;text-align:center;
+  box-shadow:0 0 0 1px rgba(201,161,90,0.25),0 20px 50px rgba(0,0,0,0.55);
+  border:1px solid rgba(255,255,255,0.06);
+  animation:loginCardIn 0.5s cubic-bezier(0.16,1,0.3,1);
 }
-#loginScreen .login-title{font-size:1.3rem;font-weight:700;color:var(--highlight);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;}
+#loginScreen::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+@keyframes loginCardIn{from{opacity:0;transform:translateY(14px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+#loginScreen .login-title{
+  font-size:1.4rem;font-weight:800;letter-spacing:1px;margin-bottom:20px;
+  background:linear-gradient(135deg,#40c4ff,#00d1b2);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.login-avatar-wrap{display:flex;justify-content:center;margin-bottom:14px;}
+.login-avatar{
+  width:72px;height:72px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--gold);box-shadow:0 0 0 4px rgba(0,209,178,0.15),0 6px 20px rgba(0,0,0,0.5);
+}
+.login-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:2rem;background:#2a2a2a;color:#ccc;}
 #loginScreen .login-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:10px;}
 #loginScreen .login-badge.super{background:rgba(212,175,55,0.15);color:var(--super);border:1px solid rgba(212,175,55,0.4);}
 #loginScreen .login-badge.vip{background:rgba(0,191,165,0.15);color:var(--vip);border:1px solid rgba(0,191,165,0.4);}
 #loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
 #loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
 #loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
-#loginScreen .login-tip{font-size:0.85rem;color:#999;margin:16px 0;line-height:1.6;}
+/* 使用規則面板：登入前就寫清楚 */
+.login-rules{
+  text-align:left;background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
+  border-radius:10px;padding:14px 14px 14px 16px;margin:18px 0;
+}
+.login-rules-title{font-size:0.9rem;font-weight:bold;color:var(--gold-light);margin-bottom:9px;letter-spacing:0.5px;}
+.login-rules ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+.login-rules li{font-size:0.8rem;color:#ccc;line-height:1.55;}
+.login-rules li b{color:#fff;}
+.login-btn-full{width:100%!important;}
 #loginScreen .login-exceeded{
   background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);
   color:#fef2f2;padding:14px;border-radius:10px;font-size:0.9rem;line-height:1.7;
@@ -57,6 +90,14 @@ body{
 #loginScreen .vip-admin-username{
   background-image:var(--vip-username);background-clip:text;-webkit-background-clip:text;color:transparent;
 }
+/* 登入畫面下方的使用範例圖片 */
+#loginExample{
+  background:linear-gradient(145deg,#1c1c1c,#141414);border-radius:16px;padding:16px;
+  border:1px solid rgba(255,255,255,0.06);box-shadow:var(--shadow);text-align:center;
+}
+#loginExample .example-title{font-size:0.92rem;color:var(--gold);font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
+#loginExample img{width:100%;border-radius:10px;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+#loginExample .example-caption{font-size:0.75rem;color:#888;margin-top:8px;line-height:1.5;}
 /* 登录状态栏可隐藏，增加关闭按钮和过渡效果 */
 #authStatusBar{
   position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
@@ -341,7 +382,9 @@ body{
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
   .payment-options{font-size:1rem;}
   #authStatusBar{font-size:12px;}
-  #authLoading,#loginScreen{padding:30px 20px;}
+  #authLoading{padding:30px 20px;}
+  #loginScreen{padding:26px 16px 22px;}
+  .login-avatar{width:60px;height:60px;}
   .loader{width:40px;height:40px;}
   #addBtn{min-width:150px!important;padding:12px 16px!important;font-size:15px!important;}
   .period-box{padding:6px 10px;font-size:12px;}
@@ -415,9 +458,16 @@ body{
     <p>請稍候...</p>
   </div>
   <!-- 登入畫面：手動點擊「登入試算系統」才會扣次，可安全重複查看 -->
-  <div id="loginScreen">
-    <div class="login-title">🌿 彥彬試算系統</div>
-    <div id="loginScreenBody"></div>
+  <div id="loginWrapper">
+    <div id="loginScreen">
+      <div class="login-title">🌿 彥彬試算系統</div>
+      <div id="loginScreenBody"></div>
+    </div>
+    <div id="loginExample">
+      <div class="example-title">📌 實際使用範例</div>
+      <img src="https://yb131419.github.io/Shisuan/goods05_3.jpg" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <div class="example-caption">建立完成的試算報表實際畫面（僅供參考，實際內容以您輸入的品項為準）</div>
+    </div>
   </div>
 </div>
 <!-- 修改：增加关闭按钮 -->
@@ -502,6 +552,8 @@ const MAX_NORMAL_USER_USAGE=3;
 // 確保「手動登入才扣次、其餘操作免費」的規則不會被繞過
 const SESSION_KEY_ACTIVE="calcSessionActive";
 const SESSION_KEY_AUTH="calcAuthStatus";
+const SESSION_KEY_DELETE_COUNT="calcSessionDeleteCount";
+const FREE_DELETE_LIMIT=3;
 let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
 const els={
   nameInput:document.getElementById("nameInput"),
@@ -525,8 +577,10 @@ const els={
   resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),
   toast:document.getElementById("toast"),
   authLoading:document.getElementById("authLoading"),
+  loginWrapper:document.getElementById("loginWrapper"),
   loginScreen:document.getElementById("loginScreen"),
   loginScreenBody:document.getElementById("loginScreenBody"),
+  loginExample:document.getElementById("loginExample"),
   authStatusBar:document.getElementById("authStatusBar"),
   captureArea:document.getElementById("captureArea"),
   inputArea:document.getElementById("inputArea"),
@@ -697,6 +751,15 @@ function addSpecificProduct(productName, qty) {
   renderTable();
 }
 
+// 本次登入工作階段內，已刪除品項的次數（存於 sessionStorage，重新整理頁面不會歸零，
+// 只有重新登入 / 重置報表才會歸零，避免用重新整理規避免費刪除次數限制）
+function getSessionDeleteCount(){
+  return parseInt(sessionStorage.getItem(SESSION_KEY_DELETE_COUNT)||'0',10) || 0;
+}
+function setSessionDeleteCount(n){
+  sessionStorage.setItem(SESSION_KEY_DELETE_COUNT,String(n));
+}
+
 // 加載已選商品
 function loadSelectedProds(){
   const saved=localStorage.getItem('selectedProducts');
@@ -752,6 +815,7 @@ async function resetReport(){
 
   sessionStorage.removeItem(SESSION_KEY_ACTIVE);
   sessionStorage.removeItem(SESSION_KEY_AUTH);
+  sessionStorage.removeItem(SESSION_KEY_DELETE_COUNT);
   authStatus=null;
 
   els.captureArea.style.display='none';
@@ -760,7 +824,7 @@ async function resetReport(){
   els.authStatusBar.style.display='none';
 
   document.getElementById('authContainer').style.display='flex';
-  els.loginScreen.style.display='none';
+  els.loginWrapper.style.display='none';
   updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
   els.authLoading.style.display='block';
 
@@ -850,23 +914,109 @@ function renderTable(){
 }
 
 // ============================================================
-// 刪除品項：完全免費、不呼叫後端、不扣任何使用次數。
-// 因為扣次已經在「登入」當下一次性完成，本次工作階段內
-// 新增/刪除/修改數量都不影響已扣的次數，
-// 因此不存在「用刪除規避扣次」的操作空間。
+// 呼叫後端：超過每次登入 3 次免費刪除額度後，每多刪 1 次再扣 1 次使用次數
 // ============================================================
-function handleDelete(btn){
+const extraDeleteFromBackend=()=>{
+  return new Promise((resolve)=>{
+    const callbackName=`extraDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      resolve(resp);
+    };
+    const data={action:'extraDelete',userId:userInfo.userId,displayName:userInfo.displayName,callback:callbackName,dataType:'extraDelete'};
+    $.ajax({
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,cache:false,data:data,
+      error:function(xhr,status,error){
+        delete window[callbackName];
+        const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡後重試':`扣次同步失敗：${error||'未知網絡錯誤'}`;
+        showToast(errorMsg,'error');
+        resolve(null);
+      }
+    });
+  });
+};
+
+// ============================================================
+// 刪除品項防呆：尊爵/超級管理員不限次數、免扣。
+// 普通用戶「每次登入」限免費刪除 3 次，並會即時提醒剩餘免費次數；
+// 超過 3 次後，每多刪 1 次都會再次向後端確認並扣除 1 次使用次數，
+// 完全阻絕「用刪除規避扣次」的操作空間。
+// ============================================================
+async function handleDelete(btn){
   if(!authStatus||authStatus.isExpired){
     showToast('賬號已過期，無法操作', 'error');
     return;
   }
   const idx=parseInt(btn.dataset.index);
   if(isNaN(idx)||idx<0||idx>=selectedProds.length)return;
-  selectedProds.splice(idx,1);
-  saveSelectedProds();
-  renderTable();
-  if(els.cashOption.checked) handleCashGift();
-  showToast('品項已刪除（不扣使用次數）');
+
+  const isPrivilege=authStatus.isVip||authStatus.isSuperAdmin;
+
+  // 尊爵 / 超級管理員：不限次數、免扣
+  if(isPrivilege){
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
+    renderTable();
+    if(els.cashOption.checked) handleCashGift();
+    showToast('品項已刪除');
+    return;
+  }
+
+  const usedDeletes=getSessionDeleteCount();
+
+  // 免費額度內：直接刪除，並提醒剩餘免費次數
+  if(usedDeletes<FREE_DELETE_LIMIT){
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
+    renderTable();
+    if(els.cashOption.checked) handleCashGift();
+    setSessionDeleteCount(usedDeletes+1);
+    const leftFree=FREE_DELETE_LIMIT-(usedDeletes+1);
+    updateAuthStatusBar();
+    if(leftFree>0){
+      showToast(`品項已刪除（本次登入還可免費刪除 ${leftFree} 次）`,'warning');
+    }else{
+      showToast(`品項已刪除，本次登入的 ${FREE_DELETE_LIMIT} 次免費刪除已用完，之後刪除將再扣除使用次數`,'warning');
+    }
+    return;
+  }
+
+  // 已超過免費額度：需再次確認，並向後端扣除1次使用次數
+  if(authStatus.remainingTimes<=0){
+    showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶💎','error');
+    return;
+  }
+  const confirmMsg=`您本次登入已使用完 ${FREE_DELETE_LIMIT} 次免費刪除機會\n繼續刪除將再扣除 1 次使用次數（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定要刪除？`;
+  if(!confirm(confirmMsg))return;
+
+  btn.disabled=true;
+  const originalText=btn.textContent;
+  btn.textContent='處理中';
+  try{
+    const result=await extraDeleteFromBackend();
+    if(!result)return;
+    if(result.status==='exceeded'){
+      showToast(result.message||'使用次數已達上限，無法繼續刪除','error');
+      return;
+    }
+    if(result.status!=='success'){
+      showToast(result.message||'扣次失敗，請稍後再試','error');
+      return;
+    }
+    authStatus.remainingTimes=result.remainingTimes;
+    sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
+    renderTable();
+    if(els.cashOption.checked) handleCashGift();
+    setSessionDeleteCount(usedDeletes+1);
+    updateAuthStatusBar();
+    showToast(`已扣除1次使用次數，剩餘 ${authStatus.remainingTimes} 次`,'warning');
+  }finally{
+    btn.disabled=false;
+    btn.textContent=originalText;
+  }
 }
 
 // 新增商品
@@ -1004,11 +1154,13 @@ function updateAuthStatusBar(){
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
     `;
   }else{
+    const usedDeletes=getSessionDeleteCount();
+    const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
     statusHtml=`
       <span class="normal">🪙 普通用戶 🪙</span> | 
       用戶名：${userInfo.displayName}
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
-      <br/>💡 本次工作階段內新增/刪除品項皆不再扣次
+      <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
       <br/>升級解鎖無限使用次數
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">升級解鎖試算系統</a>
     `;
@@ -1161,7 +1313,7 @@ const calculateRemainingDaysByDate=(expiryDateStr)=>{
 // 顯示錯誤
 const showError=(msg)=>{
   els.authLoading.style.display='none';
-  els.loginScreen.style.display='none';
+  els.loginWrapper.style.display='none';
   els.captureArea.style.display='none';
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
@@ -1228,43 +1380,62 @@ const loginToBackend=()=>{
   });
 };
 
-// 渲染登入畫面內容
+// 渲染登入畫面內容（質感版：頭像 + 身份徽章 + 規則說明 + 登入按鈕）
 function renderLoginScreen(info){
   els.authLoading.style.display='none';
   const isPrivilege=info.isVip||info.isSuperAdmin;
-  let statusHtml='';
+
+  const avatarUrl=(userInfo&&userInfo.pictureUrl)?userInfo.pictureUrl:'';
+  const avatarHtml=avatarUrl
+    ? `<img class="login-avatar" src="${avatarUrl}" alt="用戶頭像"/>`
+    : `<div class="login-avatar login-avatar-fallback">🙂</div>`;
+
+  let badgeHtml='';
   if(info.isSuperAdmin){
-    statusHtml=`
+    badgeHtml=`
       <div class="login-badge super">👑 超級管理員</div>
       <div class="login-name super-admin-username">${info.displayName}</div>
       <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
     `;
   }else if(info.isVip){
-    statusHtml=`
+    badgeHtml=`
       <div class="login-badge vip">💎 尊爵用戶</div>
       <div class="login-name vip-admin-username">${info.displayName}</div>
       <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
     `;
   }else{
     const remain=info.remainingTimes??0;
-    statusHtml=`
+    badgeHtml=`
       <div class="login-badge normal">🪙 普通用戶</div>
       <div class="login-name">${info.displayName}</div>
       <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain}/${MAX_NORMAL_USER_USAGE}</span>次</div>
     `;
   }
+
+  const rulesHtml=`
+    <div class="login-rules">
+      <div class="login-rules-title">📜 登入前請詳閱使用規則</div>
+      <ul>
+        <li>🔐 點擊「登入試算系統」立即核銷 <b>1 次</b>使用次數（尊爵／超級管理員不限次數、不扣次）</li>
+        <li>✅ 登入後可自由新增品項、調整數量，<b>皆不再重複扣次</b></li>
+        <li>🗑️ 刪除品項每次登入<b>限免費刪除 3 次</b>，超過後每多刪 1 次將<b>再扣 1 次使用次數</b></li>
+        <li>🔄 點擊「重置報表」會清空品項並返回本頁，下次使用需重新登入</li>
+        <li>🪙 普通用戶總共 <b>${MAX_NORMAL_USER_USAGE} 次</b>使用機會，用完請升級 💎尊爵用戶 無限使用</li>
+      </ul>
+    </div>
+  `;
+
   const canLogin=isPrivilege||(info.remainingTimes>0);
   els.loginScreenBody.innerHTML=`
-    ${statusHtml}
-    <p class="login-tip">${isPrivilege
-      ?'尊爵/管理員登入不限次數，點擊下方按鈕即可開始建立試算報表'
-      :'點擊下方按鈕登入即扣除1次使用次數；登入後本次可自由新增／刪除品項，皆不再重複扣次'}</p>
+    <div class="login-avatar-wrap">${avatarHtml}</div>
+    ${badgeHtml}
+    ${rulesHtml}
     ${canLogin
-      ? `<button id="loginBtn" class="btn btn-primary btn-lg" style="width:100%;">🔓<br>登入試算系統</button>`
+      ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
       : `<div class="login-exceeded">普通用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶💎 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;" href="https://portaly.cc/yb131419/support" target="_blank">點擊升級贊助</a>`}
   `;
-  els.loginScreen.style.display='block';
+  els.loginWrapper.style.display='flex';
   const loginBtn=document.getElementById('loginBtn');
   if(loginBtn)loginBtn.addEventListener('click',handleLoginClick);
 }
@@ -1296,6 +1467,7 @@ async function handleLoginClick(){
     }
     sessionStorage.setItem(SESSION_KEY_ACTIVE,'true');
     sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
+    setSessionDeleteCount(0);
     enterCalculator();
     if(authStatus.isSuperAdmin||authStatus.isVip){
       showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
@@ -1310,7 +1482,7 @@ async function handleLoginClick(){
 // 進入試算介面（登入成功 / 同一分頁內已有有效工作階段時呼叫）
 function enterCalculator(){
   els.authLoading.style.display='none';
-  els.loginScreen.style.display='none';
+  els.loginWrapper.style.display='none';
   document.getElementById('authContainer').style.display='none';
   els.captureArea.style.display='block';
   els.inputArea.style.display='flex';
@@ -1333,7 +1505,7 @@ async function initLiffAndAuth(){
       return;
     }
     const profile=await liff.getProfile();
-    userInfo={userId:profile.userId,displayName:profile.displayName};
+    userInfo={userId:profile.userId,displayName:profile.displayName,pictureUrl:profile.pictureUrl||''};
 
     // 若本次分頁已完成登入（尚未重置/關閉分頁），直接恢復試算畫面，不再重複扣次
     const cachedSessionActive=sessionStorage.getItem(SESSION_KEY_ACTIVE);
