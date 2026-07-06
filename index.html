@@ -51,7 +51,7 @@ body{
 .btn-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle;}
 .btn-success{background:linear-gradient(145deg,#4caf50,#388e3c)!important;border-color:rgba(129,220,133,0.85)!important;}
 @keyframes rowFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-#reportTable tbody tr{animation:rowFadeIn 0.28s ease both;}
+.row-fade-in{animation:rowFadeIn 0.28s ease both;}
 @keyframes rowFadeOut{from{opacity:1;}to{opacity:0;}}
 #reportTable tbody tr.row-removing td{animation:rowFadeOut 0.2s ease forwards;}
 /* 登入畫面卡片：手動點擊登入才會扣次（質感升級版） */
@@ -903,6 +903,7 @@ function renderTable(){
     totalPrice+=subtotalPrice;
     totalPv+=subtotalPv;
     const tr=document.createElement("tr");
+    tr.className="row-fade-in";
     const qtyOptions=Array.from({length:maxQty},(_,i)=>{
       const val=i+1;
       return `<option value="${val}" ${val===item.qty?"selected":""}>${val}</option>`;
@@ -922,6 +923,10 @@ function renderTable(){
     `;
     els.reportBody.appendChild(tr);
   });
+  // 動畫播放完就移除 class（避免 CSS animation 屬性殘留，導致「報表轉圖片」html2canvas 截圖失敗/空白）
+  setTimeout(()=>{
+    els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
+  },320);
   els.totalPriceCellDup.textContent=totalPrice;
   els.totalPvCellDup.textContent=totalPv;
   const diff2=TARGET_PV220-totalPv;
@@ -1199,7 +1204,7 @@ function updateAuthStatusBar(){
     statusHtml=`
       <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
       用戶名：<span class="gold-username">${userInfo.displayName}</span>
-      <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${authStatus.maxUsage||MAX_NORMAL_USER_USAGE}次</span>
+      <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
       <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
       <br/>升級解鎖無限使用次數
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">升級解鎖試算系統</a>
@@ -1218,6 +1223,9 @@ async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
+  // 保險：截圖前先清掉所有還殘留的 CSS animation class，避免 html2canvas 把還在動畫中的元素拍成空白
+  els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
+  els.captureArea.classList.remove('screen-enter');
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
@@ -1446,7 +1454,7 @@ function renderLoginScreen(info){
     badgeHtml=`
       <div class="login-badge gold">🥇 黃金用戶</div>
       <div class="login-name gold-username">${info.displayName}</div>
-      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain}/${info.maxUsage||MAX_NORMAL_USER_USAGE}</span>次</div>
+      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain} 次</span></div>
     `;
   }
 
@@ -1511,7 +1519,7 @@ async function handleLoginClick(){
     if(authStatus.isSuperAdmin||authStatus.isVip){
       showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
     }else{
-      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes}/${authStatus.maxUsage||MAX_NORMAL_USER_USAGE}`);
+      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
     }
   }finally{
     if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
