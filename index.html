@@ -1242,7 +1242,6 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
-
 // 匯出圖片
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
@@ -1253,20 +1252,19 @@ async function exportToImage(){
   }
   els.exportBtn.disabled=true;
 
-  // 🔥 強制清除所有動畫類別（避免截圖空白）
+  // 強制清除所有動畫類別（避免截圖空白）
   els.reportBody.querySelectorAll('tr.row-fade-in, tr.row-removing').forEach(tr => {
     tr.classList.remove('row-fade-in', 'row-removing');
   });
   els.captureArea.classList.remove('screen-enter');
 
   try {
-    // 🔥 先開啟截圖專用樣式（隱藏操作欄、加大內距）
+    // 開啟截圖專用樣式
     els.captureArea.classList.add('exporting');
     
-    // 🔥 強制等待瀏覽器重新渲染（關鍵！）
+    // 等待渲染重繪
     await new Promise(resolve => setTimeout(resolve, 120));
 
-    // 🔥 穩定量測尺寸
     const rect = els.captureArea.getBoundingClientRect();
     const naturalWidth = Math.ceil(rect.width || els.captureArea.offsetWidth || 600);
     const naturalHeight = Math.ceil(els.captureArea.scrollHeight || els.captureArea.offsetHeight || 800);
@@ -1275,14 +1273,12 @@ async function exportToImage(){
       throw new Error('報表尺寸量測失敗，請重新整理頁面');
     }
 
-    // 🔥 安全縮放（手機不會爆掉）
     const MAX_PIXELS = 3500 * 3500;
     let scale = window.innerWidth < 768 ? 2 : 2.5;
     while (scale > 1 && (naturalWidth * scale) * (naturalHeight * scale) > MAX_PIXELS) {
       scale -= 0.5;
     }
 
-    // 🔥 穩定截圖設定
     const canvas = await html2canvas(els.captureArea, {
       scale: scale,
       useCORS: true,
@@ -1301,21 +1297,30 @@ async function exportToImage(){
       throw new Error('產生圖片失敗，請稍後重試');
     }
 
-    // 🔥 輸出高品質圖片
     const dataUrl = canvas.toDataURL("image/png", 1.0);
-    els.previewImage.src = dataUrl;
-    els.previewImage.style.display = "block";
+
+    // 先隱藏 exporting 再處理圖片，避免重繪衝擊
+    els.captureArea.classList.remove('exporting');
+
+    // 等待圖片完整載入後再顯示按鈕
+    await new Promise((resolve) => {
+      els.previewImage.onload = resolve;
+      els.previewImage.src = dataUrl;
+      els.previewImage.style.display = "block";
+    });
+
+    // 圖片載入完畢再開啟分享按鈕
     els.shareToLineBtn.style.display = "inline-block";
-    els.nativeShareBtn.style.display = navigator.share ? "inline-block" : "none";
     els.clearImageBtn.style.display = "inline-block";
+    if (navigator.share) els.nativeShareBtn.style.display = "inline-block";
+
     showToast('✅ 圖片已產生');
 
   } catch (error) {
     console.error("匯出錯誤:", error);
     showToast(`匯出失敗：${error.message || '請重新整理頁面後再試'}`, "error");
-  } finally {
-    // 🔥 還原介面
     els.captureArea.classList.remove('exporting');
+  } finally {
     els.exportBtn.disabled = false;
   }
 }
