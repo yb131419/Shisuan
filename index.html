@@ -1298,8 +1298,11 @@ async function exportToImage(){
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
-  }catch(error){
-    showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
+}catch(error){
+    console.error('匯出圖片錯誤詳情:',error);
+    const detail=`${error?.name||''} ${error?.message||''} ${error?.stack?.slice(0,200)||''}`.trim();
+    showToast(`匯出失敗：${detail||'無錯誤訊息（可能是WebView直接中斷）'}`,'error');
+    alert(`除錯用，請截圖回報：\n${detail||'無任何錯誤訊息，canvas可能回傳null或WebView直接崩潰'}`);
   }finally{
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalCaptureWidth;
