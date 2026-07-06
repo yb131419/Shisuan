@@ -1137,60 +1137,84 @@ async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   if(els.exportBtn.dataset.busy==='1')return;
-  await withButtonBusy(els.exportBtn,'⏳<br>產生中…',async()=>{
-    const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
-    opCells.forEach(el=>{el.style.display="none";});
+  // 防呆：html2canvas 若因網路問題未載入成功，明確告知用戶，而不是讓按鈕悄悄沒反應
+  if(typeof html2canvas!=='function'){
+    showToast('圖片產生元件尚未載入完成，請檢查網路連線後重新整理頁面再試一次','error');
+    return;
+  }
+  // 外層 try/catch：withButtonBusy 本身只有 try/finally、沒有 catch，
+  // 若前置設定（隱藏欄位、量測尺寸等）意外拋出例外，原本會被靜默吞掉、按鈕重置但畫面毫無反應。
+  // 這裡確保「任何」錯誤都一定會被攔截並用 toast 顯示出來。
+  try{
+    await withButtonBusy(els.exportBtn,'⏳<br>產生中…',async()=>{
+      const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+      opCells.forEach(el=>{el.style.display="none";});
+      const originalPaddingRight=els.captureArea.style.paddingRight;
+      const originalPaddingLeft=els.captureArea.style.paddingLeft;
+      els.captureArea.style.paddingLeft="30px";
+      els.captureArea.style.paddingRight="30px";
 
-    els.reportTable.offsetWidth;
-    const tableWidth=els.reportTable.offsetWidth;
-    const lastCol=els.reportTable.querySelector('th:last-child');
-    const lastColWidth=lastCol?lastCol.offsetWidth:0;
-    const captureWidth=(tableWidth-lastColWidth)+60;
-    const originalCaptureWidth=els.captureArea.style.width;
-    const originalPaddingRight=els.captureArea.style.paddingRight;
-    const originalPaddingLeft=els.captureArea.style.paddingLeft;
-    els.captureArea.style.width=`${captureWidth}px`;
-    els.captureArea.style.paddingLeft="30px";
-    els.captureArea.style.paddingRight="30px";
-    try{
-      // 自適應解析度：依裝置像素比決定清晰度，並設記憶體保護上限避免低階手機匯出當機
-      const dpr=window.devicePixelRatio||1;
-      const captureHeight=els.captureArea.offsetHeight||600;
-      let scale=Math.min(Math.max(dpr,2)*1.5,4);              // 一般介於 3~4，高 DPR 裝置更清晰
-      const MAX_CANVAS_PX=12_000_000;                          // 約 1200 萬像素，多數手機安全範圍
-      if(captureWidth*captureHeight*scale*scale>MAX_CANVAS_PX){
-        scale=Math.max(2,Math.sqrt(MAX_CANVAS_PX/(captureWidth*captureHeight)));
+      // 強制觸發重新排版，確保接下來量到的是「隱藏操作欄之後」的正確尺寸
+      els.captureArea.offsetWidth;
+      const captureWidth=Math.ceil(els.captureArea.getBoundingClientRect().width);
+      const captureHeight=Math.ceil(els.captureArea.scrollHeight)||600;
+
+      try{
+        if(!captureWidth||!captureHeight){
+          throw new Error('無法量測報表尺寸，請重試一次');
+        }
+        // 自適應解析度：依裝置像素比決定清晰度，並設記憶體保護上限避免低階手機匯出當機
+        const dpr=window.devicePixelRatio||1;
+        let scale=Math.min(Math.max(dpr,2)*1.5,4);              // 一般介於 3~4，高 DPR 裝置更清晰
+        const MAX_CANVAS_PX=12000000;                            // 約 1200 萬像素，多數手機安全範圍
+        if(captureWidth*captureHeight*scale*scale>MAX_CANVAS_PX){
+          scale=Math.max(2,Math.sqrt(MAX_CANVAS_PX/(captureWidth*captureHeight)));
+        }
+        const canvas=await html2canvas(els.captureArea,{
+          scale:scale,
+          useCORS:true,
+          allowTaint:true,
+          backgroundColor:null,
+          logging:false,
+          imageTimeout:15000,
+          width:captureWidth,
+          height:captureHeight,
+          windowWidth:captureWidth,
+          windowHeight:captureHeight,
+          scrollX:0,
+          scrollY:0,
+          ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
+        });
+        if(!canvas||canvas.width===0||canvas.height===0){
+          throw new Error('產生的圖片是空的，請重試一次');
+        }
+        let dataUrl;
+        try{
+          dataUrl=canvas.toDataURL("image/png",1.0);
+        }catch(taintError){
+          // 畫布若因跨網域內容被標記為「不可匯出」，toDataURL 會丟出 SecurityError，
+          // 這裡給出比「未知錯誤」更明確的說明
+          throw new Error('圖片包含無法匯出的跨網域內容，請聯繫開發者確認（SecurityError）');
+        }
+        els.previewImage.src=dataUrl;
+        els.previewImage.style.display="block";
+        els.shareToLineBtn.style.display="inline-block";
+        els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
+        els.clearImageBtn.style.display="inline-block";
+        showToast('✅ 圖片已產生');
+      }catch(error){
+        console.error('exportToImage error:', error);
+        showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
+      }finally{
+        opCells.forEach(el=>{el.style.display="";});
+        els.captureArea.style.paddingRight=originalPaddingRight;
+        els.captureArea.style.paddingLeft=originalPaddingLeft;
       }
-      const canvas=await html2canvas(els.captureArea,{
-        scale:scale,
-        useCORS:true,
-        allowTaint:false,
-        backgroundColor:null,
-        logging:false,
-        imageTimeout:15000,
-        width:captureWidth,
-        windowWidth:captureWidth,
-        windowHeight:captureHeight,
-        scrollX:0,
-        scrollY:0,
-        ignoreElements:el=>el.id==='previewImage'||el.classList.contains('delete-btn')
-      });
-      const dataUrl=canvas.toDataURL("image/png",1.0);
-      els.previewImage.src=dataUrl;
-      els.previewImage.style.display="block";
-      els.shareToLineBtn.style.display="inline-block";
-      els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
-      els.clearImageBtn.style.display="inline-block";
-      showToast('✅ 圖片已產生');
-    }catch(error){
-      showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
-    }finally{
-      opCells.forEach(el=>{el.style.display="";});
-      els.captureArea.style.width=originalCaptureWidth;
-      els.captureArea.style.paddingRight=originalPaddingRight;
-      els.captureArea.style.paddingLeft=originalPaddingLeft;
-    }
-  });
+    });
+  }catch(outerError){
+    console.error('exportToImage outer error:', outerError);
+    showToast(`匯出失敗：${outerError.message||'未知錯誤，請重試'}`, 'error');
+  }
 }
 
 async function shareToLine(){
