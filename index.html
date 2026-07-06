@@ -739,17 +739,31 @@ function handleCashGift(){
     selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
     saveSelectedProds();
     renderTable();
+
+    // 修復：截圖能看到勾選狀態
+    els.cashOption.setAttribute('checked', false);
+    els.cashOption.checked = false;
+
     return;
   }
 
   const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
   const giftQty = Math.floor(totalPrice / 20000);
-  
-  if(giftQty <= 0) return;
+
+  if(giftQty <= 0){
+    // 修復：截圖能看到勾選狀態
+    els.cashOption.setAttribute('checked', true);
+    els.cashOption.checked = true;
+    return;
+  }
 
   selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
   addSpecificProduct('贈品 211(30)', giftQty);
   showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
+
+  // 修復：截圖能看到勾選狀態
+  els.cashOption.setAttribute('checked', true);
+  els.cashOption.checked = true;
 }
 
 // 輔助函數：新增指定品項和數量（增強重複檢查）
