@@ -1242,7 +1242,7 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
-// 匯出圖片
+// 匯出圖片 → 電腦+手機 雙版穩定修復版
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -1252,34 +1252,36 @@ async function exportToImage(){
   }
   els.exportBtn.disabled=true;
 
-  // 強制清除所有動畫類別（避免截圖空白）
+  // 🔥 手機專屬：強制還原滾動位置 + 清除所有動畫
+  window.scrollTo(0,0);
   els.reportBody.querySelectorAll('tr.row-fade-in, tr.row-removing').forEach(tr => {
     tr.classList.remove('row-fade-in', 'row-removing');
   });
   els.captureArea.classList.remove('screen-enter');
 
   try {
-    // 開啟截圖專用樣式
+    // 截圖專用樣式
     els.captureArea.classList.add('exporting');
-    
-    // 等待渲染重繪
-    await new Promise(resolve => setTimeout(resolve, 120));
+    await new Promise(resolve => setTimeout(resolve, 200)); // 手機加長延遲更穩
 
-    const rect = els.captureArea.getBoundingClientRect();
-    const naturalWidth = Math.ceil(rect.width || els.captureArea.offsetWidth || 600);
-    const naturalHeight = Math.ceil(els.captureArea.scrollHeight || els.captureArea.offsetHeight || 800);
+    // 🔥 手機專用：強制指定寬高，避免自動抓不到尺寸
+    const target = els.captureArea;
+    const naturalWidth = Math.min(target.scrollWidth, 1080); // 手機上限1080px
+    const naturalHeight = target.scrollHeight;
 
     if (naturalWidth <= 0 || naturalHeight <= 0) {
-      throw new Error('報表尺寸量測失敗，請重新整理頁面');
+      throw new Error('報表尺寸讀取失敗，請重整頁面');
     }
 
-    const MAX_PIXELS = 3500 * 3500;
-    let scale = window.innerWidth < 768 ? 2 : 2.5;
-    while (scale > 1 && (naturalWidth * scale) * (naturalHeight * scale) > MAX_PIXELS) {
-      scale -= 0.5;
+    // 🔥 手機專用：縮放限制，避免記憶體不足當機
+    let scale = window.innerWidth < 768 ? 1.8 : 2.2; // 手機降低 scale 最關鍵！
+    const maxPixels = 3000 * 3000;
+    while (scale > 1 && (naturalWidth * scale * naturalHeight * scale) > maxPixels) {
+      scale -= 0.3;
     }
 
-    const canvas = await html2canvas(els.captureArea, {
+    // 🔥 手機專用：html2canvas 穩定參數
+    const canvas = await html2canvas(target, {
       scale: scale,
       useCORS: true,
       allowTaint: false,
@@ -1289,27 +1291,25 @@ async function exportToImage(){
       height: naturalHeight,
       scrollX: 0,
       scrollY: 0,
+      windowWidth: naturalWidth,
+      windowHeight: naturalHeight,
       removeContainer: true,
-      ignoreElements: (el) => el.id === "previewImage"
+      ignoreElements: el => el.id === "previewImage"
     });
 
-    if (!canvas || canvas.width === 0 || canvas.height === 0) {
-      throw new Error('產生圖片失敗，請稍後重試');
-    }
+    if (!canvas || canvas.width === 0 || canvas.height === 0) throw new Error('圖片生成失敗');
 
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
-
-    // 先隱藏 exporting 再處理圖片，避免重繪衝擊
+    // 先關閉截圖樣式
     els.captureArea.classList.remove('exporting');
 
-    // 等待圖片完整載入後再顯示按鈕
-    await new Promise((resolve) => {
+    // 🔥 手機專用：等待圖片完全載入再顯示按鈕
+    await new Promise(resolve => {
       els.previewImage.onload = resolve;
-      els.previewImage.src = dataUrl;
+      els.previewImage.src = canvas.toDataURL("image/png", 1.0);
       els.previewImage.style.display = "block";
     });
 
-    // 圖片載入完畢再開啟分享按鈕
+    // 統一顯示分享按鈕
     els.shareToLineBtn.style.display = "inline-block";
     els.clearImageBtn.style.display = "inline-block";
     if (navigator.share) els.nativeShareBtn.style.display = "inline-block";
@@ -1318,8 +1318,8 @@ async function exportToImage(){
 
   } catch (error) {
     console.error("匯出錯誤:", error);
-    showToast(`匯出失敗：${error.message || '請重新整理頁面後再試'}`, "error");
     els.captureArea.classList.remove('exporting');
+    showToast(`手機版匯出失敗：${error.message || '請重整頁面再試'}`, "error");
   } finally {
     els.exportBtn.disabled = false;
   }
