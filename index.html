@@ -49,7 +49,7 @@ body{
 .status-in{animation:statusBarIn 0.4s ease;}
 @keyframes avatarPulse{0%,100%{box-shadow:0 0 0 4px rgba(0,209,178,0.15),0 6px 20px rgba(0,0,0,0.5);}50%{box-shadow:0 0 0 8px rgba(0,209,178,0.28),0 6px 24px rgba(0,0,0,0.55);}}
 .btn-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle;}
-.btn-success{background:linear-gradient(145deg,#4caf50,#388e3c)!important;}
+.btn-success{background:linear-gradient(145deg,#4caf50,#388e3c)!important;border-color:rgba(129,220,133,0.85)!important;}
 @keyframes rowFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 #reportTable tbody tr{animation:rowFadeIn 0.28s ease both;}
 @keyframes rowFadeOut{from{opacity:1;}to{opacity:0;}}
@@ -272,7 +272,7 @@ body{
 }
 .calculator-container{display:flex;gap:5px;}
 .btn{
-  border:1px solid rgba(255,255,255,0.8);border-radius:var(--btn-radius);padding:var(--btn-padding);
+  border:2px solid transparent;border-radius:var(--btn-radius);padding:var(--btn-padding);
   font-size:13px;font-weight:600;color:#fff;cursor:pointer;box-shadow:var(--btn-shadow);
   transition:var(--btn-transition);display:inline-flex;align-items:center;justify-content:center;
   gap:6px;text-decoration:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;
@@ -286,23 +286,41 @@ body{
 .btn:hover{transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
 .btn:active{transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
 .btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
-.btn-primary{background:linear-gradient(145deg,#00bfa5,#009e8a);}
-.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);}
-.btn-warning{background:linear-gradient(145deg,#ff9800,#e68900);}
-.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);}
-.btn-grey{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);}
-.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
-.btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);}
-.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);}
+/* 統一「彩色描邊 + 質感」：每個按鈕類型都有專屬顏色的清晰邊框，一眼就能分辨功能 */
+.btn-primary{
+  background:linear-gradient(145deg,#00bfa5,#009e8a);
+  border-color:rgba(64,230,205,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(0,209,178,0.25);
+}
+.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);border-color:rgba(120,245,220,0.95);}
+.btn-warning{
+  background:linear-gradient(145deg,#ff9800,#e68900);
+  border-color:rgba(255,183,77,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(255,152,0,0.25);
+}
+.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);border-color:rgba(255,205,120,0.95);}
+.btn-grey{
+  background:linear-gradient(145deg,#3a3a3a,#2a2a2a);
+  border-color:rgba(200,200,200,0.4);
+  box-shadow:var(--btn-shadow),0 0 10px rgba(255,255,255,0.08);
+}
+.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);border-color:rgba(220,220,220,0.6);}
+.btn-danger{
+  background:linear-gradient(145deg,#ff5252,#d32f2f);
+  border-color:rgba(255,138,138,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(255,82,82,0.3);
+}
+.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);border-color:rgba(255,170,170,0.95);}
 .btn-sm{padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md{padding:10px 14px;font-size:14px;border-radius:8px;min-width:100px;}
 .btn-lg{padding:12px 8px!important;font-size:15px!important;border-radius:10px!important;width:48%;height:auto;line-height:1.2;}
 #resetCalculatorBtn{
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
-  border:1px solid rgba(255,255,255,0.8);cursor:pointer;font-size:14px;
+  border:2px solid rgba(64,196,255,0.45);cursor:pointer;font-size:14px;
+  box-shadow:0 0 10px rgba(64,196,255,0.15);
   display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
 }
-#resetCalculatorBtn:hover{background:#555;transform:scale(1.05);}
+#resetCalculatorBtn:hover{background:#555;border-color:rgba(64,196,255,0.75);transform:scale(1.05);}
 #resetCalculatorBtn:active{transform:scale(0.95);}
 #addBtn{width:100%!important;padding:12px 16px!important;font-size:16px!important;font-weight:600!important;border-radius:10px!important;height:auto!important;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
@@ -332,12 +350,14 @@ body{
 #reportTable tbody tr:nth-child(even){background:#e5e7eb;}
 #reportTable tbody tr:hover{background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn{
-  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
-  border:1px solid rgba(255,255,255,0.8);color:#fff;border-radius:4px;padding:2px;
+  writing-mode:vertical-rl;text-orientation:upright;
+  background:linear-gradient(145deg,#ff5252,#d32f2f);
+  border:2px solid rgba(255,138,138,0.75);color:#fff;border-radius:4px;padding:2px;
   cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;
+  box-shadow:0 0 8px rgba(255,82,82,0.25);
   transition:var(--btn-transition);
 }
-.deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
+.deleteBtn:hover{transform:scale(1.1);border-color:rgba(255,170,170,0.95);box-shadow:0 0 10px rgba(255,82,82,0.55);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
 .summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
@@ -445,7 +465,7 @@ body{
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,235,150,0.7);
   vertical-align: middle;
   cursor: pointer;
 }
@@ -454,6 +474,7 @@ body{
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
   background: linear-gradient(135deg, #ffed4e, #ffd700);
+  border-color: rgba(255,245,200,0.95);
 }
 /* 点击按压效果 */
 .support-btn:active {
@@ -1178,7 +1199,7 @@ function updateAuthStatusBar(){
     statusHtml=`
       <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
       用戶名：<span class="gold-username">${userInfo.displayName}</span>
-      <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
+      <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${authStatus.maxUsage||MAX_NORMAL_USER_USAGE}次</span>
       <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
       <br/>升級解鎖無限使用次數
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">升級解鎖試算系統</a>
@@ -1425,7 +1446,7 @@ function renderLoginScreen(info){
     badgeHtml=`
       <div class="login-badge gold">🥇 黃金用戶</div>
       <div class="login-name gold-username">${info.displayName}</div>
-      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain}/${MAX_NORMAL_USER_USAGE}</span>次</div>
+      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain}/${info.maxUsage||MAX_NORMAL_USER_USAGE}</span>次</div>
     `;
   }
 
@@ -1434,7 +1455,7 @@ function renderLoginScreen(info){
     <div class="login-rules">
       <div class="login-rules-title">📜 登入前請詳閱</div>
       <ul>
-        <li>🔐 登入扣 <b>1 次</b>使用次數</li>
+        <li>🔐 登入扣 <b>1 次</b>使用次數（尊爵／管理員不扣次）</li>
         <li>🗑️ 每次登入限免費刪除 <b>3 次</b>，超過再扣 <b>1 次</b></li>
         <li>🔄 重置報表 = 登出，需重新登入</li>
       </ul>
@@ -1448,7 +1469,7 @@ function renderLoginScreen(info){
     ${rulesHtml}
     ${canLogin
       ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
-      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
+      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;" href="https://portaly.cc/yb131419/support" target="_blank">點擊升級贊助</a>`}
   `;
   els.loginWrapper.style.display='flex';
@@ -1464,7 +1485,7 @@ async function handleLoginClick(){
     const loginResult=await loginToBackend();
     if(!loginResult)return;
     if(loginResult.status==='exceeded'){
-      showError(loginResult.message||`普通用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次）`);
+      showError(loginResult.message||`黃金用戶使用次數已達上限（${loginResult.maxUsage||MAX_NORMAL_USER_USAGE}次）`);
       return;
     }
     if(loginResult.status!=='success'){
@@ -1490,7 +1511,7 @@ async function handleLoginClick(){
     if(authStatus.isSuperAdmin||authStatus.isVip){
       showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
     }else{
-      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}`);
+      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes}/${authStatus.maxUsage||MAX_NORMAL_USER_USAGE}`);
     }
   }finally{
     if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
