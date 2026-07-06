@@ -516,11 +516,20 @@ body{
       <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
       <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
     </div>
-    <div class="period-options">
-      <div class="period-box">一個月</div>
-      <div class="period-box">三個月</div>
-      <div class="period-box">六個月</div>
-    </div>
+<div class="period-options">
+  <div class="period-box">一個月</div>
+  <div class="period-box">三個月</div>
+  <div class="period-box">六個月</div>
+  <div style="margin-left:8px; display:flex; align-items:center; gap:6px;">
+    <input 
+      type="number" 
+      id="customDays" 
+      placeholder="自訂天數" 
+      style="padding:6px 8px; width:70px; border-radius:6px; border:1px solid #ccc; text-align:center; background:#fff; color:#000;"
+    >
+    <span style="color:#fff; font-size:14px;">天</span>
+  </div>
+</div>
   </h2>
   <div class="userInputs">  
     <div class="row">
@@ -1232,12 +1241,17 @@ async function exportToImage(){
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=(tableWidth-lastColWidth)+60;
-  const originalCaptureWidth=els.captureArea.style.width;
-  const originalPaddingRight=els.captureArea.style.paddingRight;
-  const originalPaddingLeft=els.captureArea.style.paddingLeft;
-  els.captureArea.style.width=`${captureWidth}px`;
-  els.captureArea.style.paddingLeft="30px";
-  els.captureArea.style.paddingRight="30px";
+const originalCaptureWidth=els.captureArea.style.width;
+const originalPaddingRight=els.captureArea.style.paddingRight;
+const originalPaddingLeft=els.captureArea.style.paddingLeft;
+const originalPosition=els.captureArea.style.position;
+const originalZIndex=els.captureArea.style.zIndex;
+
+els.captureArea.style.width=`${captureWidth}px`;
+els.captureArea.style.paddingLeft="30px";
+els.captureArea.style.paddingRight="30px";
+els.captureArea.style.position="relative";
+els.captureArea.style.zIndex="1";
 
   // 偵測是否在LINE內建瀏覽器（LIFF）中，其記憶體/canvas限制比一般手機瀏覽器嚴格許多
   const ua=navigator.userAgent||'';
@@ -1300,9 +1314,11 @@ async function exportToImage(){
     showToast(`匯出失敗：${error?.message||'未知錯誤'}`, 'error');
   }finally{
     opCells.forEach(el=>{el.style.display="";});
-    els.captureArea.style.width=originalCaptureWidth;
-    els.captureArea.style.paddingRight=originalPaddingRight;
-    els.captureArea.style.paddingLeft=originalPaddingLeft; 
+els.captureArea.style.width=originalCaptureWidth;
+els.captureArea.style.paddingRight=originalPaddingRight;
+els.captureArea.style.paddingLeft=originalPaddingLeft; 
+els.captureArea.style.position=originalPosition;
+els.captureArea.style.zIndex=originalZIndex;
     els.exportBtn.disabled=false;
     // 保險：清掉 html2canvas 卡住時殘留、沒被自動移除的複製層（造成畫面反黑的元凶）
     document.querySelectorAll('body > div[style*="position: fixed"]').forEach(el=>{
