@@ -1226,33 +1226,45 @@ function updateAuthStatusBar(){
   bindCloseStatusBtn();
   els.authStatusBar.style.display='block';
 }
+
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
+
+  // 清除所有动画残留，防止截图重复
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
+
+  // 隐藏操作列
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
+  // 强制重绘，避免样式缓存
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=(tableWidth-lastColWidth)+60;
-const originalCaptureWidth=els.captureArea.style.width;
-const originalPaddingRight=els.captureArea.style.paddingRight;
-const originalPaddingLeft=els.captureArea.style.paddingLeft;
-const originalPosition=els.captureArea.style.position;
-const originalZIndex=els.captureArea.style.zIndex;
 
-els.captureArea.style.width=`${captureWidth}px`;
-els.captureArea.style.paddingLeft="30px";
-els.captureArea.style.paddingRight="30px";
-els.captureArea.style.position="relative";
-els.captureArea.style.zIndex="1";
+  // 保存原始样式
+  const originalStyles = {
+    width: els.captureArea.style.width,
+    paddingLeft: els.captureArea.style.paddingLeft,
+    paddingRight: els.captureArea.style.paddingRight,
+    position: els.captureArea.style.position,
+    zIndex: els.captureArea.style.zIndex,
+    background: els.captureArea.style.background
+  };
 
-  // 偵測是否在LINE內建瀏覽器（LIFF）中，其記憶體/canvas限制比一般手機瀏覽器嚴格許多
+  // 截图专用干净样式：单层、无渐变冲突、无重叠
+  els.captureArea.style.width=`${captureWidth}px`;
+  els.captureArea.style.paddingLeft="30px";
+  els.captureArea.style.paddingRight="30px";
+  els.captureArea.style.position="relative";
+  els.captureArea.style.zIndex="1";
+  els.captureArea.style.background="#1c1c1c"; // 纯色底图 → 彻底解决双层渐变
+
   const ua=navigator.userAgent||'';
   const isLineInApp=/Line/i.test(ua);
   const isMobile=window.innerWidth<768;
@@ -1269,7 +1281,7 @@ els.captureArea.style.zIndex="1";
     scale=Math.max(1,Math.floor(maxSideScale*10)/10);
   }
 
- async function attemptCapture(useScale){
+  async function attemptCapture(useScale){
     const capturePromise=domtoimage.toBlob(els.captureArea,{
       width:captureWidth*useScale,
       height:captureHeight*useScale,
@@ -1282,7 +1294,7 @@ els.captureArea.style.zIndex="1";
       bgcolor:null
     });
     const timeoutPromise=new Promise((_,reject)=>{
-      setTimeout(()=>reject(new Error('圖片產生逾時，請重試（可能是手機效能或畫面過大）')),20000);
+      setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
     });
     return Promise.race([capturePromise,timeoutPromise]);
   }
@@ -1296,7 +1308,7 @@ els.captureArea.style.zIndex="1";
       blob=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
     }
 
-    if(!blob)throw new Error('圖片產生失敗，回傳為空');
+    if(!blob)throw new Error('圖片產生失敗');
 
     if(els.previewImage.dataset.objectUrl){
       URL.revokeObjectURL(els.previewImage.dataset.objectUrl);
@@ -1309,30 +1321,27 @@ els.captureArea.style.zIndex="1";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
   }catch(error){
-    console.error('匯出圖片錯誤詳情:',error);
-    showToast(`匯出失敗：${error?.message||'未知錯誤'}`, 'error');
+    console.error('匯出錯誤:',error);
+    showToast(`匯出失敗：${error?.message}`, 'error');
   }finally{
+    // 还原所有样式
     opCells.forEach(el=>{el.style.display="";});
-    els.captureArea.style.width=originalCaptureWidth;
-    els.captureArea.style.paddingRight=originalPaddingRight;
-    els.captureArea.style.paddingLeft=originalPaddingLeft; 
-    els.captureArea.style.position=originalPosition;
-    els.captureArea.style.zIndex=originalZIndex;
+    els.captureArea.style.width = originalStyles.width;
+    els.captureArea.style.paddingLeft = originalStyles.paddingLeft;
+    els.captureArea.style.paddingRight = originalStyles.paddingRight;
+    els.captureArea.style.position = originalStyles.position;
+    els.captureArea.style.zIndex = originalStyles.zIndex;
+    els.captureArea.style.background = originalStyles.background;
+    
     els.exportBtn.disabled=false;
-    // 徹底清除dom-to-image殘留重疊黑色畫布、偽元素、固定層
-    document.querySelectorAll('body > div, body > svg, body > canvas').forEach(el=>{
-      if(el !== els.captureArea 
-         && !els.captureArea.contains(el) 
-         && el.id !== 'authContainer' 
-         && el.id !== 'toast'
-         && el.id !== 'previewImage'
-         && !el.classList.contains('button-group')
-         && !el.classList.contains('spacer')){
-        el.remove();
-      }
+
+    // 强力清理 dom-to-image 残留元素（解决双层底图核心）
+    document.querySelectorAll('body > svg, body > canvas, body > div.domtoimage-wrapper').forEach(el=>{
+      if(el.parentNode) el.parentNode.removeChild(el);
     });
   }
 }
+
 
 async function shareToLine(){
   if(!authStatus)return;
