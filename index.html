@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8"/>
@@ -12,9 +11,9 @@
 :root{
   --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;
   --highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;
-  --super:#d4af37;--vip:#c9a15a;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+  --super:#d4af37;--vip:#00bfa5;--grad-primary:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
   --grad-secondary:linear-gradient(145deg,#2d2d2d,#1f1f1f);--shadow:0 8px 32px rgba(0,0,0,0.4);
-  --loader:#00d1b2;--vip-username:linear-gradient(135deg,#c9a15a,#ffe9b0);
+  --loader:#00d1b2;--vip-username:linear-gradient(135deg,#00bfa5,#00ffde);
   --super-username:linear-gradient(135deg,#d4af37,#ffff00);--yellow:#ffd700;
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
@@ -83,6 +82,7 @@ body{
 #loginScreen .login-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:10px;}
 #loginScreen .login-badge.super{background:rgba(212,175,55,0.15);color:var(--super);border:1px solid rgba(212,175,55,0.4);}
 #loginScreen .login-badge.vip{background:rgba(0,191,165,0.15);color:var(--vip);border:1px solid rgba(0,191,165,0.4);}
+#loginScreen .login-badge.gold{background:rgba(201,161,90,0.15);color:var(--gold);border:1px solid rgba(201,161,90,0.4);}
 #loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
 #loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
 #loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
@@ -204,15 +204,17 @@ body{
 @keyframes pulse{from{box-shadow:0 0 15px rgba(0,209,178,0.3);}to{box-shadow:0 0 25px rgba(0,209,178,0.6);}}
 .super-admin{color:var(--super);font-weight:bold;}
 .vip-admin{color:var(--vip);font-weight:bold;}
+.gold-tier{color:var(--gold);font-weight:bold;}
 .normal{color:var(--highlight);font-weight:bold;}
 .expired{color:var(--error);font-weight:bold;}
 .remaining-days-yellow{color:var(--yellow);font-weight:bold;text-shadow:0 0 5px rgba(255,215,0,0.5);}
-.super-admin-username,.vip-admin-username{
+.super-admin-username,.vip-admin-username,.gold-username{
   background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;
   text-shadow:0 0 8px rgba(255,255,255,0.3);
 }
 .super-admin-username{background-image:var(--super-username);}
 .vip-admin-username{background-image:var(--vip-username);}
+.gold-username{background-image:linear-gradient(135deg,var(--gold),var(--gold-light));}
 #captureArea{
   background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
   color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
@@ -475,7 +477,7 @@ body{
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
       <img src="https://yb131419.github.io/Shisuan/goods05_3.jpg" alt="彥彬試算系統使用範例" loading="lazy"/>
-      <div class="example-caption">建立完成的試算報表實際畫面\n（僅供參考，實際內容以您輸入的品項為準）</div>
+      <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
 </div>
@@ -943,7 +945,7 @@ const extraDeleteFromBackend=()=>{
 };
 
 // ============================================================
-// 刪除品項防呆：黃金用戶/超級管理員不限次數、免扣。
+// 刪除品項防呆：尊爵用戶/超級管理員不限次數、免扣。
 // 普通用戶「每次登入」限免費刪除 3 次，並會即時提醒剩餘免費次數；
 // 超過 3 次後，每多刪 1 次都會再次向後端確認並扣除 1 次使用次數，
 // 完全阻絕「用刪除規避扣次」的操作空間。
@@ -966,7 +968,7 @@ async function handleDelete(btn){
 
   const isPrivilege=authStatus.isVip||authStatus.isSuperAdmin;
 
-  // 黃金用戶 / 超級管理員：不限次數、免扣
+  // 尊爵用戶 / 超級管理員：不限次數、免扣
   if(isPrivilege){
     btn.disabled=true;
     await animateRowRemoval(btn);
@@ -1001,7 +1003,7 @@ async function handleDelete(btn){
 
   // 已超過免費額度：需再次確認，並向後端扣除1次使用次數
   if(authStatus.remainingTimes<=0){
-    showToast('使用次數已達上限，無法繼續刪除，請升級 🥇黃金用戶','error');
+    showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶','error');
     return;
   }
   const confirmMsg=`您本次登入已使用完 ${FREE_DELETE_LIMIT} 次免費刪除機會\n繼續刪除將再扣除 1 次使用次數（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定要刪除？`;
@@ -1162,10 +1164,11 @@ function updateAuthStatusBar(){
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
     `;
   }else if(authStatus.isVip){
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
     statusHtml=`
-      <span class="vip-admin">🥇 黃金用戶 🥇</span> | 
+      <span class="vip-admin">💎 尊爵用戶 💎</span> | 
       用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
-      <br/>不限使用次數
+      <br/>有效期限：${expiryText}
       <br/>💖 贊助支持，讓系統持續優化更新
       <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
     `;
@@ -1173,8 +1176,8 @@ function updateAuthStatusBar(){
     const usedDeletes=getSessionDeleteCount();
     const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
     statusHtml=`
-      <span class="normal">🪙 普通用戶 🪙</span> | 
-      用戶名：${userInfo.displayName}
+      <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
+      用戶名：<span class="gold-username">${userInfo.displayName}</span>
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
       <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
       <br/>升級解鎖無限使用次數
@@ -1413,15 +1416,15 @@ function renderLoginScreen(info){
     `;
   }else if(info.isVip){
     badgeHtml=`
-      <div class="login-badge vip">🥇 黃金用戶</div>
+      <div class="login-badge vip">💎 尊爵用戶</div>
       <div class="login-name vip-admin-username">${info.displayName}</div>
-      <div class="login-sub">不限使用次數</div>
+      <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
     `;
   }else{
     const remain=info.remainingTimes??0;
     badgeHtml=`
-      <div class="login-badge normal">🪙 普通用戶</div>
-      <div class="login-name">${info.displayName}</div>
+      <div class="login-badge gold">🥇 黃金用戶</div>
+      <div class="login-name gold-username">${info.displayName}</div>
       <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain}/${MAX_NORMAL_USER_USAGE}</span>次</div>
     `;
   }
@@ -1445,7 +1448,7 @@ function renderLoginScreen(info){
     ${rulesHtml}
     ${canLogin
       ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
-      : `<div class="login-exceeded">普通用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次）<br>請升級 🥇黃金用戶 繼續使用</div>
+      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;" href="https://portaly.cc/yb131419/support" target="_blank">點擊升級贊助</a>`}
   `;
   els.loginWrapper.style.display='flex';
@@ -1485,9 +1488,9 @@ async function handleLoginClick(){
     await new Promise(r=>setTimeout(r,320));
     enterCalculator();
     if(authStatus.isSuperAdmin||authStatus.isVip){
-      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'🥇黃金用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
+      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
     }else{
-      showToast(`登入成功，剩餘使用次數：${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}`);
+      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}`);
     }
   }finally{
     if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
