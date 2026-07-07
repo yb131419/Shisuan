@@ -1289,22 +1289,18 @@ async function exportToImage(){
   }
 
 async function attemptCapture(useScale){
-    const capturePromise=domtoimage.toBlob(els.captureArea,{
-      width:captureWidth*useScale,
-      height:captureHeight*useScale,
-      style:{
-        transform:`scale(${useScale})`,
-        transformOrigin:'top left',
-        width:`${captureWidth}px`,
-        height:`${captureHeight}px`
-      },
-      bgcolor:'#1c1c1c'   // ← 從 null 改成實際底色，消除圓角黑邊
-    });
-    const timeoutPromise=new Promise((_,reject)=>{
-      setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
-    });
-    return Promise.race([capturePromise,timeoutPromise]);
-  }
+  const capturePromise=domtoimage.toBlob(els.captureArea,{
+    width: captureWidth,
+    height: captureHeight,
+    bgcolor: '#1c1c1c'
+    // 不傳 style，不用 transform，直接讓 domtoimage 以原始尺寸截圖
+    // 輸出解析度靠 CSS pixel ratio 自動處理，不會產生雙層
+  });
+  const timeoutPromise=new Promise((_,reject)=>{
+    setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
+  });
+  return Promise.race([capturePromise,timeoutPromise]);
+}
 
   try{
     let blob;
