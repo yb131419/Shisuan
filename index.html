@@ -1290,11 +1290,19 @@ async function exportToImage(){
 
 async function attemptCapture(useScale){
   const capturePromise=domtoimage.toBlob(els.captureArea,{
-    width: captureWidth,
-    height: captureHeight,
+    width: Math.round(captureWidth * useScale),
+    height: Math.round(captureHeight * useScale),
+    style:{
+      width: `${captureWidth}px`,
+      height: `${captureHeight}px`,
+      transform: `scale(${useScale})`,
+      transformOrigin: 'top left',
+      // 關鍵：截圖時把元素移到視口左上角，避免 domtoimage 因為元素位置偏移截到空白或疊圖
+      position: 'fixed',
+      top: '0',
+      left: '0',
+    },
     bgcolor: '#1c1c1c'
-    // 不傳 style，不用 transform，直接讓 domtoimage 以原始尺寸截圖
-    // 輸出解析度靠 CSS pixel ratio 自動處理，不會產生雙層
   });
   const timeoutPromise=new Promise((_,reject)=>{
     setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
