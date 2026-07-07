@@ -395,7 +395,7 @@ body{
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
-.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
+.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:nowrap;}
 .payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
@@ -510,9 +510,9 @@ body{
   <div id="watermark">『彥彬🌿試算系統』</div>
 
 <h2><br>🌿 康園試算報表</h2>
-<div class="payment-options" style="gap:24px;">
-  <label style="min-width:90px;justify-content:center;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
-  <label style="min-width:90px;justify-content:center;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
+<div class="payment-options">
+  <label style="white-space:nowrap;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
+  <label style="white-space:nowrap;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
 </div>
 <div class="period-options">
   <div class="period-box">一個月</div>
