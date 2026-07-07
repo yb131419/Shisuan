@@ -1224,7 +1224,7 @@ function updateAuthStatusBar(){
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
       <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
       <br/>升級解鎖無限使用次數
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">升級解鎖試算系統</a>
+      <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">升級解鎖試算系統</a>
     `;
   }
   els.authStatusBar.innerHTML = `
@@ -1594,8 +1594,8 @@ async function handleLoginClick(){
     };
     if(authStatus.isExpired){
       showError(`
-        <div style="line-height:2;">您的賬號已過期，無法登錄試算系統</div>
-        <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請升級 💎尊爵用戶 或聯繫管理員續期</div>
+        <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
+        <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
         <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
           style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
           🌟 點擊升級贊助
@@ -1679,8 +1679,8 @@ async function initLiffAndAuth(){
     if(!precheck)return;
 if(precheck.isExpired){
   showError(`
-    <div style="line-height:2;">您的賬號已過期，無法登錄試算系統</div>
-    <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請升級 💎尊爵用戶 或聯繫管理員續期</div>
+    <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
+    <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
     <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
       style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
       🌟 點擊升級贊助
