@@ -1289,27 +1289,46 @@ async function exportToImage(){
   }
 
 async function attemptCapture(useScale){
-  const dpr=Math.min(window.devicePixelRatio||1, 3);
-  // finalScale 至少保證 2，避免 dpr=1 的環境（LINE 內建瀏覽器）截出低解析度圖
-  const finalScale=Math.max(2, useScale*dpr);
-
-  const capturePromise=domtoimage.toPng(els.captureArea,{
+  // 第一步：domtoimage 以原始 CSS 尺寸乾淨截圖（不傳 pixelRatio，避免該參數不生效的相容問題）
+  const capturePromise=domtoimage.toBlob(els.captureArea,{
     width: captureWidth,
     height: captureHeight,
-    bgcolor: '#1c1c1c',
-    pixelRatio: finalScale,
-    // 強制讓字型和邊框按 finalScale 倍渲染，不依賴瀏覽器預設
-    style:{
-      'font-size': '1px',  // 觸發 domtoimage 重新計算字體渲染
-    }
+    bgcolor: '#1c1c1c'
   });
   const timeoutPromise=new Promise((_,reject)=>{
     setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
   });
-  const dataUrl=await Promise.race([capturePromise,timeoutPromise]);
+  const blob=await Promise.race([capturePromise,timeoutPromise]);
 
-  // toPng 回傳 dataUrl，轉成 blob 才能用 createObjectURL
-  return await (await fetch(dataUrl)).blob();
+  // 第二步：Canvas 放大到裝置實際像素密度，finalScale 至少 2 保底
+  const dpr=Math.min(window.devicePixelRatio||1, 3);
+  const finalScale=Math.max(2, useScale*dpr);
+  const outputW=Math.round(captureWidth*finalScale);
+  const outputH=Math.round(captureHeight*finalScale);
+
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const url=URL.createObjectURL(blob);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const canvas=document.createElement('canvas');
+      canvas.width=outputW;
+      canvas.height=outputH;
+      const ctx=canvas.getContext('2d');
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality='high';
+      // 先填底色再畫圖，確保透明區域不會變黑
+      ctx.fillStyle='#1c1c1c';
+      ctx.fillRect(0,0,outputW,outputH);
+      ctx.drawImage(img,0,0,outputW,outputH);
+      canvas.toBlob(b=>{
+        if(b)resolve(b);
+        else reject(new Error('Canvas 輸出失敗'));
+      },'image/png',1.0);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('圖片載入失敗'));};
+    img.src=url;
+  });
 }
 
   try{
@@ -1346,7 +1365,6 @@ async function attemptCapture(useScale){
     });
   }
 }
-
 
 async function shareToLine(){
   if(!authStatus)return;
