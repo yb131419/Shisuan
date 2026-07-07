@@ -1592,7 +1592,7 @@ async function handleLoginClick(){
       remainingDays:expiryData.remainingDays,displayExpiryDate:expiryData.displayDate,
       isExpired:expiryData.isExpired,isVip:loginResult.isVip===true,isSuperAdmin:loginResult.isSuperAdmin===true
     };
-if(authStatus.isExpired){
+    if(authStatus.isExpired){
       showError(`
         <div style="line-height:2;">您的賬號已過期，無法登錄試算系統</div>
         <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請升級 💎尊爵用戶 或聯繫管理員續期</div>
