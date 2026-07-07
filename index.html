@@ -1677,10 +1677,17 @@ async function initLiffAndAuth(){
     showLoginLoading("彥彬🌿試算系統","核對用戶權限中...");
     const precheck=await precheckUserFromBackend(profile);
     if(!precheck)return;
-    if(precheck.isExpired){
-      showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
-      return;
-    }
+if(precheck.isExpired){
+  showError(`
+    <div style="line-height:2;">您的賬號已過期，無法登錄試算系統</div>
+    <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請升級 💎尊爵用戶 或聯繫管理員續期</div>
+    <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
+      style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
+      🌟 點擊升級贊助
+    </a>
+  `);
+  return;
+}
     renderLoginScreen(precheck);
   }catch(error){
     let errorMsg=error.message||'未知初始化錯誤';
