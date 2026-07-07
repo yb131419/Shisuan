@@ -1278,7 +1278,7 @@ async function exportToImage(){
   const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
   const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
   const captureHeight=els.captureArea.offsetHeight||1;
-  let scale=isLineInApp?1:(isMobile?1:2);
+  let scale=isLineInApp?1.5:(isMobile?1.5:2);
   const estimatedArea=captureWidth*captureHeight*scale*scale;
   if(estimatedArea>MAX_CANVAS_AREA){
     scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
@@ -1289,46 +1289,26 @@ async function exportToImage(){
   }
 
 async function attemptCapture(useScale){
-  // 第一步：domtoimage 以原始 CSS 尺寸乾淨截圖（不傳 pixelRatio，避免該參數不生效的相容問題）
+  const dpr=Math.min(window.devicePixelRatio||1,3);
+  const captureScale=Math.max(2,useScale*dpr);
+  const outputW=Math.round(captureWidth*captureScale);
+  const outputH=Math.round(captureHeight*captureScale);
+
   const capturePromise=domtoimage.toBlob(els.captureArea,{
-    width: captureWidth,
-    height: captureHeight,
-    bgcolor: '#1c1c1c'
+    width:outputW,
+    height:outputH,
+    style:{
+      transform:`scale(${captureScale})`,
+      transformOrigin:'top left',
+      width:captureWidth+'px',
+      height:captureHeight+'px'
+    },
+    bgcolor:'#1c1c1c'
   });
   const timeoutPromise=new Promise((_,reject)=>{
     setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
   });
-  const blob=await Promise.race([capturePromise,timeoutPromise]);
-
-  // 第二步：Canvas 放大到裝置實際像素密度，finalScale 至少 2 保底
-  const dpr=Math.min(window.devicePixelRatio||1, 3);
-  const finalScale=Math.max(2, useScale*dpr);
-  const outputW=Math.round(captureWidth*finalScale);
-  const outputH=Math.round(captureHeight*finalScale);
-
-  return new Promise((resolve,reject)=>{
-    const img=new Image();
-    const url=URL.createObjectURL(blob);
-    img.onload=()=>{
-      URL.revokeObjectURL(url);
-      const canvas=document.createElement('canvas');
-      canvas.width=outputW;
-      canvas.height=outputH;
-      const ctx=canvas.getContext('2d');
-      ctx.imageSmoothingEnabled=true;
-      ctx.imageSmoothingQuality='high';
-      // 先填底色再畫圖，確保透明區域不會變黑
-      ctx.fillStyle='#1c1c1c';
-      ctx.fillRect(0,0,outputW,outputH);
-      ctx.drawImage(img,0,0,outputW,outputH);
-      canvas.toBlob(b=>{
-        if(b)resolve(b);
-        else reject(new Error('Canvas 輸出失敗'));
-      },'image/png',1.0);
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('圖片載入失敗'));};
-    img.src=url;
-  });
+  return await Promise.race([capturePromise,timeoutPromise]);
 }
 
   try{
@@ -1337,7 +1317,7 @@ async function attemptCapture(useScale){
       blob=await attemptCapture(scale);
     }catch(innerErr){
       await new Promise(r=>setTimeout(r,400));
-      blob=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
+      blob=await attemptCapture(Math.max(1.5,scale-0.5));
     }
     if(!blob)throw new Error('圖片產生失敗');
     if(els.previewImage.dataset.objectUrl){
@@ -1352,13 +1332,13 @@ async function attemptCapture(useScale){
     els.clearImageBtn.style.display="inline-block";
   }catch(error){
     console.error('匯出錯誤:',error);
-    showToast(`匯出失敗：${error?.message}`, 'error');
+    showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
     opCells.forEach(el=>{el.style.display="";});
-    els.captureArea.style.width = originalStyles.width;
-    els.captureArea.style.paddingLeft = originalStyles.paddingLeft;
-    els.captureArea.style.paddingRight = originalStyles.paddingRight;
-    els.captureArea.style.position = originalStyles.position;
+    els.captureArea.style.width=originalStyles.width;
+    els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
+    els.captureArea.style.paddingRight=originalStyles.paddingRight;
+    els.captureArea.style.position=originalStyles.position;
     els.exportBtn.disabled=false;
     document.querySelectorAll('body > svg, body > div.domtoimage-wrapper').forEach(el=>{
       if(el.parentNode) el.parentNode.removeChild(el);
