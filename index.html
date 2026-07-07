@@ -1278,7 +1278,7 @@ async function exportToImage(){
   const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
   const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
   const captureHeight=els.captureArea.offsetHeight||1;
-  let scale=isLineInApp?1.5:(isMobile?2:4);
+  let scale=isLineInApp?2:(isMobile?3:4);
   const estimatedArea=captureWidth*captureHeight*scale*scale;
   if(estimatedArea>MAX_CANVAS_AREA){
     scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
@@ -1298,7 +1298,6 @@ async function attemptCapture(useScale){
     setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
   });
   const blob=await Promise.race([capturePromise,timeoutPromise]);
-
   if(useScale<=1) return blob;
   return new Promise((resolve,reject)=>{
     const img=new Image();
@@ -1330,9 +1329,7 @@ async function attemptCapture(useScale){
       await new Promise(r=>setTimeout(r,400));
       blob=await attemptCapture(Math.max(1,Math.min(scale-1,1.5)));
     }
-
     if(!blob)throw new Error('圖片產生失敗');
-
     if(els.previewImage.dataset.objectUrl){
       URL.revokeObjectURL(els.previewImage.dataset.objectUrl);
     }
@@ -1352,10 +1349,9 @@ async function attemptCapture(useScale){
     els.captureArea.style.paddingLeft = originalStyles.paddingLeft;
     els.captureArea.style.paddingRight = originalStyles.paddingRight;
     els.captureArea.style.position = originalStyles.position;
-
     els.exportBtn.disabled=false;
-
-    document.querySelectorAll('body > svg, body > canvas, body > div.domtoimage-wrapper').forEach(el=>{
+    // 只清理 domtoimage 產生的 svg/wrapper，不清 canvas（canvas 是我們自己放大用的）
+    document.querySelectorAll('body > svg, body > div.domtoimage-wrapper').forEach(el=>{
       if(el.parentNode) el.parentNode.removeChild(el);
     });
   }
