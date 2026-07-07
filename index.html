@@ -508,9 +508,9 @@ body{
 </div>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
-  <h2>
-    <br>
-    🌿 康園試算報表
+
+<h2>
+  <br>🌿 康園試算報表</h2>
 <div class="payment-options" style="gap:24px;">
   <label style="min-width:90px;justify-content:center;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
   <label style="min-width:90px;justify-content:center;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
@@ -519,14 +519,10 @@ body{
   <div class="period-box">一個月</div>
   <div class="period-box">三個月</div>
   <div class="period-box">六個月</div>
-  <div style="margin-left:8px; display:flex; align-items:center; gap:6px;">
-<input 
-  type="number" 
-  id="customDays" 
-  placeholder="自訂" 
-  style="padding:6px 8px; width:70px; border-radius:6px; border:1px solid #ccc; text-align:center; background:#fff; color:#000; font-size:14px;"
->
-    <span style="color:#fff; font-size:16px;">天</span>
+  <div style="margin-left:8px;display:flex;align-items:center;gap:6px;">
+    <input type="number" id="customDays" placeholder="自訂天數"
+      style="padding:6px 8px;width:70px;border-radius:6px;border:1px solid #ccc;text-align:center;background:#fff;color:#000;font-size:14px;">
+    <span style="color:#fff;font-size:14px;">天</span>
   </div>
 </div>
   </h2>
@@ -1276,8 +1272,7 @@ async function exportToImage(){
   els.captureArea.style.paddingLeft="30px";
   els.captureArea.style.paddingRight="30px";
   els.captureArea.style.position="relative";
-  els.captureArea.style.zIndex="1";
-  els.captureArea.style.background="#1c1c1c"; // 纯色底图 → 彻底解决双层渐变
+
 
   const ua=navigator.userAgent||'';
   const isLineInApp=/Line/i.test(ua);
@@ -1344,8 +1339,6 @@ async function exportToImage(){
     els.captureArea.style.paddingLeft = originalStyles.paddingLeft;
     els.captureArea.style.paddingRight = originalStyles.paddingRight;
     els.captureArea.style.position = originalStyles.position;
-    els.captureArea.style.zIndex = originalStyles.zIndex;
-    els.captureArea.style.background = originalStyles.background;
     
     els.exportBtn.disabled=false;
 
