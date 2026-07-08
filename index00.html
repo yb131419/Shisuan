@@ -36,9 +36,7 @@ body{
   transition:opacity 0.35s ease;
 }
 #authContainer.fade-out{opacity:0;}
-/* 登入前的整體容器：登入卡片 + 使用範例圖，一起置中／可捲動（一開始就顯示，內部用讀取中狀態，不再另外彈出「初始化」畫面） */
 #loginWrapper{display:flex;flex-direction:column;gap:18px;width:100%;max-width:420px;margin:auto;}
-/* 卡片內的讀取中狀態（取代舊版獨立的初始化畫面） */
 .login-loading{padding:20px 0;}
 .login-loading .loader.small{width:36px;height:36px;margin:0 auto 14px;}
 .login-loading-title{color:var(--highlight);font-weight:600;font-size:1.05rem;margin-bottom:6px;}
@@ -54,7 +52,6 @@ body{
 .row-fade-in{animation:rowFadeIn 0.28s ease both;}
 @keyframes rowFadeOut{from{opacity:1;}to{opacity:0;}}
 #reportTable tbody tr.row-removing td{animation:rowFadeOut 0.2s ease forwards;}
-/* 登入畫面卡片：手動點擊登入才會扣次（質感升級版） */
 #loginScreen{
   position:relative;width:100%;overflow:hidden;
   background:linear-gradient(160deg,#1c1c1c 0%,#141414 100%);
@@ -86,7 +83,6 @@ body{
 #loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
 #loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
 #loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
-/* 使用規則面板：登入前就寫清楚 */
 .login-rules{
   text-align:left;background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
   border-radius:10px;padding:14px 14px 14px 16px;margin:18px 0;
@@ -106,7 +102,6 @@ body{
 #loginScreen .vip-admin-username{
   background-image:var(--vip-username);background-clip:text;-webkit-background-clip:text;color:transparent;
 }
-/* 登入畫面下方的使用範例圖片 */
 #loginExample{
   background:linear-gradient(145deg,#1c1c1c,#141414);border-radius:16px;padding:16px;
   border:1px solid rgba(255,255,255,0.06);box-shadow:var(--shadow);text-align:center;
@@ -114,13 +109,11 @@ body{
 #loginExample .example-title{font-size:0.92rem;color:var(--gold);font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
 #loginExample img{width:100%;border-radius:10px;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
 #loginExample .example-caption{font-size:0.75rem;color:#888;margin-top:8px;line-height:1.5;}
-/* 登录状态栏可隐藏，增加关闭按钮和过渡效果 */
 #authStatusBar{
   position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
   font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   display:none;width:100%;max-width:600px;transition:all 0.3s ease;
 }
-/* 高质感关闭按钮样式 - 替换原有 close-status 样式 */
 #authStatusBar .close-status {
   position: absolute;
   top: 5px;
@@ -128,70 +121,50 @@ body{
   width: 28px;
   height: 45px;
   border-radius: 8px;
-  /* 细腻的白色渐变，模拟微立体效果 */
   background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  color: #000; /* 纯黑字体保证可读性 */
-  /* 极细黑色边框，提升精致感 */
+  color: #000;
   border: 1px solid #222;
   cursor: pointer;
   font-size: 16px;
-  /* 核心居中布局 */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   vertical-align: middle;
-  /* 丝滑过渡动画 */
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  /* 垂直文字排版 */
   writing-mode: vertical-rl;
   text-orientation: upright;
-  /* 多层次阴影，模拟浮雕质感 */
   box-shadow: 
     0 2px 4px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.8),
     inset 0 -1px 0 rgba(0,0,0,0.1);
   padding: 0;
-  font-weight: 700; /* 加粗字体，提升力量感 */
+  font-weight: 700;
   line-height: 1;
   margin: 0;
   outline: none;
-  /* 防止文字模糊 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 触摸反馈优化 */
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Hover 状态 - 强化交互质感 */
 #authStatusBar .close-status:hover {
-  /* 更深的渐变，模拟按压前的轻抬效果 */
   background: linear-gradient(145deg, #f8f8f8, #eaeaea);
-  /* 轻微上移+增强阴影，提升立体感 */
   transform: translateY(-2px);
   box-shadow: 
     0 4px 8px rgba(0,0,0,0.15),
     inset 0 1px 0 rgba(255,255,255,0.9),
     inset 0 -1px 0 rgba(0,0,0,0.15);
-  /* 边框微亮，提升精致度 */
   border-color: #111;
-  /* 文字轻微提亮，增加呼吸感 */
   color: #111;
 }
-
-/* Active 状态 - 模拟物理按压效果 */
 #authStatusBar .close-status:active {
-  /* 反向渐变，模拟凹陷效果 */
   background: linear-gradient(145deg, #eaeaea, #f0f0f0);
-  /* 复位位置+收缩阴影，模拟按压 */
   transform: translateY(0);
   box-shadow: 
     0 1px 2px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(0,0,0,0.1),
     inset 0 -1px 0 rgba(255,255,255,0.8);
 }
-
-/* 聚焦状态优化（可选，提升可访问性） */
 #authStatusBar .close-status:focus-visible {
   outline: 2px solid #0071e3;
   outline-offset: 2px;
@@ -220,7 +193,6 @@ body{
   color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
   position: relative;
 }
-/* 右上角彥彬水印 */
 #watermark {
   position: absolute;
   top: 12px;
@@ -237,7 +209,6 @@ body{
   line-height:1.3;width:100%;
 }
 .period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
-/* 修改：时长选项白色高级质感样式 */
 .period-box{
   border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
   transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
@@ -286,7 +257,6 @@ body{
 .btn:hover{transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
 .btn:active{transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
 .btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
-/* 統一「彩色描邊 + 質感」：每個按鈕類型都有專屬顏色的清晰邊框，一眼就能分辨功能 */
 .btn-primary{
   background:linear-gradient(145deg,#00bfa5,#009e8a);
   border-color:rgba(64,230,205,0.75);
@@ -364,6 +334,48 @@ body{
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
+
+/* ============================================================
+   新增：預計獎金區塊樣式
+   ============================================================ */
+.bonus-section{
+  margin-top:14px;border-top:1px solid rgba(255,255,255,0.12);padding-top:12px;
+}
+.bonus-toggle-row{
+  display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;
+}
+.bonus-toggle-label{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:0.9rem;font-weight:600;color:#e0e0e0;
+  padding:7px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.05);transition:all 0.25s ease;user-select:none;
+}
+.bonus-toggle-label:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.35);}
+.bonus-toggle-label input[type="radio"]{accent-color:#00d1b2;width:16px;height:16px;cursor:pointer;}
+.bonus-toggle-label.active-non-mgr{background:rgba(64,196,255,0.15);border-color:rgba(64,196,255,0.6);color:#40c4ff;}
+.bonus-toggle-label.active-mgr{background:rgba(212,175,55,0.15);border-color:rgba(212,175,55,0.6);color:#d4af37;}
+.bonus-result-box{
+  background:linear-gradient(145deg,#1e2a1e,#152215);
+  border:1.5px solid rgba(0,209,178,0.3);border-radius:12px;
+  padding:12px 16px;text-align:center;
+  box-shadow:0 0 18px rgba(0,209,178,0.12);
+}
+.bonus-result-label{font-size:0.82rem;color:#aaa;margin-bottom:4px;letter-spacing:0.5px;}
+.bonus-result-pct{font-size:1.5rem;font-weight:bold;color:#00d1b2;line-height:1.2;}
+.bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ffd700;margin-top:2px;}
+.bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
+.bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
+/* 截圖用白底版 */
+.bonus-result-box-print{
+  background:linear-gradient(145deg,#e8f5e9,#f1f8f1);
+  border:1.5px solid #66bb6a;border-radius:10px;padding:10px 14px;text-align:center;
+  margin-top:10px;display:none;
+}
+.bonus-result-box-print .bp-label{font-size:11px;color:#555;margin-bottom:3px;}
+.bonus-result-box-print .bp-pct{font-size:1.2rem;font-weight:bold;color:#2e7d32;}
+.bonus-result-box-print .bp-amount{font-size:1rem;font-weight:bold;color:#b8860b;margin-top:2px;}
+.bonus-result-box-print .bp-tier{font-size:10px;color:#777;margin-top:3px;line-height:1.4;}
+
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
@@ -408,6 +420,8 @@ body{
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
   #watermark {display: none!important;}
+  .bonus-section{display:none!important;}
+  .bonus-result-box-print{display:block!important;}
 }
 .spacer{height:80px;}
 @media (max-width:360px){
@@ -439,7 +453,6 @@ body{
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
-/* 高质感黄色用户名样式 */
 .toast-highlight-name {
   background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
   -webkit-background-clip: text;
@@ -450,18 +463,15 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* 🔥 超质感贊助按鈕樣式 */
 .support-btn {
   display: inline-block;
   margin-left: 12px;
   padding: 5px 14px;
-  /* 金色渐变质感 */
   background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
   color: #000;
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
-  /* 胶囊圆角 + 立体阴影 */
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
@@ -469,14 +479,12 @@ body{
   vertical-align: middle;
   cursor: pointer;
 }
-/* Hover悬浮效果 */
 .support-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
   background: linear-gradient(135deg, #ffed4e, #ffd700);
   border-color: rgba(255,245,200,0.95);
 }
-/* 点击按压效果 */
 .support-btn:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
@@ -488,8 +496,6 @@ body{
   <div id="error-message">
     <div id="error-content"></div>
   </div>
-  <!-- 登入畫面：手動點擊「登入試算系統」才會扣次，可安全重複查看。
-       一開始就顯示本卡片，內部用讀取中狀態呈現，不再另外彈出「初始化」畫面 -->
   <div id="loginWrapper">
     <div id="loginScreen">
       <div class="login-title">🌿 彥彬試算系統</div>
@@ -502,7 +508,6 @@ body{
     </div>
   </div>
 </div>
-<!-- 修改：增加关闭按钮 -->
 <div id="authStatusBar" style="display: none;">
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
@@ -558,6 +563,28 @@ body{
     <span class="extra">距 22 萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
     <span class="extra">距 30 萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
   </div>
+
+  <!-- ============================================================
+       新增：預計獎金區塊（螢幕互動版）
+       ============================================================ -->
+  <div class="bonus-section" id="bonusSection">
+    <div class="bonus-toggle-row">
+      <label class="bonus-toggle-label" id="labelNonMgr">
+        <input type="radio" name="bonusType" value="non_manager" id="radioNonMgr" />
+        👤 非經理
+      </label>
+      <label class="bonus-toggle-label" id="labelMgr">
+        <input type="radio" name="bonusType" value="manager" id="radioMgr" />
+        🏅 經理階
+      </label>
+    </div>
+    <div id="bonusResultBox" class="bonus-result-box">
+      <div class="bonus-result-none">請選擇身分以顯示預計獎金</div>
+    </div>
+  </div>
+
+  <!-- 截圖用白底版：平時隱藏，截圖前動態填充並顯示 -->
+  <div id="bonusPrintBox" class="bonus-result-box-print"></div>
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
@@ -583,12 +610,92 @@ const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV220=220000;
 const TARGET_PV300=300000;
 const MAX_NORMAL_USER_USAGE=3;
-// sessionStorage 鍵名：只在「本次瀏覽器分頁」內有效，關閉分頁或重置報表後即清除，
-// 確保「手動登入才扣次、其餘操作免費」的規則不會被繞過
 const SESSION_KEY_ACTIVE="calcSessionActive";
 const SESSION_KEY_AUTH="calcAuthStatus";
 const SESSION_KEY_DELETE_COUNT="calcSessionDeleteCount";
 const FREE_DELETE_LIMIT=3;
+
+// ============================================================
+// 新增：獎金費率設定
+// ============================================================
+const BONUS_RATES_NON_MANAGER = [
+  { minPv: 280000, rate: 0.23, label: "28萬PV以上" },
+  { minPv: 220000, rate: 0.20, label: "22萬PV以上" },
+  { minPv: 160000, rate: 0.16, label: "16萬PV以上" },
+  { minPv: 100000, rate: 0.12, label: "10萬PV以上" },
+  { minPv:  50000, rate: 0.06, label: "5萬PV以上"  },
+  { minPv:  10000, rate: 0.03, label: "1萬PV以上"  },
+];
+const BONUS_RATES_MANAGER = [
+  { minPv: 220000, rate: 0.24, label: "22萬PV以上" },
+  { minPv: 160000, rate: 0.21, label: "16萬PV以上" },
+  { minPv: 100000, rate: 0.18, label: "10萬PV以上" },
+  { minPv:  48000, rate: 0.08, label: "4.8萬PV以上" },
+  { minPv:   4000, rate: 0.04, label: "4000PV以上" },
+];
+
+function calcBonus(totalPv, type) {
+  const rates = type === 'manager' ? BONUS_RATES_MANAGER : BONUS_RATES_NON_MANAGER;
+  for (const tier of rates) {
+    if (totalPv >= tier.minPv) return { rate: tier.rate, label: tier.label };
+  }
+  return null;
+}
+
+function formatNumber(n) {
+  return n.toLocaleString('zh-TW');
+}
+
+function updateBonusDisplay() {
+  const totalPv    = parseInt(els.totalPvCellDup.textContent)    || 0;
+  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
+  const selected   = document.querySelector('input[name="bonusType"]:checked');
+  const box        = document.getElementById('bonusResultBox');
+  const printBox   = document.getElementById('bonusPrintBox');
+
+  // 更新 radio 標籤 active 樣式
+  document.getElementById('labelNonMgr').className =
+    'bonus-toggle-label' + (selected && selected.value === 'non_manager' ? ' active-non-mgr' : '');
+  document.getElementById('labelMgr').className =
+    'bonus-toggle-label' + (selected && selected.value === 'manager' ? ' active-mgr' : '');
+
+  if (!selected) {
+    box.innerHTML = '<div class="bonus-result-none">請選擇身分以顯示預計獎金</div>';
+    printBox.style.display = 'none';
+    printBox.innerHTML = '';
+    return;
+  }
+
+  const result    = calcBonus(totalPv, selected.value);
+  const typeLabel = selected.value === 'manager' ? '🏅 經理階' : '👤 非經理';
+
+  if (!result) {
+    box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div><div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
+    printBox.style.display = 'none';
+    printBox.innerHTML = '';
+    return;
+  }
+
+  const bonusAmt = Math.floor(totalPrice * result.rate);
+  const pctText  = (result.rate * 100).toFixed(0) + '%';
+
+  // 螢幕互動版
+  box.innerHTML = `
+    <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
+    <div class="bonus-result-pct">${pctText}</div>
+    <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
+  `;
+
+  // 截圖用白底版（平時 display:none，exportToImage 前切換）
+  printBox.innerHTML = `
+    <div class="bp-label">${typeLabel} · 預計獎金試算</div>
+    <div class="bp-pct">${pctText}</div>
+    <div class="bp-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
+  `;
+}
+
 let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
 const els={
   nameInput:document.getElementById("nameInput"),
@@ -642,6 +749,10 @@ document.querySelectorAll('.period-box').forEach(box=>{
     this.classList.add('active');
   });
 });
+
+// 新增：獎金 radio 事件
+document.getElementById('radioNonMgr').addEventListener('change', updateBonusDisplay);
+document.getElementById('radioMgr').addEventListener('change', updateBonusDisplay);
 
 // 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
 function bindCloseStatusBtn(){
@@ -733,11 +844,8 @@ function handleCashGift(){
     selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
     saveSelectedProds();
     renderTable();
-
-    // 修復：截圖能看到勾選狀態
     els.cashOption.setAttribute('checked', false);
     els.cashOption.checked = false;
-
     return;
   }
 
@@ -745,7 +853,6 @@ function handleCashGift(){
   const giftQty = Math.floor(totalPrice / 20000);
 
   if(giftQty <= 0){
-    // 修復：截圖能看到勾選狀態
     els.cashOption.setAttribute('checked', true);
     els.cashOption.checked = true;
     return;
@@ -754,8 +861,6 @@ function handleCashGift(){
   selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
   addSpecificProduct('贈品 211(30)', giftQty);
   showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
-
-  // 修復：截圖能看到勾選狀態
   els.cashOption.setAttribute('checked', true);
   els.cashOption.checked = true;
 }
@@ -797,8 +902,6 @@ function addSpecificProduct(productName, qty) {
   renderTable();
 }
 
-// 本次登入工作階段內，已刪除品項的次數（存於 sessionStorage，重新整理頁面不會歸零，
-// 只有重新登入 / 重置報表才會歸零，避免用重新整理規避免費刪除次數限制）
 function getSessionDeleteCount(){
   return parseInt(sessionStorage.getItem(SESSION_KEY_DELETE_COUNT)||'0',10) || 0;
 }
@@ -842,11 +945,6 @@ function resetLineName(){
   }
 }
 
-// ============================================================
-// 重置報表：清空品項並結束本次登入工作階段，返回登入畫面。
-// 下次要使用需重新點擊「登入試算系統」（普通用戶會再扣1次）。
-// 這裡完全不呼叫任何「刪除/扣次」API，杜絕用重置或刪除規避扣次的疑慮。
-// ============================================================
 async function resetReport(){
   if(!authStatus||authStatus.isExpired)return;
   if(!confirm('確定要清空所有品項記錄並返回登入畫面嗎？\n（下次登入將重新計算使用次數）'))return;
@@ -858,6 +956,11 @@ async function resetReport(){
   els.cardOption.checked=false;
   document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
   clearImage();
+
+  // 新增：重置獎金選擇
+  document.getElementById('radioNonMgr').checked = false;
+  document.getElementById('radioMgr').checked = false;
+  updateBonusDisplay();
 
   sessionStorage.removeItem(SESSION_KEY_ACTIVE);
   sessionStorage.removeItem(SESSION_KEY_AUTH);
@@ -940,7 +1043,6 @@ function renderTable(){
     `;
     els.reportBody.appendChild(tr);
   });
-  // 動畫播放完就移除 class（避免 CSS animation 屬性殘留，導致「報表轉圖片」html2canvas 截圖失敗/空白）
   setTimeout(()=>{
     els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
   },320);
@@ -961,11 +1063,10 @@ function renderTable(){
       if(els.cashOption.checked) handleCashGift();
     };
   });
+  // 新增：每次渲染後同步更新獎金顯示
+  updateBonusDisplay();
 }
 
-// ============================================================
-// 呼叫後端：超過每次登入 3 次免費刪除額度後，每多刪 1 次再扣 1 次使用次數
-// ============================================================
 const extraDeleteFromBackend=()=>{
   return new Promise((resolve)=>{
     const callbackName=`extraDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
@@ -987,12 +1088,6 @@ const extraDeleteFromBackend=()=>{
   });
 };
 
-// ============================================================
-// 刪除品項防呆：尊爵用戶/超級管理員不限次數、免扣。
-// 普通用戶「每次登入」限免費刪除 3 次，並會即時提醒剩餘免費次數；
-// 超過 3 次後，每多刪 1 次都會再次向後端確認並扣除 1 次使用次數，
-// 完全阻絕「用刪除規避扣次」的操作空間。
-// ============================================================
 async function animateRowRemoval(btn){
   const row=btn.closest('tr');
   if(row){
@@ -1011,7 +1106,6 @@ async function handleDelete(btn){
 
   const isPrivilege=authStatus.isVip||authStatus.isSuperAdmin;
 
-  // 尊爵用戶 / 超級管理員：不限次數、免扣
   if(isPrivilege){
     btn.disabled=true;
     await animateRowRemoval(btn);
@@ -1025,7 +1119,6 @@ async function handleDelete(btn){
 
   const usedDeletes=getSessionDeleteCount();
 
-  // 免費額度內：直接刪除，並提醒剩餘免費次數
   if(usedDeletes<FREE_DELETE_LIMIT){
     btn.disabled=true;
     await animateRowRemoval(btn);
@@ -1044,7 +1137,6 @@ async function handleDelete(btn){
     return;
   }
 
-  // 已超過免費額度：需再次確認，並向後端扣除1次使用次數
   if(authStatus.remainingTimes<=0){
     showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶','error');
     return;
@@ -1183,7 +1275,6 @@ function adjustQtySelectOptions(productName) {
   }
 }
 
-// 檢查目前工作階段是否可操作（僅檢查帳號是否過期，使用次數已在登入時確定）
 function checkUserRemainingTimes(){
   if(!authStatus)return false;
   if(authStatus.isExpired){
@@ -1240,6 +1331,14 @@ async function exportToImage(){
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
 
+  // 新增：截圖前切換獎金區塊顯示
+  const bonusSection  = document.getElementById('bonusSection');
+  const bonusPrintBox = document.getElementById('bonusPrintBox');
+  const selected      = document.querySelector('input[name="bonusType"]:checked');
+  const hasBonusContent = selected && bonusPrintBox.innerHTML.trim() !== '';
+  bonusSection.style.display  = 'none';
+  bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
+
   // 清除所有动画残留，防止截图重复
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
@@ -1265,12 +1364,10 @@ async function exportToImage(){
     background: els.captureArea.style.background
   };
 
-  // 截图专用干净样式：单层、无渐变冲突、无重叠
   els.captureArea.style.width=`${captureWidth}px`;
   els.captureArea.style.paddingLeft="30px";
   els.captureArea.style.paddingRight="30px";
   els.captureArea.style.position="relative";
-
 
   const ua=navigator.userAgent||'';
   const isLineInApp=/Line/i.test(ua);
@@ -1334,6 +1431,10 @@ async function attemptCapture(useScale){
     console.error('匯出錯誤:',error);
     showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
+    // 新增：截圖後恢復互動版獎金區塊
+    bonusSection.style.display  = '';
+    bonusPrintBox.style.display = 'none';
+
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalStyles.width;
     els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
@@ -1454,10 +1555,6 @@ const showError=(msg)=>{
   els.errorMessage.style.display='block';
 };
 
-// ============================================================
-// 登入前的「查詢」：只看身份與剩餘次數，不扣任何次數。
-// 用於一開始顯示登入畫面，以及「重置報表」後重新顯示登入畫面。
-// ============================================================
 const precheckUserFromBackend=(profile)=>{
   return new Promise((resolve,reject)=>{
     const callbackName=`precheckCallback_${Date.now()}`;
@@ -1489,9 +1586,6 @@ const precheckUserFromBackend=(profile)=>{
   });
 };
 
-// ============================================================
-// 登入（唯一會扣次的動作）：使用者手動點擊「登入試算系統」按鈕才會呼叫。
-// ============================================================
 const loginToBackend=()=>{
   return new Promise((resolve)=>{
     const callbackName=`loginCallback_${Date.now()}`;
@@ -1513,7 +1607,6 @@ const loginToBackend=()=>{
   });
 };
 
-// 渲染登入畫面內容（質感版：頭像 + 身份徽章 + 規則說明 + 登入按鈕）
 function renderLoginScreen(info){
   const isPrivilege=info.isVip||info.isSuperAdmin;
 
@@ -1544,7 +1637,6 @@ function renderLoginScreen(info){
     `;
   }
 
-  // 規則精簡為3點，登入按鈕之前就清楚寫明
   const rulesHtml=`
     <div class="login-rules">
       <div class="login-rules-title">📜 登入前請詳閱</div>
@@ -1571,7 +1663,6 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
   if(loginBtn)loginBtn.addEventListener('click',handleLoginClick);
 }
 
-// 點擊登入按鈕：普通用戶在此扣1次，VIP/超管免扣，成功後進入試算介面
 async function handleLoginClick(){
   const loginBtn=document.getElementById('loginBtn');
   if(loginBtn){loginBtn.disabled=true;loginBtn.innerHTML='<span class="btn-spinner"></span>登入中...';}
@@ -1623,8 +1714,6 @@ async function handleLoginClick(){
   }
 }
 
-// 進入試算介面（登入成功 / 同一分頁內已有有效工作階段時呼叫）
-// 加入淡出/淡入轉場效果，畫面切換更順暢
 function enterCalculator(){
   const authContainer=document.getElementById('authContainer');
   authContainer.classList.add('fade-out');
@@ -1664,7 +1753,6 @@ async function initLiffAndAuth(){
     const profile=await liff.getProfile();
     userInfo={userId:profile.userId,displayName:profile.displayName,pictureUrl:profile.pictureUrl||''};
 
-    // 若本次分頁已完成登入（尚未重置/關閉分頁），直接恢復試算畫面，不再重複扣次
     const cachedSessionActive=sessionStorage.getItem(SESSION_KEY_ACTIVE);
     const cachedAuthRaw=sessionStorage.getItem(SESSION_KEY_AUTH);
     if(cachedSessionActive==='true'&&cachedAuthRaw){
@@ -1674,10 +1762,9 @@ async function initLiffAndAuth(){
           enterCalculator();
           return;
         }
-      }catch(e){/* 快取解析失敗則忽略，走正常登入流程 */}
+      }catch(e){}
     }
 
-    // 顯示登入畫面前，先查詢目前身份與剩餘次數（不扣次）
     showLoginLoading("彥彬🌿試算系統","核對用戶權限中...");
     const precheck=await precheckUserFromBackend(profile);
     if(!precheck)return;
