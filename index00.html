@@ -1223,8 +1223,8 @@ function updateAuthStatusBar(){
       用戶名：<span class="gold-username">${userInfo.displayName}</span>
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
       <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
-      <br/>升級解鎖無限使用次數
-      <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">升級解鎖試算系統</a>
+      <br/>贊助『使用次數』
+      <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
     `;
   }
   els.authStatusBar.innerHTML = `
@@ -1564,7 +1564,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
     ${canLogin
       ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
-         <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊升級贊助</a>`}
+         <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
   `;
   els.loginWrapper.style.display='flex';
   const loginBtn=document.getElementById('loginBtn');
@@ -1598,7 +1598,7 @@ async function handleLoginClick(){
         <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
         <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
           style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
-          🌟 點擊升級贊助
+          🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
     <img src="https://yb131419.github.io/Shisuan/goods05_4.png" alt="彥彬試算系統使用範例" loading="lazy"
@@ -1687,7 +1687,7 @@ if(precheck.isExpired){
     <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
     <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
       style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
-      🌟 點擊升級贊助
+      🌟 點擊贊助
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
