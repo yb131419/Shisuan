@@ -1318,7 +1318,7 @@ function updateAuthStatusBar(){
       <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
       用戶名：<span class="gold-username">${userInfo.displayName}</span>
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
-      <br/>🗑️ 本批免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（用完扣1次使用次數換新的一批）
+      <br/>🗑️ 本批免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span><br>（用完會扣1次補充）
       <br/>贊助『使用次數』
       <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
     `;
