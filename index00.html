@@ -169,6 +169,20 @@ body{
   outline: 2px solid #0071e3;
   outline-offset: 2px;
 }
+/* ============================================================
+   新增：狀態欄「顯示狀態」恢復小按鈕（隱藏後右上角出現，可再次展開）
+   ============================================================ */
+#authStatusRestore{
+  position:fixed;top:10px;right:10px;z-index:1000;display:none;
+  align-items:center;gap:6px;cursor:pointer;
+  background:linear-gradient(145deg,#00bfa5,#009e8a);
+  color:#fff;border:1px solid rgba(120,245,220,0.6);
+  border-radius:20px;padding:8px 14px;font-size:13px;font-weight:700;
+  box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color:transparent;transition:all .3s ease;
+}
+#authStatusRestore:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,209,178,0.45);}
+#authStatusRestore:active{transform:translateY(0);}
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
   animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;
@@ -412,7 +426,7 @@ body{
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
+  #authContainer,#authStatusBar,#authStatusRestore,#guideFab,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
@@ -489,6 +503,60 @@ body{
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
 }
+
+/* ============================================================
+   新增：使用導覽（浮動按鈕 + 圖文步驟彈窗）
+   ============================================================ */
+#guideFab{
+  position:fixed;right:16px;bottom:16px;z-index:1200;display:none;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(145deg,#40c4ff,#00d1b2);
+  color:#fff;border:2px solid rgba(255,255,255,0.35);
+  font-size:24px;font-weight:bold;cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,0.45);
+  align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;transition:all .3s ease;
+}
+#guideFab:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 8px 26px rgba(0,209,178,0.5);}
+#guideFab:active{transform:scale(0.95);}
+#guideOverlay{
+  position:fixed;inset:0;z-index:3000;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#guideOverlay.show{display:flex;}
+.guide-card{
+  width:100%;max-width:420px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1c1c1c,#141414);
+  border:1px solid rgba(201,161,90,0.3);border-radius:20px;
+  padding:28px 22px 22px;box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  animation:loginCardIn .4s cubic-bezier(0.16,1,0.3,1);
+}
+.guide-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+.guide-close{
+  position:absolute;top:12px;right:14px;background:none;border:none;
+  color:#888;font-size:20px;cursor:pointer;line-height:1;transition:color .2s ease;
+}
+.guide-close:hover{color:#fff;}
+.guide-progress{text-align:center;font-size:0.78rem;color:#888;margin-bottom:6px;letter-spacing:1px;}
+.guide-step-icon{font-size:2.6rem;text-align:center;margin-bottom:8px;}
+.guide-step-title{
+  font-size:1.2rem;font-weight:bold;text-align:center;margin-bottom:14px;
+  background:linear-gradient(135deg,#40c4ff,#00d1b2);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.guide-step-desc{
+  font-size:0.92rem;color:#ccc;line-height:1.75;text-align:left;
+  background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
+  border-radius:8px;padding:14px 15px;min-height:96px;
+}
+.guide-dots{display:flex;justify-content:center;gap:6px;margin:16px 0 14px;flex-wrap:wrap;}
+.guide-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .3s ease;}
+.guide-dot.active{background:var(--accent);width:20px;border-radius:4px;}
+.guide-nav{display:flex;gap:10px;}
+.guide-nav .btn{flex:1;}
 </style>
 </head>
 <body>
@@ -511,6 +579,8 @@ body{
 <div id="authStatusBar" style="display: none;">
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
+<!-- 新增：狀態欄隱藏後的「顯示狀態」恢復按鈕 -->
+<div id="authStatusRestore" title="顯示狀態欄">📊 顯示狀態</div>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
 
@@ -600,6 +670,26 @@ body{
   <select id="qtyInput"></select>
   <button id="addBtn" class="btn btn-primary btn-lg">➕<br>新增品項</button>
 </div>
+
+<!-- ============================================================
+     新增：使用導覽浮動按鈕 + 導覽彈窗
+     ============================================================ -->
+<button id="guideFab" title="使用導覽">❓</button>
+<div id="guideOverlay">
+  <div class="guide-card">
+    <button class="guide-close" id="guideCloseBtn" title="關閉導覽">✕</button>
+    <div class="guide-progress" id="guideProgress"></div>
+    <div class="guide-step-icon" id="guideIcon"></div>
+    <div class="guide-step-title" id="guideTitle"></div>
+    <div class="guide-step-desc" id="guideDesc"></div>
+    <div class="guide-dots" id="guideDots"></div>
+    <div class="guide-nav">
+      <button class="btn btn-grey btn-md" id="guidePrevBtn">◀ 上一步</button>
+      <button class="btn btn-primary btn-md" id="guideNextBtn">下一步 ▶</button>
+    </div>
+  </div>
+</div>
+
 <div class="spacer"></div>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
@@ -614,6 +704,10 @@ const SESSION_KEY_ACTIVE="calcSessionActive";
 const SESSION_KEY_AUTH="calcAuthStatus";
 const SESSION_KEY_DELETE_COUNT="calcSessionDeleteCount";
 const FREE_DELETE_LIMIT=3;
+const GUIDE_SEEN_KEY="guideSeen";
+
+// 新增：狀態欄是否被使用者手動隱藏（用於重繪時尊重隱藏狀態）
+let statusBarHidden=false;
 
 // ============================================================
 // 新增：獎金費率設定
@@ -723,6 +817,7 @@ const els={
   loginScreenBody:document.getElementById("loginScreenBody"),
   loginExample:document.getElementById("loginExample"),
   authStatusBar:document.getElementById("authStatusBar"),
+  authStatusRestore:document.getElementById("authStatusRestore"),
   captureArea:document.getElementById("captureArea"),
   inputArea:document.getElementById("inputArea"),
   buttonGroup:document.querySelector(".button-group"),
@@ -731,7 +826,9 @@ const els={
   reportTable:document.getElementById("reportTable"),
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
-  watermark:document.getElementById("watermark")
+  watermark:document.getElementById("watermark"),
+  guideFab:document.getElementById("guideFab"),
+  guideOverlay:document.getElementById("guideOverlay")
 };
 
 // 初始化數量選擇框
@@ -755,18 +852,80 @@ document.getElementById('radioNonMgr').addEventListener('change', updateBonusDis
 document.getElementById('radioMgr').addEventListener('change', updateBonusDisplay);
 
 // 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
+// 改動：點「關閉」不再永久隱藏，而是收合狀態欄並顯示「📊 顯示狀態」恢復按鈕
 function bindCloseStatusBtn(){
   const btn=els.authStatusBar.querySelector('.close-status');
   if(!btn)return;
   btn.addEventListener('click',function(){
+    statusBarHidden=true;
     els.authStatusBar.style.opacity='0';
     setTimeout(()=>{
       els.authStatusBar.style.display='none';
       els.authStatusBar.style.opacity='1';
+      els.authStatusRestore.style.display='inline-flex';
     },300);
   });
 }
 bindCloseStatusBtn();
+
+// 新增：「顯示狀態」恢復按鈕 → 重新展開狀態欄
+els.authStatusRestore.addEventListener('click',function(){
+  statusBarHidden=false;
+  els.authStatusRestore.style.display='none';
+  els.authStatusBar.style.display='block';
+  els.authStatusBar.classList.add('status-in');
+  setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
+});
+
+// ============================================================
+// 新增：使用導覽（步驟資料 + 控制邏輯）
+// ============================================================
+const GUIDE_STEPS=[
+  {icon:'👋',title:'歡迎使用試算系統',desc:'這份導覽會帶你快速認識每個功能。看完後隨時可以點右下角的「❓」重新開啟導覽。'},
+  {icon:'🛒',title:'新增品項',desc:'在下方選擇「品項」與「數量」，按「➕ 新增品項」加入報表。部分品項（新入會、2711AB、火山甘露…）有限購數量，系統會自動提醒並調整；選到新入會款式時，還會自動帶入對應組合。'},
+  {icon:'💵',title:'付款方式與期數',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
+  {icon:'🗑️',title:'刪除規則',desc:'每一批可免費刪除 3 次；用完後再刪除會扣 1 次使用次數，並回復 3 次刪除機會，如此循環。💎尊爵用戶／👑超級管理員則不限刪除次數。'},
+  {icon:'🏅',title:'預計獎金試算',desc:'選擇「👤 非經理 / 🏅 經理階」身分，系統會依「總 PV」對應獎金比例，估算約略的獎金金額，方便當場向客戶說明。'},
+  {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
+  {icon:'📱',title:'分享報表',desc:'圖片產生後，可用「安卓分享」把圖片網址轉傳到 LINE，或用「分享圖片」呼叫手機原生分享；不需要時可按「❌ 清除圖片」。'},
+  {icon:'🔄',title:'重置報表',desc:'「🔄 重置報表」會清空所有品項並登出，需要重新登入（重新扣 1 次使用次數），適合換一位客戶重新試算時使用。'},
+  {icon:'📊',title:'狀態欄可收合',desc:'點狀態欄右上角的「關閉」，狀態欄會收起來、右上角出現「📊 顯示狀態」；想再查看身分與剩餘次數時，點它即可重新展開。'}
+];
+let guideIndex=0;
+
+function openGuide(){
+  guideIndex=0;
+  renderGuide();
+  els.guideOverlay.classList.add('show');
+}
+function closeGuide(){
+  els.guideOverlay.classList.remove('show');
+}
+function renderGuide(){
+  const step=GUIDE_STEPS[guideIndex];
+  document.getElementById('guideIcon').textContent=step.icon;
+  document.getElementById('guideTitle').textContent=step.title;
+  document.getElementById('guideDesc').textContent=step.desc;
+  document.getElementById('guideProgress').textContent=`第 ${guideIndex+1} 步 / 共 ${GUIDE_STEPS.length} 步`;
+  document.getElementById('guideDots').innerHTML=
+    GUIDE_STEPS.map((_,i)=>`<span class="guide-dot ${i===guideIndex?'active':''}"></span>`).join('');
+  const prev=document.getElementById('guidePrevBtn');
+  const next=document.getElementById('guideNextBtn');
+  prev.style.visibility=guideIndex===0?'hidden':'visible';
+  next.textContent=guideIndex===GUIDE_STEPS.length-1?'開始使用 ✅':'下一步 ▶';
+}
+function guidePrev(){ if(guideIndex>0){guideIndex--;renderGuide();} }
+function guideNext(){
+  if(guideIndex<GUIDE_STEPS.length-1){guideIndex++;renderGuide();}
+  else{closeGuide();}
+}
+
+// 導覽事件綁定
+els.guideFab.addEventListener('click',openGuide);
+document.getElementById('guideCloseBtn').addEventListener('click',closeGuide);
+document.getElementById('guidePrevBtn').addEventListener('click',guidePrev);
+document.getElementById('guideNextBtn').addEventListener('click',guideNext);
+els.guideOverlay.addEventListener('click',function(e){ if(e.target===this) closeGuide(); });
 
 // 事件綁定
 els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
@@ -971,6 +1130,11 @@ async function resetReport(){
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
   els.authStatusBar.style.display='none';
+  // 新增：登出時一併收起狀態恢復鈕與導覽鈕、關閉導覽彈窗
+  els.authStatusRestore.style.display='none';
+  els.guideFab.style.display='none';
+  closeGuide();
+  statusBarHidden=false;
 
   document.getElementById('authContainer').style.display='flex';
   els.loginWrapper.style.display='flex';
@@ -1328,7 +1492,14 @@ function updateAuthStatusBar(){
     ${statusHtml}
   `;
   bindCloseStatusBtn();
-  els.authStatusBar.style.display='block';
+  // 改動：重繪時尊重使用者當下的「隱藏」狀態
+  if(statusBarHidden){
+    els.authStatusBar.style.display='none';
+    els.authStatusRestore.style.display='inline-flex';
+  }else{
+    els.authStatusBar.style.display='block';
+    els.authStatusRestore.style.display='none';
+  }
 }
 
 async function exportToImage(){
@@ -1729,6 +1900,8 @@ function enterCalculator(){
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
+    // 新增：登入後顯示使用導覽浮動按鈕
+    els.guideFab.style.display='flex';
     els.captureArea.classList.add('screen-enter');
     els.inputArea.classList.add('screen-enter');
     els.buttonGroup.classList.add('screen-enter');
@@ -1740,7 +1913,13 @@ function enterCalculator(){
     setupLineName();
     loadSelectedProds();
     checkUserRemainingTimes();
+    statusBarHidden=false;
     updateAuthStatusBar();
+    // 新增：首次使用自動彈出一次導覽（之後不再自動跳出）
+    if(!localStorage.getItem(GUIDE_SEEN_KEY)){
+      localStorage.setItem(GUIDE_SEEN_KEY,'1');
+      setTimeout(openGuide,600);
+    }
   },320);
 }
 
