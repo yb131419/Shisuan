@@ -338,43 +338,234 @@ body{
 /* ============================================================
    新增：預計獎金區塊樣式
    ============================================================ */
-.bonus-section{
-  margin-top:14px;border-top:1px solid rgba(255,255,255,0.12);padding-top:12px;
+/* ============================================================
+   預計獎金區塊 — Premium $10K Design
+   ============================================================ */
+@keyframes bonusFadeIn{
+  from{opacity:0;transform:translateY(12px) scale(0.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
 }
-.bonus-toggle-row{
-  display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;
+@keyframes bonusCountUp{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes shimmer{
+  0%{background-position:200% center;}
+  100%{background-position:-200% center;}
+}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(0,209,178,0);}
+  50%{box-shadow:0 0 0 6px rgba(0,209,178,0.08);}
+}
+@keyframes borderFlow{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+@keyframes dotBlink{
+  0%,100%{opacity:1;}50%{opacity:0.3;}
+}
+
+.bonus-section{
+  margin-top:20px;
+  padding-top:0;
+  position:relative;
+}
+/* 分隔線：漸層消失感 */
+.bonus-section::before{
+  content:'';display:block;height:1px;margin-bottom:18px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1) 30%,rgba(0,209,178,0.25) 50%,rgba(255,255,255,0.1) 70%,transparent);
+}
+
+/* 區塊標題列 */
+.bonus-header{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:14px;
+}
+.bonus-header-icon{
+  font-size:15px;opacity:0.7;
+}
+.bonus-header-title{
+  font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:rgba(255,255,255,0.35);
+}
+.bonus-header-line{
+  flex:1;height:1px;max-width:40px;
+  background:linear-gradient(90deg,rgba(255,255,255,0.1),transparent);
+}
+.bonus-header-line.right{
+  background:linear-gradient(270deg,rgba(255,255,255,0.1),transparent);
+}
+
+/* 身份切換器：Segmented Control 風格 */
+.bonus-toggle-track{
+  display:flex;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:4px;gap:0;
+  margin:0 auto 16px;width:fit-content;
+  position:relative;
 }
 .bonus-toggle-label{
-  display:flex;align-items:center;gap:8px;cursor:pointer;
-  font-size:0.9rem;font-weight:600;color:#e0e0e0;
-  padding:7px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.18);
-  background:rgba(255,255,255,0.05);transition:all 0.25s ease;user-select:none;
+  display:flex;align-items:center;gap:7px;cursor:pointer;
+  font-size:13px;font-weight:600;
+  padding:9px 20px;border-radius:10px;
+  color:rgba(255,255,255,0.4);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  user-select:none;position:relative;z-index:1;
+  white-space:nowrap;letter-spacing:0.3px;
 }
-.bonus-toggle-label:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.35);}
-.bonus-toggle-label input[type="radio"]{accent-color:#00d1b2;width:16px;height:16px;cursor:pointer;}
-.bonus-toggle-label.active-non-mgr{background:rgba(64,196,255,0.15);border-color:rgba(64,196,255,0.6);color:#40c4ff;}
-.bonus-toggle-label.active-mgr{background:rgba(212,175,55,0.15);border-color:rgba(212,175,55,0.6);color:#d4af37;}
+.bonus-toggle-label input[type="radio"]{display:none;}
+.bonus-toggle-label .toggle-emoji{
+  font-size:15px;transition:transform 0.3s ease;display:inline-block;
+}
+.bonus-toggle-label:hover{color:rgba(255,255,255,0.65);}
+.bonus-toggle-label:hover .toggle-emoji{transform:scale(1.15);}
+.bonus-toggle-label.active-non-mgr{
+  color:#fff;
+  background:linear-gradient(135deg,rgba(64,196,255,0.2),rgba(0,180,230,0.12));
+  box-shadow:0 2px 12px rgba(64,196,255,0.2),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.bonus-toggle-label.active-non-mgr .toggle-emoji{transform:scale(1.1);}
+.bonus-toggle-label.active-mgr{
+  color:#fff;
+  background:linear-gradient(135deg,rgba(212,175,55,0.22),rgba(180,140,30,0.14));
+  box-shadow:0 2px 12px rgba(212,175,55,0.22),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.bonus-toggle-label.active-mgr .toggle-emoji{transform:scale(1.1);}
+
+/* 結果卡片容器 */
 .bonus-result-box{
-  background:linear-gradient(145deg,#1e2a1e,#152215);
-  border:1.5px solid rgba(0,209,178,0.3);border-radius:12px;
-  padding:12px 16px;text-align:center;
-  box-shadow:0 0 18px rgba(0,209,178,0.12);
+  position:relative;overflow:hidden;
+  border-radius:16px;
+  background:linear-gradient(160deg,#111a11 0%,#0d150d 60%,#101a18 100%);
+  border:1px solid rgba(255,255,255,0.07);
+  padding:22px 20px 18px;
+  text-align:center;
+  animation:pulseGlow 4s ease-in-out infinite;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
 }
-.bonus-result-label{font-size:0.82rem;color:#aaa;margin-bottom:4px;letter-spacing:0.5px;}
-.bonus-result-pct{font-size:1.5rem;font-weight:bold;color:#00d1b2;line-height:1.2;}
-.bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ffff00;margin-top:2px;}
-.bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
-.bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
+/* 頂部光暈線 */
+.bonus-result-box::before{
+  content:'';position:absolute;top:0;left:10%;right:10%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,209,178,0.5),rgba(64,196,255,0.3),transparent);
+  border-radius:50%;
+}
+/* 底部微光 */
+.bonus-result-box::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:40px;
+  background:linear-gradient(to top,rgba(0,209,178,0.03),transparent);
+  pointer-events:none;
+}
+
+/* 空狀態 */
+.bonus-result-none{
+  padding:20px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.bonus-none-icon{
+  font-size:28px;opacity:0.3;
+  animation:dotBlink 2.5s ease-in-out infinite;
+}
+.bonus-none-text{
+  font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.5px;
+}
+
+/* 結果顯示：有獎金時 */
+.bonus-result-inner{
+  animation:bonusFadeIn 0.45s cubic-bezier(0.16,1,0.3,1) both;
+}
+.bonus-result-label{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.bonus-result-label::before,.bonus-result-label::after{
+  content:'';display:inline-block;width:20px;height:1px;
+  background:rgba(255,255,255,0.15);
+}
+
+/* 費率大字 */
+.bonus-result-pct-wrap{
+  position:relative;display:inline-flex;align-items:baseline;
+  justify-content:center;margin-bottom:4px;
+}
+.bonus-result-pct{
+  font-size:3.2rem;font-weight:800;line-height:1;
+  background:linear-gradient(135deg,#00d1b2 0%,#40e8cc 40%,#80fff0 70%,#40c4ff 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shimmer 3s linear infinite;
+  letter-spacing:-2px;
+}
+.bonus-result-pct-sym{
+  font-size:1.4rem;font-weight:700;color:rgba(0,209,178,0.6);
+  margin-left:2px;align-self:flex-start;padding-top:8px;
+}
+
+/* 金額 */
+.bonus-result-amount-wrap{
+  margin:6px 0 14px;
+  animation:bonusCountUp 0.5s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+}
+.bonus-result-amount-prefix{
+  font-size:11px;color:rgba(255,215,0,0.5);letter-spacing:1px;margin-right:4px;
+}
+.bonus-result-amount{
+  font-size:1.55rem;font-weight:800;
+  background:linear-gradient(135deg,#ffd700,#ffe566,#ffc200);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shimmer 4s linear infinite;
+  letter-spacing:-0.5px;
+}
+
+/* 適用區間 tag */
+.bonus-result-tier{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.8px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:20px;padding:5px 12px;
+  animation:bonusCountUp 0.5s 0.25s cubic-bezier(0.16,1,0.3,1) both;
+}
+.bonus-result-tier-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(0,209,178,0.6);
+  flex-shrink:0;
+}
+
+/* 未達門檻狀態 */
+.bonus-result-below{
+  padding:16px 10px;
+  animation:bonusFadeIn 0.4s ease both;
+}
+.bonus-result-below-icon{font-size:22px;margin-bottom:8px;opacity:0.5;}
+.bonus-result-below-text{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.3px;}
+.bonus-result-below-hint{
+  margin-top:10px;font-size:10px;
+  color:rgba(0,209,178,0.4);letter-spacing:0.5px;
+}
+
 /* 截圖用白底版 */
 .bonus-result-box-print{
-  background:linear-gradient(145deg,#e8f5e9,#f1f8f1);
-  border:1.5px solid #66bb6a;border-radius:10px;padding:10px 14px;text-align:center;
+  background:linear-gradient(145deg,#f0faf8,#e8f5f2);
+  border:1.5px solid rgba(0,180,155,0.3);
+  border-radius:12px;padding:14px 16px;text-align:center;
   margin-top:10px;display:none;
 }
-.bonus-result-box-print .bp-label{font-size:11px;color:#555;margin-bottom:3px;}
-.bonus-result-box-print .bp-pct{font-size:1.2rem;font-weight:bold;color:#2e7d32;}
-.bonus-result-box-print .bp-amount{font-size:1rem;font-weight:bold;color:#ffff00;margin-top:2px;}
-.bonus-result-box-print .bp-tier{font-size:10px;color:#777;margin-top:3px;line-height:1.4;}
+.bonus-result-box-print .bp-label{
+  font-size:10px;color:#888;margin-bottom:8px;letter-spacing:1.5px;
+  text-transform:uppercase;font-weight:600;
+}
+.bonus-result-box-print .bp-pct{
+  font-size:1.6rem;font-weight:800;color:#00897b;line-height:1.1;
+}
+.bonus-result-box-print .bp-amount{
+  font-size:1.1rem;font-weight:700;color:#b8860b;margin-top:4px;
+}
+.bonus-result-box-print .bp-tier{
+  font-size:10px;color:#999;margin-top:6px;
+  background:rgba(0,0,0,0.04);border-radius:8px;padding:4px 10px;display:inline-block;
+}
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
@@ -503,7 +694,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_4.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -565,21 +756,33 @@ body{
   </div>
 
   <!-- ============================================================
-       新增：預計獎金區塊（螢幕互動版）
+       新增：預計獎金區塊（螢幕互動版 Premium）
        ============================================================ -->
   <div class="bonus-section" id="bonusSection">
-    <div class="bonus-toggle-row">
+    <!-- 標題列 -->
+    <div class="bonus-header">
+      <div class="bonus-header-line"></div>
+      <span class="bonus-header-icon">💰</span>
+      <span class="bonus-header-title">預計獎金試算</span>
+      <div class="bonus-header-line right"></div>
+    </div>
+    <!-- Segmented 身份切換器 -->
+    <div class="bonus-toggle-track">
       <label class="bonus-toggle-label" id="labelNonMgr">
         <input type="radio" name="bonusType" value="non_manager" id="radioNonMgr" />
-        👤 非經理
+        <span class="toggle-emoji">👤</span>非經理
       </label>
       <label class="bonus-toggle-label" id="labelMgr">
         <input type="radio" name="bonusType" value="manager" id="radioMgr" />
-        🏅 經理階
+        <span class="toggle-emoji">🏅</span>經理階
       </label>
     </div>
+    <!-- 結果卡片 -->
     <div id="bonusResultBox" class="bonus-result-box">
-      <div class="bonus-result-none">請選擇身分以顯示預計獎金</div>
+      <div class="bonus-result-none">
+        <div class="bonus-none-icon">✦</div>
+        <div class="bonus-none-text">選擇身分以試算預計獎金</div>
+      </div>
     </div>
   </div>
 
@@ -646,6 +849,22 @@ function formatNumber(n) {
   return n.toLocaleString('zh-TW');
 }
 
+// 數字滾動動畫（countup 效果）
+function animateCountUp(el, targetVal, duration, prefix, suffix) {
+  const start = Date.now();
+  const startVal = 0;
+  function tick() {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // easeOutExpo
+    const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+    const current = Math.floor(startVal + (targetVal - startVal) * ease);
+    el.textContent = prefix + formatNumber(current) + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function updateBonusDisplay() {
   const totalPv    = parseInt(els.totalPvCellDup.textContent)    || 0;
   const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
@@ -653,46 +872,71 @@ function updateBonusDisplay() {
   const box        = document.getElementById('bonusResultBox');
   const printBox   = document.getElementById('bonusPrintBox');
 
-  // 更新 radio 標籤 active 樣式
+  // 更新 Segmented 身份切換器 active 樣式
   document.getElementById('labelNonMgr').className =
     'bonus-toggle-label' + (selected && selected.value === 'non_manager' ? ' active-non-mgr' : '');
   document.getElementById('labelMgr').className =
     'bonus-toggle-label' + (selected && selected.value === 'manager' ? ' active-mgr' : '');
 
   if (!selected) {
-    box.innerHTML = '<div class="bonus-result-none">請選擇身分以顯示預計獎金</div>';
+    box.innerHTML = `
+      <div class="bonus-result-none">
+        <div class="bonus-none-icon">✦</div>
+        <div class="bonus-none-text">選擇身分以試算預計獎金</div>
+      </div>`;
     printBox.style.display = 'none';
     printBox.innerHTML = '';
     return;
   }
 
   const result    = calcBonus(totalPv, selected.value);
-  const typeLabel = selected.value === 'manager' ? '🏅 經理階' : '👤 非經理';
+  const isManager = selected.value === 'manager';
+  const typeLabel = isManager ? '🏅 經理階' : '👤 非經理';
 
   if (!result) {
-    box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div><div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
+    const minPv = isManager ? '4,000' : '10,000';
+    box.innerHTML = `
+      <div class="bonus-result-below">
+        <div class="bonus-result-below-icon">📊</div>
+        <div class="bonus-result-below-text">PV 尚未達到最低門檻</div>
+        <div class="bonus-result-below-hint">${typeLabel} 最低門檻 ${minPv} PV</div>
+      </div>`;
     printBox.style.display = 'none';
     printBox.innerHTML = '';
     return;
   }
 
   const bonusAmt = Math.floor(totalPrice * result.rate);
-  const pctText  = (result.rate * 100).toFixed(0) + '%';
+  const pctNum   = (result.rate * 100).toFixed(0);
+  const pctText  = pctNum + '%';
 
-  // 螢幕互動版
+  // 螢幕互動版（Premium 動畫版）
   box.innerHTML = `
-    <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
-    <div class="bonus-result-pct">${pctText}</div>
-    <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
-  `;
+    <div class="bonus-result-inner">
+      <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
+      <div class="bonus-result-pct-wrap">
+        <span class="bonus-result-pct" id="bonusPctAnim">${pctText}</span>
+      </div>
+      <div class="bonus-result-amount-wrap">
+        <span class="bonus-result-amount-prefix">約 NT$</span>
+        <span class="bonus-result-amount" id="bonusAmtAnim">0</span>
+      </div>
+      <div class="bonus-result-tier">
+        <span class="bonus-result-tier-dot"></span>
+        ${result.label}　·　總金額 × ${pctText}
+      </div>
+    </div>`;
 
-  // 截圖用白底版（平時 display:none，exportToImage 前切換）
+  // 金額 countup 動畫
+  const amtEl = document.getElementById('bonusAmtAnim');
+  if (amtEl) animateCountUp(amtEl, bonusAmt, 900, '', '');
+
+  // 截圖用白底版
   printBox.innerHTML = `
     <div class="bp-label">${typeLabel} · 預計獎金試算</div>
     <div class="bp-pct">${pctText}</div>
     <div class="bp-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
+    <div class="bp-tier">${result.label}　·　總金額 × ${pctText}</div>
   `;
 }
 
@@ -1692,7 +1936,7 @@ async function handleLoginClick(){
           🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_4.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
@@ -1778,7 +2022,7 @@ if(precheck.isExpired){
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_4.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
