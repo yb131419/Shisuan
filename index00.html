@@ -1119,6 +1119,7 @@ async function handleDelete(btn){
 
   const usedDeletes=getSessionDeleteCount();
 
+  // 還在本批免費刪除額度內
   if(usedDeletes<FREE_DELETE_LIMIT){
     btn.disabled=true;
     await animateRowRemoval(btn);
@@ -1130,18 +1131,19 @@ async function handleDelete(btn){
     const leftFree=FREE_DELETE_LIMIT-(usedDeletes+1);
     updateAuthStatusBar();
     if(leftFree>0){
-      showToast(`品項已刪除（本次登入還可免費刪除 ${leftFree} 次）`,'warning');
+      showToast(`品項已刪除（本次還可免費刪除 ${leftFree} 次）`,'warning');
     }else{
-      showToast(`品項已刪除，本次登入的 ${FREE_DELETE_LIMIT} 次免費刪除已用完，之後刪除將再扣除使用次數`,'warning');
+      showToast(`品項已刪除，本批 ${FREE_DELETE_LIMIT} 次免費刪除已用完，之後刪除將扣 1 次使用次數換取新的 ${FREE_DELETE_LIMIT} 次刪除機會`,'warning');
     }
     return;
   }
 
+  // 本批免費額度用完 → 扣 1 次使用次數，回復 3 次刪除機會
   if(authStatus.remainingTimes<=0){
     showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶','error');
     return;
   }
-  const confirmMsg=`您本次登入已使用完 ${FREE_DELETE_LIMIT} 次免費刪除機會\n繼續刪除將再扣除 1 次使用次數（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定要刪除？`;
+  const confirmMsg=`您本批的 ${FREE_DELETE_LIMIT} 次免費刪除已用完\n扣除 1 次使用次數即可回復 ${FREE_DELETE_LIMIT} 次刪除機會（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定扣次並刪除？`;
   if(!confirm(confirmMsg))return;
 
   btn.disabled=true;
@@ -1165,9 +1167,12 @@ async function handleDelete(btn){
     saveSelectedProds();
     renderTable();
     if(els.cashOption.checked) handleCashGift();
-    setSessionDeleteCount(usedDeletes+1);
+
+    // 關鍵改動：扣 1 次後把刪除計數歸零重算，本次刪除計為第 1 次，等於回復整批 3 次免費刪除
+    setSessionDeleteCount(1);
     updateAuthStatusBar();
-    showToast(`已扣除1次使用次數，剩餘 ${authStatus.remainingTimes} 次`,'warning');
+    const leftFree=FREE_DELETE_LIMIT-1;
+    showToast(`已扣 1 次使用次數，回復 ${FREE_DELETE_LIMIT} 次刪除（本次已用 1 次，尚餘 ${leftFree} 次免費）｜剩餘使用次數 ${authStatus.remainingTimes} 次`,'warning');
   }finally{
     btn.disabled=false;
     btn.textContent=originalText;
@@ -1313,7 +1318,7 @@ function updateAuthStatusBar(){
       <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
       用戶名：<span class="gold-username">${userInfo.displayName}</span>
       <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
-      <br/>🗑️ 免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（超過將再扣使用次數）
+      <br/>🗑️ 本批免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span>（用完扣1次使用次數換新的一批）
       <br/>贊助『使用次數』
       <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
     `;
@@ -1642,7 +1647,7 @@ function renderLoginScreen(info){
       <div class="login-rules-title">📜 登入前請詳閱</div>
       <ul>
         <li>🔐 登入扣 <b>1 次</b>使用次數</li>
-        <li>🗑️ 每次登入限免費刪除 <b>3 次</b>，超過再扣 <b>1 次</b></li>
+        <li>🗑️ 每批可免費刪除 <b>3 次</b>，用完扣 <b>1 次</b>使用次數回復 <b>3 次</b>刪除機會</li>
         <li>🔄 重置報表 = 登出，需重新登入</li>
       </ul>
     </div>
