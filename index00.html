@@ -1050,30 +1050,44 @@ else if(val.includes('2711AB')){
 }
 
 // 現金自動贈品邏輯：每2萬現金 → 贈送 211(30) x1
+// 修正：改為直接從 selectedProds 資料計算（排除贈品本身），不再讀取畫面上的
+// 總金額（舊寫法讀到的是「上一次渲染、含贈品」的數字，會算錯）；
+// 且金額降到 2 萬以下時會自動移除多餘贈品（舊寫法會殘留）。
+const GIFT_NAME_KEY = '贈品 211(30)';
 function handleCashGift(){
-  if(!els.cashOption.checked){
-    selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
-    saveSelectedProds();
-    renderTable();
-    els.cashOption.setAttribute('checked', false);
-    els.cashOption.checked = false;
-    return;
+  // 1. 以「排除贈品後」的基準金額計算應有贈品數（未勾選現金一律為 0）
+  const basePrice = selectedProds
+    .filter(p => !p.name.includes(GIFT_NAME_KEY))
+    .reduce((sum, p) => sum + (Number(p.price) || 0) * (Number(p.qty) || 0), 0);
+  const targetGiftQty = els.cashOption.checked ? Math.floor(basePrice / 20000) : 0;
+
+  // 2. 與目前贈品數量比對，相同就不動（避免重複重繪與重複提示）
+  const currentGift = selectedProds.find(p => p.name.includes(GIFT_NAME_KEY));
+  const currentGiftQty = currentGift ? (Number(currentGift.qty) || 0) : 0;
+  if(targetGiftQty === currentGiftQty) return;
+
+  // 3. 依應有數量同步：該移除就移除、該調整就調整（不經過 addSpecificProduct，
+  //    避免中途 alert 與多次重繪造成時序錯亂）
+  selectedProds = selectedProds.filter(p => !p.name.includes(GIFT_NAME_KEY));
+  if(targetGiftQty > 0){
+    const giftProduct = products.find(p => p.name === GIFT_NAME_KEY);
+    if(giftProduct){
+      selectedProds.push({...giftProduct, qty: targetGiftQty});
+    }else{
+      showToast(`⚠️ 商品表找不到「${GIFT_NAME_KEY}」，無法自動贈送`, 'error');
+    }
   }
+  saveSelectedProds();
+  renderTable();
 
-  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
-  const giftQty = Math.floor(totalPrice / 20000);
-
-  if(giftQty <= 0){
-    els.cashOption.setAttribute('checked', true);
-    els.cashOption.checked = true;
-    return;
+  // 4. 提示訊息
+  if(els.cashOption.checked){
+    if(targetGiftQty > 0){
+      showToast(`🎁 現金滿${targetGiftQty*2}萬，自動贈送 211(30) x${targetGiftQty}`);
+    }else if(currentGiftQty > 0){
+      showToast('現金金額未滿 2 萬，已移除自動贈品', 'warning');
+    }
   }
-
-  selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
-  addSpecificProduct('贈品 211(30)', giftQty);
-  showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
-  els.cashOption.setAttribute('checked', true);
-  els.cashOption.checked = true;
 }
 
 // 輔助函數：新增指定品項和數量（增強重複檢查）
