@@ -587,7 +587,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
   <div class="header-bg"></div>
   <div class="header-inner">
     <div class="brand-mark">
-      <div class="brand-circle">彥</div>
+      <div class="brand-circle">康</div>
       <div class="brand-divider"></div>
       <div class="brand-name">康 園</div>
     </div>
@@ -674,13 +674,13 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <div class="month-title-text">第一個月</div>
     <span class="month-count" id="cnt1">0 項產品</span>
   </div>
-  <div class="quickadd-toggle ss-hide" onclick="togglePanel(1)">
+  <div class="quickadd-toggle" onclick="togglePanel(1)">
     <span id="ti1" class="toggle-icon">▼</span> 快速選擇產品（點擊添加）
   </div>
   <div class="quickadd-panel" id="qp1">
     <div class="tag-cloud" id="tags1"></div>
   </div>
-  <div class="action-row ss-hide">
+  <div class="action-row">
     <button class="btn btn-jade" onclick="copyToNext(1)">📋 複製到第二月</button>
     <button class="btn btn-ghost" onclick="clearTable(1)">清空</button>
   </div>
@@ -688,7 +688,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <table class="nt">
       <thead><tr>
         <th>產品編號</th><th>顆數</th><th>早</th><th>中</th><th>晚</th>
-        <th class="ss-hide" style="width:34px">刪除</th>
+        <th class="del-col" style="width:34px">刪除</th>
       </tr></thead>
       <tbody id="body1"></tbody>
     </table>
@@ -703,13 +703,13 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <div class="month-title-text">第二個月</div>
     <span class="month-count" id="cnt2">0 項產品</span>
   </div>
-  <div class="quickadd-toggle ss-hide" onclick="togglePanel(2)">
+  <div class="quickadd-toggle" onclick="togglePanel(2)">
     <span id="ti2" class="toggle-icon">▼</span> 快速選擇產品（點擊添加）
   </div>
   <div class="quickadd-panel" id="qp2">
     <div class="tag-cloud" id="tags2"></div>
   </div>
-  <div class="action-row ss-hide">
+  <div class="action-row">
     <button class="btn btn-jade" onclick="copyToNext(2)">📋 複製到第三月</button>
     <button class="btn btn-ghost" onclick="clearTable(2)">清空</button>
   </div>
@@ -717,7 +717,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <table class="nt">
       <thead><tr>
         <th>產品編號</th><th>顆數</th><th>早</th><th>中</th><th>晚</th>
-        <th class="ss-hide" style="width:34px">刪除</th>
+        <th class="del-col" style="width:34px">刪除</th>
       </tr></thead>
       <tbody id="body2"></tbody>
     </table>
@@ -732,13 +732,13 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <div class="month-title-text">第三個月</div>
     <span class="month-count" id="cnt3">0 項產品</span>
   </div>
-  <div class="quickadd-toggle ss-hide" onclick="togglePanel(3)">
+  <div class="quickadd-toggle" onclick="togglePanel(3)">
     <span id="ti3" class="toggle-icon">▼</span> 快速選擇產品（點擊添加）
   </div>
   <div class="quickadd-panel" id="qp3">
     <div class="tag-cloud" id="tags3"></div>
   </div>
-  <div class="action-row ss-hide">
+  <div class="action-row">
     <button class="btn btn-jade" onclick="copyToNext(3)">📋 複製到第四月</button>
     <button class="btn btn-ghost" onclick="clearTable(3)">清空</button>
   </div>
@@ -746,7 +746,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <table class="nt">
       <thead><tr>
         <th>產品編號</th><th>顆數</th><th>早</th><th>中</th><th>晚</th>
-        <th class="ss-hide" style="width:34px">刪除</th>
+        <th class="del-col" style="width:34px">刪除</th>
       </tr></thead>
       <tbody id="body3"></tbody>
     </table>
@@ -761,13 +761,13 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <div class="month-title-text">保養 / 第四個月</div>
     <span class="month-count" id="cnt4">0 項產品</span>
   </div>
-  <div class="quickadd-toggle ss-hide" onclick="togglePanel(4)">
+  <div class="quickadd-toggle" onclick="togglePanel(4)">
     <span id="ti4" class="toggle-icon">▼</span> 快速選擇產品（點擊添加）
   </div>
   <div class="quickadd-panel" id="qp4">
     <div class="tag-cloud" id="tags4"></div>
   </div>
-  <div class="action-row ss-hide">
+  <div class="action-row">
     <button class="btn btn-ghost" onclick="alert('已是最後一個月')">已到最後一月</button>
     <button class="btn btn-ghost" onclick="clearTable(4)">清空</button>
   </div>
@@ -775,7 +775,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
     <table class="nt">
       <thead><tr>
         <th>產品編號</th><th>顆數</th><th>早</th><th>中</th><th>晚</th>
-        <th class="ss-hide" style="width:34px">刪除</th>
+        <th class="del-col" style="width:34px">刪除</th>
       </tr></thead>
       <tbody id="body4"></tbody>
     </table>
@@ -875,7 +875,6 @@ function addRow(mn, product){
   }
   added[mn].push(product);
   updateTag(mn, product, true);
-  updateCount(mn);
 
   const tr = document.createElement('tr');
   tr.className = 'row-new';
@@ -891,8 +890,9 @@ function addRow(mn, product){
     <td><button class="ck on" ondblclick="toggleCk(this)">✓</button></td>
     <td><button class="ck"    ondblclick="toggleCk(this)"></button></td>
     <td><button class="ck on" ondblclick="toggleCk(this)">✓</button></td>
-    <td class="ss-hide"><button class="del-btn" onclick="delRow(${mn},this)">✕</button></td>`;
+    <td class="del-col"><button class="del-btn" onclick="delRow(${mn},this)">✕</button></td>`;
   document.getElementById(`body${mn}`).appendChild(tr);
+  updateCount(mn);
 }
 
 function toggleCk(btn){
@@ -957,7 +957,7 @@ function copyToNext(from){
       <td><button class="ck ${am?'on':''}"    ondblclick="toggleCk(this)">${am?'✓':''}</button></td>
       <td><button class="ck ${noon?'on':''}"  ondblclick="toggleCk(this)">${noon?'✓':''}</button></td>
       <td><button class="ck ${night?'on':''}" ondblclick="toggleCk(this)">${night?'✓':''}</button></td>
-      <td class="ss-hide"><button class="del-btn" onclick="delRow(${to},this)">✕</button></td>`;
+      <td class="del-col"><button class="del-btn" onclick="delRow(${to},this)">✕</button></td>`;
     document.getElementById(`body${to}`).appendChild(tr);
   });
   updateCount(to);
@@ -973,10 +973,11 @@ function copyToNext(from){
 
 // ─── SHARE ───
 async function shareImage(){
-  const hideEls = document.querySelectorAll('.ss-hide');
+  // Hide interactive-only elements for screenshot
+  const hideEls = document.querySelectorAll('.del-col, .quickadd-toggle, .action-row');
   hideEls.forEach(el=>el.style.display='none');
   const quickPanels = document.querySelectorAll('.quickadd-panel');
-  quickPanels.forEach(p=>p.style.display='none');
+  quickPanels.forEach(p=>{ p.style.maxHeight='0'; p.style.overflow='hidden'; });
 
   try{
     const canvas = await html2canvas(document.body,{
@@ -1000,7 +1001,7 @@ async function shareImage(){
     alert('分享失敗，請手動截圖！');
   }finally{
     hideEls.forEach(el=>el.style.display='');
-    quickPanels.forEach(p=>p.style.display='');
+    quickPanels.forEach(p=>{ p.style.maxHeight=''; p.style.overflow=''; });
   }
 }
 
