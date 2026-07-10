@@ -170,19 +170,42 @@ body{
   outline-offset: 2px;
 }
 /* ============================================================
-   新增：狀態欄「顯示狀態」恢復小按鈕（隱藏後右上角出現，可再次展開）
+   改版：左上角漢堡選單（整合「📊 顯示/隱藏狀態欄」與「❓ 使用導覽」）
+   平時只顯示一顆 ☰ 小按鈕，點擊展開選單，不佔畫面空間
    ============================================================ */
-#authStatusRestore{
-  position:fixed;top:8px;left:8px;z-index:1000;display:none;
-  align-items:center;gap:4px;cursor:pointer;
-  background:linear-gradient(145deg,#00bfa5,#009e8a);
-  color:#fff;border:1px solid rgba(120,245,220,0.6);
-  border-radius:16px;padding:5px 10px;font-size:11px;font-weight:700;
-  box-shadow:0 3px 10px rgba(0,0,0,0.4);
-  -webkit-tap-highlight-color:transparent;transition:all .3s ease;
+#topMenu{
+  position:fixed;top:8px;left:8px;z-index:1500;display:none;
 }
-#authStatusRestore:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,209,178,0.45);}
-#authStatusRestore:active{transform:translateY(0);}
+#menuFab{
+  width:38px;height:38px;border-radius:10px;cursor:pointer;
+  background:linear-gradient(160deg,#2a2a2a,#1a1a1a);
+  color:#fff;border:1px solid rgba(255,255,255,0.25);
+  font-size:18px;line-height:1;font-weight:bold;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(0,0,0,0.45);
+  -webkit-tap-highlight-color:transparent;transition:all .25s ease;
+}
+#menuFab:hover{border-color:rgba(0,209,178,0.7);box-shadow:0 4px 16px rgba(0,209,178,0.35);}
+#menuFab:active{transform:scale(0.94);}
+#menuFab.open{border-color:rgba(0,209,178,0.8);background:linear-gradient(160deg,#333,#222);}
+#menuDropdown{
+  display:none;position:absolute;top:44px;left:0;min-width:160px;
+  background:linear-gradient(160deg,#222,#161616);
+  border:1px solid rgba(201,161,90,0.35);border-radius:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.6);
+  padding:6px;flex-direction:column;gap:4px;
+  animation:statusBarIn 0.22s ease;
+}
+#menuDropdown.open{display:flex;}
+.menu-item{
+  display:flex;align-items:center;gap:8px;width:100%;
+  background:transparent;border:none;color:#e0e0e0;
+  font-size:13px;font-weight:600;text-align:left;
+  padding:9px 12px;border-radius:8px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:all .2s ease;
+}
+.menu-item:hover{background:rgba(0,209,178,0.14);color:#00e6c5;}
+.menu-item:active{background:rgba(0,209,178,0.24);}
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
   animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;
@@ -426,7 +449,7 @@ body{
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authStatusBar,#authStatusRestore,#guideFab,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
+  #authContainer,#authStatusBar,#topMenu,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
@@ -505,20 +528,8 @@ body{
 }
 
 /* ============================================================
-   新增：使用導覽（浮動按鈕 + 圖文步驟彈窗）
+   使用導覽（步驟彈窗，入口改由左上角漢堡選單開啟）
    ============================================================ */
-#guideFab{
-  position:fixed;left:12px;bottom:12px;z-index:1200;display:none;
-  width:40px;height:40px;border-radius:50%;
-  background:linear-gradient(145deg,#40c4ff,#00d1b2);
-  color:#fff;border:1.5px solid rgba(255,255,255,0.35);
-  font-size:17px;font-weight:bold;cursor:pointer;
-  box-shadow:0 4px 14px rgba(0,0,0,0.45);
-  align-items:center;justify-content:center;
-  -webkit-tap-highlight-color:transparent;transition:all .3s ease;
-}
-#guideFab:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 8px 26px rgba(0,209,178,0.5);}
-#guideFab:active{transform:scale(0.95);}
 #guideOverlay{
   position:fixed;inset:0;z-index:3000;display:none;
   background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);
@@ -579,8 +590,14 @@ body{
 <div id="authStatusBar" style="display: none;">
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
-<!-- 新增：狀態欄隱藏後的「顯示狀態」恢復按鈕 -->
-<div id="authStatusRestore" title="顯示狀態欄">📊 顯示狀態</div>
+<!-- 改版：左上角漢堡選單（整合 📊 顯示/隱藏狀態欄 + ❓ 使用導覽） -->
+<div id="topMenu">
+  <button id="menuFab" title="功能選單">☰</button>
+  <div id="menuDropdown">
+    <button class="menu-item" id="menuStatusToggle">📊 隱藏狀態欄</button>
+    <button class="menu-item" id="menuGuide">❓ 使用導覽</button>
+  </div>
+</div>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
 
@@ -672,9 +689,8 @@ body{
 </div>
 
 <!-- ============================================================
-     新增：使用導覽浮動按鈕 + 導覽彈窗
+     使用導覽彈窗（入口在左上角 ☰ 選單）
      ============================================================ -->
-<button id="guideFab" title="使用導覽">❓導覽</button>
 <div id="guideOverlay">
   <div class="guide-card">
     <button class="guide-close" id="guideCloseBtn" title="關閉導覽">✕</button>
@@ -817,7 +833,6 @@ const els={
   loginScreenBody:document.getElementById("loginScreenBody"),
   loginExample:document.getElementById("loginExample"),
   authStatusBar:document.getElementById("authStatusBar"),
-  authStatusRestore:document.getElementById("authStatusRestore"),
   captureArea:document.getElementById("captureArea"),
   inputArea:document.getElementById("inputArea"),
   buttonGroup:document.querySelector(".button-group"),
@@ -827,7 +842,11 @@ const els={
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
   watermark:document.getElementById("watermark"),
-  guideFab:document.getElementById("guideFab"),
+  topMenu:document.getElementById("topMenu"),
+  menuFab:document.getElementById("menuFab"),
+  menuDropdown:document.getElementById("menuDropdown"),
+  menuStatusToggle:document.getElementById("menuStatusToggle"),
+  menuGuide:document.getElementById("menuGuide"),
   guideOverlay:document.getElementById("guideOverlay")
 };
 
@@ -851,8 +870,51 @@ document.querySelectorAll('.period-box').forEach(box=>{
 document.getElementById('radioNonMgr').addEventListener('change', updateBonusDisplay);
 document.getElementById('radioMgr').addEventListener('change', updateBonusDisplay);
 
+// ============================================================
+// 改版：左上角漢堡選單邏輯
+// ============================================================
+function updateMenuStatusLabel(){
+  els.menuStatusToggle.textContent = statusBarHidden ? '📊 顯示狀態欄' : '📊 隱藏狀態欄';
+}
+function toggleMenu(forceOpen){
+  const willOpen = (forceOpen===undefined) ? !els.menuDropdown.classList.contains('open') : forceOpen;
+  els.menuDropdown.classList.toggle('open', willOpen);
+  els.menuFab.classList.toggle('open', willOpen);
+}
+function applyStatusBarVisibility(){
+  if(statusBarHidden){
+    els.authStatusBar.style.display='none';
+  }else{
+    els.authStatusBar.style.display='block';
+    els.authStatusBar.classList.add('status-in');
+    setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
+  }
+  updateMenuStatusLabel();
+}
+els.menuFab.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu();
+});
+els.menuStatusToggle.addEventListener('click',function(e){
+  e.stopPropagation();
+  statusBarHidden=!statusBarHidden;
+  applyStatusBarVisibility();
+  toggleMenu(false);
+});
+els.menuGuide.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu(false);
+  openGuide();
+});
+// 點選單以外的地方自動收合
+document.addEventListener('click',function(e){
+  if(els.menuDropdown.classList.contains('open') && !els.topMenu.contains(e.target)){
+    toggleMenu(false);
+  }
+});
+
 // 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
-// 改動：點「關閉」不再永久隱藏，而是收合狀態欄並顯示「📊 顯示狀態」恢復按鈕
+// 點「關閉」= 收合狀態欄，之後可從左上角 ☰ 選單重新顯示
 function bindCloseStatusBtn(){
   const btn=els.authStatusBar.querySelector('.close-status');
   if(!btn)return;
@@ -862,26 +924,17 @@ function bindCloseStatusBtn(){
     setTimeout(()=>{
       els.authStatusBar.style.display='none';
       els.authStatusBar.style.opacity='1';
-      els.authStatusRestore.style.display='inline-flex';
+      updateMenuStatusLabel();
     },300);
   });
 }
 bindCloseStatusBtn();
 
-// 新增：「顯示狀態」恢復按鈕 → 重新展開狀態欄
-els.authStatusRestore.addEventListener('click',function(){
-  statusBarHidden=false;
-  els.authStatusRestore.style.display='none';
-  els.authStatusBar.style.display='block';
-  els.authStatusBar.classList.add('status-in');
-  setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
-});
-
 // ============================================================
-// 新增：使用導覽（步驟資料 + 控制邏輯）
+// 使用導覽（步驟資料 + 控制邏輯，入口在左上角 ☰ 選單）
 // ============================================================
 const GUIDE_STEPS=[
-  {icon:'👋',title:'歡迎使用 彥彬🌿試算系統',desc:'這份導覽會帶你快速認識每個功能。看完後隨時可以點右下角的「❓」重新開啟導覽。'},
+  {icon:'👋',title:'歡迎使用 彥彬🌿試算系統',desc:'這份導覽會帶你快速認識每個功能。看完後隨時可以點左上角的「☰ 選單 → ❓ 使用導覽」重新開啟。'},
   {icon:'🛒',title:'新增品項',desc:'在下方選擇「品項」與「數量」，按「➕ 新增品項」加入報表。部分品項（新入會、2711AB、火山甘露…）有限購數量，系統會自動提醒並調整；選到新入會款式時，還會自動帶入對應組合。'},
   {icon:'💵',title:'付款方式與期數',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
   {icon:'🗑️',title:'刪除規則',desc:'每一批可免費刪除 3 次；用完後再刪除會扣 1 次使用次數，並回復 3 次刪除機會，如此循環。'},
@@ -889,7 +942,7 @@ const GUIDE_STEPS=[
   {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
   {icon:'📱',title:'分享報表',desc:'圖片產生後，可用「安卓分享」把圖片網址轉傳到 LINE，或用「分享圖片」呼叫手機原生分享；不需要時可按「❌ 清除圖片」。'},
   {icon:'🔄',title:'重置報表',desc:'「🔄 重置報表」會清空所有品項並登出，需要重新登入（重新扣 1 次使用次數），適合換一位客戶重新試算時使用。'},
-  {icon:'📊',title:'狀態欄可收合',desc:'點狀態欄右上角的「關閉」，狀態欄會收起來、右上角出現「📊 顯示狀態」；想再查看身分與剩餘次數時，點它即可重新展開。'}
+  {icon:'☰',title:'左上角功能選單',desc:'左上角的「☰」選單裡有兩個功能：「📊 顯示/隱藏狀態欄」可以隨時收合或展開身分與剩餘次數資訊；「❓ 使用導覽」可以重看這份教學。狀態欄右上角的「關閉」也能直接收合。'}
 ];
 let guideIndex=0;
 
@@ -921,7 +974,6 @@ function guideNext(){
 }
 
 // 導覽事件綁定
-els.guideFab.addEventListener('click',openGuide);
 document.getElementById('guideCloseBtn').addEventListener('click',closeGuide);
 document.getElementById('guidePrevBtn').addEventListener('click',guidePrev);
 document.getElementById('guideNextBtn').addEventListener('click',guideNext);
@@ -1130,9 +1182,9 @@ async function resetReport(){
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
   els.authStatusBar.style.display='none';
-  // 新增：登出時一併收起狀態恢復鈕與導覽鈕、關閉導覽彈窗
-  els.authStatusRestore.style.display='none';
-  els.guideFab.style.display='none';
+  // 登出時收起漢堡選單與導覽彈窗
+  els.topMenu.style.display='none';
+  toggleMenu(false);
   closeGuide();
   statusBarHidden=false;
 
@@ -1492,14 +1544,13 @@ function updateAuthStatusBar(){
     ${statusHtml}
   `;
   bindCloseStatusBtn();
-  // 改動：重繪時尊重使用者當下的「隱藏」狀態
+  // 重繪時尊重使用者當下的「隱藏」狀態，並同步漢堡選單文字
   if(statusBarHidden){
     els.authStatusBar.style.display='none';
-    els.authStatusRestore.style.display='inline-flex';
   }else{
     els.authStatusBar.style.display='block';
-    els.authStatusRestore.style.display='none';
   }
+  updateMenuStatusLabel();
 }
 
 async function exportToImage(){
@@ -1818,7 +1869,7 @@ function renderLoginScreen(info){
       <div class="login-rules-title">📜 登入前請詳閱</div>
       <ul>
         <li>🔐 登入扣 <b>1 次</b>使用次數</li>
-        <li>🗑️ 每次登入可『免費刪除』 <b>3 次</b>，<br>用完扣 <b>1 次</b>回復 <b>3 次</b>刪除機會</li>
+        <li>🗑️ 每批可免費刪除 <b>3 次</b>，用完扣 <b>1 次</b>使用次數回復 <b>3 次</b>刪除機會</li>
         <li>🔄 重置報表 = 登出，需重新登入</li>
       </ul>
     </div>
@@ -1861,7 +1912,7 @@ async function handleLoginClick(){
     };
     if(authStatus.isExpired){
       showError(`
-        <div style="line-height:2;">您的帳號已過期，無法登入試算系統</div>
+        <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
         <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
         <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
           style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
@@ -1900,8 +1951,8 @@ function enterCalculator(){
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
-    // 新增：登入後顯示使用導覽浮動按鈕
-    els.guideFab.style.display='flex';
+    // 登入後顯示左上角漢堡選單
+    els.topMenu.style.display='block';
     els.captureArea.classList.add('screen-enter');
     els.inputArea.classList.add('screen-enter');
     els.buttonGroup.classList.add('screen-enter');
@@ -1915,7 +1966,7 @@ function enterCalculator(){
     checkUserRemainingTimes();
     statusBarHidden=false;
     updateAuthStatusBar();
-    // 新增：首次使用自動彈出一次導覽（之後不再自動跳出）
+    // 首次使用自動彈出一次導覽（之後不再自動跳出，可從 ☰ 選單重看）
     if(!localStorage.getItem(GUIDE_SEEN_KEY)){
       localStorage.setItem(GUIDE_SEEN_KEY,'1');
       setTimeout(openGuide,600);
@@ -1930,7 +1981,7 @@ async function initLiffAndAuth(){
     await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
     loadProducts();
     if(!liff.isLoggedIn()){
-      showLoginLoading("請先登入LINE賬號","將自動跳轉至登入頁面...");
+      showLoginLoading("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
       liff.login({redirectUri:window.location.href});
       return;
     }
@@ -1954,7 +2005,7 @@ async function initLiffAndAuth(){
     if(!precheck)return;
 if(precheck.isExpired){
   showError(`
-    <div style="line-height:2;">您的帳號已過期，無法登入試算系統</div>
+    <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
     <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
     <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
       style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
