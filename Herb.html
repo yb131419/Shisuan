@@ -571,6 +571,330 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
 /* Screenshot hide */
 .ss-hide { display: none !important; }
 
+/* ─── BOTTOM NAV ─── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: stretch;
+  background: rgba(26,46,31,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(201,168,76,0.2);
+  padding: 0;
+  height: 58px;
+  box-shadow: 0 -4px 24px rgba(26,46,31,0.25);
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+  padding: 8px 2px;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 3px 3px;
+  transform: scaleX(0);
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.nav-item.active { color: var(--gold-l); }
+.nav-item.active::before { transform: scaleX(1); }
+
+.nav-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.nav-item:active .nav-icon { transform: scale(0.85); }
+
+.nav-badge {
+  position: absolute;
+  top: 6px; right: calc(50% - 18px);
+  min-width: 14px; height: 14px;
+  background: var(--rose);
+  color: #fff;
+  border-radius: 99px;
+  font-size: 8px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 3px;
+  font-weight: 600;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+.nav-badge.zero { display: none; }
+
+/* Progress bar under header */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--jade), var(--gold));
+  z-index: 200;
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* ─── TUTORIAL OVERLAY ─── */
+.tutorial-overlay {
+  position: fixed; inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 70px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.tutorial-overlay.show {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.tutorial-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(10,20,13,0.72);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.tutorial-sheet {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 520px;
+  padding: 0 0 24px;
+  box-shadow: 0 -8px 40px rgba(26,46,31,0.25);
+  transform: translateY(30px);
+  transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.tutorial-overlay.show .tutorial-sheet {
+  transform: translateY(0);
+}
+
+.tutorial-handle {
+  width: 36px; height: 4px;
+  background: var(--cream2);
+  border-radius: 99px;
+  margin: 12px auto 0;
+}
+
+.tutorial-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--cream2);
+}
+
+.tutorial-header-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--ink), var(--jade));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tutorial-header-text h2 {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.tutorial-header-text p {
+  font-size: 10px;
+  color: rgba(26,46,31,0.5);
+  margin-top: 2px;
+}
+
+.tutorial-close {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cream2);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.tutorial-close:hover { background: var(--cream); }
+
+/* Step cards */
+.tutorial-steps {
+  padding: 14px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tstep {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--cream);
+  border: 1px solid var(--cream2);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.tstep:hover {
+  border-color: var(--jade-l);
+  background: rgba(74,124,111,0.06);
+  transform: translateX(3px);
+}
+
+.tstep-num {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--ink), var(--jade));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.tstep-num.gold {
+  background: linear-gradient(135deg, #8B6914, var(--gold));
+}
+
+.tstep-body { flex: 1; }
+
+.tstep-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 3px;
+  font-family: 'Noto Serif TC', serif;
+}
+
+.tstep-desc {
+  font-size: 10px;
+  color: rgba(26,46,31,0.6);
+  line-height: 1.55;
+}
+
+.tstep-arrow {
+  color: var(--jade-l);
+  font-size: 12px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+/* Tips section */
+.tutorial-tips {
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(74,124,111,0.06));
+  border-radius: 12px;
+  border: 1px solid rgba(201,168,76,0.2);
+}
+
+.tips-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tip-item {
+  font-size: 10px;
+  color: rgba(26,46,31,0.7);
+  line-height: 1.5;
+  padding: 2px 0 2px 12px;
+  position: relative;
+}
+.tip-item::before { content:'✦'; position:absolute; left:0; color:var(--gold); font-size:8px; top:3px; }
+
+.tutorial-footer {
+  padding: 14px 16px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.tfoot-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: 99px;
+  border: none;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tfoot-primary {
+  background: linear-gradient(135deg, var(--ink), var(--jade));
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(26,46,31,0.2);
+}
+.tfoot-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(26,46,31,0.25); }
+
+.tfoot-ghost {
+  background: var(--cream);
+  color: rgba(26,46,31,0.5);
+  border: 1px solid var(--cream2);
+}
+.tfoot-ghost:hover { color: var(--jade); border-color: var(--jade-l); }
+
+/* Nav help button dot indicator */
+.nav-help-dot {
+  position: absolute;
+  top: 5px; right: calc(50% - 16px);
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.5; transform:scale(1.4); }
+}
+.nav-help-dot.hide { display: none; }
+
 /* ─── MOBILE ─── */
 @media (max-width: 480px) {
   body { padding: 12px 8px 32px; }
@@ -578,6 +902,9 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
   .info-grid { grid-template-columns: 1fr 1fr; }
   .share-btn { padding: 13px 28px; font-size: 13px; }
 }
+
+/* Body needs bottom space for nav */
+body { padding-bottom: 74px !important; }
 </style>
 </head>
 <body>
@@ -587,7 +914,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
   <div class="header-bg"></div>
   <div class="header-inner">
     <div class="brand-mark">
-      <div class="brand-circle">彥</div>
+      <div class="brand-circle">康</div>
       <div class="brand-divider"></div>
       <div class="brand-name">康 園</div>
     </div>
@@ -597,7 +924,7 @@ table.nt td:first-child { padding-left: 16px; text-align: left; }
 </div>
 
 <!-- INFO CARD -->
-<div class="card reveal" style="animation-delay:0.1s">
+<div class="card reveal" id="secInfo" style="animation-delay:0.1s">
   <div class="info-card">
     <div class="info-grid">
       <div class="field">
@@ -855,6 +1182,19 @@ function init(){
     entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
   }, {threshold:0.08});
   document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Init nav after a tick so DOM is ready
+  setTimeout(initNav, 100);
+
+  // Sync badges with default products already loaded
+  [1,2,3,4].forEach(mn=>{
+    const n = document.getElementById(`body${mn}`).querySelectorAll('tr').length;
+    const badge = document.getElementById(`badge${mn}`);
+    if(badge){ badge.textContent=n; badge.classList.toggle('zero', n===0); }
+  });
+
+  // Check first visit for tutorial
+  checkFirstVisit();
 }
 
 // ─── TOGGLE PANEL ───
@@ -918,6 +1258,9 @@ function updateTag(mn, product, isAdded){
 function updateCount(mn){
   const n = document.getElementById(`body${mn}`).querySelectorAll('tr').length;
   document.getElementById(`cnt${mn}`).textContent = n + ' 項產品';
+  // Sync nav badge
+  const badge = document.getElementById(`badge${mn}`);
+  if(badge){ badge.textContent=n; badge.classList.toggle('zero', n===0); }
 }
 
 function clearTable(mn){
@@ -1133,6 +1476,187 @@ async function shareImage(){
 }
 
 window.onload = init;
+
+// ─── NAV & SCROLL PROGRESS ───
+function initNav(){
+  // Scroll progress bar
+  const bar = document.getElementById('scrollBar');
+  window.addEventListener('scroll', ()=>{
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (window.scrollY/h*100) : 0) + '%';
+    updateActiveNav();
+  }, {passive:true});
+
+  updateActiveNav();
+}
+
+function updateActiveNav(){
+  const sections = [
+    {id:'secInfo', nav:'nav0'},
+    {id:'mc1',     nav:'nav1'},
+    {id:'mc2',     nav:'nav2'},
+    {id:'mc3',     nav:'nav3'},
+    {id:'mc4',     nav:'nav4'},
+  ];
+  const mid = window.scrollY + window.innerHeight * 0.4;
+  let active = 'nav0';
+  sections.forEach(s=>{
+    const el = document.getElementById(s.id);
+    if(el && el.offsetTop <= mid) active = s.nav;
+  });
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active', el.id === active);
+  });
+}
+
+function navTo(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const offset = 8;
+  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({top, behavior:'smooth'});
+}
+
+// ─── TUTORIAL ───
+function openTutorial(){
+  document.getElementById('tutorialOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  // Hide help dot once opened
+  const dot = document.getElementById('helpDot');
+  if(dot) dot.classList.add('hide');
+  localStorage.setItem('kgTutorialSeen','1');
+}
+
+function closeTutorial(){
+  document.getElementById('tutorialOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// Auto-open on first visit
+function checkFirstVisit(){
+  if(!localStorage.getItem('kgTutorialSeen')){
+    setTimeout(openTutorial, 800);
+  } else {
+    const dot = document.getElementById('helpDot');
+    if(dot) dot.classList.add('hide');
+  }
+}
+
 </script>
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-progress" id="scrollBar"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" role="navigation" aria-label="頁面導覽">
+  <button class="nav-item active" id="nav0" onclick="navTo('secInfo')" aria-label="基本資料">
+    <span class="nav-icon">📋</span>
+    <span>資料</span>
+  </button>
+  <button class="nav-item" id="nav1" onclick="navTo('mc1')" aria-label="第一個月">
+    <span class="nav-icon">一</span>
+    <span>第一月</span>
+    <span class="nav-badge zero" id="badge1">0</span>
+  </button>
+  <button class="nav-item" id="nav2" onclick="navTo('mc2')" aria-label="第二個月">
+    <span class="nav-icon">二</span>
+    <span>第二月</span>
+    <span class="nav-badge zero" id="badge2">0</span>
+  </button>
+  <button class="nav-item" id="nav3" onclick="navTo('mc3')" aria-label="第三個月">
+    <span class="nav-icon">三</span>
+    <span>第三月</span>
+    <span class="nav-badge zero" id="badge3">0</span>
+  </button>
+  <button class="nav-item" id="nav4" onclick="navTo('mc4')" aria-label="保養">
+    <span class="nav-icon">保</span>
+    <span>保養</span>
+    <span class="nav-badge zero" id="badge4">0</span>
+  </button>
+  <button class="nav-item" id="navHelp" onclick="openTutorial()" aria-label="使用說明">
+    <span class="nav-icon">?</span>
+    <span>說明</span>
+    <span class="nav-help-dot" id="helpDot"></span>
+  </button>
+</nav>
+
+<!-- TUTORIAL OVERLAY -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-backdrop" onclick="closeTutorial()"></div>
+  <div class="tutorial-sheet">
+    <div class="tutorial-handle"></div>
+    <div class="tutorial-header">
+      <div class="tutorial-header-icon">🌿</div>
+      <div class="tutorial-header-text">
+        <h2>使用說明</h2>
+        <p>快速了解如何填寫草本產品明細表</p>
+      </div>
+      <button class="tutorial-close" onclick="closeTutorial()">✕</button>
+    </div>
+
+    <div class="tutorial-steps">
+
+      <div class="tstep" onclick="closeTutorial(); setTimeout(()=>navTo('secInfo'),200)">
+        <div class="tstep-num">①</div>
+        <div class="tstep-body">
+          <div class="tstep-title">填寫基本資料</div>
+          <div class="tstep-desc">在頁面頂部輸入日期、姓名、介紹人、地點、入會類型、火山甘露用量、付款方式、金額與 PV。帶 * 的欄位為必填。</div>
+        </div>
+        <div class="tstep-arrow">›</div>
+      </div>
+
+      <div class="tstep" onclick="closeTutorial(); setTimeout(()=>navTo('mc1'),200)">
+        <div class="tstep-num">②</div>
+        <div class="tstep-body">
+          <div class="tstep-title">選擇第一個月產品</div>
+          <div class="tstep-desc">點擊「快速選擇產品」展開產品清單，點擊標籤即可加入。每行可調整顆數（2～10），並勾選早／中／晚服用時間（雙擊切換）。</div>
+        </div>
+        <div class="tstep-arrow">›</div>
+      </div>
+
+      <div class="tstep" onclick="closeTutorial(); setTimeout(()=>navTo('mc2'),200)">
+        <div class="tstep-num">③</div>
+        <div class="tstep-body">
+          <div class="tstep-title">複製到下個月</div>
+          <div class="tstep-desc">點擊「📋 複製到第二月」可將本月所有產品與設定完整複製，省去重複輸入。每個月皆可獨立調整或清空。</div>
+        </div>
+        <div class="tstep-arrow">›</div>
+      </div>
+
+      <div class="tstep" onclick="closeTutorial(); setTimeout(()=>navTo('mc4'),200)">
+        <div class="tstep-num gold">④</div>
+        <div class="tstep-body">
+          <div class="tstep-title">設定保養 / 第四個月</div>
+          <div class="tstep-desc">第四個月為長期保養階段，基本建議為 211、300、299A 各 3 顆。可依需求另行添加或刪除產品。</div>
+        </div>
+        <div class="tstep-arrow">›</div>
+      </div>
+
+      <div class="tstep" onclick="closeTutorial()">
+        <div class="tstep-num" style="background:linear-gradient(135deg,#1A2E1F,#C25E70)">⑤</div>
+        <div class="tstep-body">
+          <div class="tstep-title">分享報表圖片</div>
+          <div class="tstep-desc">填寫完成後，捲到頁面底部點擊「📤 分享報表圖片」，系統會自動產生整張報表圖片，可直接傳送給客戶或儲存備份。</div>
+        </div>
+        <div class="tstep-arrow">›</div>
+      </div>
+
+    </div>
+
+    <div class="tutorial-tips">
+      <div class="tips-title">💡 小技巧</div>
+      <div class="tip-item">底部導覽列數字徽章顯示各月已選產品數</div>
+      <div class="tip-item">產品已加入後點擊標籤會閃爍提示，不會重複加入</div>
+      <div class="tip-item">勾選格為<b>雙擊</b>切換開／關，單擊不會誤觸</div>
+      <div class="tip-item">220 飯後服用；705 月經期間停用</div>
+    </div>
+
+    <div class="tutorial-footer">
+      <button class="tfoot-btn tfoot-ghost" onclick="closeTutorial()">關閉</button>
+      <button class="tfoot-btn tfoot-primary" onclick="closeTutorial(); navTo('secInfo')">開始填寫 →</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
