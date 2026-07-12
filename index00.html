@@ -170,42 +170,70 @@ body{
   outline-offset: 2px;
 }
 /* ============================================================
-   改版：左上角漢堡選單（整合「📊 顯示/隱藏狀態欄」與「❓ 使用導覽」）
-   平時只顯示一顆 ☰ 小按鈕，點擊展開選單，不佔畫面空間
+   改版：左側滑出式抽屜選單（比照「AI 智囊」的質感抽屜設計，
+   套用本系統的深色 × 金色主題）。平時只顯示左上角一顆 ☰ 小按鈕，
+   點擊後從左側滑出整片選單，背後有霧化遮罩，質感更完整。
    ============================================================ */
-#topMenu{
-  position:fixed;top:8px;left:8px;z-index:1500;display:none;
-}
+#menuFabWrap{position:fixed;top:8px;left:8px;z-index:1500;display:none;}
 #menuFab{
-  width:38px;height:38px;border-radius:10px;cursor:pointer;
-  background:linear-gradient(160deg,#2a2a2a,#1a1a1a);
-  color:#fff;border:1px solid rgba(255,255,255,0.25);
-  font-size:18px;line-height:1;font-weight:bold;
+  width:38px;height:38px;border-radius:11px;cursor:pointer;
+  background:linear-gradient(160deg,#232323,#161616);
+  color:#fff;border:1px solid rgba(217,184,115,0.35);
+  font-size:17px;line-height:1;font-weight:bold;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 12px rgba(0,0,0,0.45);
+  box-shadow:0 3px 12px rgba(0,0,0,0.5);
   -webkit-tap-highlight-color:transparent;transition:all .25s ease;
 }
-#menuFab:hover{border-color:rgba(0,209,178,0.7);box-shadow:0 4px 16px rgba(0,209,178,0.35);}
-#menuFab:active{transform:scale(0.94);}
-#menuFab.open{border-color:rgba(0,209,178,0.8);background:linear-gradient(160deg,#333,#222);}
-#menuDropdown{
-  display:none;position:absolute;top:44px;left:0;min-width:160px;
-  background:linear-gradient(160deg,#222,#161616);
-  border:1px solid rgba(201,161,90,0.35);border-radius:12px;
-  box-shadow:0 10px 28px rgba(0,0,0,0.6);
-  padding:6px;flex-direction:column;gap:4px;
-  animation:statusBarIn 0.22s ease;
+#menuFab:hover{border-color:rgba(0,209,178,0.7);box-shadow:0 4px 16px rgba(0,209,178,0.3);}
+#menuFab:active{transform:scale(0.92);}
+#menuFab.open{border-color:rgba(0,209,178,0.85);background:linear-gradient(160deg,#2c2c2c,#1c1c1c);}
+
+.drawer-mask{
+  position:fixed;inset:0;z-index:1600;background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .28s ease;
 }
-#menuDropdown.open{display:flex;}
-.menu-item{
-  display:flex;align-items:center;gap:8px;width:100%;
-  background:transparent;border:none;color:#e0e0e0;
-  font-size:13px;font-weight:600;text-align:left;
-  padding:9px 12px;border-radius:8px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;transition:all .2s ease;
+.drawer-mask.on{opacity:1;pointer-events:auto;}
+
+.side-drawer{
+  position:fixed;top:0;bottom:0;left:0;width:260px;max-width:80vw;z-index:1700;
+  background:linear-gradient(165deg,#1c1c1c 0%,#141414 100%);
+  border-right:1px solid rgba(201,161,90,0.3);
+  box-shadow:16px 0 48px rgba(0,0,0,0.55);
+  transform:translateX(-105%);
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1);
+  padding:22px 16px;overflow-y:auto;
 }
-.menu-item:hover{background:rgba(0,209,178,0.14);color:#00e6c5;}
-.menu-item:active{background:rgba(0,209,178,0.24);}
+.side-drawer.on{transform:translateX(0);}
+.side-drawer::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+.dr-head{
+  font-size:11.5px;letter-spacing:3px;font-weight:800;color:var(--gold-light);
+  text-transform:uppercase;margin:2px 6px 16px;display:flex;align-items:center;gap:8px;
+}
+.dr-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(217,184,115,.4),transparent);}
+.dr-item{
+  display:flex;align-items:center;gap:12px;width:100%;
+  background:transparent;border:1px solid transparent;color:#e0e0e0;
+  font-size:14.5px;font-weight:700;text-align:left;
+  padding:13px 12px;border-radius:14px;cursor:pointer;margin-bottom:6px;
+  -webkit-tap-highlight-color:transparent;transition:all .18s cubic-bezier(.34,1.56,.64,1);
+}
+.dr-item:hover{background:rgba(0,209,178,0.1);border-color:rgba(0,209,178,0.25);}
+.dr-item:active{transform:scale(0.97);background:rgba(0,209,178,0.16);}
+.dr-item .ic{
+  width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex:0 0 auto;background:rgba(0,209,178,0.12);color:var(--accent);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.dr-item .ic.gold{background:rgba(217,184,115,0.16);color:var(--gold-light);}
+.dr-sep{height:1px;background:rgba(255,255,255,0.08);margin:12px 4px;}
+.dr-foot{
+  margin-top:6px;padding:12px 12px 2px;font-size:11px;color:#777;line-height:1.6;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
   animation:spin 1s linear infinite,pulse 2s ease-in-out infinite alternate;margin:0 auto 20px;
@@ -449,7 +477,7 @@ body{
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authStatusBar,#topMenu,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
+  #authContainer,#authStatusBar,#menuFabWrap,.drawer-mask,.side-drawer,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
@@ -590,14 +618,22 @@ body{
 <div id="authStatusBar" style="display: none;">
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
-<!-- 改版：左上角漢堡選單（整合 📊 顯示/隱藏狀態欄 + ❓ 使用導覽） -->
-<div id="topMenu">
+<!-- 改版：左側滑出式抽屜選單（比照 AI 智囊 的質感設計） -->
+<div id="menuFabWrap">
   <button id="menuFab" title="功能選單">☰</button>
-  <div id="menuDropdown">
-    <button class="menu-item" id="menuStatusToggle">📊 隱藏狀態欄</button>
-    <button class="menu-item" id="menuGuide">❓ 使用導覽</button>
-  </div>
 </div>
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="side-drawer" id="sideDrawer">
+  <div class="dr-head">🌿 功能選單</div>
+  <button class="dr-item" id="menuStatusToggle">
+    <span class="ic">📊</span>隱藏狀態欄
+  </button>
+  <button class="dr-item" id="menuGuide">
+    <span class="ic gold">❓</span>使用導覽
+  </button>
+  <div class="dr-sep"></div>
+  <div class="dr-foot">彥彬🌿試算系統</div>
+</aside>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
 
@@ -842,9 +878,10 @@ const els={
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
   watermark:document.getElementById("watermark"),
-  topMenu:document.getElementById("topMenu"),
+  menuFabWrap:document.getElementById("menuFabWrap"),
   menuFab:document.getElementById("menuFab"),
-  menuDropdown:document.getElementById("menuDropdown"),
+  drawerMask:document.getElementById("drawerMask"),
+  sideDrawer:document.getElementById("sideDrawer"),
   menuStatusToggle:document.getElementById("menuStatusToggle"),
   menuGuide:document.getElementById("menuGuide"),
   guideOverlay:document.getElementById("guideOverlay")
@@ -871,14 +908,17 @@ document.getElementById('radioNonMgr').addEventListener('change', updateBonusDis
 document.getElementById('radioMgr').addEventListener('change', updateBonusDisplay);
 
 // ============================================================
-// 改版：左上角漢堡選單邏輯
+// 改版：左側滑出式抽屜選單邏輯（比照 AI 智囊 的抽屜設計）
 // ============================================================
 function updateMenuStatusLabel(){
-  els.menuStatusToggle.textContent = statusBarHidden ? '📊 顯示狀態欄' : '📊 隱藏狀態欄';
+  els.menuStatusToggle.innerHTML = statusBarHidden
+    ? '<span class="ic">📊</span>顯示狀態欄'
+    : '<span class="ic">📊</span>隱藏狀態欄';
 }
 function toggleMenu(forceOpen){
-  const willOpen = (forceOpen===undefined) ? !els.menuDropdown.classList.contains('open') : forceOpen;
-  els.menuDropdown.classList.toggle('open', willOpen);
+  const willOpen = (forceOpen===undefined) ? !els.sideDrawer.classList.contains('on') : forceOpen;
+  els.sideDrawer.classList.toggle('on', willOpen);
+  els.drawerMask.classList.toggle('on', willOpen);
   els.menuFab.classList.toggle('open', willOpen);
 }
 function applyStatusBarVisibility(){
@@ -904,13 +944,11 @@ els.menuStatusToggle.addEventListener('click',function(e){
 els.menuGuide.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu(false);
-  openGuide();
+  setTimeout(openGuide,150);
 });
-// 點選單以外的地方自動收合
-document.addEventListener('click',function(e){
-  if(els.menuDropdown.classList.contains('open') && !els.topMenu.contains(e.target)){
-    toggleMenu(false);
-  }
+// 點遮罩即可收合抽屜
+els.drawerMask.addEventListener('click',function(){
+  toggleMenu(false);
 });
 
 // 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
@@ -1197,7 +1235,7 @@ async function resetReport(){
   els.buttonGroup.style.display='none';
   els.authStatusBar.style.display='none';
   // 登出時收起漢堡選單與導覽彈窗
-  els.topMenu.style.display='none';
+  els.menuFabWrap.style.display='none';
   toggleMenu(false);
   closeGuide();
   statusBarHidden=false;
@@ -1966,7 +2004,7 @@ function enterCalculator(){
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
     // 登入後顯示左上角漢堡選單
-    els.topMenu.style.display='block';
+    els.menuFabWrap.style.display='block';
     els.captureArea.classList.add('screen-enter');
     els.inputArea.classList.add('screen-enter');
     els.buttonGroup.classList.add('screen-enter');
