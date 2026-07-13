@@ -137,17 +137,18 @@ body{
 @keyframes statusBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
 .sb-card{position:relative;z-index:1;padding:16px 18px 15px;}
 .sb-top{
-  display:flex;align-items:center;gap:10px;padding-right:38px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:8px 10px;text-align:center;padding:0 34px;margin-bottom:12px;
 }
 .sb-badge-ic{font-size:19px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
 .sb-badge-txt{
   font-size:13.5px;font-weight:800;letter-spacing:.4px;flex:0 0 auto;white-space:nowrap;
 }
 .sb-user{
-  font-size:13px;color:#c7c1b4;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  padding-left:9px;margin-left:1px;border-left:1px solid rgba(255,255,255,.14);flex:1;min-width:0;
+  font-size:13.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap;
+  padding-left:10px;margin-left:2px;border-left:1px solid rgba(255,255,255,.16);
 }
-.sb-user b{color:#fff;font-weight:800;}
+.sb-user.plain{color:#e6dfcd;font-weight:600;}
 .sb-stats{
   display:flex;flex-direction:column;gap:9px;margin-bottom:12px;
 }
@@ -675,6 +676,10 @@ body{
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="side-drawer" id="sideDrawer">
   <div class="dr-head">🌿 功能選單</div>
+  <button class="dr-item" id="menuMemberCenter">
+    <span class="ic gold">👤</span>會員中心
+  </button>
+  <div class="dr-sep"></div>
   <button class="dr-item" id="menuStatusToggle">
     <span class="ic">📊</span>隱藏狀態欄
   </button>
@@ -933,6 +938,7 @@ const els={
   drawerMask:document.getElementById("drawerMask"),
   sideDrawer:document.getElementById("sideDrawer"),
   menuStatusToggle:document.getElementById("menuStatusToggle"),
+  menuMemberCenter:document.getElementById("menuMemberCenter"),
   menuGuide:document.getElementById("menuGuide"),
   guideOverlay:document.getElementById("guideOverlay")
 };
@@ -984,6 +990,18 @@ function applyStatusBarVisibility(){
 els.menuFab.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu();
+});
+// 會員中心：確保狀態欄顯示（若被收合會自動展開）並捲動到可見範圍
+els.menuMemberCenter.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu(false);
+  if(statusBarHidden){
+    statusBarHidden=false;
+    applyStatusBarVisibility();
+  }
+  setTimeout(()=>{
+    if(els.authStatusBar) els.authStatusBar.scrollIntoView({behavior:'smooth',block:'start'});
+  },150);
 });
 els.menuStatusToggle.addEventListener('click',function(e){
   e.stopPropagation();
@@ -1617,7 +1635,7 @@ function updateAuthStatusBar(){
       <div class="sb-top">
         <span class="sb-badge-ic">👑</span>
         <span class="sb-badge-txt super-admin-username">超級管理員</span>
-        <span class="sb-user">${userInfo.displayName}</span>
+        <span class="sb-user super-admin-username">${userInfo.displayName}</span>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">♾️</span><span class="sb-stat-label">使用次數</span><span class="sb-stat-val super-admin-username">不限次數</span></div>
@@ -1633,7 +1651,7 @@ function updateAuthStatusBar(){
       <div class="sb-top">
         <span class="sb-badge-ic">💎</span>
         <span class="sb-badge-txt vip-admin-username">尊爵用戶</span>
-        <span class="sb-user">${userInfo.displayName}</span>
+        <span class="sb-user vip-admin-username">${userInfo.displayName}</span>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">📅</span><span class="sb-stat-label">有效期限</span><span class="sb-stat-val remaining-days-yellow">${expiryText}</span></div>
@@ -1650,7 +1668,7 @@ function updateAuthStatusBar(){
       <div class="sb-top">
         <span class="sb-badge-ic">🥇</span>
         <span class="sb-badge-txt gold-username">黃金用戶</span>
-        <span class="sb-user">${userInfo.displayName}</span>
+        <span class="sb-user gold-username">${userInfo.displayName}</span>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">🔐</span><span class="sb-stat-label">本次登入已扣 1 次，剩餘可登入次數</span><span class="sb-stat-val ${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span></div>
