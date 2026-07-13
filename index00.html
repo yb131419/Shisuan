@@ -109,67 +109,117 @@ body{
 #loginExample .example-title{font-size:0.92rem;color:var(--gold);font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
 #loginExample img{width:100%;border-radius:10px;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
 #loginExample .example-caption{font-size:0.75rem;color:#888;margin-top:8px;line-height:1.5;}
+/* ============================================================
+   驗證區狀態欄 — 一體成型精品質感設計
+   結構：頂部徽章列（身分＋姓名＋關閉鈕）→ 分隔線 → 數據列（登入次數／
+   刪除額度，圖示化並排）→ 底部贊助列。統一深色燙金卡片語彙，
+   邊框有緩慢流動的金色微光，進場為滑入＋漸顯。
+   ============================================================ */
 #authStatusBar{
-  position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
-  font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  display:none;width:100%;max-width:600px;transition:all 0.3s ease;
+  position:sticky;top:10px;z-index:999;
+  background:
+    linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,0) 40%),
+    linear-gradient(150deg,#232323 0%,#161616 100%);
+  border-radius:20px;margin-bottom:20px;
+  border:1px solid rgba(201,161,90,0.32);
+  box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+  display:none;width:100%;max-width:600px;overflow:hidden;
+  transition:all 0.3s ease;position:relative;
+}
+#authStatusBar::before{
+  content:'';position:absolute;inset:0;border-radius:20px;padding:1px;pointer-events:none;
+  background:linear-gradient(120deg, rgba(201,161,90,0) 0%, rgba(255,233,176,.55) 50%, rgba(201,161,90,0) 100%);
+  background-size:220% 100%;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:statusBorderShine 5.5s linear infinite;
+}
+@keyframes statusBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
+.sb-card{position:relative;z-index:1;padding:16px 18px 15px;}
+.sb-top{
+  display:flex;align-items:center;gap:10px;padding-right:38px;margin-bottom:12px;
+}
+.sb-badge-ic{font-size:19px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.sb-badge-txt{
+  font-size:13.5px;font-weight:800;letter-spacing:.4px;flex:0 0 auto;white-space:nowrap;
+}
+.sb-user{
+  font-size:13px;color:#c7c1b4;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding-left:9px;margin-left:1px;border-left:1px solid rgba(255,255,255,.14);flex:1;min-width:0;
+}
+.sb-user b{color:#fff;font-weight:800;}
+.sb-stats{
+  display:flex;flex-direction:column;gap:9px;margin-bottom:12px;
+}
+.sb-stat-row{
+  display:flex;align-items:center;gap:10px;font-size:13px;color:#b7b0a1;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:9px 12px;
+}
+.sb-stat-ic{font-size:15px;flex:0 0 auto;width:20px;text-align:center;}
+.sb-stat-label{flex:1;min-width:0;}
+.sb-stat-val{font-weight:800;font-size:14px;white-space:nowrap;}
+.sb-note{
+  font-size:11.5px;color:#8a8477;text-align:center;margin:-2px 0 12px;letter-spacing:.2px;
+}
+.sb-cta-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-top:1px dashed rgba(255,255,255,.1);padding-top:12px;
+}
+.sb-cta-label{font-size:12.5px;color:#a89b7d;font-weight:700;flex:0 0 auto;}
+#authStatusBar .support-btn{
+  margin-left:0;flex:0 0 auto;
 }
 #authStatusBar .close-status {
   position: absolute;
-  top: 5px;
-  right: 10px;
-  width: 28px;
-  height: 45px;
-  border-radius: 8px;
-  background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  color: #000;
-  border: 1px solid #222;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  color: #cfc7b6;
+  border: 1px solid rgba(255,255,255,.14);
   cursor: pointer;
-  font-size: 16px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  vertical-align: middle;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  box-shadow: 
-    0 2px 4px rgba(0,0,0,0.1),
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.1);
+  writing-mode: initial;
+  text-orientation: initial;
+  transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
   padding: 0;
   font-weight: 700;
   line-height: 1;
   margin: 0;
   outline: none;
+  z-index: 2;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
 }
 #authStatusBar .close-status:hover {
-  background: linear-gradient(145deg, #f8f8f8, #eaeaea);
-  transform: translateY(-2px);
-  box-shadow: 
-    0 4px 8px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.9),
-    inset 0 -1px 0 rgba(0,0,0,0.15);
-  border-color: #111;
-  color: #111;
+  background: rgba(217,184,115,.16);
+  border-color: rgba(217,184,115,.5);
+  color: var(--gold-light);
+  transform: rotate(90deg);
 }
 #authStatusBar .close-status:active {
-  background: linear-gradient(145deg, #eaeaea, #f0f0f0);
-  transform: translateY(0);
-  box-shadow: 
-    0 1px 2px rgba(0,0,0,0.1),
-    inset 0 1px 0 rgba(0,0,0,0.1),
-    inset 0 -1px 0 rgba(255,255,255,0.8);
+  transform: rotate(90deg) scale(0.9);
 }
 #authStatusBar .close-status:focus-visible {
-  outline: 2px solid #0071e3;
+  outline: 2px solid var(--gold-light);
   outline-offset: 2px;
 }
 /* ============================================================
+   狀態欄「顯示狀態」的滑入進場動畫（比原本更細緻）
+   ============================================================ */
+@keyframes statusCardIn{
+  from{opacity:0;transform:translateY(-10px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+#authStatusBar.status-in{animation:statusCardIn .45s cubic-bezier(.22,.8,.36,1);}
+/* ============================================================
+
    改版：左側滑出式抽屜選單（比照「AI 智囊」的質感抽屜設計，
    套用本系統的深色 × 金色主題）。平時只顯示左上角一顆 ☰ 小按鈕，
    點擊後從左側滑出整片選單，背後有霧化遮罩，質感更完整。
@@ -1561,39 +1611,63 @@ function checkUserRemainingTimes(){
 // 更新授權狀態欄
 function updateAuthStatusBar(){
   if(!authStatus||!userInfo)return;
-  let statusHtml='';
+  let cardHtml='';
   if(authStatus.isSuperAdmin){
-    statusHtml=`
-      <span class="super-admin">👑 超級管理員 👑</span> | 
-      用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
-      <br/>不限使用次數
-      <br/>💖 贊助支持，讓系統持續優化更新
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">👑</span>
+        <span class="sb-badge-txt super-admin-username">超級管理員</span>
+        <span class="sb-user">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">♾️</span><span class="sb-stat-label">使用次數</span><span class="sb-stat-val super-admin-username">不限次數</span></div>
+      </div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">💖 贊助支持系統</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>
+      </div>
     `;
   }else if(authStatus.isVip){
-    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
-    statusHtml=`
-      <span class="vip-admin">💎 尊爵用戶 💎</span> | 
-      用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
-      <br/>有效期限：${expiryText}
-      <br/>💖 贊助支持，讓系統持續優化更新
-      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助試算系統</a>
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">💎</span>
+        <span class="sb-badge-txt vip-admin-username">尊爵用戶</span>
+        <span class="sb-user">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">📅</span><span class="sb-stat-label">有效期限</span><span class="sb-stat-val remaining-days-yellow">${expiryText}</span></div>
+      </div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">💖 贊助支持系統</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>
+      </div>
     `;
   }else{
     const usedDeletes=getSessionDeleteCount();
     const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
-    statusHtml=`
-      <span class="gold-tier">🥇 黃金用戶 🥇</span> | 
-      用戶名：<span class="gold-username">${userInfo.displayName}</span>
-      <br/>本次登入已扣1次，剩餘可登入次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>
-      <br/>🗑️ 本批免費刪除剩餘：<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT}次</span><br>（用完會扣1次補充）
-      <br/>贊助『使用次數』
-      <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">🥇</span>
+        <span class="sb-badge-txt gold-username">黃金用戶</span>
+        <span class="sb-user">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">🔐</span><span class="sb-stat-label">本次登入已扣 1 次，剩餘可登入次數</span><span class="sb-stat-val ${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span></div>
+        <div class="sb-stat-row"><span class="sb-stat-ic">🗑️</span><span class="sb-stat-label">本批免費刪除剩餘</span><span class="sb-stat-val ${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT} 次</span></div>
+      </div>
+      <div class="sb-note">用完會扣 1 次使用次數，補充 ${FREE_DELETE_LIMIT} 次刪除機會</div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">贊助『使用次數』</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
+      </div>
     `;
   }
   els.authStatusBar.innerHTML = `
-    <button class="close-status" title="隱藏狀態欄">關閉</button>
-    ${statusHtml}
+    <div class="sb-card">
+      <button class="close-status" title="隱藏狀態欄">✕</button>
+      ${cardHtml}
+    </div>
   `;
   bindCloseStatusBtn();
   // 重繪時尊重使用者當下的「隱藏」狀態，並同步漢堡選單文字
@@ -1921,7 +1995,7 @@ function renderLoginScreen(info){
       <div class="login-rules-title">📜 登入前請詳閱</div>
       <ul>
         <li>🔐 登入扣 <b>1 次</b>使用次數</li>
-        <li>🗑️ 登錄可免費刪除 <b>3 次</b>，<br>🗑️ 用完扣 <b>1 次</b>使用次數回復 <b>3 次</b>刪除機會</li>
+        <li>🗑️ 每批可免費刪除 <b>3 次</b>，用完扣 <b>1 次</b>使用次數回復 <b>3 次</b>刪除機會</li>
         <li>🔄 重置報表 = 登出，需重新登入</li>
       </ul>
     </div>
