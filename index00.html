@@ -2014,7 +2014,15 @@ function enterCalculator(){
       els.buttonGroup.classList.remove('screen-enter');
     },450);
     setupLineName();
-    loadSelectedProds();
+    // 修正：只有 尊爵／超級管理員 登入時才帶回上次未完成的報表；
+    // 黃金用戶每次登入一律從空白報表開始，並清掉舊資料避免下次被誤帶回。
+    if(authStatus.isVip||authStatus.isSuperAdmin){
+      loadSelectedProds();
+    }else{
+      selectedProds=[];
+      localStorage.removeItem('selectedProducts');
+      renderTable();
+    }
     checkUserRemainingTimes();
     statusBarHidden=false;
     updateAuthStatusBar();
