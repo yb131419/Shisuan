@@ -8,6 +8,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
+
+/* ===== 截圖用數量文字樣式 ===== */
+.qty-snapshot{
+  font-size:16px!important;font-weight:bold!important;
+  display:block;text-align:center;line-height:1.4;
+  color:#374151;
+}
+/* ===== 截圖時強制關閉 hover 效果 ===== */
+#reportTable.capturing tbody tr{
+  background:unset!important;color:unset!important;
+  font-weight:unset!important;transform:none!important;
+}
+#reportTable.capturing tbody tr:nth-child(odd){background:#f3f4f6!important;color:#374151!important;}
+#reportTable.capturing tbody tr:nth-child(even){background:#e5e7eb!important;color:#374151!important;}
+
 :root{
   --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;
   --highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;
@@ -1589,7 +1604,6 @@ function addProduct(){
   }
 }
 
-// 動態調整數量下拉選項（修復限定組數錯誤）
 function adjustQtySelectOptions(productName) {
   if (!productName) return;
   let maxQty = 99;
@@ -1614,7 +1628,10 @@ function adjustQtySelectOptions(productName) {
     option.textContent = i;
     els.qtyInput.appendChild(option);
   }
+  // 修復：強制顯示預設選中值，解決部分手機 select 顯示空白問題
+  els.qtyInput.value = '1';
 }
+
 
 function checkUserRemainingTimes(){
   if(!authStatus)return false;
@@ -1702,7 +1719,6 @@ async function exportToImage(){
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
 
-  // 新增：截圖前切換獎金區塊顯示
   const bonusSection  = document.getElementById('bonusSection');
   const bonusPrintBox = document.getElementById('bonusPrintBox');
   const selected      = document.querySelector('input[name="bonusType"]:checked');
@@ -1710,22 +1726,31 @@ async function exportToImage(){
   bonusSection.style.display  = 'none';
   bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
 
-  // 清除所有动画残留，防止截图重复
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
 
-  // 隐藏操作列
+  // ★ 修復：加 capturing class，CSS 強制關閉 hover 樣式（解決截圖顏色變白問題）
+  els.reportTable.classList.add('capturing');
+
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
-  // 强制重绘，避免样式缓存
+  // ★ 修復：把所有 qtySelect 換成純文字 span（解決截圖數量欄空白問題）
+  const qtySelects = document.querySelectorAll('.qtySelect');
+  qtySelects.forEach(sel => {
+    const span = document.createElement('span');
+    span.className = 'qty-snapshot';
+    span.textContent = sel.value;
+    sel.parentNode.insertBefore(span, sel);
+    sel.style.display = 'none';
+  });
+
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=(tableWidth-lastColWidth)+60;
 
-  // 保存原始样式
   const originalStyles = {
     width: els.captureArea.style.width,
     paddingLeft: els.captureArea.style.paddingLeft,
@@ -1756,28 +1781,27 @@ async function exportToImage(){
     scale=Math.max(1,Math.floor(maxSideScale*10)/10);
   }
 
-async function attemptCapture(useScale){
-  const dpr=Math.min(window.devicePixelRatio||1,3);
-  const captureScale=Math.max(2,useScale*dpr);
-  const outputW=Math.round(captureWidth*captureScale);
-  const outputH=Math.round(captureHeight*captureScale);
-
-  const capturePromise=domtoimage.toBlob(els.captureArea,{
-    width:outputW,
-    height:outputH,
-    style:{
-      transform:`scale(${captureScale})`,
-      transformOrigin:'top left',
-      width:captureWidth+'px',
-      height:captureHeight+'px'
-    },
-    bgcolor:'#1c1c1c'
-  });
-  const timeoutPromise=new Promise((_,reject)=>{
-    setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
-  });
-  return await Promise.race([capturePromise,timeoutPromise]);
-}
+  async function attemptCapture(useScale){
+    const dpr=Math.min(window.devicePixelRatio||1,3);
+    const captureScale=Math.max(2,useScale*dpr);
+    const outputW=Math.round(captureWidth*captureScale);
+    const outputH=Math.round(captureHeight*captureScale);
+    const capturePromise=domtoimage.toBlob(els.captureArea,{
+      width:outputW,
+      height:outputH,
+      style:{
+        transform:`scale(${captureScale})`,
+        transformOrigin:'top left',
+        width:captureWidth+'px',
+        height:captureHeight+'px'
+      },
+      bgcolor:'#1c1c1c'
+    });
+    const timeoutPromise=new Promise((_,reject)=>{
+      setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
+    });
+    return await Promise.race([capturePromise,timeoutPromise]);
+  }
 
   try{
     let blob;
@@ -1802,7 +1826,15 @@ async function attemptCapture(useScale){
     console.error('匯出錯誤:',error);
     showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
-    // 新增：截圖後恢復互動版獎金區塊
+    // ★ 還原：移除 span，顯示回 select
+    document.querySelectorAll('.qty-snapshot').forEach(span => span.remove());
+    document.querySelectorAll('.qtySelect').forEach(sel => {
+      sel.style.display = '';
+    });
+
+    // ★ 還原：移除 capturing class
+    els.reportTable.classList.remove('capturing');
+
     bonusSection.style.display  = '';
     bonusPrintBox.style.display = 'none';
 
@@ -1817,6 +1849,8 @@ async function attemptCapture(useScale){
     });
   }
 }
+
+    
 
 async function shareToLine(){
   if(!authStatus)return;
