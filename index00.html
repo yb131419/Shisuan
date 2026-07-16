@@ -448,6 +448,9 @@ body{
   transition:all 0.3s ease;
 }
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
+/* 修正：截圖時數量欄的純文字替身，與原數字樣式一致並置中 */
+.qty-print{display:inline-block;font-size:16px!important;font-weight:bold!important;text-align:center;min-width:24px;}
+@media (min-width:768px){.qty-print{font-size:18px!important;}}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6){font-weight:500;text-align:center!important;}
 @media (min-width:768px){
   #reportTable th,#reportTable td{padding:8px 5px;font-size:14px;}
@@ -1765,6 +1768,19 @@ async function exportToImage(){
     document.activeElement.blur(); // 收起焦點外框，避免截到 focus 光圈
   }
 
+  // 修正③：截圖時把「數量」下拉選單暫換成純文字數字。
+  // select 原生控制項在轉圖時會渲染得比儲存格寬，往右溢出蓋住「單價」欄；
+  // 換成純文字後圖片中只顯示乾淨的數字，截圖完成後自動還原下拉選單。
+  const qtySwaps=[];
+  els.captureArea.querySelectorAll('.qtySelect').forEach(sel=>{
+    const span=document.createElement('span');
+    span.className='qty-print';
+    span.textContent=sel.value;
+    sel.style.display='none';
+    sel.parentNode.insertBefore(span,sel.nextSibling);
+    qtySwaps.push({sel:sel,span:span});
+  });
+
   // 隐藏操作列
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
@@ -1858,6 +1874,11 @@ async function attemptCapture(useScale){
     bonusPrintBox.style.display = 'none';
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
+    // 修正③：截圖完成後還原「數量」下拉選單
+    qtySwaps.forEach(item=>{
+      if(item.span.parentNode) item.span.parentNode.removeChild(item.span);
+      item.sel.style.display='';
+    });
 
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalStyles.width;
