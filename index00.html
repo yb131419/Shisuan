@@ -8,21 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
-
-/* ===== 截圖用數量文字樣式 ===== */
-.qty-snapshot{
-  font-size:16px!important;font-weight:bold!important;
-  display:block;text-align:center;line-height:1.4;
-  color:#374151;
-}
-/* ===== 截圖時強制關閉 hover 效果 ===== */
-#reportTable.capturing tbody tr{
-  background:unset!important;color:unset!important;
-  font-weight:unset!important;transform:none!important;
-}
-#reportTable.capturing tbody tr:nth-child(odd){background:#f3f4f6!important;color:#374151!important;}
-#reportTable.capturing tbody tr:nth-child(even){background:#e5e7eb!important;color:#374151!important;}
-
 :root{
   --bg:#0f0f0f;--panel-bg:#1a1a1a;--text:#e0e0e0;--accent:#00d1b2;
   --highlight:#40c4ff;--error:#ff5252;--btn-grey:#3a3a3a;--warning:#ff9800;
@@ -346,9 +331,16 @@ body{
   font-weight:500;
 }
 .period-box:hover{
-  border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
-  transform:translateY(-2px);box-shadow:var(--period-shadow);
-  background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
+  border-color:var(--period-border);
+}
+/* 修正：hover 白色亮面效果只在「真正有滑鼠」的裝置生效，
+   避免手機點擊後 hover 樣式卡住不消失（截圖時出現白色殘影） */
+@media (hover:hover) and (pointer:fine){
+  .period-box:hover{
+    border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
+    transform:translateY(-2px);box-shadow:var(--period-shadow);
+    background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
+  }
 }
 .period-box.active{
   border-color:var(--period-border);background:var(--period-active);color:var(--period-text);
@@ -359,6 +351,21 @@ body{
 .period-box.active::after{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
+}
+/* 修正：轉圖片瞬間套用 capture-mode，關閉光暈、位移與所有動畫，
+   避免 box-shadow 白光與 translateY 在截圖中渲染成溢出的白色色塊 */
+#captureArea.capture-mode *,
+#captureArea.capture-mode *::before,
+#captureArea.capture-mode *::after{
+  transition:none!important;animation:none!important;
+}
+#captureArea.capture-mode .period-box,
+#captureArea.capture-mode .period-box.active{
+  transform:none!important;box-shadow:none!important;
+}
+#captureArea.capture-mode .period-box.active{
+  background:linear-gradient(145deg,#ffffff,#e8e8e8)!important;color:#000!important;
+  border-color:#ffffff!important;
 }
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
@@ -1165,7 +1172,7 @@ else if(val.includes('草本') && val.includes('新入會')){
 // 新增 2711AB 提醒
 else if(val.includes('2711AB')){
   setTimeout(()=>{
-    alert('📋 2711AB 購買提醒：\n\n此商品限定購買\n且每人僅限購買二組（8入）');
+    alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買一組（4入）');
   },100);
 }
 }
@@ -1228,7 +1235,7 @@ function addSpecificProduct(productName, qty) {
     else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 1;
     else if (productName.includes('777Q') && productName.includes('(4)')) maxQty = 2;
     else if (productName.includes('火山甘露') && productName.includes('限4盒')) maxQty = 4;
-    else if (productName.includes('2711AB') && productName.includes('(1)')) maxQty = 8;
+    else if (productName.includes('2711AB') && productName.includes('(1)')) maxQty = 4;
 
     if (productName.includes('新入會') && totalQty > maxQty) {
       return;
@@ -1367,7 +1374,7 @@ function renderTable(){
     else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
     else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
     else if(val.includes('火山甘露')&&val.includes('限4盒'))maxQty=4;
-    else if(val.includes('2711AB')&&val.includes('(1)'))maxQty=8;
+    else if(val.includes('2711AB')&&val.includes('(1)'))maxQty=4;
     if(item.qty>maxQty){item.qty=maxQty;saveSelectedProds();}
     const subtotalPrice=item.price*item.qty;
     const subtotalPv=item.pv*item.qty;
@@ -1571,7 +1578,7 @@ function addProduct(){
         qty=maxQty;
       }
     }else if(val.includes('2711AB')&&val.includes('(1)')){
-      maxQty=8;
+      maxQty=4;
       if(qty>maxQty){
         alert(`⚠️ 2711AB(1)限購${maxQty}盒，已自動調整數量為${maxQty}`);
         qty=maxQty;
@@ -1604,6 +1611,7 @@ function addProduct(){
   }
 }
 
+// 動態調整數量下拉選項（修復限定組數錯誤）
 function adjustQtySelectOptions(productName) {
   if (!productName) return;
   let maxQty = 99;
@@ -1618,7 +1626,7 @@ function adjustQtySelectOptions(productName) {
   } else if (val.includes('火山甘露') && val.includes('限4盒')) {
     maxQty = 4;
   } else if (val.includes('2711AB') && val.includes('(1)')) {
-    maxQty = 8;
+    maxQty = 4;
   }
 
   els.qtyInput.innerHTML = '';
@@ -1628,10 +1636,7 @@ function adjustQtySelectOptions(productName) {
     option.textContent = i;
     els.qtyInput.appendChild(option);
   }
-  // 修復：強制顯示預設選中值，解決部分手機 select 顯示空白問題
-  els.qtyInput.value = '1';
 }
-
 
 function checkUserRemainingTimes(){
   if(!authStatus)return false;
@@ -1714,11 +1719,30 @@ function updateAuthStatusBar(){
   updateMenuStatusLabel();
 }
 
+// 修正：轉圖前把 checkbox / radio / 文字輸入 / 下拉選單 的「即時狀態」
+// 同步寫回 HTML 屬性，讓 dom-to-image 複製節點時能正確呈現勾選與輸入內容
+function syncFormStateForCapture(){
+  els.captureArea.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(el=>{
+    if(el.checked) el.setAttribute('checked','');
+    else el.removeAttribute('checked');
+  });
+  els.captureArea.querySelectorAll('input[type="text"],input[type="number"]').forEach(el=>{
+    el.setAttribute('value', el.value);
+  });
+  els.captureArea.querySelectorAll('select').forEach(sel=>{
+    Array.from(sel.options).forEach(o=>{
+      if(o.selected) o.setAttribute('selected','');
+      else o.removeAttribute('selected');
+    });
+  });
+}
+
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
 
+  // 新增：截圖前切換獎金區塊顯示
   const bonusSection  = document.getElementById('bonusSection');
   const bonusPrintBox = document.getElementById('bonusPrintBox');
   const selected      = document.querySelector('input[name="bonusType"]:checked');
@@ -1726,31 +1750,33 @@ async function exportToImage(){
   bonusSection.style.display  = 'none';
   bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
 
+  // 清除所有动画残留，防止截图重复
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
 
-  // ★ 修復：加 capturing class，CSS 強制關閉 hover 樣式（解決截圖顏色變白問題）
-  els.reportTable.classList.add('capturing');
+  // 修正①：把表單「即時狀態」同步回 HTML 屬性。
+  // dom-to-image 轉圖是複製 HTML 屬性（attribute），JS 勾選只改 property，
+  // 不同步的話勾選的現金/刷卡在圖片裡會變回未勾選、自訂天數文字也會消失。
+  syncFormStateForCapture();
 
+  // 修正②：套用 capture-mode，關閉光暈/位移/動畫，避免月份按鈕白光溢出
+  els.captureArea.classList.add('capture-mode');
+  if(document.activeElement && typeof document.activeElement.blur==='function'){
+    document.activeElement.blur(); // 收起焦點外框，避免截到 focus 光圈
+  }
+
+  // 隐藏操作列
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
-  // ★ 修復：把所有 qtySelect 換成純文字 span（解決截圖數量欄空白問題）
-  const qtySelects = document.querySelectorAll('.qtySelect');
-  qtySelects.forEach(sel => {
-    const span = document.createElement('span');
-    span.className = 'qty-snapshot';
-    span.textContent = sel.value;
-    sel.parentNode.insertBefore(span, sel);
-    sel.style.display = 'none';
-  });
-
+  // 强制重绘，避免样式缓存
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=(tableWidth-lastColWidth)+60;
 
+  // 保存原始样式
   const originalStyles = {
     width: els.captureArea.style.width,
     paddingLeft: els.captureArea.style.paddingLeft,
@@ -1781,27 +1807,28 @@ async function exportToImage(){
     scale=Math.max(1,Math.floor(maxSideScale*10)/10);
   }
 
-  async function attemptCapture(useScale){
-    const dpr=Math.min(window.devicePixelRatio||1,3);
-    const captureScale=Math.max(2,useScale*dpr);
-    const outputW=Math.round(captureWidth*captureScale);
-    const outputH=Math.round(captureHeight*captureScale);
-    const capturePromise=domtoimage.toBlob(els.captureArea,{
-      width:outputW,
-      height:outputH,
-      style:{
-        transform:`scale(${captureScale})`,
-        transformOrigin:'top left',
-        width:captureWidth+'px',
-        height:captureHeight+'px'
-      },
-      bgcolor:'#1c1c1c'
-    });
-    const timeoutPromise=new Promise((_,reject)=>{
-      setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
-    });
-    return await Promise.race([capturePromise,timeoutPromise]);
-  }
+async function attemptCapture(useScale){
+  const dpr=Math.min(window.devicePixelRatio||1,3);
+  const captureScale=Math.max(2,useScale*dpr);
+  const outputW=Math.round(captureWidth*captureScale);
+  const outputH=Math.round(captureHeight*captureScale);
+
+  const capturePromise=domtoimage.toBlob(els.captureArea,{
+    width:outputW,
+    height:outputH,
+    style:{
+      transform:`scale(${captureScale})`,
+      transformOrigin:'top left',
+      width:captureWidth+'px',
+      height:captureHeight+'px'
+    },
+    bgcolor:'#1c1c1c'
+  });
+  const timeoutPromise=new Promise((_,reject)=>{
+    setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
+  });
+  return await Promise.race([capturePromise,timeoutPromise]);
+}
 
   try{
     let blob;
@@ -1826,17 +1853,11 @@ async function exportToImage(){
     console.error('匯出錯誤:',error);
     showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
-    // ★ 還原：移除 span，顯示回 select
-    document.querySelectorAll('.qty-snapshot').forEach(span => span.remove());
-    document.querySelectorAll('.qtySelect').forEach(sel => {
-      sel.style.display = '';
-    });
-
-    // ★ 還原：移除 capturing class
-    els.reportTable.classList.remove('capturing');
-
+    // 新增：截圖後恢復互動版獎金區塊
     bonusSection.style.display  = '';
     bonusPrintBox.style.display = 'none';
+    // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
+    els.captureArea.classList.remove('capture-mode');
 
     opCells.forEach(el=>{el.style.display="";});
     els.captureArea.style.width=originalStyles.width;
@@ -1849,8 +1870,6 @@ async function exportToImage(){
     });
   }
 }
-
-    
 
 async function shareToLine(){
   if(!authStatus)return;
