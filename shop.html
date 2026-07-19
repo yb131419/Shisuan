@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>彥彬🌿試算系統『購物節』</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
@@ -18,103 +18,262 @@
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
-  /* 修改：时长选项改为白色主题 */
   --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
   --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
   --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
   --period-text:#000;
+  --gold:#c9a15a;--gold-light:#ffe9b0;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   background:var(--bg);color:var(--text);font-family:'Segoe UI','Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   padding:10px;line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
 }
-#authContainer{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;justify-content:center;align-items:center;z-index:9999;background:rgba(0,0,0,0.8);}
-#authLoading{
-  width:100%;max-width:400px;background:var(--grad-secondary);border-radius:16px;padding:40px 25px;text-align:center;
-  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.05);transition:all 0.5s ease;
+#authContainer{
+  position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;flex-direction:column;
+  align-items:center;z-index:9999;background:rgba(0,0,0,0.88);overflow-y:auto;padding:30px 12px;
+  transition:opacity 0.35s ease;
 }
-/* 修改：登录状态栏可隐藏，增加关闭按钮和过渡效果 */
+#authContainer.fade-out{opacity:0;}
+#loginWrapper{display:flex;flex-direction:column;gap:18px;width:100%;max-width:420px;margin:auto;}
+.login-loading{padding:20px 0;}
+.login-loading .loader.small{width:36px;height:36px;margin:0 auto 14px;}
+.login-loading-title{color:var(--highlight);font-weight:600;font-size:1.05rem;margin-bottom:6px;}
+.login-loading-desc{color:#999;font-size:0.85rem;line-height:1.6;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.screen-enter{animation:fadeInUp 0.4s ease both;}
+@keyframes statusBarIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.status-in{animation:statusBarIn 0.4s ease;}
+@keyframes avatarPulse{0%,100%{box-shadow:0 0 0 4px rgba(0,209,178,0.15),0 6px 20px rgba(0,0,0,0.5);}50%{box-shadow:0 0 0 8px rgba(0,209,178,0.28),0 6px 24px rgba(0,0,0,0.55);}}
+.btn-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;margin-right:6px;vertical-align:middle;}
+.btn-success{background:linear-gradient(145deg,#4caf50,#388e3c)!important;border-color:rgba(129,220,133,0.85)!important;}
+@keyframes rowFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.row-fade-in{animation:rowFadeIn 0.28s ease both;}
+@keyframes rowFadeOut{from{opacity:1;}to{opacity:0;}}
+#reportTable tbody tr.row-removing td{animation:rowFadeOut 0.2s ease forwards;}
+#loginScreen{
+  position:relative;width:100%;overflow:hidden;
+  background:linear-gradient(160deg,#1c1c1c 0%,#141414 100%);
+  border-radius:20px;padding:34px 24px 28px;text-align:center;
+  box-shadow:0 0 0 1px rgba(201,161,90,0.25),0 20px 50px rgba(0,0,0,0.55);
+  border:1px solid rgba(255,255,255,0.06);
+  animation:loginCardIn 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+#loginScreen::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+@keyframes loginCardIn{from{opacity:0;transform:translateY(14px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+#loginScreen .login-title{
+  font-size:1.4rem;font-weight:800;letter-spacing:1px;margin-bottom:20px;
+  background:linear-gradient(135deg,#40c4ff,#00d1b2);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.login-avatar-wrap{display:flex;justify-content:center;margin-bottom:14px;}
+.login-avatar{
+  width:72px;height:72px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--gold);box-shadow:0 0 0 4px rgba(0,209,178,0.15),0 6px 20px rgba(0,0,0,0.5);
+  animation:avatarPulse 2.6s ease-in-out infinite;
+}
+.login-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:2rem;background:#2a2a2a;color:#ccc;}
+#loginScreen .login-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:10px;}
+#loginScreen .login-badge.super{background:rgba(212,175,55,0.15);color:var(--super);border:1px solid rgba(212,175,55,0.4);}
+#loginScreen .login-badge.vip{background:rgba(0,191,165,0.15);color:var(--vip);border:1px solid rgba(0,191,165,0.4);}
+#loginScreen .login-badge.gold{background:rgba(201,161,90,0.15);color:var(--gold);border:1px solid rgba(201,161,90,0.4);}
+#loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
+#loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
+#loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
+.login-rules{
+  text-align:left;background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
+  border-radius:10px;padding:14px 14px 14px 16px;margin:18px 0;
+}
+.login-rules-title{font-size:0.9rem;font-weight:bold;color:var(--gold-light);margin-bottom:9px;letter-spacing:0.5px;}
+.login-rules ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;}
+.login-rules li{font-size:0.8rem;color:#ccc;line-height:1.55;}
+.login-rules li b{color:#fff;}
+.login-btn-full{width:100%!important;}
+#loginScreen .login-exceeded{
+  background:linear-gradient(145deg,#4a0000,#2a0000);border:1px solid rgba(255,82,82,0.3);
+  color:#fef2f2;padding:14px;border-radius:10px;font-size:0.9rem;line-height:1.7;
+}
+#loginScreen .super-admin-username{
+  background-image:var(--super-username);background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+#loginScreen .vip-admin-username{
+  background-image:var(--vip-username);background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+#loginExample{
+  background:linear-gradient(145deg,#1c1c1c,#141414);border-radius:16px;padding:16px;
+  border:1px solid rgba(255,255,255,0.06);box-shadow:var(--shadow);text-align:center;
+}
+#loginExample .example-title{font-size:0.92rem;color:var(--gold);font-weight:bold;margin-bottom:10px;letter-spacing:1px;}
+#loginExample img{width:100%;border-radius:10px;display:block;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+#loginExample .example-caption{font-size:0.75rem;color:#888;margin-top:8px;line-height:1.5;}
+/* ============================================================
+   驗證區狀態欄 — 一體成型精品質感設計
+   ============================================================ */
 #authStatusBar{
-  position:sticky;top:10px;z-index:999;background:var(--grad-secondary);padding:12px 18px;border-radius:12px;margin-bottom:20px;
-  font-size:14px;text-align:center;border:1px solid rgba(0,209,178,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
-  display:none;width:100%;max-width:600px;transition:all 0.3s ease;
+  position:sticky;top:10px;z-index:999;
+  background:
+    linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,0) 40%),
+    linear-gradient(150deg,#232323 0%,#161616 100%);
+  border-radius:20px;margin-bottom:20px;
+  border:1px solid rgba(201,161,90,0.32);
+  box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+  display:none;width:100%;max-width:600px;overflow:hidden;
+  transition:all 0.3s ease;position:relative;
 }
-/* 高质感关闭按钮样式 - 替换原有 close-status 样式 */
+#authStatusBar::before{
+  content:'';position:absolute;inset:0;border-radius:20px;padding:1px;pointer-events:none;
+  background:linear-gradient(120deg, rgba(201,161,90,0) 0%, rgba(255,233,176,.55) 50%, rgba(201,161,90,0) 100%);
+  background-size:220% 100%;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude;
+  animation:statusBorderShine 5.5s linear infinite;
+}
+@keyframes statusBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
+.sb-card{position:relative;z-index:1;padding:16px 18px 15px;}
+.sb-top{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:8px 10px;text-align:center;padding:0 34px;margin-bottom:12px;
+}
+.sb-badge-ic{font-size:19px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.sb-badge-txt{
+  font-size:13.5px;font-weight:800;letter-spacing:.4px;flex:0 0 auto;white-space:nowrap;
+}
+.sb-user{
+  font-size:13.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap;
+  padding-left:10px;margin-left:2px;border-left:1px solid rgba(255,255,255,.16);
+}
+.sb-user.plain{color:#e6dfcd;font-weight:600;}
+.sb-stats{
+  display:flex;flex-direction:column;gap:9px;margin-bottom:12px;
+}
+.sb-stat-row{
+  display:flex;align-items:center;gap:10px;font-size:13px;color:#b7b0a1;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:9px 12px;
+}
+.sb-stat-ic{font-size:15px;flex:0 0 auto;width:20px;text-align:center;}
+.sb-stat-label{flex:1;min-width:0;}
+.sb-stat-val{font-weight:800;font-size:14px;white-space:nowrap;}
+.sb-note{
+  font-size:11.5px;color:#8a8477;text-align:center;margin:-2px 0 12px;letter-spacing:.2px;
+}
+.sb-cta-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-top:1px dashed rgba(255,255,255,.1);padding-top:12px;
+}
+.sb-cta-label{font-size:12.5px;color:#a89b7d;font-weight:700;flex:0 0 auto;}
+#authStatusBar .support-btn{
+  margin-left:0;flex:0 0 auto;
+}
 #authStatusBar .close-status {
   position: absolute;
-  top: 5px;
-  right: 10px;
-  width: 28px;
-  height: 45px;
-  border-radius: 8px;
-  /* 细腻的白色渐变，模拟微立体效果 */
-  background: linear-gradient(145deg, #ffffff, #f5f5f5);
-  color: #000; /* 纯黑字体保证可读性 */
-  /* 极细黑色边框，提升精致感 */
-  border: 1px solid #222;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  color: #cfc7b6;
+  border: 1px solid rgba(255,255,255,.14);
   cursor: pointer;
-  font-size: 16px;
-  /* 核心居中布局 */
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  vertical-align: middle;
-  /* 丝滑过渡动画 */
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  /* 垂直文字排版 */
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  /* 多层次阴影，模拟浮雕质感 */
-  box-shadow: 
-    0 2px 4px rgba(0,0,0,0.1),
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    inset 0 -1px 0 rgba(0,0,0,0.1);
+  writing-mode: initial;
+  text-orientation: initial;
+  transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
   padding: 0;
-  font-weight: 700; /* 加粗字体，提升力量感 */
+  font-weight: 700;
   line-height: 1;
   margin: 0;
   outline: none;
-  /* 防止文字模糊 */
+  z-index: 2;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* 触摸反馈优化 */
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Hover 状态 - 强化交互质感 */
 #authStatusBar .close-status:hover {
-  /* 更深的渐变，模拟按压前的轻抬效果 */
-  background: linear-gradient(145deg, #f8f8f8, #eaeaea);
-  /* 轻微上移+增强阴影，提升立体感 */
-  transform: translateY(-2px);
-  box-shadow: 
-    0 4px 8px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.9),
-    inset 0 -1px 0 rgba(0,0,0,0.15);
-  /* 边框微亮，提升精致度 */
-  border-color: #111;
-  /* 文字轻微提亮，增加呼吸感 */
-  color: #111;
+  background: rgba(217,184,115,.16);
+  border-color: rgba(217,184,115,.5);
+  color: var(--gold-light);
+  transform: rotate(90deg);
 }
-
-/* Active 状态 - 模拟物理按压效果 */
 #authStatusBar .close-status:active {
-  /* 反向渐变，模拟凹陷效果 */
-  background: linear-gradient(145deg, #eaeaea, #f0f0f0);
-  /* 复位位置+收缩阴影，模拟按压 */
-  transform: translateY(0);
-  box-shadow: 
-    0 1px 2px rgba(0,0,0,0.1),
-    inset 0 1px 0 rgba(0,0,0,0.1),
-    inset 0 -1px 0 rgba(255,255,255,0.8);
+  transform: rotate(90deg) scale(0.9);
 }
-
-/* 聚焦状态优化（可选，提升可访问性） */
 #authStatusBar .close-status:focus-visible {
-  outline: 2px solid #0071e3;
+  outline: 2px solid var(--gold-light);
   outline-offset: 2px;
+}
+@keyframes statusCardIn{
+  from{opacity:0;transform:translateY(-10px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+#authStatusBar.status-in{animation:statusCardIn .45s cubic-bezier(.22,.8,.36,1);}
+/* ============================================================
+   左側滑出式抽屜選單
+   ============================================================ */
+#menuFabWrap{position:fixed;top:8px;left:8px;z-index:1500;display:none;}
+#menuFab{
+  width:38px;height:38px;border-radius:11px;cursor:pointer;
+  background:linear-gradient(160deg,#232323,#161616);
+  color:#fff;border:1px solid rgba(217,184,115,0.35);
+  font-size:17px;line-height:1;font-weight:bold;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(0,0,0,0.5);
+  -webkit-tap-highlight-color:transparent;transition:all .25s ease;
+}
+#menuFab:hover{border-color:rgba(0,209,178,0.7);box-shadow:0 4px 16px rgba(0,209,178,0.3);}
+#menuFab:active{transform:scale(0.92);}
+#menuFab.open{border-color:rgba(0,209,178,0.85);background:linear-gradient(160deg,#2c2c2c,#1c1c1c);}
+
+.drawer-mask{
+  position:fixed;inset:0;z-index:1600;background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .28s ease;
+}
+.drawer-mask.on{opacity:1;pointer-events:auto;}
+
+.side-drawer{
+  position:fixed;top:0;bottom:0;left:0;width:260px;max-width:80vw;z-index:1700;
+  background:linear-gradient(165deg,#1c1c1c 0%,#141414 100%);
+  border-right:1px solid rgba(201,161,90,0.3);
+  box-shadow:16px 0 48px rgba(0,0,0,0.55);
+  transform:translateX(-105%);
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1);
+  padding:22px 16px;overflow-y:auto;
+}
+.side-drawer.on{transform:translateX(0);}
+.side-drawer::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+.dr-head{
+  font-size:11.5px;letter-spacing:3px;font-weight:800;color:var(--gold-light);
+  text-transform:uppercase;margin:2px 6px 16px;display:flex;align-items:center;gap:8px;
+}
+.dr-head::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(217,184,115,.4),transparent);}
+.dr-item{
+  display:flex;align-items:center;gap:12px;width:100%;
+  background:transparent;border:1px solid transparent;color:#e0e0e0;
+  font-size:14.5px;font-weight:700;text-align:left;
+  padding:13px 12px;border-radius:14px;cursor:pointer;margin-bottom:6px;
+  -webkit-tap-highlight-color:transparent;transition:all .18s cubic-bezier(.34,1.56,.64,1);
+}
+.dr-item:hover{background:rgba(0,209,178,0.1);border-color:rgba(0,209,178,0.25);}
+.dr-item:active{transform:scale(0.97);background:rgba(0,209,178,0.16);}
+.dr-item .ic{
+  width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex:0 0 auto;background:rgba(0,209,178,0.12);color:var(--accent);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.dr-item .ic.gold{background:rgba(217,184,115,0.16);color:var(--gold-light);}
+.dr-sep{height:1px;background:rgba(255,255,255,0.08);margin:12px 4px;}
+.dr-foot{
+  margin-top:6px;padding:12px 12px 2px;font-size:11px;color:#777;line-height:1.6;
+  border-top:1px solid rgba(255,255,255,0.06);
 }
 .loader{
   width:50px;height:50px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--loader);border-radius:50%;
@@ -122,25 +281,24 @@ body{
 }
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes pulse{from{box-shadow:0 0 15px rgba(0,209,178,0.3);}to{box-shadow:0 0 25px rgba(0,209,178,0.6);}}
-#authLoading h3{margin:0 0 8px 0;font-size:1.2rem;color:var(--highlight);font-weight:600;}
-#authLoading p{margin:0;font-size:0.95rem;color:#bbb;line-height:1.6;}
 .super-admin{color:var(--super);font-weight:bold;}
 .vip-admin{color:var(--vip);font-weight:bold;}
+.gold-tier{color:var(--gold);font-weight:bold;}
 .normal{color:var(--highlight);font-weight:bold;}
 .expired{color:var(--error);font-weight:bold;}
 .remaining-days-yellow{color:var(--yellow);font-weight:bold;text-shadow:0 0 5px rgba(255,215,0,0.5);}
-.super-admin-username,.vip-admin-username{
+.super-admin-username,.vip-admin-username,.gold-username{
   background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;
   text-shadow:0 0 8px rgba(255,255,255,0.3);
 }
 .super-admin-username{background-image:var(--super-username);}
 .vip-admin-username{background-image:var(--vip-username);}
+.gold-username{background-image:linear-gradient(135deg,var(--gold),var(--gold-light));}
 #captureArea{
-  background:linear-gradient(145deg,#1c1c1c,#141414);box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
+   background:#1c1c1c;box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
   color:var(--text);padding:15px 10px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
   position: relative;
 }
-/* 右上角彥彬水印 */
 #watermark {
   position: absolute;
   top: 12px;
@@ -157,16 +315,21 @@ body{
   line-height:1.3;width:100%;
 }
 .period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
-/* 修改：时长选项白色高级质感样式 */
 .period-box{
   border:1px solid #e0e0e0;border-radius:8px;padding:8px 15px;color:#e0e0e0;font-size:14px;cursor:pointer;
   transition:all 0.3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;background:transparent;
   font-weight:500;
 }
 .period-box:hover{
-  border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
-  transform:translateY(-2px);box-shadow:var(--period-shadow);
-  background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
+  border-color:var(--period-border);
+}
+/* hover 白色亮面效果只在真正有滑鼠的裝置生效，避免手機截圖白色殘影 */
+@media (hover:hover) and (pointer:fine){
+  .period-box:hover{
+    border-color:var(--period-border);background:var(--period-hover);color:var(--period-text);
+    transform:translateY(-2px);box-shadow:var(--period-shadow);
+    background-image:linear-gradient(145deg,#ffffff,#f8f8f8);
+  }
 }
 .period-box.active{
   border-color:var(--period-border);background:var(--period-active);color:var(--period-text);
@@ -177,6 +340,20 @@ body{
 .period-box.active::after{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
+}
+/* 轉圖片瞬間套用 capture-mode，關閉光暈、位移與所有動畫 */
+#captureArea.capture-mode *,
+#captureArea.capture-mode *::before,
+#captureArea.capture-mode *::after{
+  transition:none!important;animation:none!important;
+}
+#captureArea.capture-mode .period-box,
+#captureArea.capture-mode .period-box.active{
+  transform:none!important;box-shadow:none!important;
+}
+#captureArea.capture-mode .period-box.active{
+  background:linear-gradient(145deg,#ffffff,#e8e8e8)!important;color:#000!important;
+  border-color:#ffffff!important;
 }
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
@@ -192,7 +369,7 @@ body{
 }
 .calculator-container{display:flex;gap:5px;}
 .btn{
-  border:1px solid rgba(255,255,255,0.8);border-radius:var(--btn-radius);padding:var(--btn-padding);
+  border:2px solid transparent;border-radius:var(--btn-radius);padding:var(--btn-padding);
   font-size:13px;font-weight:600;color:#fff;cursor:pointer;box-shadow:var(--btn-shadow);
   transition:var(--btn-transition);display:inline-flex;align-items:center;justify-content:center;
   gap:6px;text-decoration:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;
@@ -206,23 +383,40 @@ body{
 .btn:hover{transform:translateY(-1px);box-shadow:var(--btn-hover-shadow);}
 .btn:active{transform:translateY(1px);box-shadow:var(--btn-active-shadow);}
 .btn:disabled{opacity:0.7;cursor:not-allowed;transform:none;box-shadow:var(--btn-shadow);}
-.btn-primary{background:linear-gradient(145deg,#00bfa5,#009e8a);}
-.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);}
-.btn-warning{background:linear-gradient(145deg,#ff9800,#e68900);}
-.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);}
-.btn-grey{background:linear-gradient(145deg,#3a3a3a,#2a2a2a);}
-.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);}
-.btn-danger{background:linear-gradient(145deg,#ff5252,#d32f2f);}
-.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);}
+.btn-primary{
+  background:linear-gradient(145deg,#00bfa5,#009e8a);
+  border-color:rgba(64,230,205,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(0,209,178,0.25);
+}
+.btn-primary:hover{background:linear-gradient(145deg,#00ccb2,#00a98e);border-color:rgba(120,245,220,0.95);}
+.btn-warning{
+  background:linear-gradient(145deg,#ff9800,#e68900);
+  border-color:rgba(255,183,77,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(255,152,0,0.25);
+}
+.btn-warning:hover{background:linear-gradient(145deg,#ffa726,#f59e0b);border-color:rgba(255,205,120,0.95);}
+.btn-grey{
+  background:linear-gradient(145deg,#3a3a3a,#2a2a2a);
+  border-color:rgba(200,200,200,0.4);
+  box-shadow:var(--btn-shadow),0 0 10px rgba(255,255,255,0.08);
+}
+.btn-grey:hover{background:linear-gradient(145deg,#4a4a4a,#3a3a3a);border-color:rgba(220,220,220,0.6);}
+.btn-danger{
+  background:linear-gradient(145deg,#ff5252,#d32f2f);
+  border-color:rgba(255,138,138,0.75);
+  box-shadow:var(--btn-shadow),0 0 12px rgba(255,82,82,0.3);
+}
+.btn-danger:hover{background:linear-gradient(145deg,#ff6b6b,#e53939);border-color:rgba(255,170,170,0.95);}
 .btn-sm{padding:6px 10px;font-size:11px;border-radius:5px;}
 .btn-md{padding:10px 14px;font-size:14px;border-radius:8px;min-width:100px;}
 .btn-lg{padding:12px 8px!important;font-size:15px!important;border-radius:10px!important;width:48%;height:auto;line-height:1.2;}
 #resetCalculatorBtn{
   width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
-  border:1px solid rgba(255,255,255,0.8);cursor:pointer;font-size:14px;
+  border:2px solid rgba(64,196,255,0.45);cursor:pointer;font-size:14px;
+  box-shadow:0 0 10px rgba(64,196,255,0.15);
   display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
 }
-#resetCalculatorBtn:hover{background:#555;transform:scale(1.05);}
+#resetCalculatorBtn:hover{background:#555;border-color:rgba(64,196,255,0.75);transform:scale(1.05);}
 #resetCalculatorBtn:active{transform:scale(0.95);}
 #addBtn{width:100%!important;padding:12px 16px!important;font-size:16px!important;font-weight:600!important;border-radius:10px!important;height:auto!important;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
@@ -242,6 +436,9 @@ body{
   transition:all 0.3s ease;
 }
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
+/* 截圖時數量欄的純文字替身 */
+.qty-print{display:inline-block;font-size:16px!important;font-weight:bold!important;text-align:center;min-width:24px;}
+@media (min-width:768px){.qty-print{font-size:18px!important;}}
 #reportTable td:nth-child(3),#reportTable td:nth-child(4),#reportTable td:nth-child(5),#reportTable td:nth-child(6){font-weight:500;text-align:center!important;}
 @media (min-width:768px){
   #reportTable th,#reportTable td{padding:8px 5px;font-size:14px;}
@@ -252,18 +449,60 @@ body{
 #reportTable tbody tr:nth-child(even){background:#e5e7eb;}
 #reportTable tbody tr:hover{background:#1e88e5;color:#fff;font-weight:bold;transform:scale(1.01);}
 .deleteBtn{
-  writing-mode:vertical-rl;text-orientation:upright;background:var(--error);
-  border:1px solid rgba(255,255,255,0.8);color:#fff;border-radius:4px;padding:2px;
+  writing-mode:vertical-rl;text-orientation:upright;
+  background:linear-gradient(145deg,#ff5252,#d32f2f);
+  border:2px solid rgba(255,138,138,0.75);color:#fff;border-radius:4px;padding:2px;
   cursor:pointer;font-size:11px;display:inline-block;margin:0 auto;
+  box-shadow:0 0 8px rgba(255,82,82,0.25);
   transition:var(--btn-transition);
 }
-.deleteBtn:hover{transform:scale(1.1);box-shadow:0 0 8px rgba(255,82,82,0.5);}
+.deleteBtn:hover{transform:scale(1.1);border-color:rgba(255,170,170,0.95);box-shadow:0 0 10px rgba(255,82,82,0.55);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
 .summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
+
+/* 預計獎金區塊樣式 */
+.bonus-section{
+  margin-top:14px;border-top:1px solid rgba(255,255,255,0.12);padding-top:12px;
+}
+.bonus-toggle-row{
+  display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px;
+}
+.bonus-toggle-label{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:0.9rem;font-weight:600;color:#e0e0e0;
+  padding:7px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.05);transition:all 0.25s ease;user-select:none;
+}
+.bonus-toggle-label:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.35);}
+.bonus-toggle-label input[type="radio"]{accent-color:#00d1b2;width:16px;height:16px;cursor:pointer;}
+.bonus-toggle-label.active-non-mgr{background:rgba(64,196,255,0.15);border-color:rgba(64,196,255,0.6);color:#40c4ff;}
+.bonus-toggle-label.active-mgr{background:rgba(212,175,55,0.15);border-color:rgba(212,175,55,0.6);color:#d4af37;}
+.bonus-result-box{
+  background:linear-gradient(145deg,#1e2a1e,#152215);
+  border:1.5px solid rgba(0,209,178,0.3);border-radius:12px;
+  padding:12px 16px;text-align:center;
+  box-shadow:0 0 18px rgba(0,209,178,0.12);
+}
+.bonus-result-label{font-size:0.82rem;color:#aaa;margin-bottom:4px;letter-spacing:0.5px;}
+.bonus-result-pct{font-size:1.5rem;font-weight:bold;color:#00d1b2;line-height:1.2;}
+.bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ffd700;margin-top:2px;}
+.bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
+.bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
+/* 截圖用白底版 */
+.bonus-result-box-print{
+  background:linear-gradient(145deg,#e8f5e9,#f1f8f1);
+  border:1.5px solid #66bb6a;border-radius:10px;padding:10px 14px;text-align:center;
+  margin-top:10px;display:none;
+}
+.bonus-result-box-print .bp-label{font-size:11px;color:#555;margin-bottom:3px;}
+.bonus-result-box-print .bp-pct{font-size:1.2rem;font-weight:bold;color:#2e7d32;}
+.bonus-result-box-print .bp-amount{font-size:1rem;font-weight:bold;color:#b8860b;margin-top:2px;}
+.bonus-result-box-print .bp-tier{font-size:10px;color:#777;margin-top:3px;line-height:1.4;}
+
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
@@ -295,12 +534,12 @@ body{
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
-.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:wrap;}
+.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:nowrap;}
 .payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authLoading,#authStatusBar,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
+  #authContainer,#authStatusBar,#menuFabWrap,.drawer-mask,.side-drawer,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
@@ -308,6 +547,8 @@ body{
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
   #watermark {display: none!important;}
+  .bonus-section{display:none!important;}
+  .bonus-result-box-print{display:block!important;}
 }
 .spacer{height:80px;}
 @media (max-width:360px){
@@ -318,7 +559,8 @@ body{
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
   .payment-options{font-size:1rem;}
   #authStatusBar{font-size:12px;}
-  #authLoading{padding:30px 20px;}
+  #loginScreen{padding:26px 16px 22px;}
+  .login-avatar{width:60px;height:60px;}
   .loader{width:40px;height:40px;}
   #addBtn{min-width:150px!important;padding:12px 16px!important;font-size:15px!important;}
   .period-box{padding:6px 10px;font-size:12px;}
@@ -338,7 +580,6 @@ body{
   box-shadow:0 4px 12px rgba(255,82,82,0.3);
 }
 .button-group{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;display:none;width:100%;max-width:600px;}
-/* 高质感黄色用户名样式 */
 .toast-highlight-name {
   background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
   -webkit-background-clip: text;
@@ -349,6 +590,72 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.support-btn {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 5px 14px;
+  background: linear-gradient(135deg, #ffd700, #f9c700, #e6b800);
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  border: 2px solid rgba(255,235,150,0.7);
+  vertical-align: middle;
+  cursor: pointer;
+}
+.support-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #ffed4e, #ffd700);
+  border-color: rgba(255,245,200,0.95);
+}
+.support-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
+}
+
+/* 使用導覽（步驟彈窗） */
+#guideOverlay{
+  position:fixed;inset:0;z-index:3000;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#guideOverlay.show{display:flex;}
+.guide-card{
+  width:100%;max-width:420px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1c1c1c,#141414);
+  border:1px solid rgba(201,161,90,0.3);border-radius:20px;
+  padding:28px 22px 22px;box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  animation:loginCardIn .4s cubic-bezier(0.16,1,0.3,1);
+}
+.guide-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+.guide-close{
+  position:absolute;top:12px;right:14px;background:none;border:none;
+  color:#888;font-size:20px;cursor:pointer;line-height:1;transition:color .2s ease;
+}
+.guide-close:hover{color:#fff;}
+.guide-progress{text-align:center;font-size:0.78rem;color:#888;margin-bottom:6px;letter-spacing:1px;}
+.guide-step-icon{font-size:2.6rem;text-align:center;margin-bottom:8px;}
+.guide-step-title{
+  font-size:1.2rem;font-weight:bold;text-align:center;margin-bottom:14px;
+  background:linear-gradient(135deg,#40c4ff,#00d1b2);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.guide-step-desc{
+  font-size:0.92rem;color:#ccc;line-height:1.75;text-align:left;
+  background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
+  border-radius:8px;padding:14px 15px;min-height:96px;
+}
+.guide-dots{display:flex;justify-content:center;gap:6px;margin:16px 0 14px;flex-wrap:wrap;}
+.guide-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all .3s ease;}
+.guide-dot.active{background:var(--accent);width:20px;border-radius:4px;}
+.guide-nav{display:flex;gap:10px;}
+.guide-nav .btn{flex:1;}
 </style>
 </head>
 <body>
@@ -356,31 +663,59 @@ body{
   <div id="error-message">
     <div id="error-content"></div>
   </div>
-  <div id="authLoading">
-    <div class="loader"></div>
-    <h3>正在驗證用戶權限</h3>
-    <p>請稍候...</p>
+  <div id="loginWrapper">
+    <div id="loginScreen">
+      <div class="login-title">🌿 彥彬試算系統『購物節』</div>
+      <div id="loginScreenBody"></div>
+    </div>
+    <div id="loginExample">
+      <div class="example-title">📌 實際使用範例</div>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
+    </div>
   </div>
 </div>
-<!-- 修改：增加关闭按钮 -->
 <div id="authStatusBar" style="display: none;">
   <button class="close-status" title="隱藏狀態欄">✕</button>
 </div>
+<!-- 左側滑出式抽屜選單 -->
+<div id="menuFabWrap">
+  <button id="menuFab" title="功能選單">☰</button>
+</div>
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="side-drawer" id="sideDrawer">
+  <div class="dr-head">🌿 功能選單</div>
+  <button class="dr-item" id="menuMemberCenter">
+    <span class="ic gold">👤</span>會員中心
+  </button>
+  <div class="dr-sep"></div>
+  <button class="dr-item" id="menuStatusToggle">
+    <span class="ic">📊</span>隱藏狀態欄
+  </button>
+  <button class="dr-item" id="menuGuide">
+    <span class="ic gold">❓</span>使用導覽
+  </button>
+  <div class="dr-sep"></div>
+  <div class="dr-foot">彥彬🌿試算系統『購物節』</div>
+</aside>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
-  <h2>
-    <br>
-    🌿 康園『購物節』試算
-    <div class="payment-options">
-      <label><input type="checkbox" id="cashOption" /> 💵 現金</label>
-      <label><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
-    </div>
-    <div class="period-options">
-      <div class="period-box">一個月</div>
-      <div class="period-box">三個月</div>
-      <div class="period-box">六個月</div>
-    </div>
-  </h2>
+
+<h2><br>🌿 康園『購物節』試算</h2>
+<div class="payment-options">
+  <label style="white-space:nowrap;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
+  <label style="white-space:nowrap;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
+</div>
+<div class="period-options">
+  <div class="period-box">一個月</div>
+  <div class="period-box">三個月</div>
+  <div class="period-box">六個月</div>
+  <div style="margin-left:8px;display:flex;align-items:center;gap:6px;">
+    <input type="number" id="customDays" placeholder="自訂"
+      style="padding:6px 8px;width:70px;border-radius:6px;border:1px solid #ccc;text-align:center;background:#fff;color:#000;font-size:14px;">
+    <span style="color:#fff;font-size:14px;">天</span>
+  </div>
+</div>
   <div class="userInputs">  
     <div class="row">
       <label>
@@ -415,6 +750,26 @@ body{
     <span class="extra">距 22 萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
     <span class="extra">距 30 萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
   </div>
+
+  <!-- 預計獎金區塊（螢幕互動版） -->
+  <div class="bonus-section" id="bonusSection">
+    <div class="bonus-toggle-row">
+      <label class="bonus-toggle-label" id="labelNonMgr">
+        <input type="radio" name="bonusType" value="non_manager" id="radioNonMgr" />
+        👤 非經理
+      </label>
+      <label class="bonus-toggle-label" id="labelMgr">
+        <input type="radio" name="bonusType" value="manager" id="radioMgr" />
+        🏅 經理階
+      </label>
+    </div>
+    <div id="bonusResultBox" class="bonus-result-box">
+      <div class="bonus-result-none">請選擇身分以顯示預計獎金</div>
+    </div>
+  </div>
+
+  <!-- 截圖用白底版 -->
+  <div id="bonusPrintBox" class="bonus-result-box-print"></div>
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
@@ -430,20 +785,123 @@ body{
   <select id="qtyInput"></select>
   <button id="addBtn" class="btn btn-primary btn-lg">➕<br>新增品項</button>
 </div>
+
+<!-- 使用導覽彈窗 -->
+<div id="guideOverlay">
+  <div class="guide-card">
+    <button class="guide-close" id="guideCloseBtn" title="關閉導覽">✕</button>
+    <div class="guide-progress" id="guideProgress"></div>
+    <div class="guide-step-icon" id="guideIcon"></div>
+    <div class="guide-step-title" id="guideTitle"></div>
+    <div class="guide-step-desc" id="guideDesc"></div>
+    <div class="guide-dots" id="guideDots"></div>
+    <div class="guide-nav">
+      <button class="btn btn-grey btn-md" id="guidePrevBtn">◀ 上一步</button>
+      <button class="btn btn-primary btn-md" id="guideNextBtn">下一步 ▶</button>
+    </div>
+  </div>
+</div>
+
 <div class="spacer"></div>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbzGhHuH0hLrNgpcJA7s3KB_rc0qsbYvnV_fdIza4go5XpS2Q1atinUogdSXVn6Sp5vl/exec";
+// ★ 驗證後端與試算系統共用（同一支 GAS、同一份會員名單）
+const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
+// ★ LIFF ID 維持購物節專屬（LIFF 綁定各自的頁面網址）
 const LIFF_ID="2008578880-plKtT8NZ";
 const JSONP_TIMEOUT=15000;
 const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV220=220000;
 const TARGET_PV300=300000;
 const MAX_NORMAL_USER_USAGE=3;
-const DEDUCT_INTERVAL=180000;
-let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null,isDeleting=false;
-let lastDeductTime=parseInt(localStorage.getItem('lastDeductTime'))||0;
-let userUsageRecord=JSON.parse(localStorage.getItem('userUsageRecord'))||{};
+const SESSION_KEY_ACTIVE="goodsSessionActive";
+const SESSION_KEY_AUTH="goodsAuthStatus";
+const SESSION_KEY_DELETE_COUNT="goodsSessionDeleteCount";
+const FREE_DELETE_LIMIT=3;
+const GUIDE_SEEN_KEY="goodsGuideSeen";
+
+// 狀態欄是否被使用者手動隱藏
+let statusBarHidden=false;
+
+// ============================================================
+// 獎金費率設定
+// ============================================================
+const BONUS_RATES_NON_MANAGER = [
+  { minPv: 280000, rate: 0.23, label: "28萬PV以上" },
+  { minPv: 220000, rate: 0.20, label: "22萬PV以上" },
+  { minPv: 160000, rate: 0.16, label: "16萬PV以上" },
+  { minPv: 100000, rate: 0.12, label: "10萬PV以上" },
+  { minPv:  50000, rate: 0.06, label: "5萬PV以上"  },
+  { minPv:  10000, rate: 0.03, label: "1萬PV以上"  },
+];
+const BONUS_RATES_MANAGER = [
+  { minPv: 220000, rate: 0.24, label: "22萬PV以上" },
+  { minPv: 160000, rate: 0.21, label: "16萬PV以上" },
+  { minPv: 100000, rate: 0.18, label: "10萬PV以上" },
+  { minPv:  48000, rate: 0.08, label: "4.8萬PV以上" },
+  { minPv:   4000, rate: 0.04, label: "4000PV以上" },
+];
+
+function calcBonus(totalPv, type) {
+  const rates = type === 'manager' ? BONUS_RATES_MANAGER : BONUS_RATES_NON_MANAGER;
+  for (const tier of rates) {
+    if (totalPv >= tier.minPv) return { rate: tier.rate, label: tier.label };
+  }
+  return null;
+}
+
+function formatNumber(n) {
+  return n.toLocaleString('zh-TW');
+}
+
+function updateBonusDisplay() {
+  const totalPv    = parseInt(els.totalPvCellDup.textContent)    || 0;
+  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
+  const selected   = document.querySelector('input[name="bonusType"]:checked');
+  const box        = document.getElementById('bonusResultBox');
+  const printBox   = document.getElementById('bonusPrintBox');
+
+  document.getElementById('labelNonMgr').className =
+    'bonus-toggle-label' + (selected && selected.value === 'non_manager' ? ' active-non-mgr' : '');
+  document.getElementById('labelMgr').className =
+    'bonus-toggle-label' + (selected && selected.value === 'manager' ? ' active-mgr' : '');
+
+  if (!selected) {
+    box.innerHTML = '<div class="bonus-result-none">請選擇身分以顯示預計獎金</div>';
+    printBox.style.display = 'none';
+    printBox.innerHTML = '';
+    return;
+  }
+
+  const result    = calcBonus(totalPv, selected.value);
+  const typeLabel = selected.value === 'manager' ? '🏅 經理階' : '👤 非經理';
+
+  if (!result) {
+    box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div><div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
+    printBox.style.display = 'none';
+    printBox.innerHTML = '';
+    return;
+  }
+
+  const bonusAmt = Math.floor(totalPrice * result.rate);
+  const pctText  = (result.rate * 100).toFixed(0) + '%';
+
+  box.innerHTML = `
+    <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
+    <div class="bonus-result-pct">${pctText}</div>
+    <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
+  `;
+
+  printBox.innerHTML = `
+    <div class="bp-label">${typeLabel} · 預計獎金試算</div>
+    <div class="bp-pct">${pctText}</div>
+    <div class="bp-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
+  `;
+}
+
+let products=[],selectedProds=[],lineName='',userInfo=null,authStatus=null;
 const els={
   nameInput:document.getElementById("nameInput"),
   qtyInput:document.getElementById("qtyInput"),
@@ -465,24 +923,34 @@ const els={
   calculatorDisplay:document.getElementById("calculatorDisplay"),
   resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),
   toast:document.getElementById("toast"),
-  authLoading:document.getElementById("authLoading"),
+  loginWrapper:document.getElementById("loginWrapper"),
+  loginScreen:document.getElementById("loginScreen"),
+  loginScreenBody:document.getElementById("loginScreenBody"),
+  loginExample:document.getElementById("loginExample"),
   authStatusBar:document.getElementById("authStatusBar"),
   captureArea:document.getElementById("captureArea"),
   inputArea:document.getElementById("inputArea"),
   buttonGroup:document.querySelector(".button-group"),
   errorMessage:document.getElementById("error-message"),
   errorContent:document.getElementById("error-content"),
-  authLoadingTitle:document.querySelector("#authLoading h3"),
-  authLoadingDesc:document.querySelector("#authLoading p"),
   reportTable:document.getElementById("reportTable"),
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
-  watermark:document.getElementById("watermark")
+  watermark:document.getElementById("watermark"),
+  menuFabWrap:document.getElementById("menuFabWrap"),
+  menuFab:document.getElementById("menuFab"),
+  drawerMask:document.getElementById("drawerMask"),
+  sideDrawer:document.getElementById("sideDrawer"),
+  menuStatusToggle:document.getElementById("menuStatusToggle"),
+  menuMemberCenter:document.getElementById("menuMemberCenter"),
+  menuGuide:document.getElementById("menuGuide"),
+  guideOverlay:document.getElementById("guideOverlay")
 };
 
-// ===== 共用工具函式（優化：集中管理限購邏輯與重複觸發防護） =====
-// 統一計算品項限購數量，取代原本散落在 renderTable / addProduct / addSpecificProduct / adjustQtySelectOptions 的重複判斷
-// 注意：2711AB(4) 統一採用「限購1組」，與商品選擇提示文字「每人僅限購買一組（4入）」保持一致
+// ============================================================
+// ★ 購物節限購規則（統一函式，全站共用）
+//   限1/3/6/12組、2711AB(4)限1組、777Q(4)限2組、火山甘露限4盒
+// ============================================================
 function getMaxQtyForProduct(productName){
   const val=(productName||'').trim();
   if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))return 1;
@@ -493,68 +961,9 @@ function getMaxQtyForProduct(productName){
   if(val.includes('2711AB')&&val.includes('(4)'))return 1;
   if(val.includes('777Q')&&val.includes('(4)'))return 2;
   if(val.includes('火山甘露')&&val.includes('限4盒'))return 4;
+  if(val.includes('2711AB')&&val.includes('(1)'))return 4;
   return 99;
 }
-
-// 輕量防抖，避免高頻事件（如resize）重複觸發造成卡頓
-function debounce(fn,delay=150){
-  let timer=null;
-  return(...args)=>{
-    clearTimeout(timer);
-    timer=setTimeout(()=>fn(...args),delay);
-  };
-}
-
-// 手機觸覺回饋：點擊按鈕時短震動，不影響畫面外觀，僅在支援的裝置上生效
-function hapticTap(ms=10){
-  try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){/* 裝置不支援則忽略 */}
-}
-
-// 統一的按鈕「處理中」狀態管理，避免重複點擊並提供一致的視覺/文字回饋
-async function withButtonBusy(btn,busyText,asyncFn){
-  if(!btn||btn.dataset.busy==='1')return;
-  btn.dataset.busy='1';
-  const originalHtml=btn.innerHTML;
-  const originalDisabled=btn.disabled;
-  btn.disabled=true;
-  if(busyText) btn.innerHTML=busyText;
-  try{
-    return await asyncFn();
-  }finally{
-    btn.dataset.busy='0';
-    btn.disabled=originalDisabled;
-    if(busyText) btn.innerHTML=originalHtml;
-  }
-}
-
-// 統一管理「帳號狀態欄」關閉行為，取代原本重複三處的綁定程式碼
-function hideAuthStatusBar(){
-  els.authStatusBar.style.opacity='0';
-  setTimeout(()=>{
-    els.authStatusBar.style.display='none';
-    els.authStatusBar.style.opacity='1';
-  },300);
-}
-
-// 工具函數：獲取當天日期（YYYYMMDD）
-const getTodayDate=()=>{
-  const d=new Date();
-  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-};
-
-// 工具函數：檢查是否是當天的有效驗證
-const isTodayValidAuth=(userId)=>{
-  const authCache=JSON.parse(localStorage.getItem(`authCache_${userId}`))||{};
-  return authCache.date===getTodayDate()&&authCache.data;
-};
-
-// 工具函數：保存當天驗證緩存
-const saveTodayAuthCache=(userId,authData)=>{
-  localStorage.setItem(`authCache_${userId}`,JSON.stringify({
-    date:getTodayDate(),
-    data:authData
-  }));
-};
 
 // 初始化數量選擇框
 for(let i=1;i<=99;i++){
@@ -564,7 +973,7 @@ for(let i=1;i<=99;i++){
   els.qtyInput.appendChild(option);
 }
 
-// 新增時長選項點擊事件
+// 時長選項點擊事件
 document.querySelectorAll('.period-box').forEach(box=>{
   box.addEventListener('click',function(){
     document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
@@ -572,171 +981,276 @@ document.querySelectorAll('.period-box').forEach(box=>{
   });
 });
 
-// 修改：添加状态栏关闭按钮事件
-document.querySelector('.close-status').addEventListener('click',()=>{hapticTap();hideAuthStatusBar();});
+// 獎金 radio 事件
+document.getElementById('radioNonMgr').addEventListener('change', updateBonusDisplay);
+document.getElementById('radioMgr').addEventListener('change', updateBonusDisplay);
+
+// ============================================================
+// 左側滑出式抽屜選單邏輯
+// ============================================================
+function updateMenuStatusLabel(){
+  els.menuStatusToggle.innerHTML = statusBarHidden
+    ? '<span class="ic">📊</span>顯示狀態欄'
+    : '<span class="ic">📊</span>隱藏狀態欄';
+}
+function toggleMenu(forceOpen){
+  const willOpen = (forceOpen===undefined) ? !els.sideDrawer.classList.contains('on') : forceOpen;
+  els.sideDrawer.classList.toggle('on', willOpen);
+  els.drawerMask.classList.toggle('on', willOpen);
+  els.menuFab.classList.toggle('open', willOpen);
+}
+function applyStatusBarVisibility(){
+  if(statusBarHidden){
+    els.authStatusBar.style.display='none';
+  }else{
+    els.authStatusBar.style.display='block';
+    els.authStatusBar.classList.add('status-in');
+    setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
+  }
+  updateMenuStatusLabel();
+}
+els.menuFab.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu();
+});
+els.menuMemberCenter.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu(false);
+  if(statusBarHidden){
+    statusBarHidden=false;
+    applyStatusBarVisibility();
+  }
+  setTimeout(()=>{
+    if(els.authStatusBar) els.authStatusBar.scrollIntoView({behavior:'smooth',block:'start'});
+  },150);
+});
+els.menuStatusToggle.addEventListener('click',function(e){
+  e.stopPropagation();
+  statusBarHidden=!statusBarHidden;
+  applyStatusBarVisibility();
+  toggleMenu(false);
+});
+els.menuGuide.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu(false);
+  setTimeout(openGuide,150);
+});
+els.drawerMask.addEventListener('click',function(){
+  toggleMenu(false);
+});
+
+// 狀態欄關閉按鈕事件
+function bindCloseStatusBtn(){
+  const btn=els.authStatusBar.querySelector('.close-status');
+  if(!btn)return;
+  btn.addEventListener('click',function(){
+    statusBarHidden=true;
+    els.authStatusBar.style.opacity='0';
+    setTimeout(()=>{
+      els.authStatusBar.style.display='none';
+      els.authStatusBar.style.opacity='1';
+      updateMenuStatusLabel();
+    },300);
+  });
+}
+bindCloseStatusBtn();
+
+// ============================================================
+// 使用導覽
+// ============================================================
+const GUIDE_STEPS=[
+  {icon:'👋',title:'歡迎使用 彥彬🌿試算系統『購物節』',desc:'這份導覽會帶你快速認識每個功能。看完後隨時可以點左上角的「☰ 選單 → ❓ 使用導覽」重新開啟。'},
+  {icon:'🛒',title:'新增品項',desc:'在下方選擇「品項」與「數量」，按「➕ 新增品項」加入報表。購物節部分品項有限購數量（限1/3/6/12組、2711AB(4)限1組、火山甘露限4盒…），系統會自動提醒並調整；選到新入會款式時，還會自動帶入對應組合。'},
+  {icon:'💵',title:'付款方式與期數',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
+  {icon:'🗑️',title:'刪除規則',desc:'每一批可免費刪除 3 次；用完後再刪除會扣 1 次使用次數，並回復 3 次刪除機會，如此循環。'},
+  {icon:'🏅',title:'預計獎金試算',desc:'選擇「👤 非經理 / 🏅 經理階」身分，系統會依「總 PV」對應獎金比例，估算約略的獎金金額，方便當場向客戶說明。'},
+  {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
+  {icon:'📱',title:'分享報表',desc:'圖片產生後，可用「安卓分享」把圖片網址轉傳到 LINE，或用「分享圖片」呼叫手機原生分享；不需要時可按「❌ 清除圖片」。'},
+  {icon:'🔄',title:'重置報表',desc:'「🔄 重置報表」會清空所有品項並登出，需要重新登入（重新扣 1 次使用次數），適合換一位客戶重新試算時使用。'},
+  {icon:'☰',title:'左上角功能選單',desc:'左上角的「☰」選單裡有兩個功能：「📊 顯示/隱藏狀態欄」可以隨時收合或展開身分與剩餘次數資訊；「❓ 使用導覽」可以重看這份教學。狀態欄右上角的「✕」也能直接收合。'}
+];
+let guideIndex=0;
+
+function openGuide(){
+  guideIndex=0;
+  renderGuide();
+  els.guideOverlay.classList.add('show');
+}
+function closeGuide(){
+  els.guideOverlay.classList.remove('show');
+}
+function renderGuide(){
+  const step=GUIDE_STEPS[guideIndex];
+  document.getElementById('guideIcon').textContent=step.icon;
+  document.getElementById('guideTitle').textContent=step.title;
+  document.getElementById('guideDesc').textContent=step.desc;
+  document.getElementById('guideProgress').textContent=`第 ${guideIndex+1} 步 / 共 ${GUIDE_STEPS.length} 步`;
+  document.getElementById('guideDots').innerHTML=
+    GUIDE_STEPS.map((_,i)=>`<span class="guide-dot ${i===guideIndex?'active':''}"></span>`).join('');
+  const prev=document.getElementById('guidePrevBtn');
+  const next=document.getElementById('guideNextBtn');
+  prev.style.visibility=guideIndex===0?'hidden':'visible';
+  next.textContent=guideIndex===GUIDE_STEPS.length-1?'開始使用 ✅':'下一步 ▶';
+}
+function guidePrev(){ if(guideIndex>0){guideIndex--;renderGuide();} }
+function guideNext(){
+  if(guideIndex<GUIDE_STEPS.length-1){guideIndex++;renderGuide();}
+  else{closeGuide();}
+}
+
+document.getElementById('guideCloseBtn').addEventListener('click',closeGuide);
+document.getElementById('guidePrevBtn').addEventListener('click',guidePrev);
+document.getElementById('guideNextBtn').addEventListener('click',guideNext);
+els.guideOverlay.addEventListener('click',function(e){ if(e.target===this) closeGuide(); });
 
 // 事件綁定
 els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
-//els.nameInput.addEventListener('input',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
-els.addBtn.addEventListener("click",()=>{hapticTap();addProduct();});
-els.resetCalculatorBtn.addEventListener("click",()=>{hapticTap();resetLineName();});
-els.resetReportBtn.addEventListener("click",()=>{hapticTap();resetReport();});
-els.exportBtn.addEventListener("click",()=>{hapticTap();exportToImage();});
-els.shareToLineBtn.addEventListener("click",()=>{hapticTap();shareToLine();});
-els.nativeShareBtn.addEventListener("click",()=>{hapticTap();nativeShare();});
-els.clearImageBtn.addEventListener("click",()=>{hapticTap();clearImage();});
+els.addBtn.addEventListener("click",addProduct);
+els.resetCalculatorBtn.addEventListener("click",resetLineName);
+els.resetReportBtn.addEventListener("click",resetReport);
+els.exportBtn.addEventListener("click",exportToImage);
+els.shareToLineBtn.addEventListener("click",shareToLine);
+els.nativeShareBtn.addEventListener("click",nativeShare);
+els.clearImageBtn.addEventListener("click",clearImage);
 els.cashOption.addEventListener("change",handleCashGift);
-els.reportBody.addEventListener("click",async function(e){
+els.reportBody.addEventListener("click",function(e){
   const btn=e.target.closest('.deleteBtn');
-  if(!btn||isDeleting||btn.disabled)return;
-  hapticTap();
-  await handleDelete(btn);
+  if(!btn||btn.disabled)return;
+  handleDelete(btn);
 });
-window.addEventListener('resize',debounce(()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';},150));
+window.addEventListener('resize',()=>{els.reportTable.style.fontSize=window.innerWidth<360?'11px':'12px';});
 window.onload=initApp;
 
-// 草本新入會提醒 - 自動新增對應品項（修正重複添加問題）
+// 草本新入會提醒 - 自動新增對應品項
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
-  
+
   // 9號款：新入會(9號）
   if(val.includes('新入會(9號）')){
-    // 延遲執行確保商品列表已加載
     setTimeout(()=>{
-      // 1. 檢查並添加「新入會(9號）」本身（僅在不存在時添加）
       if(!selectedProds.find(p => p.name === val)){
         addSpecificProduct(val, 1);
       }
-      // 2. 新增入*會「 9號兩組」數量1
       addSpecificProduct('入*會「 9號兩組」', 1);
       alert('📋 已自動新增9號組合：\n\n新入會(9號） + 9號兩組 x1');
     }, 300);
   }
   // 男生款：新入會(草本）男
   else if(val.includes('新入會(草本）男')){
-    // 延遲執行確保商品列表已加載
     setTimeout(()=>{
-      // 1. 檢查並添加「新入會(草本）男」本身（僅在不存在時添加）
       if(!selectedProds.find(p => p.name === val)){
         addSpecificProduct(val, 1);
       }
-      // 2. 新增入*會「 211 」數量2（重複添加時會自動檢查數量限制）
-      addSpecificProduct('入*會「 211 」', 1);
-      // 3. 新增入*會「 101 」數量2
-      addSpecificProduct('入*會「 101 」', 1);
+      addSpecificProduct('入*會「 211 」', 2);
+      addSpecificProduct('入*會「 101 」', 2);
       alert('📋 已自動新增男生款草本組合：\n\n新入會(草本）男 + 211 x 2 + 101 x 2');
     }, 300);
   }
   // 女生款：新入會(草本）女
   else if(val.includes('新入會(草本）女')){
     setTimeout(()=>{
-      // 1. 檢查並添加「新入會(草本）女」本身（僅在不存在時添加）
       if(!selectedProds.find(p => p.name === val)){
         addSpecificProduct(val, 1);
       }
-      // 2. 新增入*會「 211 」數量2
-      addSpecificProduct('入*會「 211 」', 1);
-      // 3. 新增入*會「 707 」數量2
-      addSpecificProduct('入*會「 707 」', 1);
+      addSpecificProduct('入*會「 211 」', 2);
+      addSpecificProduct('入*會「 707 」', 2);
       alert('📋 已自動新增女生款草本組合：\n\n新入會(草本）女 + 211 x 2 + 707 x 2');
     }, 300);
   }
-
-// 通用提醒（保留原有邏輯）
-else if(val.includes('草本') && val.includes('新入會')){
-  setTimeout(()=>{
-    alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
-  },100);
-}
-
-// 新增 2711AB 提醒
-else if(val.includes('2711AB')){
-  setTimeout(()=>{
-    alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買一組（4入）');
-  },100);
-}
+  // 通用提醒
+  else if(val.includes('草本') && val.includes('新入會')){
+    setTimeout(()=>{
+      alert('📋 新入會草本組合提醒：\n\n男生款：211x2 + 101x2\n女生款：211x2 + 707x2\n\n請分別新增對應品項與數量');
+    },100);
+  }
+  // 2711AB 提醒
+  else if(val.includes('2711AB')){
+    setTimeout(()=>{
+      alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買一組（4入）');
+    },100);
+  }
 }
 
 // 現金自動贈品邏輯：每2萬現金 → 贈送 211(30) x1
+const GIFT_NAME_KEY = '贈品 211(30)';
 function handleCashGift(){
-  if(!els.cashOption.checked){
-    const hasGift = selectedProds.some(p => p.name.includes('贈品 211(30)'));
-    selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
-    if (hasGift) {
-      saveSelectedProds();
-      renderTable();
-      showToast('已取消現金贈品');
+  const basePrice = selectedProds
+    .filter(p => !p.name.includes(GIFT_NAME_KEY))
+    .reduce((sum, p) => sum + (Number(p.price) || 0) * (Number(p.qty) || 0), 0);
+  const targetGiftQty = els.cashOption.checked ? Math.floor(basePrice / 20000) : 0;
+
+  const currentGift = selectedProds.find(p => p.name.includes(GIFT_NAME_KEY));
+  const currentGiftQty = currentGift ? (Number(currentGift.qty) || 0) : 0;
+  if(targetGiftQty === currentGiftQty) return;
+
+  selectedProds = selectedProds.filter(p => !p.name.includes(GIFT_NAME_KEY));
+  if(targetGiftQty > 0){
+    const giftProduct = products.find(p => p.name === GIFT_NAME_KEY);
+    if(giftProduct){
+      selectedProds.push({...giftProduct, qty: targetGiftQty});
+    }else{
+      showToast(`⚠️ 商品表找不到「${GIFT_NAME_KEY}」，無法自動贈送`, 'error');
     }
-    return;
   }
+  saveSelectedProds();
+  renderTable();
 
-  // 以「非贈品」金額計算贈品數，避免贈品本身價格干擾計算
-  const baseTotal=selectedProds
-    .filter(p=>!p.name.includes('贈品 211(30)'))
-    .reduce((sum,p)=>sum+(p.price*p.qty),0);
-  const giftQty = Math.floor(baseTotal / 20000);
-  const currentGiftQty = selectedProds.find(p => p.name.includes('贈品 211(30)'))?.qty || 0;
-
-  if (giftQty === currentGiftQty) return;
-
-  selectedProds = selectedProds.filter(p => !p.name.includes('贈品 211(30)'));
-
-  if (giftQty > 0) {
-    addSpecificProduct('贈品 211(30)', giftQty);
-    showToast(`🎁 現金滿${giftQty*2}萬，自動贈送 211(30) x${giftQty}`);
-  } else {
-    saveSelectedProds();
-    renderTable();
+  if(els.cashOption.checked){
+    if(targetGiftQty > 0){
+      showToast(`🎁 現金滿${targetGiftQty*2}萬，自動贈送 211(30) x${targetGiftQty}`);
+    }else if(currentGiftQty > 0){
+      showToast('現金金額未滿 2 萬，已移除自動贈品', 'warning');
+    }
   }
 }
 
-// 輔助函數：新增指定品項和數量（增強重複檢查）
+// 輔助函數：新增指定品項和數量（使用統一限購規則）
 function addSpecificProduct(productName, qty) {
-  // 查找商品
   const product = products.find(p => p.name === productName);
   if (!product) {
     alert(`⚠️ 找不到品項：${productName}`);
     return;
   }
 
-  // 檢查是否已存在該品項
   const exists = selectedProds.find(p => p.name === productName);
   if (exists) {
-    // 如果已存在，更新數量（確保不超過限制）
     const totalQty = exists.qty + qty;
     const maxQty = getMaxQtyForProduct(productName);
 
-    // 對於新入會相關品項，直接跳過重複添加（避免超過maxQty=1）
     if (productName.includes('新入會') && totalQty > maxQty) {
-      return; // 不提示，直接跳過重複添加
+      return; // 新入會品項重複時直接跳過
     }
 
     if (totalQty > maxQty) {
       alert(`⚠️ ${productName} 限購${maxQty}個/組，目前已選${exists.qty}個/組，無法再新增`);
       return;
     }
-    
+
     exists.qty = totalQty;
   } else {
-    // 新增品項
     selectedProds.push({...product, qty});
   }
 
-  // 保存並重新渲染表格
   saveSelectedProds();
   renderTable();
 }
 
+function getSessionDeleteCount(){
+  return parseInt(sessionStorage.getItem(SESSION_KEY_DELETE_COUNT)||'0',10) || 0;
+}
+function setSessionDeleteCount(n){
+  sessionStorage.setItem(SESSION_KEY_DELETE_COUNT,String(n));
+}
+
 // 加載已選商品
 function loadSelectedProds(){
-  const saved=localStorage.getItem('selectedProducts');
+  const saved=localStorage.getItem('goodsSelectedProducts');
   if(saved)selectedProds=JSON.parse(saved);
   renderTable();
 }
 
 // 保存已選商品
-function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
-function saveUserUsageRecord(){localStorage.setItem('userUsageRecord',JSON.stringify(userUsageRecord));}
+function saveSelectedProds(){localStorage.setItem('goodsSelectedProducts',JSON.stringify(selectedProds));}
 
 // 設置LINE名稱
 function setupLineName(isReset=false){
@@ -764,119 +1278,50 @@ function resetLineName(){
   }
 }
 
-// 同步重置記錄到後端
-async function syncRecordResetToBackend(){
-  if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
-  return new Promise((resolve,reject)=>{
-    const callbackName=`recordResetCallback_${Date.now()}`;
-    window[callbackName]=function(resp){
-      delete window[callbackName];
-      if(resp.status==="success"){
-        const backendUsageCount=resp.usageCount||0;
-        userUsageRecord[userInfo.userId]=backendUsageCount;
-        saveUserUsageRecord();
-        authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
-        updateAuthStatusBar();
-        checkUserRemainingTimes();
-        resolve(true);
-      }else{
-        showToast(`後端扣次失敗：${resp.message||'未知錯誤'}`, 'error');
-        resolve(false);
-      }
-    };
-    const data={
-      action:'recordReset',
-      userId:userInfo.userId,
-      displayName:userInfo.displayName,
-      callback:callbackName,
-      dataType:'resetRecord'
-    };
-    $.ajax({
-      url:API_URL,
-      dataType:'jsonp',
-      jsonp:'callback',
-      jsonpCallback:callbackName,
-      timeout:JSONP_TIMEOUT,
-      data:data,
-      error:function(xhr,status,error){
-        delete window[callbackName];
-        const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡':`扣次同步失敗：${error}`;
-        showToast(errorMsg, 'error');
-        reject(new Error(errorMsg));
-      }
-    });
-  });
-}
-
-// 同步刪除記錄到後端
-async function syncDeleteToBackend(){
-  if(!userInfo||authStatus.isVip||authStatus.isSuperAdmin)return true;
-  return new Promise((resolve,reject)=>{
-    const callbackName=`recordDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
-    window[callbackName]=function(resp){
-      delete window[callbackName];
-      if(resp&&resp.status==="success"){
-        const backendUsageCount=Number(resp.usageCount)||0;
-        userUsageRecord[userInfo.userId]=backendUsageCount;
-        saveUserUsageRecord();
-        authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-backendUsageCount;
-        updateAuthStatusBar();
-        checkUserRemainingTimes();
-        resolve(true);
-      }else{
-        showToast(`後端未扣次：${resp?.message||'3分鐘內重複操作，無需扣次'}`, 'warning');
-        resolve(false);
-      }
-    };
-    const data={
-      action:'recordDelete',
-      userId:userInfo.userId,
-      displayName:userInfo.displayName,
-      usageCount:userUsageRecord[userInfo.userId]||0,
-      timestamp:new Date().getTime(),
-      callback:callbackName,
-      dataType:'deleteRecord'
-    };
-    $.ajax({
-      url:API_URL,
-      dataType:'jsonp',
-      jsonp:'callback',
-      jsonpCallback:callbackName,
-      timeout:JSONP_TIMEOUT,
-      cache:false,
-      data:data,
-      error:function(xhr,status,error){
-        delete window[callbackName];
-        const errorMsg=status==='timeout'?'刪除扣次同步超時，請檢查網絡後重試':`刪除扣次同步失敗：${error||'網絡錯誤'}`;
-        showToast(errorMsg, 'error');
-        reject(new Error(errorMsg));
-      }
-    });
-  });
-}
-
-// 重置報表
 async function resetReport(){
   if(!authStatus||authStatus.isExpired)return;
-  if(els.resetReportBtn.dataset.busy==='1')return;
-  if(!confirm('確定要清空所有品項記錄嗎？'))return;
-  const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
-  let isDeducted=false;
-  await withButtonBusy(els.resetReportBtn,'⏳<br>處理中…',async()=>{
-    if(!isPrivilegeUser&&authStatus.remainingTimes>0){
-      try{
-        const syncSuccess=await syncRecordResetToBackend();
-        isDeducted=syncSuccess;
-      }catch(error){
-        showToast(error.message, 'error');
-      }
-    }
-    selectedProds=[];
-    saveSelectedProds();
-    renderTable();
-    adjustQtySelectOptions(els.nameInput.value);
-  });
-  isDeducted?showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'warning'):showToast('✅ 報表已重置', 'success');
+  if(!confirm('確定要清空所有品項記錄並返回登入畫面嗎？\n（下次登入將重新計算使用次數）'))return;
+
+  selectedProds=[];
+  saveSelectedProds();
+  els.buyerInput.value='';
+  els.cashOption.checked=false;
+  els.cardOption.checked=false;
+  document.querySelectorAll('.period-box').forEach(b=>b.classList.remove('active'));
+  const customDaysInput=document.getElementById('customDays');
+  if(customDaysInput)customDaysInput.value='';
+  clearImage();
+
+  document.getElementById('radioNonMgr').checked = false;
+  document.getElementById('radioMgr').checked = false;
+  updateBonusDisplay();
+
+  sessionStorage.removeItem(SESSION_KEY_ACTIVE);
+  sessionStorage.removeItem(SESSION_KEY_AUTH);
+  sessionStorage.removeItem(SESSION_KEY_DELETE_COUNT);
+  authStatus=null;
+
+  els.captureArea.style.display='none';
+  els.inputArea.style.display='none';
+  els.buttonGroup.style.display='none';
+  els.authStatusBar.style.display='none';
+  els.menuFabWrap.style.display='none';
+  toggleMenu(false);
+  closeGuide();
+  statusBarHidden=false;
+
+  document.getElementById('authContainer').style.display='flex';
+  els.loginWrapper.style.display='flex';
+  showLoginLoading("彥彬🌿試算系統『購物節』","核對用戶權限中...");
+
+  showToast('報表已清空，請重新登入以繼續使用');
+
+  try{
+    const precheck=await precheckUserFromBackend(userInfo);
+    if(precheck)renderLoginScreen(precheck);
+  }catch(err){
+    // precheckUserFromBackend 內部已處理錯誤顯示
+  }
 }
 
 // 加載商品列表
@@ -898,7 +1343,7 @@ async function loadProducts(){
   }
 }
 
-// 渲染表格
+// 渲染表格（使用統一限購規則）
 function renderTable(){
   els.reportBody.innerHTML="";
   let totalPrice=0,totalPv=0;
@@ -910,6 +1355,7 @@ function renderTable(){
     totalPrice+=subtotalPrice;
     totalPv+=subtotalPv;
     const tr=document.createElement("tr");
+    tr.className="row-fade-in";
     const qtyOptions=Array.from({length:maxQty},(_,i)=>{
       const val=i+1;
       return `<option value="${val}" ${val===item.qty?"selected":""}>${val}</option>`;
@@ -929,6 +1375,9 @@ function renderTable(){
     `;
     els.reportBody.appendChild(tr);
   });
+  setTimeout(()=>{
+    els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
+  },320);
   els.totalPriceCellDup.textContent=totalPrice;
   els.totalPvCellDup.textContent=totalPv;
   const diff2=TARGET_PV220-totalPv;
@@ -943,83 +1392,132 @@ function renderTable(){
       selectedProds[idx].qty=parseInt(e.target.value);
       saveSelectedProds();
       renderTable();
-      // 金額變更時重新計算現金贈品
       if(els.cashOption.checked) handleCashGift();
     };
   });
+  updateBonusDisplay();
 }
 
-// 處理刪除操作
+const extraDeleteFromBackend=()=>{
+  return new Promise((resolve)=>{
+    const callbackName=`extraDeleteCallback_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      resolve(resp);
+    };
+    const data={action:'extraDelete',userId:userInfo.userId,displayName:userInfo.displayName,callback:callbackName,dataType:'extraDelete'};
+    $.ajax({
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,cache:false,data:data,
+      error:function(xhr,status,error){
+        delete window[callbackName];
+        const errorMsg=status==='timeout'?'扣次同步超時，請檢查網絡後重試':`扣次同步失敗：${error||'未知網絡錯誤'}`;
+        showToast(errorMsg,'error');
+        resolve(null);
+      }
+    });
+  });
+};
+
+async function animateRowRemoval(btn){
+  const row=btn.closest('tr');
+  if(row){
+    row.classList.add('row-removing');
+    await new Promise(r=>setTimeout(r,200));
+  }
+}
+
 async function handleDelete(btn){
-  if(isDeleting||!authStatus||authStatus.isExpired){
-    showToast('賬號已過期或操作中，無法執行刪除', 'error');
+  if(!authStatus||authStatus.isExpired){
+    showToast('賬號已過期，無法操作', 'error');
     return;
   }
   const idx=parseInt(btn.dataset.index);
-  const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
-  if(!isPrivilegeUser){
-    if(authStatus.remainingTimes<=0){
-      showToast('使用次數已用完，無法刪除品項', 'error');
-      return;
-    }
-    const now=Date.now();
-    const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
-    const confirmMsg=isWithinInterval
-      ? `刪除此品項（3分鐘內連續操作，不扣除使用次數），當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`
-      : `刪除此品項將扣除1次使用次數，3分鐘內連續刪除不扣次，當前剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次，是否確認刪除？`;
-    if(!isWithinInterval&&!confirm(confirmMsg)){
-      return;
-    }
-  }
-  isDeleting=true;
-  btn.disabled=true;
-  btn.textContent="處理中";
-  try{
-    const now=Date.now();
-    const isWithinInterval=now-lastDeductTime<DEDUCT_INTERVAL;
+  if(isNaN(idx)||idx<0||idx>=selectedProds.length)return;
+
+  const isPrivilege=authStatus.isVip||authStatus.isSuperAdmin;
+
+  if(isPrivilege){
+    btn.disabled=true;
+    await animateRowRemoval(btn);
     selectedProds.splice(idx,1);
     saveSelectedProds();
     renderTable();
-    // 刪除後重新計算現金贈品
     if(els.cashOption.checked) handleCashGift();
-    
-    if(!isPrivilegeUser&&!isWithinInterval){
-      const syncSuccess=await syncDeleteToBackend();
-      if(syncSuccess){
-        lastDeductTime=now;
-        localStorage.setItem('lastDeductTime',lastDeductTime.toString());
-        showToast(`✅ 已扣除1次使用次數，剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次（3分鐘內連續刪除不扣次）`, 'warning');
-      }else{
-        showToast('品項已刪除，後端未扣次（3分鐘內重複操作/同步失敗）', 'warning');
-      }
-    }else if(!isPrivilegeUser&&isWithinInterval){
-      showToast(`品項已刪除（3分鐘內連續刪除，不扣除使用次數），剩餘${authStatus.remainingTimes}/${MAX_NORMAL_USER_USAGE}次`, 'success');
-    }else{
-      showToast('品項已刪除', 'success');
-    }
-  }catch(error){
-    showToast(`刪除失敗：${error.message}`, 'error');
+    showToast('品項已刪除');
+    return;
+  }
+
+  const usedDeletes=getSessionDeleteCount();
+
+  // 還在本批免費刪除額度內
+  if(usedDeletes<FREE_DELETE_LIMIT){
+    btn.disabled=true;
+    await animateRowRemoval(btn);
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
     renderTable();
+    if(els.cashOption.checked) handleCashGift();
+    setSessionDeleteCount(usedDeletes+1);
+    const leftFree=FREE_DELETE_LIMIT-(usedDeletes+1);
+    updateAuthStatusBar();
+    if(leftFree>0){
+      showToast(`品項已刪除（本次還可免費刪除 ${leftFree} 次）`,'warning');
+    }else{
+      showToast(`品項已刪除，本批 ${FREE_DELETE_LIMIT} 次免費刪除已用完，之後刪除將扣 1 次使用次數換取新的 ${FREE_DELETE_LIMIT} 次刪除機會`,'warning');
+    }
+    return;
+  }
+
+  // 本批免費額度用完 → 扣 1 次使用次數，回復 3 次刪除機會
+  if(authStatus.remainingTimes<=0){
+    showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶','error');
+    return;
+  }
+  const confirmMsg=`您本批的 ${FREE_DELETE_LIMIT} 次免費刪除已用完\n扣除 1 次使用次數即可回復 ${FREE_DELETE_LIMIT} 次刪除機會（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定扣次並刪除？`;
+  if(!confirm(confirmMsg))return;
+
+  btn.disabled=true;
+  const originalText=btn.textContent;
+  btn.textContent='處理中';
+  try{
+    const result=await extraDeleteFromBackend();
+    if(!result)return;
+    if(result.status==='exceeded'){
+      showToast(result.message||'使用次數已達上限，無法繼續刪除','error');
+      return;
+    }
+    if(result.status!=='success'){
+      showToast(result.message||'扣次失敗，請稍後再試','error');
+      return;
+    }
+    authStatus.remainingTimes=result.remainingTimes;
+    sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
+    await animateRowRemoval(btn);
+    selectedProds.splice(idx,1);
+    saveSelectedProds();
+    renderTable();
+    if(els.cashOption.checked) handleCashGift();
+
+    // 扣 1 次後刪除計數歸零重算，本次刪除計為第 1 次
+    setSessionDeleteCount(1);
+    updateAuthStatusBar();
+    const leftFree=FREE_DELETE_LIMIT-1;
+    showToast(`已扣 1 次使用次數，回復 ${FREE_DELETE_LIMIT} 次刪除（本次已用 1 次，尚餘 ${leftFree} 次免費）｜剩餘使用次數 ${authStatus.remainingTimes} 次`,'warning');
   }finally{
-    isDeleting=false;
     btn.disabled=false;
-    btn.textContent="刪除";
+    btn.textContent=originalText;
   }
 }
 
-// 新增商品
+// 新增商品（使用統一限購規則，含購物節限N組提示）
 function addProduct(){
+  if(!authStatus||authStatus.isExpired){
+    showToast('請先登入或帳號已過期','error');
+    return;
+  }
   els.addBtn.disabled=true;
   try{
-    if(!authStatus){
-      showToast('請先完成用戶權限驗證', 'error');
-      return;
-    }
-    const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
-    if(!isPrivilegeUser&&authStatus.remainingTimes<=0){
-      showToast(`普通用戶使用次數已達上限（${MAX_NORMAL_USER_USAGE}次），請聯繫管理員升級`, 'error');
-      return;
-    }
     const selectedName=els.nameInput.value;
     let qty=parseInt(els.qtyInput.value);
     if(!selectedName||qty<=0){
@@ -1042,9 +1540,11 @@ function addProduct(){
       }else if(val.includes('2711AB')&&val.includes('(4)')){
         alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
       }else if(val.includes('777Q')&&val.includes('(4)')){
-        alert(`⚠️ 火山甘露限購${maxQty}組，已自動調整數量為${maxQty}`);
+        alert(`⚠️ 777Q限購${maxQty}組，已自動調整數量為${maxQty}`);
       }else if(val.includes('火山甘露')&&val.includes('限4盒')){
         alert(`⚠️ 火山甘露限購${maxQty}盒，已自動調整數量為${maxQty}`);
+      }else if(val.includes('2711AB')&&val.includes('(1)')){
+        alert(`⚠️ 2711AB(1)限購${maxQty}盒，已自動調整數量為${maxQty}`);
       }
       qty=maxQty;
     }
@@ -1066,7 +1566,6 @@ function addProduct(){
     }
     saveSelectedProds();
     renderTable();
-    // 新增商品後重新計算現金贈品
     if(els.cashOption.checked) handleCashGift();
     showToast('品項已新增');
   }catch(error){
@@ -1076,12 +1575,11 @@ function addProduct(){
   }
 }
 
-// 動態調整數量下拉選項（修復限定組數錯誤）
+// 動態調整數量下拉選項（使用統一限購規則）
 function adjustQtySelectOptions(productName) {
   if (!productName) return;
   const maxQty = getMaxQtyForProduct(productName);
 
-  // 清空並重新生成正確的數量選項
   els.qtyInput.innerHTML = '';
   for (let i = 1; i <= maxQty; i++) {
     const option = document.createElement('option');
@@ -1091,174 +1589,294 @@ function adjustQtySelectOptions(productName) {
   }
 }
 
-// 檢查用戶剩餘次數
 function checkUserRemainingTimes(){
   if(!authStatus)return false;
-  const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
   if(authStatus.isExpired){
     els.exportBtn.disabled=true;els.addBtn.disabled=true;els.shareToLineBtn.disabled=true;els.resetReportBtn.disabled=true;
     return false;
   }
-  if(isPrivilegeUser){
-    els.exportBtn.disabled=false;els.addBtn.disabled=false;els.shareToLineBtn.disabled=false;els.resetReportBtn.disabled=false;
-    return true;
-  }
-  const userId=userInfo.userId;
-  const usedTimes=userUsageRecord[userId]||0;
-  authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-usedTimes;
-  updateAuthStatusBar();
-  if(authStatus.remainingTimes<=0){
-    els.exportBtn.disabled=true;els.addBtn.disabled=true;els.shareToLineBtn.disabled=true;els.resetReportBtn.disabled=true;
-    return false;
-  }else{
-    els.exportBtn.disabled=false;els.addBtn.disabled=false;els.shareToLineBtn.disabled=false;els.resetReportBtn.disabled=false;
-    return true;
-  }
-}
-
-// 記錄用戶使用次數
-function recordUserUsage(){
-  if(!authStatus)return;
-  const isPrivilegeUser=authStatus.isVip||authStatus.isSuperAdmin;
-  if(isPrivilegeUser)return;
-  const userId=userInfo.userId;
-  const beforeRemaining=authStatus.remainingTimes;
-  if(beforeRemaining<=0)return;
-  userUsageRecord[userId]=(userUsageRecord[userId]||0)+1;
-  saveUserUsageRecord();
-  authStatus.remainingTimes=MAX_NORMAL_USER_USAGE-userUsageRecord[userId];
-  updateAuthStatusBar();
+  els.exportBtn.disabled=false;els.addBtn.disabled=false;els.resetReportBtn.disabled=false;
+  return true;
 }
 
 // 更新授權狀態欄
 function updateAuthStatusBar(){
   if(!authStatus||!userInfo)return;
-  let statusHtml='';
+  let cardHtml='';
   if(authStatus.isSuperAdmin){
-    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
-    statusHtml=`
-      <span class="super-admin">👑 超級管理員 👑</span> | 
-      用戶名：<span class="super-admin-username">${userInfo.displayName}</span>
-      <br/>有效期限：${expiryText}
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">👑</span>
+        <span class="sb-badge-txt super-admin-username">超級管理員</span>
+        <span class="sb-user super-admin-username">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">♾️</span><span class="sb-stat-label">使用次數</span><span class="sb-stat-val super-admin-username">不限次數</span></div>
+      </div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">💖 贊助支持系統</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>
+      </div>
     `;
   }else if(authStatus.isVip){
-    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate} | 剩餘：<span class="remaining-days-yellow">${authStatus.remainingDays}</span>`;
-    statusHtml=`
-      <span class="vip-admin">💎 尊爵用戶 💎</span> | 
-      用戶名：<span class="vip-admin-username">${userInfo.displayName}</span>
-      <br/>有效期限：${expiryText}
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">💎</span>
+        <span class="sb-badge-txt vip-admin-username">尊爵用戶</span>
+        <span class="sb-user vip-admin-username">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">📅</span><span class="sb-stat-label">有效期限</span><span class="sb-stat-val remaining-days-yellow">${expiryText}</span></div>
+      </div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">💖 贊助支持系統</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>
+      </div>
     `;
   }else{
-    statusHtml=`
-      <span class="normal">🪙 普通用戶 🪙</span> | 
-      用戶名：${userInfo.displayName}
-      <br/>剩餘使用次數：<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0}/${MAX_NORMAL_USER_USAGE}次</span>
+    const usedDeletes=getSessionDeleteCount();
+    const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
+    cardHtml=`
+      <div class="sb-top">
+        <span class="sb-badge-ic">🥇</span>
+        <span class="sb-badge-txt gold-username">黃金用戶</span>
+        <span class="sb-user gold-username">${userInfo.displayName}</span>
+      </div>
+      <div class="sb-stats">
+        <div class="sb-stat-row"><span class="sb-stat-ic">🔐</span><span class="sb-stat-label">本次登入已扣 1 次，剩餘可登入次數</span><span class="sb-stat-val ${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span></div>
+        <div class="sb-stat-row"><span class="sb-stat-ic">🗑️</span><span class="sb-stat-label">本批免費刪除剩餘</span><span class="sb-stat-val ${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT} 次</span></div>
+      </div>
+      <div class="sb-note">用完會扣 1 次使用次數，補充 ${FREE_DELETE_LIMIT} 次刪除機會</div>
+      <div class="sb-cta-row">
+        <span class="sb-cta-label">贊助『使用次數』</span>
+        <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助『試算系統』</a>
+      </div>
     `;
   }
-// 替换状态栏HTML生成部分的按钮文本
-els.authStatusBar.innerHTML = `
-  <button class="close-status" title="隱藏狀態欄">關閉</button>
-  ${statusHtml}
-`;
-  // 重新绑定关闭按钮事件
-els.authStatusBar.querySelector('.close-status').addEventListener('click',()=>{hapticTap();hideAuthStatusBar();});
-  els.authStatusBar.style.display='block';
+  els.authStatusBar.innerHTML = `
+    <div class="sb-card">
+      <button class="close-status" title="隱藏狀態欄">✕</button>
+      ${cardHtml}
+    </div>
+  `;
+  bindCloseStatusBtn();
+  if(statusBarHidden){
+    els.authStatusBar.style.display='none';
+  }else{
+    els.authStatusBar.style.display='block';
+  }
+  updateMenuStatusLabel();
 }
 
-// 匯出圖片
+// 轉圖前把表單即時狀態同步回 HTML 屬性
+function syncFormStateForCapture(){
+  els.captureArea.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(el=>{
+    if(el.checked) el.setAttribute('checked','');
+    else el.removeAttribute('checked');
+  });
+  els.captureArea.querySelectorAll('input[type="text"],input[type="number"]').forEach(el=>{
+    el.setAttribute('value', el.value);
+  });
+  els.captureArea.querySelectorAll('select').forEach(sel=>{
+    Array.from(sel.options).forEach(o=>{
+      if(o.selected) o.setAttribute('selected','');
+      else o.removeAttribute('selected');
+    });
+  });
+}
+
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
-  if(els.exportBtn.dataset.busy==='1')return;
-  await withButtonBusy(els.exportBtn,'⏳<br>產生中…',async()=>{
-    const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
-    opCells.forEach(el=>{el.style.display="none";});
+  els.exportBtn.disabled=true;
 
-    els.reportTable.offsetWidth;
-    const tableWidth=els.reportTable.offsetWidth;
-    const lastCol=els.reportTable.querySelector('th:last-child');
-    const lastColWidth=lastCol?lastCol.offsetWidth:0;
-    const captureWidth=(tableWidth-lastColWidth)+60;
-    const originalCaptureWidth=els.captureArea.style.width;
-    const originalPaddingRight=els.captureArea.style.paddingRight;
-    const originalPaddingLeft=els.captureArea.style.paddingLeft;
-    els.captureArea.style.width=`${captureWidth}px`;
-    els.captureArea.style.paddingLeft="30px";
-    els.captureArea.style.paddingRight="30px";
-    try{
-      const scale=window.innerWidth<768?3:4;
-      const canvas=await html2canvas(els.captureArea,{
-        scale:scale,useCORS:true,allowTaint:true,backgroundColor:null,
-        logging:false,letterRendering:true,useTransform:true,dpi:300,
-        scaleMethod:'highQuality',width:captureWidth,windowWidth:captureWidth,
-        windowHeight:els.captureArea.offsetHeight,scrollX:0,scrollY:0,
-        ignoreElements:el=>el.id==='previewImage'||el.classList.contains('deleteBtn')
-      });
-      const dataUrl=canvas.toDataURL("image/png",1.0);
-      els.previewImage.src=dataUrl;
-      els.previewImage.style.display="block";
-      els.shareToLineBtn.style.display="inline-block";
-      els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
-      els.clearImageBtn.style.display="inline-block";
-      showToast('✅ 圖片已產生');
-    }catch(error){
-      showToast(`匯出失敗：${error.message||'未知錯誤'}`, 'error');
-    }finally{
-      opCells.forEach(el=>{el.style.display="";});
-      els.captureArea.style.width=originalCaptureWidth;
-      els.captureArea.style.paddingRight=originalPaddingRight;
-      els.captureArea.style.paddingLeft=originalPaddingLeft;
-    }
+  // 截圖前切換獎金區塊顯示
+  const bonusSection  = document.getElementById('bonusSection');
+  const bonusPrintBox = document.getElementById('bonusPrintBox');
+  const selected      = document.querySelector('input[name="bonusType"]:checked');
+  const hasBonusContent = selected && bonusPrintBox.innerHTML.trim() !== '';
+  bonusSection.style.display  = 'none';
+  bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
+
+  // 清除所有動畫殘留
+  els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
+  els.captureArea.classList.remove('screen-enter');
+
+  syncFormStateForCapture();
+
+  els.captureArea.classList.add('capture-mode');
+  if(document.activeElement && typeof document.activeElement.blur==='function'){
+    document.activeElement.blur();
+  }
+
+  // 截圖時把「數量」下拉選單暫換成純文字數字
+  const qtySwaps=[];
+  els.captureArea.querySelectorAll('.qtySelect').forEach(sel=>{
+    const span=document.createElement('span');
+    span.className='qty-print';
+    span.textContent=sel.value;
+    sel.style.display='none';
+    sel.parentNode.insertBefore(span,sel.nextSibling);
+    qtySwaps.push({sel:sel,span:span});
   });
+
+  // 隱藏操作列
+  const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+  opCells.forEach(el=>{el.style.display="none";});
+
+  els.reportTable.offsetWidth;
+  const tableWidth=els.reportTable.offsetWidth;
+  const lastCol=els.reportTable.querySelector('th:last-child');
+  const lastColWidth=lastCol?lastCol.offsetWidth:0;
+  const captureWidth=(tableWidth-lastColWidth)+60;
+
+  const originalStyles = {
+    width: els.captureArea.style.width,
+    paddingLeft: els.captureArea.style.paddingLeft,
+    paddingRight: els.captureArea.style.paddingRight,
+    position: els.captureArea.style.position,
+    zIndex: els.captureArea.style.zIndex,
+    background: els.captureArea.style.background
+  };
+
+  els.captureArea.style.width=`${captureWidth}px`;
+  els.captureArea.style.paddingLeft="30px";
+  els.captureArea.style.paddingRight="30px";
+  els.captureArea.style.position="relative";
+
+  const ua=navigator.userAgent||'';
+  const isLineInApp=/Line/i.test(ua);
+  const isMobile=window.innerWidth<768;
+  const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
+  const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
+  const captureHeight=els.captureArea.offsetHeight||1;
+  let scale=isLineInApp?1.5:(isMobile?1.5:2);
+  const estimatedArea=captureWidth*captureHeight*scale*scale;
+  if(estimatedArea>MAX_CANVAS_AREA){
+    scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
+  }
+  const maxSideScale=Math.min(MAX_CANVAS_SIDE/captureWidth,MAX_CANVAS_SIDE/captureHeight);
+  if(scale>maxSideScale){
+    scale=Math.max(1,Math.floor(maxSideScale*10)/10);
+  }
+
+async function attemptCapture(useScale){
+  const dpr=Math.min(window.devicePixelRatio||1,3);
+  const captureScale=Math.max(2,useScale*dpr);
+  const outputW=Math.round(captureWidth*captureScale);
+  const outputH=Math.round(captureHeight*captureScale);
+
+  const capturePromise=domtoimage.toBlob(els.captureArea,{
+    width:outputW,
+    height:outputH,
+    style:{
+      transform:`scale(${captureScale})`,
+      transformOrigin:'top left',
+      width:captureWidth+'px',
+      height:captureHeight+'px'
+    },
+    bgcolor:'#1c1c1c'
+  });
+  const timeoutPromise=new Promise((_,reject)=>{
+    setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
+  });
+  return await Promise.race([capturePromise,timeoutPromise]);
 }
 
-// 分享到LINE
+  try{
+    let blob;
+    try{
+      blob=await attemptCapture(scale);
+    }catch(innerErr){
+      await new Promise(r=>setTimeout(r,400));
+      blob=await attemptCapture(Math.max(1.5,scale-0.5));
+    }
+    if(!blob)throw new Error('圖片產生失敗');
+    if(els.previewImage.dataset.objectUrl){
+      URL.revokeObjectURL(els.previewImage.dataset.objectUrl);
+    }
+    const objectUrl=URL.createObjectURL(blob);
+    els.previewImage.src=objectUrl;
+    els.previewImage.dataset.objectUrl=objectUrl;
+    els.previewImage.style.display="block";
+    els.shareToLineBtn.style.display="inline-block";
+    els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
+    els.clearImageBtn.style.display="inline-block";
+  }catch(error){
+    console.error('匯出錯誤:',error);
+    showToast(`匯出失敗：${error?.message}`,'error');
+  }finally{
+    bonusSection.style.display  = '';
+    bonusPrintBox.style.display = 'none';
+    els.captureArea.classList.remove('capture-mode');
+    qtySwaps.forEach(item=>{
+      if(item.span.parentNode) item.span.parentNode.removeChild(item.span);
+      item.sel.style.display='';
+    });
+
+    opCells.forEach(el=>{el.style.display="";});
+    els.captureArea.style.width=originalStyles.width;
+    els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
+    els.captureArea.style.paddingRight=originalStyles.paddingRight;
+    els.captureArea.style.position=originalStyles.position;
+    els.exportBtn.disabled=false;
+    document.querySelectorAll('body > svg, body > div.domtoimage-wrapper').forEach(el=>{
+      if(el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
+}
+
 async function shareToLine(){
   if(!authStatus)return;
   if(!els.previewImage.src){alert("請先匯出圖片");return;}
-  await withButtonBusy(els.shareToLineBtn,'⏳<br>上傳中…',async()=>{
-    try{
-      const base64Data=els.previewImage.src.split(",")[1];
-      const formData=new FormData();
-      formData.append("image",base64Data);
-      formData.append("key",IMGBB_API_KEY);
-      const res=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:formData,});
-      const result=await res.json();
-      if(result.success){
-        const imageUrl=result.data.url;
-        const buyerName=els.buyerInput.value.trim()||"未填";
-        const calculatorName=lineName||"未設定";
-        const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`)}`;
-        window.open(lineShareUrl,"_blank");
-        showToast("✅ 圖片已上傳");
-      }else{
-        showToast("圖片上傳失敗，請稍後再試", 'error');
-      }
-    }catch(error){
-      showToast(`圖片上傳錯誤: ${error.message||'未知錯誤'}`, 'error');
+  els.shareToLineBtn.disabled=true;
+  try{
+    const response=await fetch(els.previewImage.src);
+    const blob=await response.blob();
+    const base64Data=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onloadend=()=>resolve(reader.result.split(",")[1]);
+      reader.onerror=()=>reject(new Error('圖片讀取失敗'));
+      reader.readAsDataURL(blob);
+    });
+    const formData=new FormData();
+    formData.append("image",base64Data);
+    formData.append("key",IMGBB_API_KEY);
+    const res=await fetch("https://api.imgbb.com/1/upload",{method:"POST",body:formData,});
+    const result=await res.json();
+    if(result.success){
+      const imageUrl=result.data.url;
+      const buyerName=els.buyerInput.value.trim()||"未填";
+      const calculatorName=lineName||"未設定";
+      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園『購物節』試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`)}`;
+      window.open(lineShareUrl,"_blank");
+      showToast("✅ 圖片已上傳");
+    }else{
+      showToast("圖片上傳失敗，請稍後再試", 'error');
     }
-  });
+  }catch(error){
+    showToast(`圖片上傳錯誤: ${error.message||'未知錯誤'}`, 'error');
+  }finally{
+    els.shareToLineBtn.disabled=false;
+  }
 }
 
 // 原生分享
 async function nativeShare(){
   if(!authStatus)return;
   if(!navigator.share||!els.previewImage.src){alert("無法使用原生分享");return;}
-  await withButtonBusy(els.nativeShareBtn,'⏳<br>分享中…',async()=>{
-    try{
-      const response=await fetch(els.previewImage.src);
-      const blob=await response.blob();
-      const filesArray=[new File([blob],"康園試算報表.png",{type:blob.type})];
-      const buyer=els.buyerInput.value.trim()||"未填";
-      const calculator=lineName||"未設定";
-      const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}`;
-      await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
-    }catch(error){
-      if(error?.name!=='AbortError'){
-        showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
-      }
-    }
-  });
+  try{
+    const response=await fetch(els.previewImage.src);
+    const blob=await response.blob();
+    const filesArray=[new File([blob],"康園購物節試算報表.png",{type:blob.type})];
+    const buyer=els.buyerInput.value.trim()||"未填";
+    const calculator=lineName||"未設定";
+    const shareText=`康園『購物節』試算報表\n購買者：${buyer}\n試算者：${calculator}`;
+    await navigator.share({files:filesArray,title:"康園『購物節』試算報表",text:shareText,});
+  }catch(error){
+    showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
+  }
 }
 
 // 清除圖片
@@ -1272,7 +1890,6 @@ function clearImage(){
 
 // 顯示提示框
 function showToast(message,type='success'){
-  // 关键修改：替换 \n 为 <br>，并用 innerHTML 赋值
   els.toast.innerHTML=message.replace(/\n/g, '<br>');
   els.toast.className='toast';
   els.toast.classList.add(type);
@@ -1310,7 +1927,7 @@ const calculateRemainingDaysByDate=(expiryDateStr)=>{
 
 // 顯示錯誤
 const showError=(msg)=>{
-  els.authLoading.style.display='none';
+  els.loginWrapper.style.display='none';
   els.captureArea.style.display='none';
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
@@ -1318,39 +1935,24 @@ const showError=(msg)=>{
   els.errorMessage.style.display='block';
 };
 
-// 後端驗證用戶
-const verifyUserFromBackend=(profile)=>{
+const precheckUserFromBackend=(profile)=>{
   return new Promise((resolve,reject)=>{
-    const callbackName=`verifyCallback_${Date.now()}`;
+    const callbackName=`precheckCallback_${Date.now()}`;
     window[callbackName]=function(resp){
       delete window[callbackName];
-      if(resp.status==="success"){
-        const backendUsageCount=resp.usageCount||0;
-        userUsageRecord[profile.userId]=backendUsageCount;
-        saveUserUsageRecord();
+      if(resp.status==="success"||resp.status==="exceeded"){
         const expiryData=calculateRemainingDaysByDate(resp.expiryDate||PERMANENT_EXPIRY_DATE);
-        const authData={
+        resolve({
           ...resp,displayName:profile.displayName,remainingDays:expiryData.remainingDays,
           displayExpiryDate:expiryData.displayDate,isExpired:expiryData.isExpired,
           isVip:resp.isVip===true,isSuperAdmin:resp.isSuperAdmin===true,
-          remainingTimes:resp.remainingTimes||(MAX_NORMAL_USER_USAGE-backendUsageCount)
-        };
-        // 保存VIP/超管的當天驗證緩存
-        if(authData.isVip||authData.isSuperAdmin){
-          saveTodayAuthCache(profile.userId,authData);
-        }
-        resolve(authData);
+        });
       }else{
         showError(resp.message||"用戶驗證失敗");
         resolve(null);
       }
     };
-    const decodedToken=liff.getDecodedIDToken();
-    const userId=profile.userId||decodedToken?.sub||"";
-    const data={
-      action:'verifyUser',userId:userId,displayName:profile.displayName,
-      callback:callbackName,dataType:'userVerify'
-    };
+    const data={action:'verifyUser',userId:profile.userId,displayName:profile.displayName,callback:callbackName,dataType:'userPrecheck'};
     $.ajax({
       url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
       timeout:JSONP_TIMEOUT,data:data,
@@ -1364,41 +1966,221 @@ const verifyUserFromBackend=(profile)=>{
   });
 };
 
+const loginToBackend=()=>{
+  return new Promise((resolve)=>{
+    const callbackName=`loginCallback_${Date.now()}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      resolve(resp);
+    };
+    const data={action:'login',userId:userInfo.userId,displayName:userInfo.displayName,callback:callbackName,dataType:'userLogin'};
+    $.ajax({
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,cache:false,data:data,
+      error:function(xhr,status,error){
+        delete window[callbackName];
+        const errorMsg=status==='timeout'?'登入超時，請檢查網絡後重試':`登入失敗：${error||'未知網絡錯誤'}`;
+        showToast(errorMsg,'error');
+        resolve(null);
+      }
+    });
+  });
+};
+
+function renderLoginScreen(info){
+  const isPrivilege=info.isVip||info.isSuperAdmin;
+
+  const avatarUrl=(userInfo&&userInfo.pictureUrl)?userInfo.pictureUrl:'';
+  const avatarHtml=avatarUrl
+    ? `<img class="login-avatar" src="${avatarUrl}" alt="用戶頭像"/>`
+    : `<div class="login-avatar login-avatar-fallback">🙂</div>`;
+
+  let badgeHtml='';
+  if(info.isSuperAdmin){
+    badgeHtml=`
+      <div class="login-badge super">👑 超級管理員</div>
+      <div class="login-name super-admin-username">${info.displayName}</div>
+      <div class="login-sub">不限使用次數</div>
+    `;
+  }else if(info.isVip){
+    badgeHtml=`
+      <div class="login-badge vip">💎 尊爵用戶</div>
+      <div class="login-name vip-admin-username">${info.displayName}</div>
+      <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
+    `;
+  }else{
+    const remain=info.remainingTimes??0;
+    badgeHtml=`
+      <div class="login-badge gold">🥇 黃金用戶</div>
+      <div class="login-name gold-username">${info.displayName}</div>
+      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain} 次</span></div>
+    `;
+  }
+
+  const rulesHtml=`
+    <div class="login-rules">
+      <div class="login-rules-title">📜 登入前請詳閱</div>
+      <ul>
+        <li>🔐 登入扣 <b>1 次</b>使用次數</li>
+        <li>🗑️ 每批可免費刪除 <b>3 次</b>，用完扣 <b>1 次</b>使用次數回復 <b>3 次</b>刪除機會</li>
+        <li>🔄 重置報表 = 登出，需重新登入</li>
+      </ul>
+    </div>
+  `;
+
+const canLogin=isPrivilege||(info.remainingTimes>0);
+  els.loginScreenBody.innerHTML=`
+    <div class="login-avatar-wrap">${avatarHtml}</div>
+    ${badgeHtml}
+    ${rulesHtml}
+    ${canLogin
+      ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
+      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
+         <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
+  `;
+  els.loginWrapper.style.display='flex';
+  const loginBtn=document.getElementById('loginBtn');
+  if(loginBtn)loginBtn.addEventListener('click',handleLoginClick);
+}
+
+async function handleLoginClick(){
+  const loginBtn=document.getElementById('loginBtn');
+  if(loginBtn){loginBtn.disabled=true;loginBtn.innerHTML='<span class="btn-spinner"></span>登入中...';}
+  try{
+    const loginResult=await loginToBackend();
+    if(!loginResult)return;
+    if(loginResult.status==='exceeded'){
+      showError(loginResult.message||`黃金用戶使用次數已達上限（${loginResult.maxUsage||MAX_NORMAL_USER_USAGE}次）`);
+      return;
+    }
+    if(loginResult.status!=='success'){
+      showToast(loginResult.message||'登入失敗，請稍後再試','error');
+      return;
+    }
+    const expiryData=calculateRemainingDaysByDate(loginResult.expiryDate||PERMANENT_EXPIRY_DATE);
+    authStatus={
+      ...loginResult,
+      remainingDays:expiryData.remainingDays,displayExpiryDate:expiryData.displayDate,
+      isExpired:expiryData.isExpired,isVip:loginResult.isVip===true,isSuperAdmin:loginResult.isSuperAdmin===true
+    };
+    if(authStatus.isExpired){
+      showError(`
+        <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
+        <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
+        <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
+          style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
+          🌟 點擊贊助
+        </a>
+        <br><br>
+        <div class="example-title">📌 實際使用範例</div>
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+          style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
+        <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
+      `);
+      return;
+    }
+    sessionStorage.setItem(SESSION_KEY_ACTIVE,'true');
+    sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
+    setSessionDeleteCount(0);
+    if(loginBtn){loginBtn.innerHTML='✅ 登入成功';loginBtn.classList.add('btn-success');}
+    await new Promise(r=>setTimeout(r,320));
+    enterCalculator();
+    if(authStatus.isSuperAdmin||authStatus.isVip){
+      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
+    }else{
+      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
+    }
+  }finally{
+    if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
+  }
+}
+
+function enterCalculator(){
+  const authContainer=document.getElementById('authContainer');
+  authContainer.classList.add('fade-out');
+  setTimeout(()=>{
+    authContainer.style.display='none';
+    authContainer.classList.remove('fade-out');
+    els.loginWrapper.style.display='none';
+    els.captureArea.style.display='block';
+    els.inputArea.style.display='flex';
+    els.buttonGroup.style.display='flex';
+    els.menuFabWrap.style.display='block';
+    els.captureArea.classList.add('screen-enter');
+    els.inputArea.classList.add('screen-enter');
+    els.buttonGroup.classList.add('screen-enter');
+    setTimeout(()=>{
+      els.captureArea.classList.remove('screen-enter');
+      els.inputArea.classList.remove('screen-enter');
+      els.buttonGroup.classList.remove('screen-enter');
+    },450);
+    setupLineName();
+    // 尊爵／超級管理員 登入時帶回上次未完成的報表；
+    // 黃金用戶每次登入一律從空白報表開始
+    if(authStatus.isVip||authStatus.isSuperAdmin){
+      loadSelectedProds();
+    }else{
+      selectedProds=[];
+      localStorage.removeItem('goodsSelectedProducts');
+      renderTable();
+    }
+    checkUserRemainingTimes();
+    statusBarHidden=false;
+    updateAuthStatusBar();
+    // 首次使用自動彈出一次導覽
+    if(!localStorage.getItem(GUIDE_SEEN_KEY)){
+      localStorage.setItem(GUIDE_SEEN_KEY,'1');
+      setTimeout(openGuide,600);
+    }
+  },320);
+}
+
 // 初始化LIFF和授權
 async function initLiffAndAuth(){
   try{
-    updateAuthLoadingText("正在驗證","請稍候...");
+    showLoginLoading("正在初始化","請稍候...");
     await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
     loadProducts();
     if(!liff.isLoggedIn()){
-      updateAuthLoadingText("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
+      showLoginLoading("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
       liff.login({redirectUri:window.location.href});
       return;
     }
     const profile=await liff.getProfile();
-    userInfo={userId:profile.userId,displayName:profile.displayName};
-    
-    // 檢查是否是VIP/超管且有當天有效驗證緩存
-    const isPrivilegeUserCached=isTodayValidAuth(profile.userId);
-    if(isPrivilegeUserCached){
-      // 使用緩存的驗證數據
-      authStatus=JSON.parse(localStorage.getItem(`authCache_${profile.userId}`)).data;
-      renderMainSystem();
-      showToast(`歡迎💎尊爵用戶💎<br><span class="toast-highlight-name">${userInfo.displayName}</span><br>驗證一次後<br>短時間不在驗證<br>`);
+    userInfo={userId:profile.userId,displayName:profile.displayName,pictureUrl:profile.pictureUrl||''};
+
+    const cachedSessionActive=sessionStorage.getItem(SESSION_KEY_ACTIVE);
+    const cachedAuthRaw=sessionStorage.getItem(SESSION_KEY_AUTH);
+    if(cachedSessionActive==='true'&&cachedAuthRaw){
+      try{
+        authStatus=JSON.parse(cachedAuthRaw);
+        if(!authStatus.isExpired){
+          enterCalculator();
+          return;
+        }
+      }catch(e){}
+    }
+
+    showLoginLoading("彥彬🌿試算系統『購物節』","核對用戶權限中...");
+    const precheck=await precheckUserFromBackend(profile);
+    if(!precheck)return;
+    if(precheck.isExpired){
+      showError(`
+        <div style="line-height:2;">您的帳號已過期，無法登錄試算系統</div>
+        <div style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">請聯繫 管理員 續期</div>
+        <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank"
+          style="display:block;text-align:center;padding:14px 20px;font-size:16px;border-radius:12px;">
+          🌟 點擊贊助
+        </a>
+        <br><br>
+        <div class="example-title">📌 實際使用範例</div>
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+          style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
+        <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
+      `);
       return;
     }
-    
-    // 普通用戶或緩存過期，走正常驗證流程
-    updateAuthLoadingText("彥彬🌿試算系統","核對用戶權限中...");
-    const authData=await verifyUserFromBackend(profile);
-    if(!authData)return;
-    if(authData.isExpired){
-      showError('您的賬號已過期，無法登錄試算系統，請聯繫管理員續期');
-      return;
-    }
-    authStatus=authData;
-    renderMainSystem();
-    showToast(`歡迎回來，${userInfo.displayName}！`);
+    renderLoginScreen(precheck);
   }catch(error){
     let errorMsg=error.message||'未知初始化錯誤';
     if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
@@ -1407,44 +2189,31 @@ async function initLiffAndAuth(){
       setTimeout(()=>{
         liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
       },1500);
-
     }
-    updateAuthLoadingText("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
+    showLoginLoading("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
   }
 }
 
-// 渲染主畫面（驗證成功後共用流程）
-function renderMainSystem(){
-  els.authLoading.style.display='none';
-  document.getElementById('authContainer').style.display='none';
-  els.captureArea.style.display='block';
-  els.inputArea.style.display='flex';
-  els.buttonGroup.style.display='flex';
-  setupLineName();
-  loadSelectedProds();
-  checkUserRemainingTimes();
-  updateAuthStatusBar();
+// 更新登入載入提示文本
+function showLoginLoading(title, desc) {
+  els.loginScreenBody.innerHTML = `
+    <div class="login-loading">
+      <div class="loader small"></div>
+      <div class="login-loading-title">${title}</div>
+      <div class="login-loading-desc">${desc}</div>
+    </div>
+  `;
 }
 
-// 更新授权加载提示文本
-function updateAuthLoadingText(title, desc) {
-  if (els.authLoadingTitle) els.authLoadingTitle.textContent = title;
-  if (els.authLoadingDesc) els.authLoadingDesc.innerHTML = desc;
-}
-
-// 初始化应用
+// 初始化應用
 async function initApp() {
   try {
-    // 适配小屏幕表格字体大小
     els.reportTable.style.fontSize = window.innerWidth < 360 ? '11px' : '12px';
-    // 初始化LIFF和授权
     await initLiffAndAuth();
   } catch (error) {
     showError(`應用初始化失敗：${error.message||'未知錯誤'}`);
   }
 }
-
-
 </script>
 </body>
 </html>
