@@ -804,10 +804,10 @@ body{
 
 <div class="spacer"></div>
 <script>
-// ★ 驗證後端與試算系統共用（同一支 GAS、同一份會員名單）
+// ★ 購物節專用 GAS（單一活動表格：產品／日誌／尊爵名單）
 const API_URL="https://script.google.com/macros/s/AKfycbzGhHuH0hLrNgpcJA7s3KB_rc0qsbYvnV_fdIza4go5XpS2Q1atinUogdSXVn6Sp5vl/exec";
 const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
-// ★ LIFF ID 維持購物節專屬（LIFF 綁定各自的頁面網址）
+// ★ 購物節專用 LIFF（Endpoint URL 必須指向本頁面網址）
 const LIFF_ID="2007434020-WRskKglA";
 const JSONP_TIMEOUT=15000;
 const PERMANENT_EXPIRY_DATE="9999/12/31";
@@ -2139,7 +2139,7 @@ function enterCalculator(){
 async function initLiffAndAuth(){
   try{
     showLoginLoading("正在初始化","請稍候...");
-    await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true,scope:'profile openid email'});
+    await liff.init({liffId:LIFF_ID,withLoginOnExternalBrowser:true});
     loadProducts();
     if(!liff.isLoggedIn()){
       showLoginLoading("請先登錄LINE賬號","將自動跳轉至登錄頁面...");
@@ -2183,14 +2183,19 @@ async function initLiffAndAuth(){
     renderLoginScreen(precheck);
   }catch(error){
     let errorMsg=error.message||'未知初始化錯誤';
-    if(errorMsg.includes('access token expired')||errorMsg.includes('Access Token expired')){
+    const lower=errorMsg.toLowerCase();
+    if(lower.includes('access token expired')){
       errorMsg='登錄狀態已過期，將自動重新登錄';
       showToast(errorMsg, 'warning');
       setTimeout(()=>{
         liff.isLoggedIn()?liff.logout().then(()=>{liff.login({redirectUri:window.location.href});}):liff.login({redirectUri:window.location.href});
       },1500);
+    }else if(lower.includes('invalid liff id')||lower.includes('liffid')){
+      errorMsg='LIFF ID 無效（'+LIFF_ID+'）<br/>請到 LINE Developers 確認此 LIFF App 存在';
+    }else if(lower.includes('forbidden')||lower.includes('client_id')||lower.includes('redirect')){
+      errorMsg='LIFF Endpoint URL 與本頁網址不一致<br/>請到 LINE Developers 將 Endpoint URL 設為：<br/>'+location.origin+location.pathname;
     }
-    showLoginLoading("初始化失敗",errorMsg+"<br/>請刷新頁面重新嘗試");
+    showLoginLoading("初始化失敗",errorMsg+"<br/><br/>目前頁面網址：<br/>"+location.href.split('?')[0]+"<br/>請刷新頁面重新嘗試");
   }
 }
 
