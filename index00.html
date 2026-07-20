@@ -672,6 +672,89 @@ body{
 .guide-dot.active{background:var(--accent);width:20px;border-radius:4px;}
 .guide-nav{display:flex;gap:10px;}
 .guide-nav .btn{flex:1;}
+
+/* ============================================================
+   登入按鈕 — 燙金立體 CTA（流光掃過 + 內陰影立體感）
+   ============================================================ */
+.login-cta{
+  width:100%;position:relative;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,244,214,.55);border-radius:16px;padding:15px 20px 13px;
+  font-size:16.5px;font-weight:800;letter-spacing:2px;color:#241a08;
+  font-family:inherit;text-align:center;
+  background:linear-gradient(160deg,#f6e6b8 0%,#d9b873 46%,#b3873c 100%);
+  box-shadow:
+    0 10px 26px rgba(201,161,90,.32),
+    inset 0 1.5px 0 rgba(255,255,255,.75),
+    inset 0 -2px 6px rgba(122,84,30,.35);
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.login-cta::before{
+  content:'';position:absolute;top:0;left:-130%;width:55%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.6),transparent);
+  transform:skewX(-20deg);
+  animation:ctaShine 3.4s ease-in-out infinite;
+}
+@keyframes ctaShine{0%{left:-130%;}55%{left:140%;}100%{left:140%;}}
+.login-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 14px 34px rgba(201,161,90,.45),
+    inset 0 1.5px 0 rgba(255,255,255,.8),
+    inset 0 -2px 6px rgba(122,84,30,.35);
+}
+.login-cta:active{transform:translateY(1px);box-shadow:0 5px 14px rgba(201,161,90,.3),inset 0 2px 6px rgba(122,84,30,.4);}
+.login-cta:disabled{opacity:.72;cursor:not-allowed;transform:none;}
+.login-cta.btn-success{color:#fff;border-color:rgba(129,220,133,.85);}
+.login-cta .cta-sub{
+  display:block;font-size:10px;letter-spacing:4px;font-weight:800;
+  color:rgba(46,36,21,.6);margin-top:4px;text-transform:uppercase;
+}
+.login-cta.btn-success .cta-sub{color:rgba(255,255,255,.75);}
+
+/* ============================================================
+   會員中心彈窗 — 頭像 + 身分徽章 + 會員資料卡
+   ============================================================ */
+#memberOverlay{
+  position:fixed;inset:0;z-index:3000;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#memberOverlay.show{display:flex;}
+.member-card{
+  width:100%;max-width:380px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1c1c1c,#141414);
+  border:1px solid rgba(201,161,90,0.35);border-radius:22px;
+  padding:32px 24px 24px;box-shadow:0 24px 60px rgba(0,0,0,.6);
+  animation:loginCardIn .4s cubic-bezier(0.16,1,0.3,1);
+  text-align:center;
+}
+.member-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));
+}
+.mc-head{
+  font-size:11px;letter-spacing:3.5px;font-weight:800;color:var(--gold-light);
+  text-transform:uppercase;margin-bottom:16px;
+}
+.mc-avatar-wrap{display:flex;justify-content:center;margin-bottom:12px;}
+.mc-avatar{
+  width:86px;height:86px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--gold);
+  box-shadow:0 0 0 5px rgba(201,161,90,.15),0 8px 24px rgba(0,0,0,.5);
+  animation:avatarPulse 2.6s ease-in-out infinite;
+}
+.mc-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:2.3rem;background:#2a2a2a;color:#ccc;}
+.mc-badge{
+  display:inline-block;padding:4px 16px;border-radius:20px;font-size:12.5px;font-weight:800;
+  letter-spacing:.5px;margin-bottom:8px;
+}
+.mc-badge.super{background:rgba(212,175,55,.15);color:var(--super);border:1px solid rgba(212,175,55,.45);}
+.mc-badge.vip{background:rgba(0,191,165,.15);color:var(--vip);border:1px solid rgba(0,191,165,.45);}
+.mc-badge.gold{background:rgba(201,161,90,.15);color:var(--gold);border:1px solid rgba(201,161,90,.45);}
+.mc-name{font-size:1.25rem;font-weight:800;margin-bottom:16px;}
+.mc-rows{display:flex;flex-direction:column;gap:9px;text-align:left;}
+
 </style>
 </head>
 <body>
@@ -819,6 +902,23 @@ body{
       <button class="btn btn-grey btn-md" id="guidePrevBtn">◀ 上一步</button>
       <button class="btn btn-primary btn-md" id="guideNextBtn">下一步 ▶</button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     會員中心彈窗（頭像 + 身分徽章 + 會員資料）
+     ============================================================ -->
+<div id="memberOverlay">
+  <div class="member-card">
+    <button class="guide-close" id="memberCloseBtn" title="關閉">✕</button>
+    <div class="mc-head">👤 會員中心</div>
+    <div class="mc-avatar-wrap">
+      <img id="mcAvatar" class="mc-avatar" alt="會員頭像" style="display:none;"/>
+      <div id="mcAvatarFallback" class="mc-avatar mc-avatar-fallback" style="display:none;">🙂</div>
+    </div>
+    <div id="mcBadge" class="mc-badge"></div>
+    <div id="mcName" class="mc-name"></div>
+    <div id="mcRows" class="mc-rows"></div>
   </div>
 </div>
 
@@ -1016,18 +1116,54 @@ els.menuFab.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu();
 });
-// 會員中心：確保狀態欄顯示（若被收合會自動展開）並捲動到可見範圍
+// 會員中心：開啟會員資料彈窗（頭像 + 身分徽章 + 會員資料）
+function openMemberCenter(){
+  if(!userInfo||!authStatus){showToast('請先登入','warning');return;}
+  const img=document.getElementById('mcAvatar');
+  const fb=document.getElementById('mcAvatarFallback');
+  if(userInfo.pictureUrl){
+    img.src=userInfo.pictureUrl;img.style.display='block';fb.style.display='none';
+  }else{
+    img.style.display='none';fb.style.display='flex';
+  }
+  const badge=document.getElementById('mcBadge');
+  const nameEl=document.getElementById('mcName');
+  const rowsEl=document.getElementById('mcRows');
+  const row=(ic,label,valHtml)=>`<div class="sb-stat-row"><span class="sb-stat-ic">${ic}</span><span class="sb-stat-label">${label}</span><span class="sb-stat-val">${valHtml}</span></div>`;
+  if(authStatus.isSuperAdmin){
+    badge.className='mc-badge super';badge.textContent='👑 超級管理員';
+    nameEl.className='mc-name super-admin-username';nameEl.textContent=userInfo.displayName;
+    rowsEl.innerHTML=
+      row('♾️','使用次數','<span class="super-admin-username">不限次數</span>')+
+      row('🗑️','刪除次數','<span class="super-admin-username">不限次數</span>');
+  }else if(authStatus.isVip){
+    const expiryText=authStatus.remainingDays==='永久有效'?'永久有效':`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
+    badge.className='mc-badge vip';badge.textContent='💎 尊爵用戶';
+    nameEl.className='mc-name vip-admin-username';nameEl.textContent=userInfo.displayName;
+    rowsEl.innerHTML=
+      row('📅','有效期限',`<span class="remaining-days-yellow">${expiryText}</span>`)+
+      row('🗑️','刪除次數','<span class="vip-admin-username">不限次數</span>');
+  }else{
+    const usedDeletes=getSessionDeleteCount();
+    const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
+    badge.className='mc-badge gold';badge.textContent='🥇 黃金用戶';
+    nameEl.className='mc-name gold-username';nameEl.textContent=userInfo.displayName;
+    rowsEl.innerHTML=
+      row('🔐','剩餘可登入次數',`<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>`)+
+      row('🗑️','本批免費刪除剩餘',`<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT} 次</span>`);
+  }
+  document.getElementById('memberOverlay').classList.add('show');
+}
+function closeMemberCenter(){
+  document.getElementById('memberOverlay').classList.remove('show');
+}
 els.menuMemberCenter.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu(false);
-  if(statusBarHidden){
-    statusBarHidden=false;
-    applyStatusBarVisibility();
-  }
-  setTimeout(()=>{
-    if(els.authStatusBar) els.authStatusBar.scrollIntoView({behavior:'smooth',block:'start'});
-  },150);
+  setTimeout(openMemberCenter,150);
 });
+document.getElementById('memberCloseBtn').addEventListener('click',closeMemberCenter);
+document.getElementById('memberOverlay').addEventListener('click',function(e){ if(e.target===this) closeMemberCenter(); });
 els.menuStatusToggle.addEventListener('click',function(e){
   e.stopPropagation();
   statusBarHidden=!statusBarHidden;
@@ -1331,6 +1467,7 @@ async function resetReport(){
   els.menuFabWrap.style.display='none';
   toggleMenu(false);
   closeGuide();
+  closeMemberCenter();
   statusBarHidden=false;
 
   document.getElementById('authContainer').style.display='flex';
@@ -2099,7 +2236,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
     ${badgeHtml}
     ${rulesHtml}
     ${canLogin
-      ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
+      ? `<button id="loginBtn" class="login-cta">🔓 登入試算系統<span class="cta-sub">Premium Access</span></button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
   `;
@@ -2155,7 +2292,7 @@ async function handleLoginClick(){
       showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
     }
   }finally{
-    if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
+    if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓 登入試算系統<span class="cta-sub">Premium Access</span>';}
   }
 }
 
