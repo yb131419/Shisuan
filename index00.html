@@ -754,6 +754,12 @@ body{
 .mc-badge.gold{background:rgba(201,161,90,.15);color:var(--gold);border:1px solid rgba(201,161,90,.45);}
 .mc-name{font-size:1.25rem;font-weight:800;margin-bottom:16px;}
 .mc-rows{display:flex;flex-direction:column;gap:9px;text-align:left;}
+.mc-cta-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-top:1px dashed rgba(255,255,255,.12);margin-top:16px;padding-top:14px;
+}
+.mc-cta-label{font-size:12.5px;color:#a89b7d;font-weight:700;flex:0 0 auto;}
+.mc-cta-row .support-btn{margin-left:0;flex:0 0 auto;}
 
 </style>
 </head>
@@ -919,6 +925,10 @@ body{
     <div id="mcBadge" class="mc-badge"></div>
     <div id="mcName" class="mc-name"></div>
     <div id="mcRows" class="mc-rows"></div>
+    <div class="mc-cta-row" id="mcCtaRow">
+      <span class="mc-cta-label">💖 贊助支持系統</span>
+      <a class="support-btn" id="mcSupportBtn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>
+    </div>
   </div>
 </div>
 
@@ -1151,6 +1161,18 @@ function openMemberCenter(){
     rowsEl.innerHTML=
       row('🔐','剩餘可登入次數',`<span class="${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span>`)+
       row('🗑️','本批免費刪除剩餘',`<span class="${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT} 次</span>`);
+  }
+  // 贊助列：依身分顯示對應文案與連結（與狀態欄一致）
+  const ctaLabel=document.querySelector('#mcCtaRow .mc-cta-label');
+  const ctaBtn=document.getElementById('mcSupportBtn');
+  if(authStatus.isSuperAdmin||authStatus.isVip){
+    ctaLabel.textContent='💖 贊助支持系統';
+    ctaBtn.textContent='點擊贊助';
+    ctaBtn.href='https://portaly.cc/yb131419/support';
+  }else{
+    ctaLabel.textContent='贊助『使用次數』';
+    ctaBtn.textContent='點擊贊助『試算系統』';
+    ctaBtn.href='https://portaly.cc/yb131419/';
   }
   document.getElementById('memberOverlay').classList.add('show');
 }
