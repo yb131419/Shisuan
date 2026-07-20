@@ -617,6 +617,122 @@ body{
   box-shadow: 0 1px 4px rgba(255, 215, 0, 0.3);
 }
 
+/* ============================================================
+   一萬美元質感登入按鈕：黑曜石底 × 燙金流光邊框 × 掃光動畫
+   ============================================================ */
+.login-btn-premium{
+  position:relative;width:100%;padding:16px 20px!important;margin-top:4px;
+  font-size:17px!important;font-weight:800!important;letter-spacing:2px;
+  color:var(--gold-light)!important;cursor:pointer;border-radius:14px!important;
+  background:linear-gradient(160deg,#1f1b12 0%,#0e0c07 55%,#181510 100%)!important;
+  border:1px solid rgba(201,161,90,0.55)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6),0 0 22px rgba(201,161,90,0.18),
+    inset 0 1px 0 rgba(255,233,176,0.22),inset 0 -1px 0 rgba(0,0,0,0.6)!important;
+  text-shadow:0 1px 6px rgba(201,161,90,0.45);
+  overflow:hidden;transition:all .35s cubic-bezier(.22,.8,.36,1)!important;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.login-btn-premium::before{
+  content:'';position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;
+  background:linear-gradient(120deg,rgba(201,161,90,0) 0%,rgba(255,233,176,.9) 50%,rgba(201,161,90,0) 100%);
+  background-size:250% 100%;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:loginBorderShine 3.2s linear infinite;
+}
+.login-btn-premium::after{
+  content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,233,176,.28),transparent);
+  transform:skewX(-18deg);animation:loginSweep 3.6s ease-in-out infinite;
+}
+@keyframes loginBorderShine{0%{background-position:0% 0;}100%{background-position:250% 0;}}
+@keyframes loginSweep{0%,55%{left:-120%;}85%,100%{left:130%;}}
+.login-btn-premium:hover{
+  transform:translateY(-2px);color:#fff8e6!important;
+  border-color:rgba(255,233,176,0.85)!important;
+  box-shadow:0 14px 38px rgba(0,0,0,0.65),0 0 34px rgba(201,161,90,0.35),
+    inset 0 1px 0 rgba(255,233,176,0.3)!important;
+}
+.login-btn-premium:active{
+  transform:translateY(1px) scale(0.99);
+  box-shadow:0 6px 18px rgba(0,0,0,0.6),0 0 14px rgba(201,161,90,0.2)!important;
+}
+.login-btn-premium:disabled{opacity:0.75;transform:none;}
+.login-btn-premium .lb-ic{font-size:19px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
+.login-btn-premium .lb-sub{
+  display:block;font-size:10.5px;font-weight:600;letter-spacing:3px;
+  color:rgba(255,233,176,0.55);margin-top:3px;text-shadow:none;
+}
+.login-btn-premium .lb-txt{display:flex;flex-direction:column;align-items:center;line-height:1.25;}
+
+/* ============================================================
+   會員中心彈窗：頭像 × 身分徽章 × 會員資料卡
+   ============================================================ */
+#memberOverlay{
+  position:fixed;inset:0;z-index:2900;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:20px;
+}
+#memberOverlay.show{display:flex;}
+.member-card{
+  width:100%;max-width:380px;position:relative;overflow:hidden;
+  background:
+    linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,0) 40%),
+    linear-gradient(160deg,#201c13 0%,#121007 60%,#1a1710 100%);
+  border:1px solid rgba(201,161,90,0.4);border-radius:22px;
+  padding:30px 24px 24px;box-shadow:0 24px 60px rgba(0,0,0,0.7),0 0 30px rgba(201,161,90,0.12);
+  animation:loginCardIn .45s cubic-bezier(0.16,1,0.3,1);text-align:center;
+}
+.member-card::before{
+  content:'';position:absolute;inset:0;border-radius:22px;padding:1px;pointer-events:none;
+  background:linear-gradient(120deg,rgba(201,161,90,0) 0%,rgba(255,233,176,.6) 50%,rgba(201,161,90,0) 100%);
+  background-size:220% 100%;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  animation:statusBorderShine 5.5s linear infinite;
+}
+.member-close{
+  position:absolute;top:14px;right:16px;background:none;border:none;
+  color:#8a8477;font-size:20px;cursor:pointer;line-height:1;z-index:2;transition:color .2s ease;
+}
+.member-close:hover{color:var(--gold-light);}
+.member-head-label{
+  font-size:11px;letter-spacing:4px;font-weight:800;color:var(--gold-light);
+  text-transform:uppercase;margin-bottom:16px;opacity:0.85;
+}
+.member-avatar-wrap{display:flex;justify-content:center;margin-bottom:12px;}
+.member-avatar{
+  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--gold);
+  box-shadow:0 0 0 5px rgba(201,161,90,0.15),0 8px 24px rgba(0,0,0,0.6);
+  animation:avatarPulse 2.6s ease-in-out infinite;
+}
+.member-avatar.fallback{display:flex;align-items:center;justify-content:center;font-size:2.4rem;background:#2a2a2a;color:#ccc;}
+.member-name{font-size:1.25rem;font-weight:800;margin:8px 0 4px;}
+.member-badge{display:inline-block;padding:5px 16px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:14px;}
+.member-badge.super{background:rgba(212,175,55,0.15);color:var(--super);border:1px solid rgba(212,175,55,0.45);}
+.member-badge.vip{background:rgba(0,191,165,0.15);color:var(--vip);border:1px solid rgba(0,191,165,0.45);}
+.member-badge.gold{background:rgba(201,161,90,0.15);color:var(--gold);border:1px solid rgba(201,161,90,0.45);}
+.member-stats{display:flex;flex-direction:column;gap:9px;margin-bottom:16px;text-align:left;}
+.member-stat-row{
+  display:flex;align-items:center;gap:10px;font-size:13px;color:#b7b0a1;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;padding:10px 13px;
+}
+.member-stat-row .m-ic{font-size:15px;flex:0 0 auto;width:20px;text-align:center;}
+.member-stat-row .m-label{flex:1;min-width:0;}
+.member-stat-row .m-val{font-weight:800;font-size:13.5px;white-space:nowrap;}
+.member-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-top:1px dashed rgba(255,255,255,.12);padding-top:14px;
+}
+.member-cta-label{font-size:12.5px;color:#a89b7d;font-weight:700;}
+@media (max-width:360px){
+  .member-card{padding:24px 16px 18px;}
+  .member-avatar{width:72px;height:72px;}
+}
+
 /* 使用導覽（步驟彈窗） */
 #guideOverlay{
   position:fixed;inset:0;z-index:3000;display:none;
@@ -670,7 +786,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -784,6 +900,15 @@ body{
   <select id="nameInput"></select>
   <select id="qtyInput"></select>
   <button id="addBtn" class="btn btn-primary btn-lg">➕<br>新增品項</button>
+</div>
+
+<!-- 會員中心彈窗 -->
+<div id="memberOverlay">
+  <div class="member-card">
+    <button class="member-close" id="memberCloseBtn" title="關閉">✕</button>
+    <div class="member-head-label">◆ 會員中心 ◆</div>
+    <div id="memberCardBody"></div>
+  </div>
 </div>
 
 <!-- 使用導覽彈窗 -->
@@ -1016,13 +1141,7 @@ els.menuFab.addEventListener('click',function(e){
 els.menuMemberCenter.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu(false);
-  if(statusBarHidden){
-    statusBarHidden=false;
-    applyStatusBarVisibility();
-  }
-  setTimeout(()=>{
-    if(els.authStatusBar) els.authStatusBar.scrollIntoView({behavior:'smooth',block:'start'});
-  },150);
+  setTimeout(openMemberCenter,180);
 });
 els.menuStatusToggle.addEventListener('click',function(e){
   e.stopPropagation();
@@ -1054,6 +1173,66 @@ function bindCloseStatusBtn(){
   });
 }
 bindCloseStatusBtn();
+
+// ============================================================
+// 會員中心彈窗：人物頭像 × 會員資料
+// ============================================================
+function openMemberCenter(){
+  if(!userInfo){showToast('請先登入','error');return;}
+  const body=document.getElementById('memberCardBody');
+  const avatarUrl=userInfo.pictureUrl||'';
+  const avatarHtml=avatarUrl
+    ? `<img class="member-avatar" src="${avatarUrl}" alt="會員頭像"/>`
+    : `<div class="member-avatar fallback">🙂</div>`;
+
+  let badgeHtml='',nameCls='',statsHtml='',ctaHtml='';
+  if(authStatus&&authStatus.isSuperAdmin){
+    nameCls='super-admin-username';
+    badgeHtml=`<div class="member-badge super">👑 超級管理員</div>`;
+    statsHtml=`
+      <div class="member-stat-row"><span class="m-ic">♾️</span><span class="m-label">使用次數</span><span class="m-val super-admin-username">不限次數</span></div>
+      <div class="member-stat-row"><span class="m-ic">📅</span><span class="m-label">有效期限</span><span class="m-val remaining-days-yellow">永久有效</span></div>
+    `;
+    ctaHtml=`<span class="member-cta-label">💖 贊助支持系統</span>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>`;
+  }else if(authStatus&&authStatus.isVip){
+    nameCls='vip-admin-username';
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
+    badgeHtml=`<div class="member-badge vip">💎 尊爵用戶</div>`;
+    statsHtml=`
+      <div class="member-stat-row"><span class="m-ic">📅</span><span class="m-label">有效期限</span><span class="m-val remaining-days-yellow">${expiryText}</span></div>
+      <div class="member-stat-row"><span class="m-ic">🗑️</span><span class="m-label">刪除品項</span><span class="m-val vip-admin-username">不限次數</span></div>
+    `;
+    ctaHtml=`<span class="member-cta-label">💖 贊助支持系統</span>
+      <a class="support-btn" href="https://portaly.cc/yb131419/support" target="_blank">點擊贊助</a>`;
+  }else{
+    nameCls='gold-username';
+    const remain=(authStatus&&authStatus.remainingTimes)||0;
+    const usedDeletes=getSessionDeleteCount();
+    const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
+    badgeHtml=`<div class="member-badge gold">🥇 黃金用戶</div>`;
+    statsHtml=`
+      <div class="member-stat-row"><span class="m-ic">🔐</span><span class="m-label">剩餘可登入次數</span><span class="m-val ${remain<=0?'expired':'normal'}">${remain} 次</span></div>
+      <div class="member-stat-row"><span class="m-ic">🗑️</span><span class="m-label">本批免費刪除剩餘</span><span class="m-val ${leftFreeDeletes<=0?'expired':'normal'}">${leftFreeDeletes}/${FREE_DELETE_LIMIT} 次</span></div>
+    `;
+    ctaHtml=`<span class="member-cta-label">贊助『使用次數』</span>
+      <a class="support-btn" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`;
+  }
+
+  body.innerHTML=`
+    <div class="member-avatar-wrap">${avatarHtml}</div>
+    <div class="member-name ${nameCls}">${userInfo.displayName||'未知用戶'}</div>
+    ${badgeHtml}
+    <div class="member-stats">${statsHtml}</div>
+    <div class="member-cta">${ctaHtml}</div>
+  `;
+  document.getElementById('memberOverlay').classList.add('show');
+}
+function closeMemberCenter(){
+  document.getElementById('memberOverlay').classList.remove('show');
+}
+document.getElementById('memberCloseBtn').addEventListener('click',closeMemberCenter);
+document.getElementById('memberOverlay').addEventListener('click',function(e){ if(e.target===this) closeMemberCenter(); });
 
 // ============================================================
 // 使用導覽
@@ -1308,6 +1487,7 @@ async function resetReport(){
   els.menuFabWrap.style.display='none';
   toggleMenu(false);
   closeGuide();
+  closeMemberCenter();
   statusBarHidden=false;
 
   document.getElementById('authContainer').style.display='flex';
@@ -2034,7 +2214,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
     ${badgeHtml}
     ${rulesHtml}
     ${canLogin
-      ? `<button id="loginBtn" class="btn btn-primary btn-lg login-btn-full">🔓<br>登入試算系統</button>`
+      ? `<button id="loginBtn" class="login-btn-premium"><span class="lb-ic">🗝️</span><span class="lb-txt">登入試算系統<span class="lb-sub">SIGNATURE ACCESS</span></span></button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
   `;
@@ -2045,7 +2225,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
 
 async function handleLoginClick(){
   const loginBtn=document.getElementById('loginBtn');
-  if(loginBtn){loginBtn.disabled=true;loginBtn.innerHTML='<span class="btn-spinner"></span>登入中...';}
+  if(loginBtn){loginBtn.disabled=true;loginBtn.innerHTML='<span class="btn-spinner"></span><span class="lb-txt">登入中...</span>';}
   try{
     const loginResult=await loginToBackend();
     if(!loginResult)return;
@@ -2073,7 +2253,7 @@ async function handleLoginClick(){
         </a>
         <br><br>
         <div class="example-title">📌 實際使用範例</div>
-        <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
           style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
         <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
       `);
@@ -2082,7 +2262,7 @@ async function handleLoginClick(){
     sessionStorage.setItem(SESSION_KEY_ACTIVE,'true');
     sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
     setSessionDeleteCount(0);
-    if(loginBtn){loginBtn.innerHTML='✅ 登入成功';loginBtn.classList.add('btn-success');}
+    if(loginBtn){loginBtn.innerHTML='<span class="lb-ic">✅</span><span class="lb-txt">登入成功</span>';loginBtn.classList.add('btn-success');}
     await new Promise(r=>setTimeout(r,320));
     enterCalculator();
     if(authStatus.isSuperAdmin||authStatus.isVip){
@@ -2091,7 +2271,7 @@ async function handleLoginClick(){
       showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
     }
   }finally{
-    if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓<br>登入試算系統';}
+    if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='<span class="lb-ic">🗝️</span><span class="lb-txt">登入試算系統<span class="lb-sub">SIGNATURE ACCESS</span></span>';}
   }
 }
 
@@ -2174,7 +2354,7 @@ async function initLiffAndAuth(){
         </a>
         <br><br>
         <div class="example-title">📌 實際使用範例</div>
-        <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
           style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
         <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
       `);
