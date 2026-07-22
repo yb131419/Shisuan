@@ -271,6 +271,27 @@ body{
 }
 .dr-item .ic.gold{background:rgba(217,184,115,0.16);color:var(--gold-light);}
 .dr-sep{height:1px;background:rgba(255,255,255,0.08);margin:12px 4px;}
+/* 抽屜頂部會員面板 */
+.dm-card{
+  display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;
+  background:linear-gradient(160deg,rgba(201,161,90,0.1),rgba(201,161,90,0.03));
+  border:1px solid rgba(201,161,90,0.3);border-radius:16px;
+}
+.dm-avatar{
+  width:48px;height:48px;border-radius:50%;object-fit:cover;flex:0 0 auto;
+  border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(201,161,90,0.15),0 4px 12px rgba(0,0,0,0.5);
+}
+.dm-fallback{display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:#2a2a2a;color:#ccc;}
+.dm-info{min-width:0;flex:1;}
+.dm-name{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dm-badge{font-size:11.5px;color:var(--gold);font-weight:700;margin-top:2px;letter-spacing:.5px;}
+.dm-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
+.dm-row{
+  display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#b7b0a1;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:8px 12px;
+}
+.dm-row b{font-size:13px;}
 .dr-foot{
   margin-top:6px;padding:12px 12px 2px;font-size:11px;color:#777;line-height:1.6;
   border-top:1px solid rgba(255,255,255,0.06);
@@ -460,6 +481,68 @@ body{
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
 .summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
+/* ============================================================
+   一萬美元質感匯總卡：燙金總額 × 質感進度條
+   ============================================================ */
+.summary-lux{
+  margin-top:14px;padding:16px 16px 14px;border-radius:16px;position:relative;overflow:hidden;
+  background:
+    linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,0) 45%),
+    linear-gradient(160deg,#211c12 0%,#12100a 60%,#1a1610 100%);
+  border:1px solid rgba(201,161,90,0.38);
+  box-shadow:0 8px 26px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,233,176,0.12);
+}
+.lux-totals{display:flex;align-items:stretch;justify-content:center;gap:0;margin-bottom:14px;}
+.lux-cell{flex:1;text-align:center;padding:2px 6px;min-width:0;}
+.lux-div{width:1px;background:linear-gradient(180deg,transparent,rgba(201,161,90,.5),transparent);margin:2px 4px;}
+.lux-label{
+  font-size:10.5px;letter-spacing:3px;color:#a89b7d;font-weight:700;margin-bottom:5px;
+}
+.lux-val{font-size:1.55rem;font-weight:800;line-height:1.15;white-space:nowrap;letter-spacing:.5px;}
+.lux-val.lux-gold{
+  background:linear-gradient(135deg,#ffe9b0,#d4af37 55%,#f9d976);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 8px rgba(212,175,55,0.35));
+}
+.lux-val.lux-teal{
+  background:linear-gradient(135deg,#7df3e1,#00bfa5 60%,#40e0cf);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 8px rgba(0,191,165,0.3));
+}
+.lux-cur{font-size:0.85rem;margin-right:3px;opacity:.85;font-weight:700;}
+.lux-target{margin-top:10px;}
+.lux-target-head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:12.5px;margin-bottom:6px;
+}
+.lux-t-name{color:#c9bfa8;font-weight:700;letter-spacing:.5px;white-space:nowrap;}
+.lux-t-remain{font-weight:800;font-size:13.5px;color:#ffe9b0;white-space:nowrap;text-shadow:0 1px 4px rgba(201,161,90,.35);}
+.lux-t-remain .done{color:#4caf50;text-shadow:0 0 8px rgba(76,175,80,.5);}
+.lux-bar{
+  height:8px;border-radius:6px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.5);
+}
+.lux-bar-fill{
+  height:100%;width:0%;border-radius:6px;transition:width .6s cubic-bezier(.22,.8,.36,1);
+  background:linear-gradient(90deg,#00bfa5,#40e0cf 60%,#7df3e1);
+  box-shadow:0 0 10px rgba(0,191,165,.5);
+  position:relative;overflow:hidden;
+}
+.lux-bar-fill.lux-bar-gold{
+  background:linear-gradient(90deg,#c9a15a,#d4af37 55%,#ffe9b0);
+  box-shadow:0 0 10px rgba(212,175,55,.5);
+}
+.lux-bar-fill::after{
+  content:'';position:absolute;top:0;left:-60%;width:50%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.45),transparent);
+  animation:luxBarSweep 2.8s ease-in-out infinite;
+}
+@keyframes luxBarSweep{0%,50%{left:-60%;}90%,100%{left:120%;}}
+@media (max-width:360px){
+  .lux-val{font-size:1.25rem;}
+  .lux-t-remain{font-size:12.5px;}
+}
 .summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
 .summaryBox .done{color:#4caf50;font-weight:bold;}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
@@ -544,6 +627,9 @@ body{
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
   .summaryBox{color:#000!important;}
+  .summary-lux{background:#f5f2ea!important;border-color:#c9a15a!important;box-shadow:none!important;}
+  .lux-label,.lux-t-name{color:#6b5d3f!important;}
+  .lux-t-remain{color:#8a6d1f!important;text-shadow:none!important;}
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
   #watermark {display: none!important;}
@@ -786,7 +872,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -801,13 +887,11 @@ body{
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="side-drawer" id="sideDrawer">
   <div class="dr-head">🌿 功能選單</div>
+  <div id="drawerMember"></div>
   <button class="dr-item" id="menuMemberCenter">
     <span class="ic gold">👤</span>會員中心
   </button>
   <div class="dr-sep"></div>
-  <button class="dr-item" id="menuStatusToggle">
-    <span class="ic">📊</span>隱藏狀態欄
-  </button>
   <button class="dr-item" id="menuGuide">
     <span class="ic gold">❓</span>使用導覽
   </button>
@@ -861,10 +945,32 @@ body{
     </thead>
     <tbody id="reportBody"></tbody>
   </table>
-  <div class="summaryBox" aria-live="polite">
-    總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
-    <span class="extra">距 22 萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
-    <span class="extra">距 30 萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
+  <div class="summary-lux" aria-live="polite">
+    <div class="lux-totals">
+      <div class="lux-cell">
+        <div class="lux-label">總 金 額</div>
+        <div class="lux-val lux-gold"><span class="lux-cur">NT$</span><span id="totalPriceCellDup">0</span></div>
+      </div>
+      <div class="lux-div"></div>
+      <div class="lux-cell">
+        <div class="lux-label">總 PV</div>
+        <div class="lux-val lux-teal"><span id="totalPvCellDup">0</span></div>
+      </div>
+    </div>
+    <div class="lux-target">
+      <div class="lux-target-head">
+        <span class="lux-t-name">🎯 距 22 萬 PV</span>
+        <span class="lux-t-remain"><span id="pvDiff2">220,000</span> <span id="pvMessage2"></span></span>
+      </div>
+      <div class="lux-bar"><div class="lux-bar-fill" id="pvBar2"></div></div>
+    </div>
+    <div class="lux-target">
+      <div class="lux-target-head">
+        <span class="lux-t-name">🏆 距 30 萬 PV</span>
+        <span class="lux-t-remain"><span id="pvDiff3">300,000</span> <span id="pvMessage3"></span></span>
+      </div>
+      <div class="lux-bar"><div class="lux-bar-fill lux-bar-gold" id="pvBar3"></div></div>
+    </div>
   </div>
 
   <!-- 預計獎金區塊（螢幕互動版） -->
@@ -980,8 +1086,8 @@ function formatNumber(n) {
 }
 
 function updateBonusDisplay() {
-  const totalPv    = parseInt(els.totalPvCellDup.textContent)    || 0;
-  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
+  const totalPv    = parseInt((els.totalPvCellDup.textContent||'').replace(/,/g,''))    || 0;
+  const totalPrice = parseInt((els.totalPriceCellDup.textContent||'').replace(/,/g,'')) || 0;
   const selected   = document.querySelector('input[name="bonusType"]:checked');
   const box        = document.getElementById('bonusResultBox');
   const printBox   = document.getElementById('bonusPrintBox');
@@ -1113,11 +1219,7 @@ document.getElementById('radioMgr').addEventListener('change', updateBonusDispla
 // ============================================================
 // 左側滑出式抽屜選單邏輯
 // ============================================================
-function updateMenuStatusLabel(){
-  els.menuStatusToggle.innerHTML = statusBarHidden
-    ? '<span class="ic">📊</span>顯示狀態欄'
-    : '<span class="ic">📊</span>隱藏狀態欄';
-}
+function updateMenuStatusLabel(){/* 狀態欄已整合進漢堡選單，選項移除 */}
 function toggleMenu(forceOpen){
   const willOpen = (forceOpen===undefined) ? !els.sideDrawer.classList.contains('on') : forceOpen;
   els.sideDrawer.classList.toggle('on', willOpen);
@@ -1125,14 +1227,7 @@ function toggleMenu(forceOpen){
   els.menuFab.classList.toggle('open', willOpen);
 }
 function applyStatusBarVisibility(){
-  if(statusBarHidden){
-    els.authStatusBar.style.display='none';
-  }else{
-    els.authStatusBar.style.display='block';
-    els.authStatusBar.classList.add('status-in');
-    setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
-  }
-  updateMenuStatusLabel();
+  els.authStatusBar.style.display='none'; // 已整合進漢堡選單
 }
 els.menuFab.addEventListener('click',function(e){
   e.stopPropagation();
@@ -1142,12 +1237,6 @@ els.menuMemberCenter.addEventListener('click',function(e){
   e.stopPropagation();
   toggleMenu(false);
   setTimeout(openMemberCenter,180);
-});
-els.menuStatusToggle.addEventListener('click',function(e){
-  e.stopPropagation();
-  statusBarHidden=!statusBarHidden;
-  applyStatusBarVisibility();
-  toggleMenu(false);
 });
 els.menuGuide.addEventListener('click',function(e){
   e.stopPropagation();
@@ -1246,7 +1335,7 @@ const GUIDE_STEPS=[
   {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
   {icon:'📱',title:'分享報表',desc:'圖片產生後，可用「安卓分享」把圖片網址轉傳到 LINE，或用「分享圖片」呼叫手機原生分享；不需要時可按「❌ 清除圖片」。'},
   {icon:'🔄',title:'重置報表',desc:'「🔄 重置報表」會清空所有品項並登出，需要重新登入（重新扣 1 次使用次數），適合換一位客戶重新試算時使用。'},
-  {icon:'☰',title:'左上角功能選單',desc:'左上角的「☰」選單裡有兩個功能：「📊 顯示/隱藏狀態欄」可以隨時收合或展開身分與剩餘次數資訊；「❓ 使用導覽」可以重看這份教學。狀態欄右上角的「✕」也能直接收合。'}
+  {icon:'☰',title:'左上角功能選單',desc:'左上角的「☰」選單頂部會顯示你的頭像、身分與剩餘次數；點「👤 會員中心」可看完整會員資料卡；「❓ 使用導覽」可以重看這份教學。'}
 ];
 let guideIndex=0;
 
@@ -1558,12 +1647,16 @@ function renderTable(){
   setTimeout(()=>{
     els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
   },320);
-  els.totalPriceCellDup.textContent=totalPrice;
-  els.totalPvCellDup.textContent=totalPv;
+  els.totalPriceCellDup.textContent=formatNumber(totalPrice);
+  els.totalPvCellDup.textContent=formatNumber(totalPv);
   const diff2=TARGET_PV220-totalPv;
   const diff3=TARGET_PV300-totalPv;
-  els.pvDiff2.textContent=diff2>0?diff2:0;
-  els.pvDiff3.textContent=diff3>0?diff3:0;
+  els.pvDiff2.textContent=formatNumber(diff2>0?diff2:0);
+  els.pvDiff3.textContent=formatNumber(diff3>0?diff3:0);
+  const bar2=document.getElementById('pvBar2');
+  const bar3=document.getElementById('pvBar3');
+  if(bar2)bar2.style.width=Math.min(totalPv/TARGET_PV220*100,100)+'%';
+  if(bar3)bar3.style.width=Math.min(totalPv/TARGET_PV300*100,100)+'%';
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
   els.pvMessage3.innerHTML=totalPv>=TARGET_PV300?'<span class="done">🎉 已達標</span>':'';
   document.querySelectorAll(".qtySelect").forEach(select=>{
@@ -1841,12 +1934,45 @@ function updateAuthStatusBar(){
     </div>
   `;
   bindCloseStatusBtn();
-  if(statusBarHidden){
-    els.authStatusBar.style.display='none';
+  els.authStatusBar.style.display='none'; // 舊狀態欄停用，資訊整合進漢堡選單
+  renderDrawerMember();
+}
+
+// ============================================================
+// 漢堡選單頂部：會員資訊面板（頭像＋身分＋次數）
+// ============================================================
+function renderDrawerMember(){
+  const box=document.getElementById('drawerMember');
+  if(!box||!userInfo){if(box)box.innerHTML='';return;}
+  const avatarUrl=userInfo.pictureUrl||'';
+  const avatarHtml=avatarUrl
+    ? `<img class="dm-avatar" src="${avatarUrl}" alt="會員頭像"/>`
+    : `<div class="dm-avatar dm-fallback">🙂</div>`;
+  let nameCls='gold-username',badge='🥇 黃金用戶',rows='';
+  if(authStatus&&authStatus.isSuperAdmin){
+    nameCls='super-admin-username';badge='👑 超級管理員';
+    rows=`<div class="dm-row"><span>♾️ 使用次數</span><b class="super-admin-username">不限</b></div>`;
+  }else if(authStatus&&authStatus.isVip){
+    nameCls='vip-admin-username';badge='💎 尊爵用戶';
+    const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}`;
+    rows=`<div class="dm-row"><span>📅 有效期限</span><b class="remaining-days-yellow">${expiryText}</b></div>`;
   }else{
-    els.authStatusBar.style.display='block';
+    const remain=(authStatus&&authStatus.remainingTimes)||0;
+    const leftFree=Math.max(FREE_DELETE_LIMIT-getSessionDeleteCount(),0);
+    rows=`
+      <div class="dm-row"><span>🔐 剩餘登入</span><b class="${remain<=0?'expired':'normal'}">${remain} 次</b></div>
+      <div class="dm-row"><span>🗑️ 免費刪除</span><b class="${leftFree<=0?'expired':'normal'}">${leftFree}/${FREE_DELETE_LIMIT} 次</b></div>`;
   }
-  updateMenuStatusLabel();
+  box.innerHTML=`
+    <div class="dm-card">
+      ${avatarHtml}
+      <div class="dm-info">
+        <div class="dm-name ${nameCls}">${userInfo.displayName||'未知用戶'}</div>
+        <div class="dm-badge">${badge}</div>
+      </div>
+    </div>
+    <div class="dm-rows">${rows}</div>
+    <div class="dr-sep"></div>`;
 }
 
 // 轉圖前把表單即時狀態同步回 HTML 屬性
@@ -2253,7 +2379,7 @@ async function handleLoginClick(){
         </a>
         <br><br>
         <div class="example-title">📌 實際使用範例</div>
-        <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
           style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
         <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
       `);
@@ -2354,7 +2480,7 @@ async function initLiffAndAuth(){
         </a>
         <br><br>
         <div class="example-title">📌 實際使用範例</div>
-        <img src="https://yb131419.github.io/Shisuan/shop001.PNG" alt="彥彬試算系統使用範例" loading="lazy"
+        <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
           style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
         <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
       `);
