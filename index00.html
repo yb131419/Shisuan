@@ -135,10 +135,10 @@ body{
   animation:statusBorderShine 5.5s linear infinite;
 }
 @keyframes statusBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
-.sb-card{position:relative;z-index:1;padding:16px 18px 15px;}
+.sb-card{position:relative;z-index:1;padding:14px 18px 15px;}
 .sb-top{
   display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:8px 10px;text-align:center;padding:0 34px;margin-bottom:12px;
+  gap:8px 10px;text-align:center;padding:0;margin-bottom:12px;
 }
 .sb-badge-ic{font-size:19px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
 .sb-badge-txt{
@@ -171,46 +171,47 @@ body{
 #authStatusBar .support-btn{
   margin-left:0;flex:0 0 auto;
 }
-#authStatusBar .close-status {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.06);
-  color: #cfc7b6;
-  border: 1px solid rgba(255,255,255,.14);
-  cursor: pointer;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  writing-mode: initial;
-  text-orientation: initial;
-  transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
-  padding: 0;
-  font-weight: 700;
-  line-height: 1;
-  margin: 0;
-  outline: none;
-  z-index: 2;
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
+/* ============================================================
+   一體成型頂部列：漢堡選單 + 身分縮寫 + 收合鈕，同屬一張卡片，
+   不再是漂浮於外的獨立按鈕，解決「分開很醜」的問題
+   ============================================================ */
+.sb-header{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.08);position:relative;z-index:1;
 }
-#authStatusBar .close-status:hover {
-  background: rgba(217,184,115,.16);
-  border-color: rgba(217,184,115,.5);
-  color: var(--gold-light);
-  transform: rotate(90deg);
+.sb-header .menu-btn{
+  width:34px;height:34px;border-radius:10px;flex:0 0 auto;cursor:pointer;
+  background:linear-gradient(160deg,#2c2c2c,#1c1c1c);
+  color:#fff;border:1px solid rgba(217,184,115,0.35);
+  font-size:16px;font-weight:bold;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
 }
-#authStatusBar .close-status:active {
-  transform: rotate(90deg) scale(0.9);
+.sb-header .menu-btn:hover{border-color:rgba(0,209,178,.7);box-shadow:0 3px 10px rgba(0,209,178,.25);}
+.sb-header .menu-btn:active{transform:scale(0.92);}
+.sb-header .menu-btn.open{border-color:rgba(0,209,178,.85);background:linear-gradient(160deg,#333,#222);}
+.sb-header-mid{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;overflow:hidden;
 }
-#authStatusBar .close-status:focus-visible {
-  outline: 2px solid var(--gold-light);
-  outline-offset: 2px;
+.sb-header-mid .sb-mid-ic{font-size:15px;flex:0 0 auto;}
+.sb-header-mid .sb-mid-name{
+  font-size:12.5px;font-weight:800;color:#cfc7b6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
+.sb-toggle-btn{
+  width:30px;height:30px;border-radius:10px;flex:0 0 auto;cursor:pointer;
+  background:rgba(255,255,255,.06);color:#cfc7b6;border:1px solid rgba(255,255,255,.14);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all 0.25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
+}
+.sb-toggle-btn:hover{background:rgba(217,184,115,.16);border-color:rgba(217,184,115,.5);color:var(--gold-light);}
+.sb-toggle-btn:active{transform:scale(0.92);}
+.sb-toggle-btn .chevron{display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.sb-toggle-btn.collapsed .chevron{transform:rotate(-90deg);}
+.sb-body{
+  overflow:hidden;transition:max-height .38s cubic-bezier(.22,.8,.36,1), opacity .3s ease;
+  max-height:700px;opacity:1;position:relative;z-index:1;
+}
+.sb-body.collapsed{max-height:0;opacity:0;}
 /* ============================================================
    狀態欄「顯示狀態」的滑入進場動畫（比原本更細緻）
    ============================================================ */
@@ -220,24 +221,11 @@ body{
 }
 #authStatusBar.status-in{animation:statusCardIn .45s cubic-bezier(.22,.8,.36,1);}
 /* ============================================================
-
    改版：左側滑出式抽屜選單（比照「AI 智囊」的質感抽屜設計，
-   套用本系統的深色 × 金色主題）。平時只顯示左上角一顆 ☰ 小按鈕，
-   點擊後從左側滑出整片選單，背後有霧化遮罩，質感更完整。
+   套用本系統的深色 × 金色主題）。漢堡選單按鈕現在整合在狀態欄
+   頂部列裡（見 .sb-header .menu-btn），這裡只保留抽屜本體樣式。
    ============================================================ */
-#menuFabWrap{position:fixed;top:8px;left:8px;z-index:1500;display:none;}
-#menuFab{
-  width:38px;height:38px;border-radius:11px;cursor:pointer;
-  background:linear-gradient(160deg,#232323,#161616);
-  color:#fff;border:1px solid rgba(217,184,115,0.35);
-  font-size:17px;line-height:1;font-weight:bold;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 12px rgba(0,0,0,0.5);
-  -webkit-tap-highlight-color:transparent;transition:all .25s ease;
-}
-#menuFab:hover{border-color:rgba(0,209,178,0.7);box-shadow:0 4px 16px rgba(0,209,178,0.3);}
-#menuFab:active{transform:scale(0.92);}
-#menuFab.open{border-color:rgba(0,209,178,0.85);background:linear-gradient(160deg,#2c2c2c,#1c1c1c);}
+
 
 .drawer-mask{
   position:fixed;inset:0;z-index:1600;background:rgba(0,0,0,0.55);
@@ -471,9 +459,54 @@ body{
 .deleteBtn:hover{transform:scale(1.1);border-color:rgba(255,170,170,0.95);box-shadow:0 0 10px rgba(255,82,82,0.55);}
 .deleteBtn:active{transform:scale(0.95);}
 .deleteBtn:disabled{opacity:0.7;cursor:not-allowed;transform:none;}
-.summaryBox{text-align:center;margin-top:13px;font-size:1rem;font-weight:bold;color:var(--highlight);line-height:1.6;}
-.summaryBox .extra{display:block;font-size:0.9rem;color:var(--accent);margin-top:4px;}
-.summaryBox .done{color:#4caf50;font-weight:bold;}
+/* ============================================================
+   總金額／總PV／達標進度 — 精品質感統計卡
+   ============================================================ */
+.summaryBox{margin-top:18px;}
+.sum-totals{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  background:linear-gradient(165deg,#232323,#161616);
+  border:1px solid rgba(201,161,90,0.32);border-radius:16px;
+  padding:14px 10px;box-shadow:0 8px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+  margin-bottom:14px;
+}
+.sum-total-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 8px;
+}
+.sum-total-ic{font-size:19px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.sum-total-label{font-size:11.5px;color:#a89b7d;font-weight:700;letter-spacing:1px;}
+.sum-total-val{
+  font-size:1.5rem;font-weight:800;line-height:1.3;
+  background:linear-gradient(135deg,var(--gold,#c9a15a),var(--gold-light,#ffe9b0));
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+.sum-total-divider{width:1px;align-self:stretch;background:rgba(255,255,255,.12);margin:2px 0;}
+.sum-progress-group{display:flex;flex-direction:column;gap:10px;}
+.sum-progress-row{
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;padding:10px 14px;
+}
+.sum-progress-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:12.5px;color:#c7c1b4;font-weight:700;margin-bottom:7px;
+}
+.sum-progress-value{color:var(--accent,#00d1b2);font-weight:800;font-size:13px;}
+.sum-progress-value .done{color:#4caf50;font-weight:800;}
+.sum-progress-track{
+  height:8px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.3);
+}
+.sum-progress-fill{
+  height:100%;border-radius:8px;width:0%;
+  background:linear-gradient(90deg,#c9a15a,#ffe9b0);
+  box-shadow:0 0 10px rgba(201,161,90,.5);
+  transition:width .5s cubic-bezier(.22,.8,.36,1);
+}
+.sum-progress-row.reached .sum-progress-fill{
+  background:linear-gradient(90deg,#2e9e63,#4caf50);
+  box-shadow:0 0 10px rgba(76,175,80,.5);
+}
+.sum-progress-row.reached{border-color:rgba(76,175,80,.35);}
 #totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
 
 /* ============================================================
@@ -553,11 +586,16 @@ body{
 .payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
-  #authContainer,#authStatusBar,#menuFabWrap,.drawer-mask,.side-drawer,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
+  #authContainer,#authStatusBar,.drawer-mask,.side-drawer,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
   #captureArea{box-shadow:none;background:#fff;color:#000;display:block!important;}
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
   .summaryBox{color:#000!important;}
+  .sum-totals{background:#fff!important;border-color:#999!important;box-shadow:none!important;}
+  .sum-total-val{background:none!important;-webkit-text-fill-color:#000!important;color:#000!important;}
+  .sum-total-label{color:#555!important;}
+  .sum-progress-row{background:#f5f5f5!important;border-color:#ccc!important;}
+  .sum-progress-head{color:#000!important;}
   #reportTable td,#reportTable th{text-align:center!important;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
   #watermark {display: none!important;}
@@ -781,11 +819,14 @@ body{
   </div>
 </div>
 <div id="authStatusBar" style="display: none;">
-  <button class="close-status" title="隱藏狀態欄">✕</button>
-</div>
-<!-- 改版：左側滑出式抽屜選單（比照 AI 智囊 的質感設計） -->
-<div id="menuFabWrap">
-  <button id="menuFab" title="功能選單">☰</button>
+  <div class="sb-header">
+    <button id="menuFab" class="menu-btn" title="功能選單">☰</button>
+    <div class="sb-header-mid" id="sbHeaderMid"></div>
+    <button class="sb-toggle-btn" id="sbToggleBtn" title="收合/展開狀態欄">
+      <span class="chevron">▾</span>
+    </button>
+  </div>
+  <div class="sb-body" id="sbBody"></div>
 </div>
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="side-drawer" id="sideDrawer">
@@ -851,9 +892,35 @@ body{
     <tbody id="reportBody"></tbody>
   </table>
   <div class="summaryBox" aria-live="polite">
-    總 金額：<span id="totalPriceCellDup">0</span>｜總 PV：<span id="totalPvCellDup">0</span>
-    <span class="extra">距 22 萬 PV：<span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
-    <span class="extra">距 30 萬 PV：<span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
+    <div class="sum-totals">
+      <div class="sum-total-item">
+        <span class="sum-total-ic">💰</span>
+        <span class="sum-total-label">總金額</span>
+        <span class="sum-total-val" id="totalPriceCellDup">0</span>
+      </div>
+      <div class="sum-total-divider"></div>
+      <div class="sum-total-item">
+        <span class="sum-total-ic">🎯</span>
+        <span class="sum-total-label">總 PV</span>
+        <span class="sum-total-val" id="totalPvCellDup">0</span>
+      </div>
+    </div>
+    <div class="sum-progress-group">
+      <div class="sum-progress-row" id="pvProgressRow2">
+        <div class="sum-progress-head">
+          <span class="sum-progress-label">距 22 萬 PV</span>
+          <span class="sum-progress-value"><span id="pvDiff2">220000</span> <span id="pvMessage2"></span></span>
+        </div>
+        <div class="sum-progress-track"><div class="sum-progress-fill" id="pvProgressFill2"></div></div>
+      </div>
+      <div class="sum-progress-row" id="pvProgressRow3">
+        <div class="sum-progress-head">
+          <span class="sum-progress-label">距 30 萬 PV</span>
+          <span class="sum-progress-value"><span id="pvDiff3">300000</span> <span id="pvMessage3"></span></span>
+        </div>
+        <div class="sum-progress-track"><div class="sum-progress-fill" id="pvProgressFill3"></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- ============================================================
@@ -1068,8 +1135,10 @@ const els={
   cashOption:document.getElementById("cashOption"),
   cardOption:document.getElementById("cardOption"),
   watermark:document.getElementById("watermark"),
-  menuFabWrap:document.getElementById("menuFabWrap"),
   menuFab:document.getElementById("menuFab"),
+  sbHeaderMid:document.getElementById("sbHeaderMid"),
+  sbToggleBtn:document.getElementById("sbToggleBtn"),
+  sbBody:document.getElementById("sbBody"),
   drawerMask:document.getElementById("drawerMask"),
   sideDrawer:document.getElementById("sideDrawer"),
   menuStatusToggle:document.getElementById("menuStatusToggle"),
@@ -1114,11 +1183,11 @@ function toggleMenu(forceOpen){
 }
 function applyStatusBarVisibility(){
   if(statusBarHidden){
-    els.authStatusBar.style.display='none';
+    els.sbBody.classList.add('collapsed');
+    els.sbToggleBtn.classList.add('collapsed');
   }else{
-    els.authStatusBar.style.display='block';
-    els.authStatusBar.classList.add('status-in');
-    setTimeout(()=>els.authStatusBar.classList.remove('status-in'),400);
+    els.sbBody.classList.remove('collapsed');
+    els.sbToggleBtn.classList.remove('collapsed');
   }
   updateMenuStatusLabel();
 }
@@ -1202,22 +1271,13 @@ els.drawerMask.addEventListener('click',function(){
   toggleMenu(false);
 });
 
-// 狀態欄關閉按鈕事件（共用函式，登入後與後續重新產生的狀態欄都會綁定）
-// 點「關閉」= 收合狀態欄，之後可從左上角 ☰ 選單重新顯示
-function bindCloseStatusBtn(){
-  const btn=els.authStatusBar.querySelector('.close-status');
-  if(!btn)return;
-  btn.addEventListener('click',function(){
-    statusBarHidden=true;
-    els.authStatusBar.style.opacity='0';
-    setTimeout(()=>{
-      els.authStatusBar.style.display='none';
-      els.authStatusBar.style.opacity='1';
-      updateMenuStatusLabel();
-    },300);
-  });
-}
-bindCloseStatusBtn();
+// 狀態欄頂部收合鈕：現在是靜態元素（不隨每次渲染重建），只需綁定一次。
+// 點擊只收合下方的身分/數據內容，頂部列（漢堡選單＋收合鈕）維持顯示，
+// 讓漢堡選單與狀態欄合為同一張卡片，不再是分開的浮動按鈕。
+els.sbToggleBtn.addEventListener('click',function(){
+  statusBarHidden=!statusBarHidden;
+  applyStatusBarVisibility();
+});
 
 // ============================================================
 // 使用導覽（步驟資料 + 控制邏輯，入口在左上角 ☰ 選單）
@@ -1485,8 +1545,7 @@ async function resetReport(){
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
   els.authStatusBar.style.display='none';
-  // 登出時收起漢堡選單與導覽彈窗
-  els.menuFabWrap.style.display='none';
+  // 登出時收起選單與導覽彈窗（漢堡選單已整合進狀態欄，隨上一行一併隱藏）
   toggleMenu(false);
   closeGuide();
   closeMemberCenter();
@@ -1574,6 +1633,17 @@ function renderTable(){
   els.pvDiff3.textContent=diff3>0?diff3:0;
   els.pvMessage2.innerHTML=totalPv>=TARGET_PV220?'<span class="done">🎉 已達標</span>':'';
   els.pvMessage3.innerHTML=totalPv>=TARGET_PV300?'<span class="done">🎉 已達標</span>':'';
+  // 新增：更新達標進度條寬度與「已達標」狀態樣式
+  const pct2=Math.min(100,Math.max(0,(totalPv/TARGET_PV220)*100));
+  const pct3=Math.min(100,Math.max(0,(totalPv/TARGET_PV300)*100));
+  const fill2=document.getElementById('pvProgressFill2');
+  const fill3=document.getElementById('pvProgressFill3');
+  const row2=document.getElementById('pvProgressRow2');
+  const row3=document.getElementById('pvProgressRow3');
+  if(fill2) fill2.style.width=pct2+'%';
+  if(fill3) fill3.style.width=pct3+'%';
+  if(row2) row2.classList.toggle('reached', totalPv>=TARGET_PV220);
+  if(row3) row3.classList.toggle('reached', totalPv>=TARGET_PV300);
   document.querySelectorAll(".qtySelect").forEach(select=>{
     select.onchange=e=>{
       const idx=parseInt(e.target.dataset.index);
@@ -1814,7 +1884,10 @@ function checkUserRemainingTimes(){
 function updateAuthStatusBar(){
   if(!authStatus||!userInfo)return;
   let cardHtml='';
+  let midIcon='';
+  let midLabel='';
   if(authStatus.isSuperAdmin){
+    midIcon='👑';midLabel='超級管理員';
     cardHtml=`
       <div class="sb-top">
         <span class="sb-badge-ic">👑</span>
@@ -1831,6 +1904,7 @@ function updateAuthStatusBar(){
     `;
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
+    midIcon='💎';midLabel='尊爵用戶';
     cardHtml=`
       <div class="sb-top">
         <span class="sb-badge-ic">💎</span>
@@ -1848,6 +1922,7 @@ function updateAuthStatusBar(){
   }else{
     const usedDeletes=getSessionDeleteCount();
     const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
+    midIcon='🥇';midLabel='黃金用戶';
     cardHtml=`
       <div class="sb-top">
         <span class="sb-badge-ic">🥇</span>
@@ -1865,20 +1940,12 @@ function updateAuthStatusBar(){
       </div>
     `;
   }
-  els.authStatusBar.innerHTML = `
-    <div class="sb-card">
-      <button class="close-status" title="隱藏狀態欄">✕</button>
-      ${cardHtml}
-    </div>
-  `;
-  bindCloseStatusBtn();
-  // 重繪時尊重使用者當下的「隱藏」狀態，並同步漢堡選單文字
-  if(statusBarHidden){
-    els.authStatusBar.style.display='none';
-  }else{
-    els.authStatusBar.style.display='block';
-  }
-  updateMenuStatusLabel();
+  // 頂部列的迷你摘要：漢堡選單旁邊常駐顯示身分＋姓名，即使收合內容也看得到
+  els.sbHeaderMid.innerHTML = `<span class="sb-mid-ic">${midIcon}</span><span class="sb-mid-name">${midLabel}｜${userInfo.displayName}</span>`;
+  els.sbBody.innerHTML = `<div class="sb-card">${cardHtml}</div>`;
+  els.authStatusBar.style.display='block';
+  // 重繪時尊重使用者當下的「收合／展開」狀態
+  applyStatusBarVisibility();
 }
 
 // 修正：轉圖前把 checkbox / radio / 文字輸入 / 下拉選單 的「即時狀態」
@@ -2328,8 +2395,7 @@ function enterCalculator(){
     els.captureArea.style.display='block';
     els.inputArea.style.display='flex';
     els.buttonGroup.style.display='flex';
-    // 登入後顯示左上角漢堡選單
-    els.menuFabWrap.style.display='block';
+    // 漢堡選單已整合進狀態欄卡片，登入後會隨 updateAuthStatusBar() 一併顯示
     els.captureArea.classList.add('screen-enter');
     els.inputArea.classList.add('screen-enter');
     els.buttonGroup.classList.add('screen-enter');
