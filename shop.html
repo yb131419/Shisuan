@@ -510,14 +510,21 @@ body{
   filter:drop-shadow(0 2px 8px rgba(0,191,165,0.3));
 }
 .lux-cur{font-size:0.85rem;margin-right:3px;opacity:.85;font-weight:700;}
-.lux-target{margin-top:10px;}
-.lux-target-head{
-  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-  font-size:12.5px;margin-bottom:6px;
+.lux-targets-row{display:flex;gap:14px;margin-top:6px;}
+.lux-target{flex:1;min-width:0;}
+.lux-target-head{margin-bottom:4px;overflow:hidden;}
+.lux-t-name{color:#c9bfa8;font-weight:700;letter-spacing:.5px;font-size:11.5px;white-space:nowrap;}
+.lux-t-remain{
+  display:block;font-weight:800;font-size:13px;color:#ffe9b0;margin-bottom:7px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-shadow:0 1px 4px rgba(201,161,90,.35);
 }
-.lux-t-name{color:#c9bfa8;font-weight:700;letter-spacing:.5px;white-space:nowrap;}
-.lux-t-remain{font-weight:800;font-size:13.5px;color:#ffe9b0;white-space:nowrap;text-shadow:0 1px 4px rgba(201,161,90,.35);}
 .lux-t-remain .done{color:#4caf50;text-shadow:0 0 8px rgba(76,175,80,.5);}
+@media (max-width:360px){
+  .lux-targets-row{gap:8px;}
+  .lux-t-name{font-size:10.5px;}
+  .lux-t-remain{font-size:11.5px;}
+}
 .lux-bar{
   height:8px;border-radius:6px;overflow:hidden;position:relative;
   background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.08);
@@ -957,19 +964,17 @@ body{
         <div class="lux-val lux-teal"><span id="totalPvCellDup">0</span></div>
       </div>
     </div>
-    <div class="lux-target">
-      <div class="lux-target-head">
-        <span class="lux-t-name">🎯 距 22 萬 PV</span>
-        <span class="lux-t-remain"><span id="pvDiff2">220,000</span> <span id="pvMessage2"></span></span>
+    <div class="lux-targets-row">
+      <div class="lux-target">
+        <div class="lux-target-head"><span class="lux-t-name">🎯 距22萬PV</span></div>
+        <div class="lux-t-remain"><span id="pvDiff2">220,000</span> <span id="pvMessage2"></span></div>
+        <div class="lux-bar"><div class="lux-bar-fill" id="pvBar2"></div></div>
       </div>
-      <div class="lux-bar"><div class="lux-bar-fill" id="pvBar2"></div></div>
-    </div>
-    <div class="lux-target">
-      <div class="lux-target-head">
-        <span class="lux-t-name">🏆 距 30 萬 PV</span>
-        <span class="lux-t-remain"><span id="pvDiff3">300,000</span> <span id="pvMessage3"></span></span>
+      <div class="lux-target">
+        <div class="lux-target-head"><span class="lux-t-name">🏆 距30萬PV</span></div>
+        <div class="lux-t-remain"><span id="pvDiff3">300,000</span> <span id="pvMessage3"></span></div>
+        <div class="lux-bar"><div class="lux-bar-fill lux-bar-gold" id="pvBar3"></div></div>
       </div>
-      <div class="lux-bar"><div class="lux-bar-fill lux-bar-gold" id="pvBar3"></div></div>
     </div>
   </div>
 
@@ -2056,7 +2061,20 @@ async function exportToImage(){
   const isMobile=window.innerWidth<768;
   const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
   const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
-  const captureHeight=els.captureArea.offsetHeight||1;
+  // 精準量測：以「最後一個可見子元素」的實際底部位置為準，
+  // 避免因獎金區塊隱藏、版面調整等因素造成 offsetHeight 量測到多餘空白
+  let captureHeight;
+  const visibleChildren=Array.from(els.captureArea.children).filter(child=>{
+    return window.getComputedStyle(child).display!=='none';
+  });
+  if(visibleChildren.length){
+    const areaTop=els.captureArea.getBoundingClientRect().top;
+    const lastRect=visibleChildren[visibleChildren.length-1].getBoundingClientRect();
+    const areaPaddingBottom=parseFloat(window.getComputedStyle(els.captureArea).paddingBottom)||0;
+    captureHeight=Math.ceil((lastRect.bottom-areaTop)+areaPaddingBottom);
+  }else{
+    captureHeight=els.captureArea.offsetHeight||1;
+  }
   let scale=isLineInApp?1.5:(isMobile?1.5:2);
   const estimatedArea=captureWidth*captureHeight*scale*scale;
   if(estimatedArea>MAX_CANVAS_AREA){
