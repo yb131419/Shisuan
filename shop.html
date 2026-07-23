@@ -633,7 +633,13 @@ body{
 #qtyInput{font-size:18px!important;font-weight:bold;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
-#shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
+#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#backToEditBtn{display:none;}
+.preview-label{
+  display:none;text-align:center;margin:18px auto 8px;max-width:600px;
+  font-size:12.5px;font-weight:800;letter-spacing:2px;color:var(--gold-light);
+  padding:8px 14px;border-radius:20px;
+  background:rgba(201,161,90,0.08);border:1px solid rgba(201,161,90,0.3);
+}
 #buyerInput,#calculatorDisplay{
   background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
   padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;
@@ -1031,10 +1037,12 @@ body{
   <!-- 截圖用白底版 -->
   <div id="bonusPrintBox" class="bonus-result-box-print"></div>
 </div>
+<div id="previewLabel" class="preview-label">📷&nbsp;圖片預覽（以下為匯出結果）</div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
   <button id="exportBtn" class="btn btn-primary btn-lg">📤<br>報表轉圖片</button>
   <button id="resetReportBtn" class="btn btn-warning btn-lg">🔄<br>重置報表</button>
+  <button id="backToEditBtn" class="btn btn-primary btn-md">✏️<br>返回編輯</button>
   <button id="shareToLineBtn" class="btn btn-primary btn-md">📱<br>安卓分享</button>
   <button id="nativeShareBtn" class="btn btn-primary btn-md">📱<br>分享圖片</button>
   <button id="clearImageBtn" class="btn btn-grey btn-md">❌<br>清除圖片</button>
@@ -1187,6 +1195,8 @@ const els={
   shareToLineBtn:document.getElementById("shareToLineBtn"),
   nativeShareBtn:document.getElementById("nativeShareBtn"),
   clearImageBtn:document.getElementById("clearImageBtn"),
+  backToEditBtn:document.getElementById("backToEditBtn"),
+  previewLabel:document.getElementById("previewLabel"),
   resetReportBtn:document.getElementById("resetReportBtn"),
   buyerInput:document.getElementById("buyerInput"),
   calculatorDisplay:document.getElementById("calculatorDisplay"),
@@ -1418,6 +1428,7 @@ els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
 els.nativeShareBtn.addEventListener("click",nativeShare);
 els.clearImageBtn.addEventListener("click",clearImage);
+els.backToEditBtn.addEventListener("click",clearImage);
 els.cashOption.addEventListener("change",handleCashGift);
 els.reportBody.addEventListener("click",function(e){
   const btn=e.target.closest('.deleteBtn');
@@ -2157,9 +2168,15 @@ async function attemptCapture(useScale){
     els.previewImage.src=objectUrl;
     els.previewImage.dataset.objectUrl=objectUrl;
     els.previewImage.style.display="block";
+    els.previewLabel.style.display="block";
     els.shareToLineBtn.style.display="inline-block";
     els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
     els.clearImageBtn.style.display="inline-block";
+    els.backToEditBtn.style.display="inline-block";
+    // 進入預覽模式：隱藏即時報表與新增品項區，避免畫面同時出現兩份報表（殘影）
+    els.captureArea.style.display="none";
+    els.inputArea.style.display="none";
+    window.scrollTo({top:els.previewLabel.getBoundingClientRect().top+window.scrollY-70,behavior:'smooth'});
   }catch(error){
     console.error('匯出錯誤:',error);
     showToast(`匯出失敗：${error?.message}`,'error');
@@ -2240,9 +2257,14 @@ async function nativeShare(){
 function clearImage(){
   els.previewImage.style.display="none";
   els.previewImage.src="";
+  els.previewLabel.style.display="none";
   els.shareToLineBtn.style.display="none";
   els.nativeShareBtn.style.display="none";
   els.clearImageBtn.style.display="none";
+  els.backToEditBtn.style.display="none";
+  // 回到編輯模式：恢復即時報表與新增品項區
+  els.captureArea.style.display="block";
+  els.inputArea.style.display="flex";
 }
 
 // 顯示提示框
