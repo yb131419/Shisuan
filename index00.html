@@ -135,19 +135,29 @@ body{
   50%{box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 14px rgba(201,161,90,0.32);}
 }
 .sb-card{position:relative;z-index:1;padding:14px 18px 15px;}
-.sb-top{
-  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:8px 10px;text-align:center;padding:0;margin-bottom:12px;
+/* ============================================================
+   狀態欄展開內容改成「大頭貼＋姓名＋身分徽章」，取代原本跟頂部
+   膠囊重複的純文字列，避免同一個身分資訊顯示兩次
+   ============================================================ */
+.sb-profile{
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;
 }
-.sb-badge-ic{font-size:19px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
-.sb-badge-txt{
-  font-size:13.5px;font-weight:800;letter-spacing:.4px;flex:0 0 auto;white-space:nowrap;
+.sb-profile-avatar-wrap{flex:0 0 auto;}
+.sb-profile-avatar{
+  width:48px;height:48px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(201,161,90,.15);
 }
-.sb-user{
-  font-size:13.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap;
-  padding-left:10px;margin-left:2px;border-left:1px solid rgba(255,255,255,.16);
+.sb-profile-avatar-fallback{
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+  background:#2a2a2a;color:#ccc;
 }
-.sb-user.plain{color:#e6dfcd;font-weight:600;}
+.sb-profile-info{flex:1;min-width:0;}
+.sb-profile-name{
+  font-size:15.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.sb-profile-badge{
+  font-size:12.5px;font-weight:700;color:#e8c874;margin-top:2px;
+}
 .sb-stats{
   display:flex;flex-direction:column;gap:9px;margin-bottom:12px;
 }
@@ -1998,13 +2008,18 @@ function updateAuthStatusBar(){
   let cardHtml='';
   let midIcon='';
   let midLabel='';
+  const avatarHtml = userInfo.pictureUrl
+    ? `<img class="sb-profile-avatar" src="${userInfo.pictureUrl}" alt="頭像"/>`
+    : `<div class="sb-profile-avatar sb-profile-avatar-fallback">🙂</div>`;
   if(authStatus.isSuperAdmin){
     midIcon='👑';midLabel='超級管理員';
     cardHtml=`
-      <div class="sb-top">
-        <span class="sb-badge-ic">👑</span>
-        <span class="sb-badge-txt super-admin-username">超級管理員</span>
-        <span class="sb-user super-admin-username">${userInfo.displayName}</span>
+      <div class="sb-profile">
+        <div class="sb-profile-avatar-wrap">${avatarHtml}</div>
+        <div class="sb-profile-info">
+          <div class="sb-profile-name super-admin-username">${userInfo.displayName}</div>
+          <div class="sb-profile-badge">👑 超級管理員</div>
+        </div>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">♾️</span><span class="sb-stat-label">使用次數</span><span class="sb-stat-val super-admin-username">不限次數</span></div>
@@ -2018,10 +2033,12 @@ function updateAuthStatusBar(){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
     midIcon='🌟';midLabel='尊爵用戶';
     cardHtml=`
-      <div class="sb-top">
-        <span class="sb-badge-ic">🌟</span>
-        <span class="sb-badge-txt vip-admin-username">尊爵用戶</span>
-        <span class="sb-user vip-admin-username">${userInfo.displayName}</span>
+      <div class="sb-profile">
+        <div class="sb-profile-avatar-wrap">${avatarHtml}</div>
+        <div class="sb-profile-info">
+          <div class="sb-profile-name vip-admin-username">${userInfo.displayName}</div>
+          <div class="sb-profile-badge">🌟 尊爵用戶</div>
+        </div>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">📅</span><span class="sb-stat-label">有效期限</span><span class="sb-stat-val remaining-days-yellow">${expiryText}</span></div>
@@ -2036,10 +2053,12 @@ function updateAuthStatusBar(){
     const leftFreeDeletes=Math.max(FREE_DELETE_LIMIT-usedDeletes,0);
     midIcon='🥇';midLabel='黃金用戶';
     cardHtml=`
-      <div class="sb-top">
-        <span class="sb-badge-ic">🥇</span>
-        <span class="sb-badge-txt gold-username">黃金用戶</span>
-        <span class="sb-user gold-username">${userInfo.displayName}</span>
+      <div class="sb-profile">
+        <div class="sb-profile-avatar-wrap">${avatarHtml}</div>
+        <div class="sb-profile-info">
+          <div class="sb-profile-name gold-username">${userInfo.displayName}</div>
+          <div class="sb-profile-badge">🥇 黃金用戶</div>
+        </div>
       </div>
       <div class="sb-stats">
         <div class="sb-stat-row"><span class="sb-stat-ic">🔐</span><span class="sb-stat-label">本次登入已扣 1 次，剩餘可登入次數</span><span class="sb-stat-val ${authStatus.remainingTimes<=0?'expired':'normal'}">${authStatus.remainingTimes||0} 次</span></div>
