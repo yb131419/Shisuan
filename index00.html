@@ -18,7 +18,7 @@
   --btn-shadow:0 4px 15px rgba(0,0,0,0.2);--btn-hover-shadow:0 6px 20px rgba(0,0,0,0.3);
   --btn-active-shadow:0 2px 8px rgba(0,0,0,0.2);--btn-transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   --btn-radius:8px;--btn-padding:8px 14px;
-  /* 修改：时长选项改为白色主题 */
+  /* 修改：時長選項改為白色主題 */
   --period-active:linear-gradient(145deg,#ffffff,#f0f0f0);
   --period-hover:linear-gradient(145deg,#ffffff,#e8e8e8);
   --period-border:#ffffff;--period-shadow:0 0 15px rgba(255,255,255,0.5);
@@ -355,6 +355,16 @@ body{
   background:linear-gradient(145deg,#ffffff,#e8e8e8)!important;color:#000!important;
   border-color:#ffffff!important;
 }
+/* 修正：統計卡「總金額／總PV」轉圖後出現殘影／黑色缺角。
+   根因是卡片邊框那道流動金色微光用了 CSS mask-composite 疊圖技法，
+   dom-to-image 無法正確渲染這種遮罩效果，會產生錯誤的黑色殘影形狀。
+   轉圖瞬間直接隱藏這道裝飾性微光與圖示光暈，確保畫面與截圖完全一致。 */
+#captureArea.capture-mode .sum-totals::before{
+  display:none!important;
+}
+#captureArea.capture-mode .sum-total-ic-wrap{
+  box-shadow:none!important;
+}
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
   .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
@@ -519,14 +529,14 @@ body{
 }
 .sum-progress-row{
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  border-radius:13px;padding:11px 13px;min-width:0;
+  border-radius:13px;padding:11px 13px;min-width:0;text-align:center;
 }
 .sum-progress-label{
-  font-size:12px;color:#c7c1b4;font-weight:700;margin-bottom:4px;
+  font-size:12px;color:#c7c1b4;font-weight:700;margin-bottom:4px;text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .sum-progress-value{
-  color:var(--accent,#00d1b2);font-weight:800;font-size:13.5px;margin-bottom:8px;
+  color:var(--accent,#00d1b2);font-weight:800;font-size:13.5px;margin-bottom:8px;text-align:center;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .sum-progress-value .done{color:#4caf50;font-weight:800;}
@@ -2028,7 +2038,7 @@ async function exportToImage(){
   bonusSection.style.display  = 'none';
   bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
 
-  // 清除所有动画残留，防止截图重复
+  // 清除所有動畫殘留，防止截圖重複
   els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
   els.captureArea.classList.remove('screen-enter');
 
@@ -2060,14 +2070,14 @@ async function exportToImage(){
   const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
   opCells.forEach(el=>{el.style.display="none";});
 
-  // 强制重绘，避免样式缓存
+  // 強制重繪，避免樣式快取
   els.reportTable.offsetWidth;
   const tableWidth=els.reportTable.offsetWidth;
   const lastCol=els.reportTable.querySelector('th:last-child');
   const lastColWidth=lastCol?lastCol.offsetWidth:0;
   const captureWidth=(tableWidth-lastColWidth)+60;
 
-  // 保存原始样式
+  // 保存原始樣式
   const originalStyles = {
     width: els.captureArea.style.width,
     paddingLeft: els.captureArea.style.paddingLeft,
@@ -2544,7 +2554,7 @@ function showLoginLoading(title, desc) {
   `;
 }
 
-// 初始化应用
+// 初始化應用
 async function initApp() {
   try {
     els.reportTable.style.fontSize = window.innerWidth < 360 ? '11px' : '12px';
