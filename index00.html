@@ -1488,6 +1488,23 @@ function handleCashGift(){
   }
 }
 
+// ============================================================
+// 修正：限購數量統一改成「通用比對」，不再用寫死的品名判斷。
+// 只要品項名稱裡出現「限N盒」或「限N組」，直接以文字裡的數字 N
+// 為準（例如「2711AB(1)限8盒」就是限購 8，不會再錯誤限制成 4）。
+// 新入會/新會員/入會相關維持固定限購 1（這類不是用「限N盒/組」標示）。
+// ============================================================
+function getMaxQtyForProduct(productName) {
+  const val = (productName || '').trim();
+  if (val.includes('新入會') || val.includes('新會員') || val.includes('入會')) return 1;
+  const match = val.match(/限\s*(\d+)\s*(?:盒|組)/);
+  if (match) {
+    const n = parseInt(match[1], 10);
+    if (!isNaN(n) && n > 0) return n;
+  }
+  return 99;
+}
+
 // 輔助函數：新增指定品項和數量（增強重複檢查）
 function addSpecificProduct(productName, qty) {
   const product = products.find(p => p.name === productName);
@@ -1499,13 +1516,7 @@ function addSpecificProduct(productName, qty) {
   const exists = selectedProds.find(p => p.name === productName);
   if (exists) {
     const totalQty = exists.qty + qty;
-    let maxQty = 99;
-    
-    if (productName.includes('新入會') || productName.includes('新會員') || productName.includes('入會')) maxQty = 1;
-    else if (productName.includes('2711AB') && productName.includes('(4)')) maxQty = 1;
-    else if (productName.includes('777Q') && productName.includes('(4)')) maxQty = 2;
-    else if (productName.includes('火山甘露') && productName.includes('限4盒')) maxQty = 4;
-    else if (productName.includes('2711AB') && productName.includes('(1)')) maxQty = 4;
+    let maxQty = getMaxQtyForProduct(productName);
 
     if (productName.includes('新入會') && totalQty > maxQty) {
       return;
@@ -1639,12 +1650,7 @@ function renderTable(){
   let totalPrice=0,totalPv=0;
   selectedProds.forEach((item,idx)=>{
     const val=item.name.trim();
-    let maxQty=99;
-    if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))maxQty=1;
-    else if(val.includes('2711AB')&&val.includes('(4)'))maxQty=2;
-    else if(val.includes('777Q')&&val.includes('(4)'))maxQty=2;
-    else if(val.includes('火山甘露')&&val.includes('限4盒'))maxQty=4;
-    else if(val.includes('2711AB')&&val.includes('(1)'))maxQty=4;
+    let maxQty=getMaxQtyForProduct(val);
     if(item.qty>maxQty){item.qty=maxQty;saveSelectedProds();}
     const subtotalPrice=item.price*item.qty;
     const subtotalPv=item.pv*item.qty;
@@ -1833,37 +1839,10 @@ function addProduct(){
       return;
     }
     const val=selectedName.trim();
-    let maxQty=99;
-    if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')){
-      maxQty=1;
-      if(qty>maxQty){
-        alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
-        qty=maxQty;
-      }
-    }else if(val.includes('2711AB')&&val.includes('(4)')){
-      maxQty=2;
-      if(qty>maxQty){
-        alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
-        qty=maxQty;
-      }
-    }else if(val.includes('777Q')&&val.includes('(4)')){
-      maxQty=2;
-      if(qty>maxQty){
-        alert(`⚠️ 777Q限購${maxQty}組，已自動調整數量為${maxQty}`);
-        qty=maxQty;
-      }
-    }else if(val.includes('火山甘露')&&val.includes('限4盒')){
-      maxQty=4;
-      if(qty>maxQty){
-        alert(`⚠️ 火山甘露限購${maxQty}盒，已自動調整數量為${maxQty}`);
-        qty=maxQty;
-      }
-    }else if(val.includes('2711AB')&&val.includes('(1)')){
-      maxQty=4;
-      if(qty>maxQty){
-        alert(`⚠️ 2711AB(1)限購${maxQty}盒，已自動調整數量為${maxQty}`);
-        qty=maxQty;
-      }
+    let maxQty=getMaxQtyForProduct(val);
+    if(qty>maxQty){
+      alert(`⚠️ 「${val}」限購${maxQty}個/組，已自動調整數量為${maxQty}`);
+      qty=maxQty;
     }
     const product=products.find(p=>p.name===selectedName);
     if(!product){
@@ -1895,20 +1874,8 @@ function addProduct(){
 // 動態調整數量下拉選項（修復限定組數錯誤）
 function adjustQtySelectOptions(productName) {
   if (!productName) return;
-  let maxQty = 99;
   const val = productName.trim();
-  
-  if (val.includes('新入會') || val.includes('新會員') || val.includes('入會')) {
-    maxQty = 1;
-  } else if (val.includes('2711AB') && val.includes('(4)')) {
-    maxQty = 2;
-  } else if (val.includes('777Q') && val.includes('(4)')) {
-    maxQty = 2;
-  } else if (val.includes('火山甘露') && val.includes('限4盒')) {
-    maxQty = 4;
-  } else if (val.includes('2711AB') && val.includes('(1)')) {
-    maxQty = 4;
-  }
+  let maxQty = getMaxQtyForProduct(val);
 
   els.qtyInput.innerHTML = '';
   for (let i = 1; i <= maxQty; i++) {
