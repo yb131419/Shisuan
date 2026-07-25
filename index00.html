@@ -269,6 +269,46 @@ body{
 }
 .dr-item .ic.gold{background:rgba(217,184,115,0.16);color:var(--gold-light);}
 .dr-sep{height:1px;background:rgba(255,255,255,0.08);margin:12px 4px;}
+/* ============================================================
+   選單最上方的個人資料卡（頭像＋姓名＋身分徽章），
+   參考購物節版本的設計，與「使用次數」列一起常駐顯示在選單頂端
+   ============================================================ */
+.dr-profile{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(160deg,#232323,#161616);
+  border:1px solid rgba(217,184,115,0.35);border-radius:16px;
+  padding:12px 14px;margin-bottom:10px;
+}
+.dr-profile-avatar-wrap{flex:0 0 auto;}
+.dr-profile-avatar{
+  width:46px;height:46px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(201,161,90,.15);
+}
+.dr-profile-avatar-fallback{
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  background:#2a2a2a;color:#ccc;
+}
+.dr-profile-info{flex:1;min-width:0;}
+.dr-profile-name{
+  font-size:15px;font-weight:800;color:var(--gold-light);
+  background:linear-gradient(135deg,#c9a15a,#ffe9b0);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.dr-profile-badge{
+  font-size:12px;font-weight:700;color:#e8c874;margin-top:2px;
+  display:flex;align-items:center;gap:5px;
+}
+.dr-usage-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;padding:10px 14px;margin-bottom:6px;font-size:13.5px;
+}
+.dr-usage-ic{font-size:15px;flex:0 0 auto;}
+.dr-usage-label{flex:1;color:#c7c1b4;font-weight:700;}
+.dr-usage-val{font-weight:800;color:var(--gold-light);}
+.dr-usage-val.normal{color:var(--accent,#00d1b2);}
+.dr-usage-val.expired{color:#ff6b6b;}
 .dr-foot{
   margin-top:6px;padding:12px 12px 2px;font-size:11px;color:#777;line-height:1.6;
   border-top:1px solid rgba(255,255,255,0.06);
@@ -898,6 +938,22 @@ body{
 <div class="drawer-mask" id="drawerMask"></div>
 <aside class="side-drawer" id="sideDrawer">
   <div class="dr-head">🌿 功能選單</div>
+  <div class="dr-profile" id="drProfile">
+    <div class="dr-profile-avatar-wrap">
+      <img id="drProfileAvatar" class="dr-profile-avatar" alt="會員頭像" style="display:none;"/>
+      <div id="drProfileAvatarFallback" class="dr-profile-avatar dr-profile-avatar-fallback">🙂</div>
+    </div>
+    <div class="dr-profile-info">
+      <div id="drProfileName" class="dr-profile-name"></div>
+      <div id="drProfileBadge" class="dr-profile-badge"></div>
+    </div>
+  </div>
+  <div class="dr-usage-row" id="drUsageRow">
+    <span class="dr-usage-ic">♾️</span>
+    <span class="dr-usage-label">使用次數</span>
+    <span class="dr-usage-val" id="drUsageVal">不限</span>
+  </div>
+  <div class="dr-sep"></div>
   <button class="dr-item" id="menuMemberCenter">
     <span class="ic gold">👤</span>會員中心
   </button>
@@ -914,7 +970,7 @@ body{
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
 
-<h2><br>🌿 康園 試算報表</h2>
+<h2><br>🌿 康園試算報表</h2>
 <div class="payment-options">
   <label style="white-space:nowrap;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
   <label style="white-space:nowrap;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
@@ -1899,6 +1955,34 @@ function checkUserRemainingTimes(){
 }
 
 // 更新授權狀態欄
+// 更新左側選單頂端的個人資料卡（頭像＋姓名＋身分徽章＋使用次數），
+// 資料邏輯與會員中心彈窗共用同一套判斷，維持一致
+function updateDrawerProfile(){
+  if(!authStatus||!userInfo)return;
+  const img=document.getElementById('drProfileAvatar');
+  const fb=document.getElementById('drProfileAvatarFallback');
+  if(userInfo.pictureUrl){
+    img.src=userInfo.pictureUrl;img.style.display='block';fb.style.display='none';
+  }else{
+    img.style.display='none';fb.style.display='flex';
+  }
+  document.getElementById('drProfileName').textContent=userInfo.displayName;
+  const badgeEl=document.getElementById('drProfileBadge');
+  const usageVal=document.getElementById('drUsageVal');
+  if(authStatus.isSuperAdmin){
+    badgeEl.innerHTML='👑 超級管理員';
+    usageVal.textContent='不限';usageVal.className='dr-usage-val';
+  }else if(authStatus.isVip){
+    badgeEl.innerHTML='💎 尊爵用戶';
+    usageVal.textContent='不限';usageVal.className='dr-usage-val';
+  }else{
+    badgeEl.innerHTML='🥇 黃金用戶';
+    const remain=authStatus.remainingTimes||0;
+    usageVal.textContent=`${remain} 次`;
+    usageVal.className='dr-usage-val '+(remain<=0?'expired':'normal');
+  }
+}
+
 function updateAuthStatusBar(){
   if(!authStatus||!userInfo)return;
   let cardHtml='';
@@ -1964,6 +2048,8 @@ function updateAuthStatusBar(){
   els.authStatusBar.style.display='block';
   // 重繪時尊重使用者當下的「收合／展開」狀態
   applyStatusBarVisibility();
+  // 同步更新左側選單頂端的個人資料卡
+  updateDrawerProfile();
 }
 
 // 修正：轉圖前把 checkbox / radio / 文字輸入 / 下拉選單 的「即時狀態」
