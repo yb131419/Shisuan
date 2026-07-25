@@ -618,10 +618,11 @@ body{
   font-size:0.92rem;font-weight:700;margin-top:4px;color:#a89b7d;letter-spacing:.3px;
 }
 .bonus-result-aftertax{
-  font-size:1.25rem;font-weight:800;margin-top:4px;
-  background:linear-gradient(135deg,#7df3e1,#00bfa5 60%,#40e0cf);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 2px 8px rgba(0,191,165,0.35));
+  font-size:1.02rem;font-weight:800;margin-top:4px;color:#ffd700;
+  white-space:nowrap;text-shadow:0 1px 6px rgba(212,175,55,.5);
+}
+@media (max-width:360px){
+  .bonus-result-aftertax{font-size:0.88rem;}
 }
 .bonus-result-tier{font-size:0.76rem;color:#8a8477;margin-top:6px;line-height:1.5;}
 .bonus-result-none{font-size:0.88rem;color:#8a8477;padding:6px 0;}
@@ -635,7 +636,7 @@ body{
 .bonus-result-box-print .bp-label{font-size:11px;color:#a89b7d;margin-bottom:4px;letter-spacing:1px;font-weight:700;}
 .bonus-result-box-print .bp-pct{font-size:1.3rem;font-weight:800;color:#40e0cf;}
 .bonus-result-box-print .bp-amount{font-size:0.85rem;font-weight:600;color:#8a7c5c;margin-top:3px;}
-.bonus-result-box-print .bp-aftertax{font-size:1.1rem;font-weight:800;color:#2e7d32;margin-top:3px;}
+.bonus-result-box-print .bp-aftertax{font-size:0.95rem;font-weight:800;color:#b8860b;margin-top:3px;white-space:nowrap;}
 .bonus-result-box-print .bp-tier{font-size:10.5px;color:#8a8477;margin-top:4px;line-height:1.4;}
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
@@ -1183,7 +1184,7 @@ function updateBonusDisplay() {
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
     <div class="bonus-result-pct">${pctText}</div>
     <div class="bonus-result-amount">稅前 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bonus-result-aftertax">💰 實拿（已扣稅10%）約 NT$ ${formatNumber(bonusAfterTax)}</div>
+    <div class="bonus-result-aftertax">💰 實拿 NT$ ${formatNumber(bonusAfterTax)}（稅後10%）</div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 
@@ -1191,7 +1192,7 @@ function updateBonusDisplay() {
     <div class="bp-label">${typeLabel} · 預計獎金試算</div>
     <div class="bp-pct">${pctText}</div>
     <div class="bp-amount">稅前 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bp-aftertax">實拿（已扣稅10%）約 NT$ ${formatNumber(bonusAfterTax)}</div>
+    <div class="bp-aftertax">實拿 NT$ ${formatNumber(bonusAfterTax)}（稅後10%）</div>
     <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 }
