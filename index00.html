@@ -2030,108 +2030,119 @@ async function exportToImage(){
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
   els.exportBtn.disabled=true;
 
-  // 新增：截圖前切換獎金區塊顯示
+  // 修正④（關鍵）：把「隱藏切換鈕、還原下拉選單」等全部暫時性 DOM 變更，
+  // 跟後面的截圖流程包進「同一個」try/finally。原本的寫法把
+  // bonusSection.style.display='none' 等變更放在 try 區塊之外，
+  // 一旦中間任何同步計算出錯（例如表格量測失敗），例外會直接往外拋、
+  // 完全跳過 finally 的復原邏輯，導致「非經理/經理階」切換鈕與獎金卡
+  // 永久卡在截圖用的隱藏/替代狀態，要重新整理頁面才會恢復——
+  // 這正是畫面前後不一致的真正原因。現在不管中途在哪裡出錯，
+  // finally 一定會執行，狀態保證會被復原。
   const bonusSection  = document.getElementById('bonusSection');
   const bonusPrintBox = document.getElementById('bonusPrintBox');
-  const selected      = document.querySelector('input[name="bonusType"]:checked');
-  const hasBonusContent = selected && bonusPrintBox.innerHTML.trim() !== '';
-  bonusSection.style.display  = 'none';
-  bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
-
-  // 清除所有動畫殘留，防止截圖重複
-  els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
-  els.captureArea.classList.remove('screen-enter');
-
-  // 修正①：把表單「即時狀態」同步回 HTML 屬性。
-  // dom-to-image 轉圖是複製 HTML 屬性（attribute），JS 勾選只改 property，
-  // 不同步的話勾選的現金/刷卡在圖片裡會變回未勾選、自訂天數文字也會消失。
-  syncFormStateForCapture();
-
-  // 修正②：套用 capture-mode，關閉光暈/位移/動畫，避免月份按鈕白光溢出
-  els.captureArea.classList.add('capture-mode');
-  if(document.activeElement && typeof document.activeElement.blur==='function'){
-    document.activeElement.blur(); // 收起焦點外框，避免截到 focus 光圈
-  }
-
-  // 修正③：截圖時把「數量」下拉選單暫換成純文字數字。
-  // select 原生控制項在轉圖時會渲染得比儲存格寬，往右溢出蓋住「單價」欄；
-  // 換成純文字後圖片中只顯示乾淨的數字，截圖完成後自動還原下拉選單。
-  const qtySwaps=[];
-  els.captureArea.querySelectorAll('.qtySelect').forEach(sel=>{
-    const span=document.createElement('span');
-    span.className='qty-print';
-    span.textContent=sel.value;
-    sel.style.display='none';
-    sel.parentNode.insertBefore(span,sel.nextSibling);
-    qtySwaps.push({sel:sel,span:span});
-  });
-
-  // 隐藏操作列
-  const opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
-  opCells.forEach(el=>{el.style.display="none";});
-
-  // 強制重繪，避免樣式快取
-  els.reportTable.offsetWidth;
-  const tableWidth=els.reportTable.offsetWidth;
-  const lastCol=els.reportTable.querySelector('th:last-child');
-  const lastColWidth=lastCol?lastCol.offsetWidth:0;
-  const captureWidth=(tableWidth-lastColWidth)+60;
-
-  // 保存原始樣式
-  const originalStyles = {
-    width: els.captureArea.style.width,
-    paddingLeft: els.captureArea.style.paddingLeft,
-    paddingRight: els.captureArea.style.paddingRight,
-    position: els.captureArea.style.position,
-    zIndex: els.captureArea.style.zIndex,
-    background: els.captureArea.style.background
-  };
-
-  els.captureArea.style.width=`${captureWidth}px`;
-  els.captureArea.style.paddingLeft="30px";
-  els.captureArea.style.paddingRight="30px";
-  els.captureArea.style.position="relative";
-
-  const ua=navigator.userAgent||'';
-  const isLineInApp=/Line/i.test(ua);
-  const isMobile=window.innerWidth<768;
-  const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
-  const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
-  const captureHeight=els.captureArea.offsetHeight||1;
-  let scale=isLineInApp?1.5:(isMobile?1.5:2);
-  const estimatedArea=captureWidth*captureHeight*scale*scale;
-  if(estimatedArea>MAX_CANVAS_AREA){
-    scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
-  }
-  const maxSideScale=Math.min(MAX_CANVAS_SIDE/captureWidth,MAX_CANVAS_SIDE/captureHeight);
-  if(scale>maxSideScale){
-    scale=Math.max(1,Math.floor(maxSideScale*10)/10);
-  }
-
-async function attemptCapture(useScale){
-  const dpr=Math.min(window.devicePixelRatio||1,3);
-  const captureScale=Math.max(2,useScale*dpr);
-  const outputW=Math.round(captureWidth*captureScale);
-  const outputH=Math.round(captureHeight*captureScale);
-
-  const capturePromise=domtoimage.toBlob(els.captureArea,{
-    width:outputW,
-    height:outputH,
-    style:{
-      transform:`scale(${captureScale})`,
-      transformOrigin:'top left',
-      width:captureWidth+'px',
-      height:captureHeight+'px'
-    },
-    bgcolor:'#1c1c1c'
-  });
-  const timeoutPromise=new Promise((_,reject)=>{
-    setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
-  });
-  return await Promise.race([capturePromise,timeoutPromise]);
-}
+  let qtySwaps = [];
+  let opCells = [];
+  let originalStyles = null;
 
   try{
+    // 新增：截圖前切換獎金區塊顯示
+    const selected = document.querySelector('input[name="bonusType"]:checked');
+    const hasBonusContent = selected && bonusPrintBox.innerHTML.trim() !== '';
+    bonusSection.style.display  = 'none';
+    bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
+
+    // 清除所有動畫殘留，防止截圖重複
+    els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
+    els.captureArea.classList.remove('screen-enter');
+
+    // 修正①：把表單「即時狀態」同步回 HTML 屬性。
+    // dom-to-image 轉圖是複製 HTML 屬性（attribute），JS 勾選只改 property，
+    // 不同步的話勾選的現金/刷卡在圖片裡會變回未勾選、自訂天數文字也會消失。
+    syncFormStateForCapture();
+
+    // 修正②：套用 capture-mode，關閉光暈/位移/動畫，避免月份按鈕白光溢出
+    els.captureArea.classList.add('capture-mode');
+    if(document.activeElement && typeof document.activeElement.blur==='function'){
+      document.activeElement.blur(); // 收起焦點外框，避免截到 focus 光圈
+    }
+
+    // 修正③：截圖時把「數量」下拉選單暫換成純文字數字。
+    // select 原生控制項在轉圖時會渲染得比儲存格寬，往右溢出蓋住「單價」欄；
+    // 換成純文字後圖片中只顯示乾淨的數字，截圖完成後自動還原下拉選單。
+    els.captureArea.querySelectorAll('.qtySelect').forEach(sel=>{
+      const span=document.createElement('span');
+      span.className='qty-print';
+      span.textContent=sel.value;
+      sel.style.display='none';
+      sel.parentNode.insertBefore(span,sel.nextSibling);
+      qtySwaps.push({sel:sel,span:span});
+    });
+
+    // 隱藏操作列
+    opCells=document.querySelectorAll("#reportTable td:last-child, #reportTable th:last-child");
+    opCells.forEach(el=>{el.style.display="none";});
+
+    // 強制重繪，避免樣式快取
+    els.reportTable.offsetWidth;
+    const tableWidth=els.reportTable.offsetWidth;
+    const lastCol=els.reportTable.querySelector('th:last-child');
+    const lastColWidth=lastCol?lastCol.offsetWidth:0;
+    const captureWidth=(tableWidth-lastColWidth)+60;
+
+    // 保存原始樣式
+    originalStyles = {
+      width: els.captureArea.style.width,
+      paddingLeft: els.captureArea.style.paddingLeft,
+      paddingRight: els.captureArea.style.paddingRight,
+      position: els.captureArea.style.position,
+      zIndex: els.captureArea.style.zIndex,
+      background: els.captureArea.style.background
+    };
+
+    els.captureArea.style.width=`${captureWidth}px`;
+    els.captureArea.style.paddingLeft="30px";
+    els.captureArea.style.paddingRight="30px";
+    els.captureArea.style.position="relative";
+
+    const ua=navigator.userAgent||'';
+    const isLineInApp=/Line/i.test(ua);
+    const isMobile=window.innerWidth<768;
+    const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
+    const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
+    const captureHeight=els.captureArea.offsetHeight||1;
+    let scale=isLineInApp?1.5:(isMobile?1.5:2);
+    const estimatedArea=captureWidth*captureHeight*scale*scale;
+    if(estimatedArea>MAX_CANVAS_AREA){
+      scale=Math.max(1,Math.floor(Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight))*10)/10);
+    }
+    const maxSideScale=Math.min(MAX_CANVAS_SIDE/captureWidth,MAX_CANVAS_SIDE/captureHeight);
+    if(scale>maxSideScale){
+      scale=Math.max(1,Math.floor(maxSideScale*10)/10);
+    }
+
+    const attemptCapture=async(useScale)=>{
+      const dpr=Math.min(window.devicePixelRatio||1,3);
+      const captureScale=Math.max(2,useScale*dpr);
+      const outputW=Math.round(captureWidth*captureScale);
+      const outputH=Math.round(captureHeight*captureScale);
+
+      const capturePromise=domtoimage.toBlob(els.captureArea,{
+        width:outputW,
+        height:outputH,
+        style:{
+          transform:`scale(${captureScale})`,
+          transformOrigin:'top left',
+          width:captureWidth+'px',
+          height:captureHeight+'px'
+        },
+        bgcolor:'#1c1c1c'
+      });
+      const timeoutPromise=new Promise((_,reject)=>{
+        setTimeout(()=>reject(new Error('圖片產生逾時，請重試')),20000);
+      });
+      return await Promise.race([capturePromise,timeoutPromise]);
+    };
+
     let blob;
     try{
       blob=await attemptCapture(scale);
@@ -2154,6 +2165,7 @@ async function attemptCapture(useScale){
     console.error('匯出錯誤:',error);
     showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
+    // 修正④：無論上面在哪一步出錯，以下復原一定會執行
     // 新增：截圖後恢復互動版獎金區塊
     bonusSection.style.display  = '';
     bonusPrintBox.style.display = 'none';
@@ -2166,10 +2178,12 @@ async function attemptCapture(useScale){
     });
 
     opCells.forEach(el=>{el.style.display="";});
-    els.captureArea.style.width=originalStyles.width;
-    els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
-    els.captureArea.style.paddingRight=originalStyles.paddingRight;
-    els.captureArea.style.position=originalStyles.position;
+    if(originalStyles){
+      els.captureArea.style.width=originalStyles.width;
+      els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
+      els.captureArea.style.paddingRight=originalStyles.paddingRight;
+      els.captureArea.style.position=originalStyles.position;
+    }
     els.exportBtn.disabled=false;
     document.querySelectorAll('body > svg, body > div.domtoimage-wrapper').forEach(el=>{
       if(el.parentNode) el.parentNode.removeChild(el);
