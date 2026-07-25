@@ -121,20 +121,19 @@ body{
     linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,0) 40%),
     linear-gradient(150deg,#232323 0%,#161616 100%);
   border-radius:20px;margin-bottom:20px;
-  border:1px solid rgba(201,161,90,0.32);
-  box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+  border:1px solid rgba(201,161,90,0.4);
+  box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 rgba(201,161,90,0);
   display:none;width:100%;max-width:600px;overflow:hidden;
   transition:all 0.3s ease;position:relative;
+  animation:sbBarGlowPulse 3.6s ease-in-out infinite;
 }
-#authStatusBar::before{
-  content:'';position:absolute;inset:0;border-radius:20px;padding:1px;pointer-events:none;
-  background:linear-gradient(120deg, rgba(201,161,90,0) 0%, rgba(255,233,176,.55) 50%, rgba(201,161,90,0) 100%);
-  background-size:220% 100%;
-  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude;
-  animation:statusBorderShine 5.5s linear infinite;
+/* 修正：原本邊框微光用 CSS mask-composite 疊圖技法（跟先前統計卡殘影
+   同一種手法），在部分行動瀏覽器支援度不穩定會有殘影風險，
+   統一改用純 box-shadow 呼吸光暈，所有瀏覽器都能正確渲染。 */
+@keyframes sbBarGlowPulse{
+  0%,100%{box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 rgba(201,161,90,0);}
+  50%{box-shadow:0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 14px rgba(201,161,90,0.32);}
 }
-@keyframes statusBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
 .sb-card{position:relative;z-index:1;padding:14px 18px 15px;}
 .sb-top{
   display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
@@ -176,34 +175,45 @@ body{
    不再是漂浮於外的獨立按鈕，解決「分開很醜」的問題
    ============================================================ */
 .sb-header{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;
-  border-bottom:1px solid rgba(255,255,255,.08);position:relative;z-index:1;
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-bottom:1px solid rgba(201,161,90,.16);position:relative;z-index:1;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
 }
 .sb-header .menu-btn{
-  width:34px;height:34px;border-radius:10px;flex:0 0 auto;cursor:pointer;
-  background:linear-gradient(160deg,#2c2c2c,#1c1c1c);
-  color:#fff;border:1px solid rgba(217,184,115,0.35);
+  width:36px;height:36px;border-radius:11px;flex:0 0 auto;cursor:pointer;
+  background:linear-gradient(160deg,#2c2c2c,#1a1a1a);
+  color:#fff;border:1px solid rgba(217,184,115,0.4);
   font-size:16px;font-weight:bold;line-height:1;
   display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
 }
-.sb-header .menu-btn:hover{border-color:rgba(0,209,178,.7);box-shadow:0 3px 10px rgba(0,209,178,.25);}
+.sb-header .menu-btn:hover{border-color:rgba(217,184,115,.8);box-shadow:0 3px 12px rgba(201,161,90,.3);}
 .sb-header .menu-btn:active{transform:scale(0.92);}
-.sb-header .menu-btn.open{border-color:rgba(0,209,178,.85);background:linear-gradient(160deg,#333,#222);}
+.sb-header .menu-btn.open{border-color:rgba(217,184,115,.85);background:linear-gradient(160deg,#353535,#222);}
 .sb-header-mid{
-  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;overflow:hidden;
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
-.sb-header-mid .sb-mid-ic{font-size:15px;flex:0 0 auto;}
+.sb-header-mid-pill{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;
+  padding:6px 14px;border-radius:20px;
+  background:linear-gradient(160deg, rgba(201,161,90,.14), rgba(201,161,90,.04));
+  border:1px solid rgba(201,161,90,.3);
+}
+.sb-header-mid .sb-mid-ic{font-size:14px;flex:0 0 auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
 .sb-header-mid .sb-mid-name{
-  font-size:12.5px;font-weight:800;color:#cfc7b6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12.5px;font-weight:800;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:linear-gradient(135deg,#e8dcc0,#ffe9b0);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
 }
 .sb-toggle-btn{
-  width:30px;height:30px;border-radius:10px;flex:0 0 auto;cursor:pointer;
-  background:rgba(255,255,255,.06);color:#cfc7b6;border:1px solid rgba(255,255,255,.14);
+  width:32px;height:32px;border-radius:11px;flex:0 0 auto;cursor:pointer;
+  background:rgba(255,255,255,.05);color:#d8cba8;border:1px solid rgba(201,161,90,.25);
   display:flex;align-items:center;justify-content:center;font-size:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
   transition:all 0.25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
 }
-.sb-toggle-btn:hover{background:rgba(217,184,115,.16);border-color:rgba(217,184,115,.5);color:var(--gold-light);}
+.sb-toggle-btn:hover{background:rgba(217,184,115,.18);border-color:rgba(217,184,115,.55);color:var(--gold-light);}
 .sb-toggle-btn:active{transform:scale(0.92);}
 .sb-toggle-btn .chevron{display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .sb-toggle-btn.collapsed .chevron{transform:rotate(-90deg);}
@@ -2043,7 +2053,7 @@ function updateAuthStatusBar(){
     `;
   }
   // 頂部列的迷你摘要：漢堡選單旁邊常駐顯示身分＋姓名，即使收合內容也看得到
-  els.sbHeaderMid.innerHTML = `<span class="sb-mid-ic">${midIcon}</span><span class="sb-mid-name">${midLabel}｜${userInfo.displayName}</span>`;
+  els.sbHeaderMid.innerHTML = `<span class="sb-header-mid-pill"><span class="sb-mid-ic">${midIcon}</span><span class="sb-mid-name">${midLabel}｜${userInfo.displayName}</span></span>`;
   els.sbBody.innerHTML = `<div class="sb-card">${cardHtml}</div>`;
   els.authStatusBar.style.display='block';
   // 重繪時尊重使用者當下的「收合／展開」狀態
