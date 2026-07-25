@@ -536,10 +536,11 @@ body{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .sum-progress-value{
-  color:var(--accent,#00d1b2);font-weight:800;font-size:13.5px;margin-bottom:8px;text-align:center;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--accent,#00d1b2);font-weight:800;font-size:13.5px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  white-space:nowrap;overflow:hidden;
 }
-.sum-progress-value .done{color:#4caf50;font-weight:800;}
+.sum-progress-value .done{color:#4caf50;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
 .sum-progress-track{
   height:9px;border-radius:9px;background:rgba(255,255,255,.09);overflow:hidden;
   box-shadow:inset 0 1px 3px rgba(0,0,0,.35);position:relative;
@@ -986,7 +987,7 @@ body{
        新增：預計獎金區塊（螢幕互動版）
        ============================================================ -->
   <div class="bonus-section" id="bonusSection">
-    <div class="bonus-toggle-row">
+    <div class="bonus-toggle-row" id="bonusToggleRow">
       <label class="bonus-toggle-label" id="labelNonMgr">
         <input type="radio" name="bonusType" value="non_manager" id="radioNonMgr" />
         👤 非經理
@@ -1001,8 +1002,8 @@ body{
     </div>
   </div>
 
-  <!-- 截圖用白底版：平時隱藏，截圖前動態填充並顯示 -->
-  <div id="bonusPrintBox" class="bonus-result-box-print"></div>
+  <!-- 保留元素避免既有 JS 空指標錯誤，但轉圖片時已改用深色版直接截圖，不再使用此白底版 -->
+  <div id="bonusPrintBox" class="bonus-result-box-print" style="display:none;"></div>
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
@@ -2032,24 +2033,29 @@ async function exportToImage(){
 
   // 修正④（關鍵）：把「隱藏切換鈕、還原下拉選單」等全部暫時性 DOM 變更，
   // 跟後面的截圖流程包進「同一個」try/finally。原本的寫法把
-  // bonusSection.style.display='none' 等變更放在 try 區塊之外，
+  // bonusToggleRow.style.display='none' 等變更放在 try 區塊之外，
   // 一旦中間任何同步計算出錯（例如表格量測失敗），例外會直接往外拋、
-  // 完全跳過 finally 的復原邏輯，導致「非經理/經理階」切換鈕與獎金卡
-  // 永久卡在截圖用的隱藏/替代狀態，要重新整理頁面才會恢復——
+  // 完全跳過 finally 的復原邏輯，導致「非經理/經理階」切換鈕
+  // 永久卡在截圖用的隱藏狀態，要重新整理頁面才會恢復——
   // 這正是畫面前後不一致的真正原因。現在不管中途在哪裡出錯，
   // finally 一定會執行，狀態保證會被復原。
-  const bonusSection  = document.getElementById('bonusSection');
-  const bonusPrintBox = document.getElementById('bonusPrintBox');
+  //
+  // 修正⑤（本輪）：轉圖片前後樣式不一致的另一個根因——
+  // 原本轉圖時會把整個 bonusSection（切換鈕＋深色獎金卡）都隱藏，
+  // 改顯示另一份「白底列印版」卡片（bonusPrintBox），這份白底版是
+  // 舊版淺色主題留下的樣式，跟現在全站的深色主題完全不搭，
+  // 才會出現「轉圖前是深色卡片、轉圖後變白底卡片」的落差。
+  // 現在改成只隱藏「切換鈕列」本身，深色獎金卡（bonusResultBox）
+  // 原封不動留在畫面上直接被截圖，不再切換成白底版，
+  // 轉圖前後畫面保證一致。
+  const bonusToggleRow = document.getElementById('bonusToggleRow');
   let qtySwaps = [];
   let opCells = [];
   let originalStyles = null;
 
   try{
-    // 新增：截圖前切換獎金區塊顯示
-    const selected = document.querySelector('input[name="bonusType"]:checked');
-    const hasBonusContent = selected && bonusPrintBox.innerHTML.trim() !== '';
-    bonusSection.style.display  = 'none';
-    bonusPrintBox.style.display = hasBonusContent ? 'block' : 'none';
+    // 修正⑤：只隱藏切換鈕列，深色獎金卡維持原樣直接截圖
+    bonusToggleRow.style.display = 'none';
 
     // 清除所有動畫殘留，防止截圖重複
     els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
@@ -2166,9 +2172,8 @@ async function exportToImage(){
     showToast(`匯出失敗：${error?.message}`,'error');
   }finally{
     // 修正④：無論上面在哪一步出錯，以下復原一定會執行
-    // 新增：截圖後恢復互動版獎金區塊
-    bonusSection.style.display  = '';
-    bonusPrintBox.style.display = 'none';
+    // 修正⑤：截圖後恢復切換鈕列顯示（深色獎金卡本來就沒被隱藏過，不用復原）
+    bonusToggleRow.style.display = '';
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
     // 修正③：截圖完成後還原「數量」下拉選單
