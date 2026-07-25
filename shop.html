@@ -620,6 +620,10 @@ body{
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 2px 8px rgba(212,175,55,0.3));
 }
+.bonus-result-aftertax{
+  font-size:0.98rem;font-weight:800;margin-top:3px;color:#ffe9b0;
+  text-shadow:0 1px 4px rgba(212,175,55,.35);
+}
 .bonus-result-tier{font-size:0.76rem;color:#8a8477;margin-top:6px;line-height:1.5;}
 .bonus-result-none{font-size:0.88rem;color:#8a8477;padding:6px 0;}
 /* 截圖用白底版 */
@@ -632,6 +636,7 @@ body{
 .bonus-result-box-print .bp-label{font-size:11px;color:#a89b7d;margin-bottom:4px;letter-spacing:1px;font-weight:700;}
 .bonus-result-box-print .bp-pct{font-size:1.3rem;font-weight:800;color:#40e0cf;}
 .bonus-result-box-print .bp-amount{font-size:1.05rem;font-weight:800;color:#ffe9b0;margin-top:3px;}
+.bonus-result-box-print .bp-aftertax{font-size:0.92rem;font-weight:800;color:#ffe9b0;margin-top:3px;}
 .bonus-result-box-print .bp-tier{font-size:10.5px;color:#8a8477;margin-top:4px;line-height:1.4;}
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
@@ -1171,19 +1176,23 @@ function updateBonusDisplay() {
   }
 
   const bonusAmt = Math.floor(totalPrice * result.rate);
+  const TAX_RATE = 0.10; // ★ 扣稅10%
+  const bonusAfterTax = Math.floor(bonusAmt * (1 - TAX_RATE));
   const pctText  = (result.rate * 100).toFixed(0) + '%';
 
   box.innerHTML = `
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
     <div class="bonus-result-pct">${pctText}</div>
-    <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bonus-result-amount">稅前 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bonus-result-aftertax">扣稅10%後 約 NT$ ${formatNumber(bonusAfterTax)}</div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 
   printBox.innerHTML = `
     <div class="bp-label">${typeLabel} · 預計獎金試算</div>
     <div class="bp-pct">${pctText}</div>
-    <div class="bp-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bp-amount">稅前 NT$ ${formatNumber(bonusAmt)}</div>
+    <div class="bp-aftertax">扣稅10%後 約 NT$ ${formatNumber(bonusAfterTax)}</div>
     <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 }
@@ -1243,13 +1252,14 @@ const els={
 function getMaxQtyForProduct(productName){
   const val=(productName||'').trim();
   if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))return 1;
-  if(val.includes('限1組'))return 1;
-  if(val.includes('限3組'))return 3;
-  if(val.includes('限6組'))return 6;
-  if(val.includes('限12組'))return 12;
+  // ★ 完全匹配：品項名稱只要出現「限N組」或「限N盒」，直接取該數字為上限，
+  //   不論 N 是多少（例如限2組、限5組、限8盒…全部都會正確抓到）
+  const matchGroup=val.match(/限(\d+)\s*組/);
+  if(matchGroup) return parseInt(matchGroup[1],10);
+  const matchBox=val.match(/限(\d+)\s*盒/);
+  if(matchBox) return parseInt(matchBox[1],10);
   if(val.includes('2711AB')&&val.includes('(4)'))return 1;
   if(val.includes('777Q')&&val.includes('(4)'))return 2;
-  if(val.includes('火山甘露')&&val.includes('限4盒'))return 4;
   if(val.includes('2711AB')&&val.includes('(1)'))return 4;
   return 99;
 }
@@ -1861,20 +1871,14 @@ function addProduct(){
     if(qty>maxQty){
       if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')){
         alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
-      }else if(val.includes('限1組')){
-        alert(`⚠️ 此品項限1組，已自動調整數量為${maxQty}`);
-      }else if(val.includes('限3組')){
-        alert(`⚠️ 此品項限3組，已自動調整數量為${maxQty}`);
-      }else if(val.includes('限6組')){
-        alert(`⚠️ 此品項限6組，已自動調整數量為${maxQty}`);
-      }else if(val.includes('限12組')){
-        alert(`⚠️ 此品項限12組，已自動調整數量為${maxQty}`);
+      }else if(/限\d+\s*組/.test(val)){
+        alert(`⚠️ 此品項限${maxQty}組，已自動調整數量為${maxQty}`);
+      }else if(/限\d+\s*盒/.test(val)){
+        alert(`⚠️ 此品項限${maxQty}盒，已自動調整數量為${maxQty}`);
       }else if(val.includes('2711AB')&&val.includes('(4)')){
         alert(`⚠️ 2711AB(4)限購${maxQty}組，已自動調整數量為${maxQty}`);
       }else if(val.includes('777Q')&&val.includes('(4)')){
         alert(`⚠️ 777Q限購${maxQty}組，已自動調整數量為${maxQty}`);
-      }else if(val.includes('火山甘露')&&val.includes('限4盒')){
-        alert(`⚠️ 火山甘露限購${maxQty}盒，已自動調整數量為${maxQty}`);
       }else if(val.includes('2711AB')&&val.includes('(1)')){
         alert(`⚠️ 2711AB(1)限購${maxQty}盒，已自動調整數量為${maxQty}`);
       }
