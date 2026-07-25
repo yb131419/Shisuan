@@ -453,6 +453,23 @@ body{
 #captureArea.capture-mode .sum-total-ic-wrap{
   box-shadow:none!important;
 }
+/* 修正：總金額/總PV 跟距22萬/30萬PV 的燙金漸層數字，跟之前發現的
+   殘影問題同一種風險（background-clip:text 在部分裝置的截圖引擎
+   渲染不穩定）。轉圖瞬間統一改用純色，確保截圖絕對正確。 */
+#captureArea.capture-mode .sum-total-val{
+  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
+  color:#e8c874!important;filter:none!important;
+}
+#captureArea.capture-mode .sum-total-item:nth-child(3) .sum-total-val{
+  color:#4fe0cb!important;
+}
+#captureArea.capture-mode .sum-progress-value{
+  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
+  color:#e8c874!important;filter:none!important;
+}
+#captureArea.capture-mode .sum-progress-ic-wrap{
+  box-shadow:none!important;
+}
 @media (min-width:768px){
   #captureArea h2{font-size:2.2rem;}
   .period-box{font-size:16px;padding:10px 20px;border-radius:10px;}
@@ -612,31 +629,48 @@ body{
   background:linear-gradient(180deg,transparent,rgba(201,161,90,.55) 50%,transparent);
 }
 .sum-progress-group{
-  position:relative;z-index:1;
+  position:relative;z-index:1;overflow:hidden;
   display:flex;align-items:stretch;
-  background:linear-gradient(165deg,#242424,#151515);
-  border:1px solid rgba(201,161,90,0.32);border-radius:16px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
-  padding:13px 4px;
+  background:
+    radial-gradient(120% 100% at 50% -20%, rgba(217,184,115,.08), transparent 60%),
+    linear-gradient(165deg,#242424,#151515);
+  border:1px solid rgba(201,161,90,0.35);border-radius:18px;
+  box-shadow:0 8px 26px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  padding:18px 6px 15px;
 }
-.sum-progress-group.reached-all{border-color:rgba(76,175,80,.4);}
+.sum-progress-group.reached-all{border-color:rgba(76,175,80,.45);}
 .sum-progress-col{
-  flex:1;min-width:0;text-align:center;padding:0 12px;
+  flex:1;min-width:0;text-align:center;padding:0 14px;
 }
 .sum-progress-divider{
-  width:1px;align-self:stretch;margin:0 2px;
-  background:linear-gradient(180deg,transparent,rgba(201,161,90,.5) 50%,transparent);
+  width:1px;align-self:stretch;margin:2px 2px;
+  background:linear-gradient(180deg,transparent,rgba(201,161,90,.55) 50%,transparent);
+}
+.sum-progress-ic-wrap{
+  width:34px;height:34px;border-radius:50%;margin:0 auto 8px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(201,161,90,.45);
+  box-shadow:0 0 12px rgba(201,161,90,.22);
+}
+.sum-progress-ic{font-size:16px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
+.sum-progress-col.reached .sum-progress-ic-wrap{
+  border-color:rgba(76,175,80,.55);box-shadow:0 0 12px rgba(76,175,80,.28);
 }
 .sum-progress-label{
-  font-size:12px;color:#c7c1b4;font-weight:700;margin-bottom:4px;text-align:center;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:11.5px;color:#a89b7d;font-weight:700;letter-spacing:1.5px;margin-bottom:6px;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;
 }
 .sum-progress-value{
-  color:var(--accent,#00d1b2);font-weight:800;font-size:13.5px;margin-bottom:8px;
+  font-weight:800;font-size:1.15rem;margin-bottom:10px;
   display:flex;align-items:center;justify-content:center;gap:7px;
   white-space:nowrap;overflow:hidden;
+  background:linear-gradient(120deg,#c9a15a 0%,#fff3d4 30%,#ffe9b0 55%,#c9a15a 100%);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
 }
-.sum-progress-value .done{color:#4caf50;font-weight:800;display:inline-flex;align-items:center;gap:4px;}
+.sum-progress-value .done{
+  font-size:.78rem;font-weight:800;display:inline-flex;align-items:center;gap:4px;
+  background:none;-webkit-background-clip:initial;background-clip:initial;color:#4caf50;
+}
 .sum-progress-track{
   height:9px;border-radius:9px;background:rgba(255,255,255,.09);overflow:hidden;
   box-shadow:inset 0 1px 3px rgba(0,0,0,.35);position:relative;
@@ -657,10 +691,12 @@ body{
 }
 /* 手機窄螢幕：兩欄仍保持一行兩列，只縮小字級與間距避免擠壓換行 */
 @media (max-width:380px){
-  .sum-progress-group{padding:11px 2px;}
-  .sum-progress-col{padding:0 8px;}
-  .sum-progress-label{font-size:10.5px;}
-  .sum-progress-value{font-size:11.5px;}
+  .sum-progress-group{padding:15px 2px 13px;}
+  .sum-progress-col{padding:0 9px;}
+  .sum-progress-ic-wrap{width:28px;height:28px;margin-bottom:6px;}
+  .sum-progress-ic{font-size:13px;}
+  .sum-progress-label{font-size:10px;letter-spacing:1px;}
+  .sum-progress-value{font-size:.95rem;}
   .sum-total-val{font-size:1.4rem;}
   .sum-total-ic-wrap{width:34px;height:34px;}
 }
@@ -742,6 +778,8 @@ body{
   .summaryBox{color:#000!important;}
   .sum-totals{background:#fff!important;border-color:#999!important;box-shadow:none!important;animation:none!important;}
   .sum-total-ic-wrap{border-color:#999!important;box-shadow:none!important;background:#f5f5f5!important;}
+  .sum-progress-ic-wrap{border-color:#999!important;box-shadow:none!important;background:#f5f5f5!important;}
+  .sum-progress-value{background:none!important;-webkit-text-fill-color:#000!important;color:#000!important;}
   .sum-total-val{background:none!important;-webkit-text-fill-color:#000!important;color:#000!important;}
   .sum-total-label{color:#555!important;}
   .sum-progress-group{background:#f5f5f5!important;border-color:#ccc!important;}
@@ -1079,12 +1117,14 @@ body{
     </div>
     <div class="sum-progress-group">
       <div class="sum-progress-col" id="pvProgressRow2">
+        <div class="sum-progress-ic-wrap"><span class="sum-progress-ic">🎯</span></div>
         <div class="sum-progress-label">距 22 萬 PV</div>
         <div class="sum-progress-value"><span id="pvDiff2">220000</span> <span id="pvMessage2"></span></div>
         <div class="sum-progress-track"><div class="sum-progress-fill" id="pvProgressFill2"></div></div>
       </div>
       <div class="sum-progress-divider"></div>
       <div class="sum-progress-col" id="pvProgressRow3">
+        <div class="sum-progress-ic-wrap"><span class="sum-progress-ic">🏆</span></div>
         <div class="sum-progress-label">距 30 萬 PV</div>
         <div class="sum-progress-value"><span id="pvDiff3">300000</span> <span id="pvMessage3"></span></div>
         <div class="sum-progress-track"><div class="sum-progress-fill" id="pvProgressFill3"></div></div>
