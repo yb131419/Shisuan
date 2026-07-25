@@ -1251,6 +1251,7 @@ const els={
 // ============================================================
 function getMaxQtyForProduct(productName){
   const val=(productName||'').trim();
+  if(val.includes('完售'))return 0; // ★ 已完售品項，數量固定為0，僅提醒不可購買
   if(val.includes('新入會')||val.includes('新會員')||val.includes('入會'))return 1;
   // ★ 完全匹配：品項名稱只要出現「限N組」或「限N盒」，直接取該數字為上限，
   //   不論 N 是多少（例如限2組、限5組、限8盒…全部都會正確抓到）
@@ -1462,6 +1463,14 @@ window.onload=initApp;
 function checkHerbalNewMember(selectedValue){
   const val=selectedValue.trim();
 
+  // ★ 完售品項：只提醒，不做任何自動組合或新增
+  if(val.includes('完售')){
+    setTimeout(()=>{
+      alert(`⚠️ 「${val}」已完售\n\n此品項目前無法購買，請選擇其他品項`);
+    },100);
+    return;
+  }
+
   // 9號款：新入會(9號）
   if(val.includes('新入會(9號）')){
     setTimeout(()=>{
@@ -1543,6 +1552,9 @@ function handleCashGift(){
 
 // 輔助函數：新增指定品項和數量（使用統一限購規則）
 function addSpecificProduct(productName, qty) {
+  if(getMaxQtyForProduct(productName)<=0){
+    return; // 已完售，自動組合時直接略過
+  }
   const product = products.find(p => p.name === productName);
   if (!product) {
     alert(`⚠️ 找不到品項：${productName}`);
@@ -1868,6 +1880,10 @@ function addProduct(){
     }
     const val=selectedName.trim();
     const maxQty=getMaxQtyForProduct(val);
+    if(maxQty<=0){
+      alert(`⚠️ 「${val}」已完售，無法新增至報表`);
+      return;
+    }
     if(qty>maxQty){
       if(val.includes('新入會')||val.includes('新會員')||val.includes('入會')){
         alert(`⚠️ 新入會相關品項限購${maxQty}個，已自動調整數量為${maxQty}`);
@@ -1917,6 +1933,14 @@ function adjustQtySelectOptions(productName) {
   const maxQty = getMaxQtyForProduct(productName);
 
   els.qtyInput.innerHTML = '';
+  if (maxQty <= 0) {
+    // 完售品項：數量下拉只顯示 0
+    const option = document.createElement('option');
+    option.value = 0;
+    option.textContent = '0（已完售）';
+    els.qtyInput.appendChild(option);
+    return;
+  }
   for (let i = 1; i <= maxQty; i++) {
     const option = document.createElement('option');
     option.value = i;
