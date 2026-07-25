@@ -572,6 +572,13 @@ body{
   transition:all 0.3s ease;
 }
 #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect{font-size:16px!important;font-weight:bold!important;}
+/* 修正：數量欄下拉選單原本會依內容（1位數/2位數）自動縮放寬度，
+   導致每一列的圓角膠囊大小不一致、看起來不整齊。
+   統一固定寬度與內距，不論數字幾位數，膠囊大小都保持一致。 */
+.qtySelect{
+  width:64px!important;min-width:64px!important;max-width:64px!important;
+  text-align:center;text-align-last:center;padding:4px 6px!important;box-sizing:border-box;
+}
 /* 修正：截圖時數量欄的純文字替身，與原數字樣式一致並置中 */
 .qty-print{display:inline-block;font-size:16px!important;font-weight:bold!important;text-align:center;min-width:24px;}
 @media (min-width:768px){.qty-print{font-size:18px!important;}}
@@ -863,6 +870,7 @@ body{
   .userInputs input{font-size:15px;padding:8px;}
   #reportTable{font-size:11px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
+  .qtySelect{width:54px!important;min-width:54px!important;max-width:54px!important;}
   .payment-options{font-size:1rem;}
   #authStatusBar{font-size:12px;}
   #loginScreen{padding:26px 16px 22px;}
