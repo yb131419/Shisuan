@@ -584,10 +584,10 @@ body{
   background:
     radial-gradient(120% 140% at 50% -20%, rgba(201,161,90,.10), transparent 60%),
     linear-gradient(165deg,#242424,#151515);
-  border:1px solid rgba(201,161,90,0.38);border-radius:15px;
-  padding:12px 10px 11px;
-  box-shadow:0 8px 22px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-  margin-bottom:10px;
+  border:1px solid rgba(201,161,90,0.38);border-radius:18px;
+  padding:20px 14px;
+  box-shadow:0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  margin-bottom:12px;
   border:1px solid rgba(201,161,90,0.42);
   animation:sumGlowPulse 3.2s ease-in-out infinite;
 }
@@ -600,22 +600,24 @@ body{
 }
 .sum-total-item{
   position:relative;z-index:1;
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:0 6px;
+  flex:1;display:flex;flex-direction:row;align-items:center;gap:10px;padding:0 8px;
+  justify-content:center;
 }
 .sum-total-ic-wrap{
-  width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.04);margin-bottom:1px;
+  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.04);flex:0 0 auto;
 }
+.sum-total-text{display:flex;flex-direction:column;align-items:flex-start;min-width:0;}
 .sum-total-item:nth-child(1) .sum-total-ic-wrap{
   border:1.5px solid rgba(201,161,90,.5);box-shadow:0 0 10px rgba(201,161,90,.28);
 }
 .sum-total-item:nth-child(3) .sum-total-ic-wrap{
   border:1.5px solid rgba(0,209,178,.5);box-shadow:0 0 10px rgba(0,209,178,.28);
 }
-.sum-total-ic{font-size:14px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
-.sum-total-label{font-size:10px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
+.sum-total-ic{font-size:19px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.sum-total-label{font-size:11px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
 .sum-total-val{
-  font-size:1.3rem;font-weight:800;line-height:1.25;letter-spacing:.2px;
+  font-size:1.8rem;font-weight:800;line-height:1.2;letter-spacing:.2px;
   background:linear-gradient(135deg,var(--gold,#c9a15a),var(--gold-light,#ffe9b0));
   background-clip:text;-webkit-background-clip:text;color:transparent;
 }
@@ -734,8 +736,8 @@ body{
   .sum-progress-ic{font-size:11px;}
   .sum-progress-label{font-size:9px;letter-spacing:.6px;}
   .sum-progress-value{font-size:.85rem;}
-  .sum-total-val{font-size:1.15rem;}
-  .sum-total-ic-wrap{width:26px;height:26px;}
+  .sum-total-val{font-size:1.45rem;}
+  .sum-total-ic-wrap{width:36px;height:36px;}
 }
 #totalPriceCellDup,#totalPvCellDup{display:inline-block;text-align:center;}
 #pvDiff2,#pvDiff3{display:inline-block;min-width:20px;text-align:center;}
@@ -1142,14 +1144,18 @@ body{
     <div class="sum-totals">
       <div class="sum-total-item">
         <div class="sum-total-ic-wrap"><span class="sum-total-ic">💰</span></div>
-        <span class="sum-total-label">總金額</span>
-        <span class="sum-total-val" id="totalPriceCellDup">0</span>
+        <div class="sum-total-text">
+          <span class="sum-total-label">總金額</span>
+          <span class="sum-total-val" id="totalPriceCellDup">0</span>
+        </div>
       </div>
       <div class="sum-total-divider"></div>
       <div class="sum-total-item">
         <div class="sum-total-ic-wrap"><span class="sum-total-ic">🎯</span></div>
-        <span class="sum-total-label">總 PV</span>
-        <span class="sum-total-val" id="totalPvCellDup">0</span>
+        <div class="sum-total-text">
+          <span class="sum-total-label">總 PV</span>
+          <span class="sum-total-val" id="totalPvCellDup">0</span>
+        </div>
       </div>
     </div>
     <div class="sum-progress-group">
