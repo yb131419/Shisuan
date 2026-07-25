@@ -153,7 +153,7 @@ body{
 }
 .sb-profile-info{flex:1;min-width:0;}
 .sb-profile-name{
-  font-size:15.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:17px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .sb-profile-badge{
   font-size:12.5px;font-weight:700;color:#e8c874;margin-top:2px;
@@ -206,15 +206,24 @@ body{
 }
 .sb-header-mid-pill{
   display:inline-flex;align-items:center;gap:7px;max-width:100%;
-  padding:6px 14px;border-radius:20px;
+  padding:5px 14px 5px 6px;border-radius:20px;
   background:linear-gradient(160deg, rgba(201,161,90,.14), rgba(201,161,90,.04));
   border:1px solid rgba(201,161,90,.3);
 }
+.sb-mid-avatar{
+  width:22px;height:22px;border-radius:50%;object-fit:cover;flex:0 0 auto;
+  border:1.5px solid var(--gold);box-shadow:0 0 0 2px rgba(201,161,90,.15);
+}
+.sb-mid-avatar-fallback{
+  display:inline-flex;align-items:center;justify-content:center;font-size:12px;
+  background:#2a2a2a;color:#ccc;
+}
 .sb-header-mid .sb-mid-ic{font-size:14px;flex:0 0 auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
 .sb-header-mid .sb-mid-name{
-  font-size:12.5px;font-weight:800;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  background:linear-gradient(135deg,#e8dcc0,#ffe9b0);
+  font-size:12.5px;font-weight:800;letter-spacing:.4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:linear-gradient(120deg,#c9a15a 0%,#fff3d4 35%,#ffe9b0 55%,#c9a15a 100%);
   background-clip:text;-webkit-background-clip:text;color:transparent;
+  text-shadow:0 0 12px rgba(201,161,90,.35);
 }
 .sb-toggle-btn{
   width:32px;height:32px;border-radius:11px;flex:0 0 auto;cursor:pointer;
@@ -346,12 +355,21 @@ body{
 .expired{color:var(--error);font-weight:bold;}
 .remaining-days-yellow{color:var(--yellow);font-weight:bold;text-shadow:0 0 5px rgba(255,215,0,0.5);}
 .super-admin-username,.vip-admin-username,.gold-username{
-  background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:bold;
-  text-shadow:0 0 8px rgba(255,255,255,0.3);
+  background-clip:text;-webkit-background-clip:text;color:transparent;font-weight:800;
+  letter-spacing:.3px;
 }
-.super-admin-username{background-image:var(--super-username);}
-.vip-admin-username{background-image:var(--vip-username);}
-.gold-username{background-image:linear-gradient(135deg,var(--gold),var(--gold-light));}
+.super-admin-username{
+  background-image:linear-gradient(120deg,#d4af37 0%,#fff6d6 30%,#ffe066 55%,#d4af37 100%);
+  text-shadow:0 0 14px rgba(212,175,55,.4);
+}
+.vip-admin-username{
+  background-image:linear-gradient(120deg,#c9a15a 0%,#fff3d4 30%,#ffe9b0 55%,#c9a15a 100%);
+  text-shadow:0 0 14px rgba(201,161,90,.4);
+}
+.gold-username{
+  background-image:linear-gradient(120deg,var(--gold) 0%,var(--gold-light) 30%,#fff3d4 55%,var(--gold) 100%);
+  text-shadow:0 0 14px rgba(201,161,90,.35);
+}
 #captureArea{
    background:#1c1c1c;box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
   color:var(--text);padding:15px 10px 32px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
@@ -2072,7 +2090,10 @@ function updateAuthStatusBar(){
     `;
   }
   // 頂部列的迷你摘要：漢堡選單旁邊常駐顯示身分＋姓名，即使收合內容也看得到
-  els.sbHeaderMid.innerHTML = `<span class="sb-header-mid-pill"><span class="sb-mid-ic">${midIcon}</span><span class="sb-mid-name">${midLabel}｜${userInfo.displayName}</span></span>`;
+  const midAvatarHtml = userInfo.pictureUrl
+    ? `<img class="sb-mid-avatar" src="${userInfo.pictureUrl}" alt=""/>`
+    : `<span class="sb-mid-avatar sb-mid-avatar-fallback">🙂</span>`;
+  els.sbHeaderMid.innerHTML = `<span class="sb-header-mid-pill">${midAvatarHtml}<span class="sb-mid-ic">${midIcon}</span><span class="sb-mid-name">${midLabel}｜${userInfo.displayName}</span></span>`;
   els.sbBody.innerHTML = `<div class="sb-card">${cardHtml}</div>`;
   els.authStatusBar.style.display='block';
   // 重繪時尊重使用者當下的「收合／展開」狀態
