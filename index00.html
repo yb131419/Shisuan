@@ -819,27 +819,51 @@ body{
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
-#nameInput,#qtyInput{
-  background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;flex:1;text-align:center;padding:12px 14px;
-  font-size:16px;font-weight:600;border-radius:12px;
-  border:1.5px solid rgba(201,161,90,.4);
+/* ============================================================
+   自訂質感下拉選單（取代原生 select，原生元素隱藏但保留運作，
+   所有原本的品項/數量邏輯完全不受影響，只是外觀整個換掉）
+   ============================================================ */
+.custom-select-wrap{position:relative;flex:1;min-width:0;}
+.custom-select-btn{
+  width:100%;background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
+  text-align:center;padding:12px 34px 12px 14px;font-size:16px;font-weight:600;
+  border-radius:12px;border:1.5px solid rgba(201,161,90,.4);cursor:pointer;
   box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);
-  -webkit-appearance:none;appearance:none;
-  background-image:
-    linear-gradient(160deg,#2c2c2c,#1e1e1e),
-    linear-gradient(135deg,transparent 50%,rgba(217,184,115,.85) 50%),
-    linear-gradient(45deg,rgba(217,184,115,.85) 50%,transparent 50%);
-  background-position:0 0, calc(100% - 20px) center, calc(100% - 14px) center;
-  background-size:100% 100%, 6px 6px, 6px 6px;
-  background-repeat:no-repeat;
-  padding-right:34px;
+  display:flex;align-items:center;justify-content:center;gap:6px;position:relative;
+  -webkit-tap-highlight-color:transparent;
 }
-#nameInput:focus,#qtyInput:focus{
-  outline:none;border-color:rgba(217,184,115,.85);
+.custom-select-btn:hover{border-color:rgba(217,184,115,.65);}
+.custom-select-wrap.open .custom-select-btn{
+  border-color:rgba(217,184,115,.85);
   box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
 }
-#qtyInput{font-size:18px!important;font-weight:800;}
+.custom-select-label{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+}
+.custom-select-arrow{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:rgba(217,184,115,.85);transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.custom-select-wrap.open .custom-select-arrow{transform:translateY(-50%) rotate(180deg);}
+.custom-select-list{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;
+  max-height:260px;overflow-y:auto;
+  background:linear-gradient(165deg,#232323,#161616);
+  border:1.5px solid rgba(201,161,90,.45);border-radius:12px;
+  box-shadow:0 14px 34px rgba(0,0,0,.55);padding:6px;
+}
+.custom-select-list.open{display:block;}
+.custom-select-item{
+  padding:10px 12px;border-radius:9px;font-size:14.5px;color:#e0e0e0;font-weight:600;
+  cursor:pointer;text-align:center;white-space:normal;line-height:1.5;
+  transition:background .15s ease;-webkit-tap-highlight-color:transparent;
+}
+.custom-select-item:hover{background:rgba(217,184,115,.14);}
+.custom-select-item.selected{
+  background:rgba(217,184,115,.2);color:var(--gold-light,#ffe9b0);font-weight:800;
+}
+#qtyCustomBtn .custom-select-label{font-size:18px!important;font-weight:800;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
@@ -1272,8 +1296,22 @@ body{
 </div>
 <div id="toast" class="toast">✅ 圖片已上傳</div>
 <div id="inputArea">
-  <select id="nameInput"></select>
-  <select id="qtyInput"></select>
+  <div class="custom-select-wrap" id="nameCustomWrap">
+    <button type="button" class="custom-select-btn" id="nameCustomBtn">
+      <span class="custom-select-label" id="nameCustomLabel">請選擇品項</span>
+      <span class="custom-select-arrow">▾</span>
+    </button>
+    <div class="custom-select-list" id="nameCustomList"></div>
+  </div>
+  <div class="custom-select-wrap" id="qtyCustomWrap">
+    <button type="button" class="custom-select-btn" id="qtyCustomBtn">
+      <span class="custom-select-label" id="qtyCustomLabel">1</span>
+      <span class="custom-select-arrow">▾</span>
+    </button>
+    <div class="custom-select-list" id="qtyCustomList"></div>
+  </div>
+  <select id="nameInput" style="display:none;"></select>
+  <select id="qtyInput" style="display:none;"></select>
   <button id="addBtn" class="btn btn-primary btn-lg">➕<br>新增品項</button>
 </div>
 
@@ -1460,6 +1498,66 @@ for(let i=1;i<=99;i++){
   option.textContent=i;
   els.qtyInput.appendChild(option);
 }
+
+// ============================================================
+// 自訂質感下拉選單：包住原生 <select>（隱藏但保留運作），
+// 點擊自訂按鈕會打開自訂清單，選擇後直接同步回原生 select 的值
+// 並手動觸發 change 事件，讓原本所有邏輯（新入會提醒、限購調整、
+// 新增品項）完全不受影響，只是外觀整個換成深色金框質感。
+// ============================================================
+function buildCustomDropdown(selectEl, wrapId, btnId, labelId, listId){
+  const wrap  = document.getElementById(wrapId);
+  const btn   = document.getElementById(btnId);
+  const label = document.getElementById(labelId);
+  const list  = document.getElementById(listId);
+
+  function renderList(){
+    list.innerHTML='';
+    Array.from(selectEl.options).forEach(opt=>{
+      const item=document.createElement('div');
+      item.className='custom-select-item'+(opt.selected?' selected':'');
+      item.textContent=opt.textContent;
+      item.dataset.value=opt.value;
+      item.addEventListener('click',function(e){
+        e.stopPropagation();
+        selectEl.value=opt.value;
+        selectEl.dispatchEvent(new Event('change',{bubbles:true}));
+        syncLabel();
+        closeList();
+      });
+      list.appendChild(item);
+    });
+  }
+  function syncLabel(){
+    const opt=selectEl.options[selectEl.selectedIndex];
+    label.textContent=opt?opt.textContent:'';
+  }
+  function openList(){
+    // 關閉另一個可能開著的自訂選單，避免同時開兩個
+    document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{
+      if(w!==wrap){ w.classList.remove('open'); w.querySelector('.custom-select-list').classList.remove('open'); }
+    });
+    renderList();
+    list.classList.add('open');
+    wrap.classList.add('open');
+  }
+  function closeList(){
+    list.classList.remove('open');
+    wrap.classList.remove('open');
+  }
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(list.classList.contains('open')) closeList(); else openList();
+  });
+  document.addEventListener('click',function(e){
+    if(!wrap.contains(e.target)) closeList();
+  });
+
+  syncLabel();
+  return {syncLabel,renderList,closeList};
+}
+const nameDropdown=buildCustomDropdown(els.nameInput,'nameCustomWrap','nameCustomBtn','nameCustomLabel','nameCustomList');
+const qtyDropdown=buildCustomDropdown(els.qtyInput,'qtyCustomWrap','qtyCustomBtn','qtyCustomLabel','qtyCustomList');
 
 // 新增時長選項點擊事件
 document.querySelectorAll('.period-box').forEach(box=>{
@@ -1900,6 +1998,7 @@ async function loadProducts(){
       opt.textContent=item.name;
       els.nameInput.appendChild(opt);
     });
+    nameDropdown.syncLabel();
     setTimeout(()=>{checkHerbalNewMember(els.nameInput.value);adjustQtySelectOptions(els.nameInput.value);},300);
   }catch(error){
     showToast(`讀取商品失敗: ${error.message||'未知錯誤'}`, 'error');
@@ -2146,6 +2245,7 @@ function adjustQtySelectOptions(productName) {
     option.textContent = i;
     els.qtyInput.appendChild(option);
   }
+  qtyDropdown.syncLabel();
 }
 
 function checkUserRemainingTimes(){
@@ -2845,4 +2945,3 @@ async function initApp() {
 </script>
 </body>
 </html>
-
