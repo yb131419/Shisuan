@@ -359,8 +359,8 @@ body{
    根因是卡片邊框那道流動金色微光用了 CSS mask-composite 疊圖技法，
    dom-to-image 無法正確渲染這種遮罩效果，會產生錯誤的黑色殘影形狀。
    轉圖瞬間直接隱藏這道裝飾性微光與圖示光暈，確保畫面與截圖完全一致。 */
-#captureArea.capture-mode .sum-totals::before{
-  display:none!important;
+#captureArea.capture-mode .sum-totals{
+  animation:none!important;box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important;
 }
 #captureArea.capture-mode .sum-total-ic-wrap{
   box-shadow:none!important;
@@ -483,16 +483,16 @@ body{
   padding:18px 12px 16px;
   box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
   margin-bottom:16px;
+  border:1px solid rgba(201,161,90,0.42);
+  animation:sumGlowPulse 3.2s ease-in-out infinite;
 }
-.sum-totals::before{
-  content:'';position:absolute;inset:0;border-radius:18px;padding:1px;pointer-events:none;
-  background:linear-gradient(120deg, rgba(201,161,90,0) 0%, rgba(255,233,176,.5) 50%, rgba(201,161,90,0) 100%);
-  background-size:220% 100%;
-  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude;
-  animation:sumBorderShine 6s linear infinite;
+/* 修正：原本邊框微光用 CSS mask-composite 疊圖技法，在部分手機瀏覽器
+   （尤其行動版 Safari）支援度不穩定，會渲染出方形殘影/缺角。
+   改用純 box-shadow 呼吸光暈，所有瀏覽器都能正確渲染，不會再有殘影。 */
+@keyframes sumGlowPulse{
+  0%,100%{box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 rgba(201,161,90,0);}
+  50%{box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px rgba(201,161,90,0.4);}
 }
-@keyframes sumBorderShine{0%{background-position:0% 0;}100%{background-position:220% 0;}}
 .sum-total-item{
   position:relative;z-index:1;
   flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 8px;
@@ -653,8 +653,7 @@ body{
   #reportTable th{background:#ccc!important;color:#000!important;}
   .deleteBtn{display:none!important;}
   .summaryBox{color:#000!important;}
-  .sum-totals{background:#fff!important;border-color:#999!important;box-shadow:none!important;}
-  .sum-totals::before{display:none!important;}
+  .sum-totals{background:#fff!important;border-color:#999!important;box-shadow:none!important;animation:none!important;}
   .sum-total-ic-wrap{border-color:#999!important;box-shadow:none!important;background:#f5f5f5!important;}
   .sum-total-val{background:none!important;-webkit-text-fill-color:#000!important;color:#000!important;}
   .sum-total-label{color:#555!important;}
