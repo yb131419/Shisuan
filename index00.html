@@ -1322,7 +1322,7 @@ function openMemberCenter(){
       row('🗑️','刪除次數','<span class="super-admin-username">不限次數</span>');
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==='永久有效'?'永久有效':`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
-    badge.className='mc-badge vip';badge.textContent='💎 尊爵用戶';
+    badge.className='mc-badge vip';badge.textContent='🌟 尊爵用戶';
     nameEl.className='mc-name vip-admin-username';nameEl.textContent=userInfo.displayName;
     rowsEl.innerHTML=
       row('📅','有效期限',`<span class="remaining-days-yellow">${expiryText}</span>`)+
@@ -1843,7 +1843,7 @@ async function handleDelete(btn){
 
   // 本批免費額度用完 → 扣 1 次使用次數，回復 3 次刪除機會
   if(authStatus.remainingTimes<=0){
-    showToast('使用次數已達上限，無法繼續刪除，請升級 💎尊爵用戶','error');
+    showToast('使用次數已達上限，無法繼續刪除，請升級 🌟尊爵用戶','error');
     return;
   }
   const confirmMsg=`您本批的 ${FREE_DELETE_LIMIT} 次免費刪除已用完\n扣除 1 次使用次數即可回復 ${FREE_DELETE_LIMIT} 次刪除機會（目前剩餘 ${authStatus.remainingTimes} 次）\n是否確定扣次並刪除？`;
@@ -1973,7 +1973,7 @@ function updateDrawerProfile(){
     badgeEl.innerHTML='👑 超級管理員';
     usageVal.textContent='不限';usageVal.className='dr-usage-val';
   }else if(authStatus.isVip){
-    badgeEl.innerHTML='💎 尊爵用戶';
+    badgeEl.innerHTML='🌟 尊爵用戶';
     usageVal.textContent='不限';usageVal.className='dr-usage-val';
   }else{
     badgeEl.innerHTML='🥇 黃金用戶';
@@ -2006,10 +2006,10 @@ function updateAuthStatusBar(){
     `;
   }else if(authStatus.isVip){
     const expiryText=authStatus.remainingDays==="永久有效"?"永久有效":`${authStatus.displayExpiryDate}（剩餘 ${authStatus.remainingDays}）`;
-    midIcon='💎';midLabel='尊爵用戶';
+    midIcon='🌟';midLabel='尊爵用戶';
     cardHtml=`
       <div class="sb-top">
-        <span class="sb-badge-ic">💎</span>
+        <span class="sb-badge-ic">🌟</span>
         <span class="sb-badge-txt vip-admin-username">尊爵用戶</span>
         <span class="sb-user vip-admin-username">${userInfo.displayName}</span>
       </div>
@@ -2417,7 +2417,7 @@ function renderLoginScreen(info){
     `;
   }else if(info.isVip){
     badgeHtml=`
-      <div class="login-badge vip">💎 尊爵用戶</div>
+      <div class="login-badge vip">🌟 尊爵用戶</div>
       <div class="login-name vip-admin-username">${info.displayName}</div>
       <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
     `;
@@ -2448,7 +2448,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
     ${rulesHtml}
     ${canLogin
       ? `<button id="loginBtn" class="login-cta">🔓 登入試算系統<span class="cta-sub">Premium Access</span></button>`
-      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 💎尊爵用戶 繼續使用</div>
+      : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 🌟尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
   `;
   els.loginWrapper.style.display='flex';
@@ -2498,7 +2498,7 @@ async function handleLoginClick(){
     await new Promise(r=>setTimeout(r,320));
     enterCalculator();
     if(authStatus.isSuperAdmin||authStatus.isVip){
-      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'💎尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
+      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'🌟尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
     }else{
       showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
     }
