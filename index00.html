@@ -653,6 +653,30 @@ body{
   box-shadow:0 0 8px rgba(201,161,90,.22);
 }
 .sum-progress-ic{font-size:12px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
+/* 修正：距22萬PV／距30萬PV 各給獨立配色（藍／紫），
+   跟上面總金額（金）、總PV（青）四個項目顏色都不重複 */
+#pvProgressRow2 .sum-progress-ic-wrap{
+  border-color:rgba(90,149,229,.55);box-shadow:0 0 8px rgba(90,149,229,.25);
+}
+#pvProgressRow2 .sum-progress-value{
+  background:linear-gradient(120deg,#5a95e5 0%,#dceaff 30%,#9dc4f5 55%,#5a95e5 100%);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+#pvProgressRow2 .sum-progress-fill{
+  background:linear-gradient(90deg,#5a95e5,#a8cbf5);
+  box-shadow:0 0 12px rgba(90,149,229,.5);
+}
+#pvProgressRow3 .sum-progress-ic-wrap{
+  border-color:rgba(181,101,216,.55);box-shadow:0 0 8px rgba(181,101,216,.25);
+}
+#pvProgressRow3 .sum-progress-value{
+  background:linear-gradient(120deg,#b565d8 0%,#f2dbfc 30%,#d9a6ec 55%,#b565d8 100%);
+  background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+#pvProgressRow3 .sum-progress-fill{
+  background:linear-gradient(90deg,#b565d8,#dbaef0);
+  box-shadow:0 0 12px rgba(181,101,216,.5);
+}
 .sum-progress-col.reached .sum-progress-ic-wrap{
   border-color:rgba(76,175,80,.55);box-shadow:0 0 12px rgba(76,175,80,.28);
 }
@@ -688,6 +712,19 @@ body{
 .sum-progress-col.reached .sum-progress-fill{
   background:linear-gradient(90deg,#2e9e63,#4caf50);
   box-shadow:0 0 12px rgba(76,175,80,.55);
+}
+/* 修正：上面新增的藍/紫個別配色用了 #id 選擇器，特異度比
+   .sum-progress-col.reached 這種雙 class 選擇器更高，會導致
+   達標後蓋不掉底色變回綠色。這裡用同樣的 #id 特異度補上達標
+   覆蓋規則，確保「已達標」時無論哪一欄都會正確變成綠色。 */
+#pvProgressRow2.reached .sum-progress-fill,
+#pvProgressRow3.reached .sum-progress-fill{
+  background:linear-gradient(90deg,#2e9e63,#4caf50)!important;
+  box-shadow:0 0 12px rgba(76,175,80,.55)!important;
+}
+#pvProgressRow2.reached .sum-progress-ic-wrap,
+#pvProgressRow3.reached .sum-progress-ic-wrap{
+  border-color:rgba(76,175,80,.55)!important;box-shadow:0 0 12px rgba(76,175,80,.28)!important;
 }
 /* 手機窄螢幕：兩欄仍保持一行兩列，只縮小字級與間距避免擠壓換行 */
 @media (max-width:380px){
