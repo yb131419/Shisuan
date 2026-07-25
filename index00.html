@@ -474,28 +474,10 @@ body{
 }
 /* 修正：總金額/總PV 跟距22萬/30萬PV 的燙金漸層數字，跟之前發現的
    殘影問題同一種風險（background-clip:text 在部分裝置的截圖引擎
-   渲染不穩定）。轉圖瞬間統一改用純色，確保截圖絕對正確。 */
-#captureArea.capture-mode .sum-total-val{
-  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
-  color:#e8c874!important;filter:none!important;
-}
-#captureArea.capture-mode .sum-total-item:nth-child(3) .sum-total-val{
-  color:#4fe0cb!important;
-}
-/* 修正：轉圖片時的漸層文字安全防護，原本統一強制改成金色，
-   蓋掉了「距22萬PV」藍色／「距30萬PV」紫色的個別配色，
-   導致「轉圖片後顏色沒有更換」。改成依欄位各自對應的純色。 */
-#pvProgressRow2.capture-mode .sum-progress-value,
-#captureArea.capture-mode #pvProgressRow2 .sum-progress-value{
-  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
-  color:#7fb2f0!important;filter:none!important;
-}
-#pvProgressRow3.capture-mode .sum-progress-value,
-#captureArea.capture-mode #pvProgressRow3 .sum-progress-value{
-  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
-  color:#d19aec!important;filter:none!important;
-}
-/* 達標時轉圖片也要保持綠色，不被上面的藍/紫覆蓋規則蓋掉 */
+   渲染不穩定）。這次直接把「總金額／總PV／距22萬／距30萬」四個
+   數字改成單純亮色（不再用漸層文字），從根本上不會再有這個風險，
+   下面只需保留「已達標」時轉圖片仍要維持綠色的覆蓋規則即可。 */
+/* 達標時轉圖片也要保持綠色，不被本來的藍/紫覆蓋 */
 #captureArea.capture-mode #pvProgressRow2.reached .sum-progress-value,
 #captureArea.capture-mode #pvProgressRow3.reached .sum-progress-value{
   color:#6fcf7a!important;
@@ -660,12 +642,10 @@ body{
 .sum-total-label{font-size:13px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
 .sum-total-val{
   font-size:1.5rem;font-weight:800;line-height:1.2;letter-spacing:.2px;
-  background:linear-gradient(135deg,var(--gold,#c9a15a),var(--gold-light,#ffe9b0));
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  color:#ffd54f;
 }
 .sum-total-item:nth-child(3) .sum-total-val{
-  background:linear-gradient(135deg,#00d1b2,#7ef3e0);
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  color:#2be0c8;
 }
 .sum-total-divider{
   position:relative;z-index:1;
@@ -703,8 +683,7 @@ body{
   border-color:rgba(90,149,229,.55);box-shadow:0 0 8px rgba(90,149,229,.25);
 }
 #pvProgressRow2 .sum-progress-value{
-  background:linear-gradient(120deg,#5a95e5 0%,#dceaff 30%,#9dc4f5 55%,#5a95e5 100%);
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  color:#5b9dff;
 }
 #pvProgressRow2 .sum-progress-fill{
   background:linear-gradient(90deg,#5a95e5,#a8cbf5);
@@ -714,8 +693,7 @@ body{
   border-color:rgba(181,101,216,.55);box-shadow:0 0 8px rgba(181,101,216,.25);
 }
 #pvProgressRow3 .sum-progress-value{
-  background:linear-gradient(120deg,#b565d8 0%,#f2dbfc 30%,#d9a6ec 55%,#b565d8 100%);
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  color:#c77dff;
 }
 #pvProgressRow3 .sum-progress-fill{
   background:linear-gradient(90deg,#b565d8,#dbaef0);
@@ -732,8 +710,7 @@ body{
   font-weight:800;font-size:.95rem;margin-bottom:6px;
   display:flex;align-items:center;justify-content:center;gap:5px;
   white-space:nowrap;overflow:hidden;
-  background:linear-gradient(120deg,#c9a15a 0%,#fff3d4 30%,#ffe9b0 55%,#c9a15a 100%);
-  background-clip:text;-webkit-background-clip:text;color:transparent;
+  color:#ffd54f;
 }
 .sum-progress-value .done{
   font-size:.78rem;font-weight:800;display:inline-flex;align-items:center;gap:4px;
