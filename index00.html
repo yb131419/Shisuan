@@ -633,19 +633,19 @@ body{
 }
 .sum-total-text{display:flex;flex-direction:column;align-items:center;min-width:0;}
 .sum-total-item:nth-child(1) .sum-total-ic-wrap{
-  border:1.5px solid rgba(201,161,90,.5);box-shadow:0 0 10px rgba(201,161,90,.28);
+  border:1.5px solid rgba(201,161,90,.5);
 }
 .sum-total-item:nth-child(3) .sum-total-ic-wrap{
-  border:1.5px solid rgba(0,209,178,.5);box-shadow:0 0 10px rgba(0,209,178,.28);
+  border:1.5px solid rgba(0,209,178,.5);
 }
 .sum-total-ic{font-size:20px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
 .sum-total-label{font-size:13px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
 .sum-total-val{
   font-size:1.5rem;font-weight:800;line-height:1.2;letter-spacing:.2px;
-  color:#ffd54f;
+  color:#4da6ff;
 }
 .sum-total-item:nth-child(3) .sum-total-val{
-  color:#2be0c8;
+  color:#4da6ff;
 }
 .sum-total-divider{
   position:relative;z-index:1;
@@ -674,33 +674,32 @@ body{
   width:26px;height:26px;border-radius:50%;margin:0 auto 5px;
   display:flex;align-items:center;justify-content:center;
   background:rgba(255,255,255,.04);border:1.5px solid rgba(201,161,90,.45);
-  box-shadow:0 0 8px rgba(201,161,90,.22);
 }
 .sum-progress-ic{font-size:12px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
 /* 修正：距22萬PV／距30萬PV 各給獨立配色（藍／紫），
    跟上面總金額（金）、總PV（青）四個項目顏色都不重複 */
 #pvProgressRow2 .sum-progress-ic-wrap{
-  border-color:rgba(90,149,229,.55);box-shadow:0 0 8px rgba(90,149,229,.25);
+  border-color:rgba(90,149,229,.55);
 }
 #pvProgressRow2 .sum-progress-value{
-  color:#5b9dff;
+  color:#4da6ff;
 }
 #pvProgressRow2 .sum-progress-fill{
   background:linear-gradient(90deg,#5a95e5,#a8cbf5);
   box-shadow:0 0 12px rgba(90,149,229,.5);
 }
 #pvProgressRow3 .sum-progress-ic-wrap{
-  border-color:rgba(181,101,216,.55);box-shadow:0 0 8px rgba(181,101,216,.25);
+  border-color:rgba(181,101,216,.55);
 }
 #pvProgressRow3 .sum-progress-value{
-  color:#c77dff;
+  color:#4da6ff;
 }
 #pvProgressRow3 .sum-progress-fill{
   background:linear-gradient(90deg,#b565d8,#dbaef0);
   box-shadow:0 0 12px rgba(181,101,216,.5);
 }
 .sum-progress-col.reached .sum-progress-ic-wrap{
-  border-color:rgba(76,175,80,.55);box-shadow:0 0 12px rgba(76,175,80,.28);
+  border-color:rgba(76,175,80,.55);
 }
 .sum-progress-label{
   font-size:10px;color:#a89b7d;font-weight:700;letter-spacing:1px;margin-bottom:3px;text-align:center;
@@ -710,7 +709,7 @@ body{
   font-weight:800;font-size:.95rem;margin-bottom:6px;
   display:flex;align-items:center;justify-content:center;gap:5px;
   white-space:nowrap;overflow:hidden;
-  color:#ffd54f;
+  color:#4da6ff;
 }
 .sum-progress-value .done{
   font-size:.78rem;font-weight:800;display:inline-flex;align-items:center;gap:4px;
@@ -745,7 +744,7 @@ body{
 }
 #pvProgressRow2.reached .sum-progress-ic-wrap,
 #pvProgressRow3.reached .sum-progress-ic-wrap{
-  border-color:rgba(76,175,80,.55)!important;box-shadow:0 0 12px rgba(76,175,80,.28)!important;
+  border-color:rgba(76,175,80,.55)!important;
 }
 /* 手機窄螢幕：兩欄仍保持一行兩列，只縮小字級與間距避免擠壓換行 */
 @media (max-width:380px){
