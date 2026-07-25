@@ -226,14 +226,15 @@ body{
   text-shadow:0 0 12px rgba(201,161,90,.35);
 }
 .sb-toggle-btn{
-  width:32px;height:32px;border-radius:11px;flex:0 0 auto;cursor:pointer;
+  width:auto;height:32px;border-radius:11px;flex:0 0 auto;cursor:pointer;
   background:rgba(255,255,255,.05);color:#d8cba8;border:1px solid rgba(201,161,90,.25);
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;
+  padding:0 11px;box-shadow:0 2px 6px rgba(0,0,0,.25);
   transition:all 0.25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
 }
 .sb-toggle-btn:hover{background:rgba(217,184,115,.18);border-color:rgba(217,184,115,.55);color:var(--gold-light);}
 .sb-toggle-btn:active{transform:scale(0.92);}
+.sb-toggle-label{font-size:12px;font-weight:700;white-space:nowrap;}
 .sb-toggle-btn .chevron{display:inline-block;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .sb-toggle-btn.collapsed .chevron{transform:rotate(-90deg);}
 .sb-body{
@@ -968,6 +969,7 @@ body{
     <button id="menuFab" class="menu-btn" title="功能選單">☰</button>
     <div class="sb-header-mid" id="sbHeaderMid"></div>
     <button class="sb-toggle-btn" id="sbToggleBtn" title="收合/展開狀態欄">
+      <span class="sb-toggle-label" id="sbToggleLabel">收合</span>
       <span class="chevron">▾</span>
     </button>
   </div>
@@ -1325,12 +1327,15 @@ function toggleMenu(forceOpen){
   els.menuFab.classList.toggle('open', willOpen);
 }
 function applyStatusBarVisibility(){
+  const labelEl = document.getElementById('sbToggleLabel');
   if(statusBarHidden){
     els.sbBody.classList.add('collapsed');
     els.sbToggleBtn.classList.add('collapsed');
+    if(labelEl) labelEl.textContent = '展開';
   }else{
     els.sbBody.classList.remove('collapsed');
     els.sbToggleBtn.classList.remove('collapsed');
+    if(labelEl) labelEl.textContent = '收合';
   }
   updateMenuStatusLabel();
 }
