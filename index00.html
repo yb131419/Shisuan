@@ -375,7 +375,7 @@ body{
 }
 #captureArea{
    background:#1c1c1c;box-shadow:inset 0 1px 2px rgba(255,255,255,0.05),0 4px 20px rgba(0,0,0,0.6);
-  color:var(--text);padding:15px 10px 32px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
+  color:var(--text);padding:15px 6px 32px;border-radius:12px;margin-bottom:15px;overflow-x:auto;display:none;width:100%;max-width:600px;
   position: relative;
 }
 #watermark {
@@ -600,24 +600,24 @@ body{
 }
 .sum-total-item{
   position:relative;z-index:1;
-  flex:1;display:flex;flex-direction:row;align-items:center;gap:10px;padding:0 8px;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 6px;
   justify-content:center;
 }
 .sum-total-ic-wrap{
-  width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   background:rgba(255,255,255,.04);flex:0 0 auto;
 }
-.sum-total-text{display:flex;flex-direction:column;align-items:flex-start;min-width:0;}
+.sum-total-text{display:flex;flex-direction:column;align-items:center;min-width:0;}
 .sum-total-item:nth-child(1) .sum-total-ic-wrap{
   border:1.5px solid rgba(201,161,90,.5);box-shadow:0 0 10px rgba(201,161,90,.28);
 }
 .sum-total-item:nth-child(3) .sum-total-ic-wrap{
   border:1.5px solid rgba(0,209,178,.5);box-shadow:0 0 10px rgba(0,209,178,.28);
 }
-.sum-total-ic{font-size:19px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
-.sum-total-label{font-size:11px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
+.sum-total-ic{font-size:20px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+.sum-total-label{font-size:13px;color:#a89b7d;font-weight:700;letter-spacing:1.2px;}
 .sum-total-val{
-  font-size:1.8rem;font-weight:800;line-height:1.2;letter-spacing:.2px;
+  font-size:1.5rem;font-weight:800;line-height:1.2;letter-spacing:.2px;
   background:linear-gradient(135deg,var(--gold,#c9a15a),var(--gold-light,#ffe9b0));
   background-clip:text;-webkit-background-clip:text;color:transparent;
 }
@@ -736,8 +736,9 @@ body{
   .sum-progress-ic{font-size:11px;}
   .sum-progress-label{font-size:9px;letter-spacing:.6px;}
   .sum-progress-value{font-size:.85rem;}
-  .sum-total-val{font-size:1.45rem;}
-  .sum-total-ic-wrap{width:36px;height:36px;}
+  .sum-total-val{font-size:1.25rem;}
+  .sum-total-ic-wrap{width:32px;height:32px;}
+  .sum-total-label{font-size:11px;}
 }
 #totalPriceCellDup,#totalPvCellDup{display:inline-block;text-align:center;}
 #pvDiff2,#pvDiff3{display:inline-block;min-width:20px;text-align:center;}
@@ -2777,4 +2778,3 @@ async function initApp() {
 </script>
 </body>
 </html>
-
