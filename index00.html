@@ -362,6 +362,13 @@ body{
 #captureArea.capture-mode .sum-totals{
   animation:none!important;box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important;
 }
+/* 修正：預計獎金卡的柔和青色光暈（box-shadow blur），在 dom-to-image 的畫布
+   渲染下，模糊光暈有時會被畫成一整塊實色色塊而非柔和光暈，
+   造成「轉圖片後有一片綠色殘影」。轉圖瞬間直接關閉這個陰影，
+   卡片本身的邊框與底色都還在，只是少了發光效果，畫面依然完整。 */
+#captureArea.capture-mode .bonus-result-box{
+  box-shadow:none!important;
+}
 #captureArea.capture-mode .sum-total-ic-wrap{
   box-shadow:none!important;
 }
@@ -569,7 +576,8 @@ body{
   .sum-total-val{font-size:1.4rem;}
   .sum-total-ic-wrap{width:34px;height:34px;}
 }
-#totalPriceCellDup,#totalPvCellDup,#pvDiff2{display:inline-block;min-width:60px;text-align:center;}
+#totalPriceCellDup,#totalPvCellDup{display:inline-block;text-align:center;}
+#pvDiff2,#pvDiff3{display:inline-block;min-width:20px;text-align:center;}
 
 /* ============================================================
    新增：預計獎金區塊樣式
