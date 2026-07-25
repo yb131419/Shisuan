@@ -1439,10 +1439,12 @@ else if(val.includes('草本') && val.includes('新入會')){
   },100);
 }
 
-// 新增 2711AB 提醒
+// 新增 2711AB 提醒（文字提示改成動態抓取品名裡的實際限購數字，不再寫死）
 else if(val.includes('2711AB')){
   setTimeout(()=>{
-    alert('📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買一組（4入）');
+    const limitQty = getMaxQtyForProduct(val);
+    const unit = val.includes('盒') ? '盒' : '組';
+    alert(`📋 2711AB 購買提醒：\n\n此商品限定「新人入會」購買\n且每人僅限購買 ${limitQty} ${unit}`);
   },100);
 }
 }
