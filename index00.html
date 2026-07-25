@@ -601,16 +601,6 @@ body{
 .bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ffd700;margin-top:2px;}
 .bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
 .bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
-/* 截圖用白底版 */
-.bonus-result-box-print{
-  background:linear-gradient(145deg,#e8f5e9,#f1f8f1);
-  border:1.5px solid #66bb6a;border-radius:10px;padding:10px 14px;text-align:center;
-  margin-top:10px;display:none;
-}
-.bonus-result-box-print .bp-label{font-size:11px;color:#555;margin-bottom:3px;}
-.bonus-result-box-print .bp-pct{font-size:1.2rem;font-weight:bold;color:#2e7d32;}
-.bonus-result-box-print .bp-amount{font-size:1rem;font-weight:bold;color:#b8860b;margin-top:2px;}
-.bonus-result-box-print .bp-tier{font-size:10px;color:#777;margin-top:3px;line-height:1.4;}
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
@@ -663,7 +653,12 @@ body{
   #reportTable th:nth-child(2),#reportTable td:nth-child(2){font-size:16px!important;font-weight:bold!important;}
   #watermark {display: none!important;}
   .bonus-section{display:none!important;}
-  .bonus-result-box-print{display:block!important;}
+  /* 修正：移除原本 .bonus-result-box-print{display:block!important;} 這條規則。
+     此元素平時是 display:none（inline style），但某些截圖/渲染引擎在產生
+     報表圖片時，會用類似「列印模式」的方式評估樣式，讓這條帶 !important
+     的規則蓋過原本的 display:none，使這個早已棄用的白底舊卡片意外
+     顯示出來、疊在深色獎金卡右側，這正是「獎金計算旁邊有殘影」的真正成因。
+     這個元素目前已完全不再使用，直接讓它保持隱藏，不再有任何規則會使其顯示。 */
 }
 .spacer{height:80px;}
 @media (max-width:360px){
@@ -1000,9 +995,6 @@ body{
       <div class="bonus-result-none">請選擇身分以顯示預計獎金</div>
     </div>
   </div>
-
-  <!-- 保留元素避免既有 JS 空指標錯誤，但轉圖片時已改用深色版直接截圖，不再使用此白底版 -->
-  <div id="bonusPrintBox" class="bonus-result-box-print" style="display:none;"></div>
 </div>
 <img id="previewImage" alt="預覽匯出圖片" />
 <div class="button-group">
@@ -1113,7 +1105,6 @@ function updateBonusDisplay() {
   const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
   const selected   = document.querySelector('input[name="bonusType"]:checked');
   const box        = document.getElementById('bonusResultBox');
-  const printBox   = document.getElementById('bonusPrintBox');
 
   // 更新 radio 標籤 active 樣式
   document.getElementById('labelNonMgr').className =
@@ -1123,8 +1114,6 @@ function updateBonusDisplay() {
 
   if (!selected) {
     box.innerHTML = '<div class="bonus-result-none">請選擇身分以顯示預計獎金</div>';
-    printBox.style.display = 'none';
-    printBox.innerHTML = '';
     return;
   }
 
@@ -1133,28 +1122,18 @@ function updateBonusDisplay() {
 
   if (!result) {
     box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div><div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
-    printBox.style.display = 'none';
-    printBox.innerHTML = '';
     return;
   }
 
   const bonusAmt = Math.floor(totalPrice * result.rate);
   const pctText  = (result.rate * 100).toFixed(0) + '%';
 
-  // 螢幕互動版
+  // 螢幕互動版（轉圖片時直接截這個深色版本，不再切換白底版，畫面前後保證一致）
   box.innerHTML = `
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
     <div class="bonus-result-pct">${pctText}</div>
     <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
-  `;
-
-  // 截圖用白底版（平時 display:none，exportToImage 前切換）
-  printBox.innerHTML = `
-    <div class="bp-label">${typeLabel} · 預計獎金試算</div>
-    <div class="bp-pct">${pctText}</div>
-    <div class="bp-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bp-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 }
 
