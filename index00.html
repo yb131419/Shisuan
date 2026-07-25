@@ -66,10 +66,29 @@ body{
 }
 @keyframes loginCardIn{from{opacity:0;transform:translateY(14px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 #loginScreen .login-title{
-  font-size:1.5rem;font-weight:800;letter-spacing:1.5px;margin-bottom:22px;
+  font-size:1.65rem;font-weight:800;letter-spacing:2px;margin-bottom:4px;
   background:linear-gradient(120deg,#c9a15a 0%,#fff6d6 30%,#ffe066 55%,#c9a15a 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  text-shadow:0 0 16px rgba(201,161,90,.4);
+  text-shadow:0 0 18px rgba(201,161,90,.45);
+}
+.login-title-wrap{margin-bottom:22px;}
+.login-title-deco{
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;
+}
+.login-title-deco .login-title-line{
+  height:1px;width:46px;
+  background:linear-gradient(90deg,transparent,rgba(201,161,90,.7));
+}
+.login-title-deco .login-title-line.right{
+  background:linear-gradient(90deg,rgba(201,161,90,.7),transparent);
+}
+.login-title-diamond{
+  font-size:10px;color:var(--gold-light,#ffe9b0);
+  filter:drop-shadow(0 0 6px rgba(201,161,90,.6));
+}
+.login-title-sub{
+  font-size:10px;font-weight:800;letter-spacing:4px;color:rgba(217,184,115,.65);
+  text-transform:uppercase;
 }
 .login-avatar-wrap{display:flex;justify-content:center;margin-bottom:14px;}
 .login-avatar{
@@ -1041,7 +1060,15 @@ body{
   </div>
   <div id="loginWrapper">
     <div id="loginScreen">
-      <div class="login-title">🌿 彥彬試算系統</div>
+      <div class="login-title-wrap">
+        <div class="login-title-deco">
+          <span class="login-title-line"></span>
+          <span class="login-title-diamond">✦</span>
+          <span class="login-title-line right"></span>
+        </div>
+        <div class="login-title">🌿 彥彬試算系統</div>
+        <div class="login-title-sub">PREMIUM CALCULATION SYSTEM</div>
+      </div>
       <div id="loginScreenBody"></div>
     </div>
     <div id="loginExample">
