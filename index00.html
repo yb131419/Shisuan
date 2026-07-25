@@ -482,9 +482,23 @@ body{
 #captureArea.capture-mode .sum-total-item:nth-child(3) .sum-total-val{
   color:#4fe0cb!important;
 }
-#captureArea.capture-mode .sum-progress-value{
+/* 修正：轉圖片時的漸層文字安全防護，原本統一強制改成金色，
+   蓋掉了「距22萬PV」藍色／「距30萬PV」紫色的個別配色，
+   導致「轉圖片後顏色沒有更換」。改成依欄位各自對應的純色。 */
+#pvProgressRow2.capture-mode .sum-progress-value,
+#captureArea.capture-mode #pvProgressRow2 .sum-progress-value{
   background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
-  color:#e8c874!important;filter:none!important;
+  color:#7fb2f0!important;filter:none!important;
+}
+#pvProgressRow3.capture-mode .sum-progress-value,
+#captureArea.capture-mode #pvProgressRow3 .sum-progress-value{
+  background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;
+  color:#d19aec!important;filter:none!important;
+}
+/* 達標時轉圖片也要保持綠色，不被上面的藍/紫覆蓋規則蓋掉 */
+#captureArea.capture-mode #pvProgressRow2.reached .sum-progress-value,
+#captureArea.capture-mode #pvProgressRow3.reached .sum-progress-value{
+  color:#6fcf7a!important;
 }
 #captureArea.capture-mode .sum-progress-ic-wrap{
   box-shadow:none!important;
@@ -806,10 +820,26 @@ body{
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
-  background:#2c2c2c;color:var(--text);flex:1;text-align:center;padding:12px 10px;
-  font-size:16px;border-radius:6px;border:none;
+  background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;flex:1;text-align:center;padding:12px 14px;
+  font-size:16px;font-weight:600;border-radius:12px;
+  border:1.5px solid rgba(201,161,90,.4);
+  box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  -webkit-appearance:none;appearance:none;
+  background-image:
+    linear-gradient(160deg,#2c2c2c,#1e1e1e),
+    linear-gradient(135deg,transparent 50%,rgba(217,184,115,.85) 50%),
+    linear-gradient(45deg,rgba(217,184,115,.85) 50%,transparent 50%);
+  background-position:0 0, calc(100% - 20px) center, calc(100% - 14px) center;
+  background-size:100% 100%, 6px 6px, 6px 6px;
+  background-repeat:no-repeat;
+  padding-right:34px;
 }
-#qtyInput{font-size:18px!important;font-weight:bold;}
+#nameInput:focus,#qtyInput:focus{
+  outline:none;border-color:rgba(217,184,115,.85);
+  box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
+}
+#qtyInput{font-size:18px!important;font-weight:800;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
