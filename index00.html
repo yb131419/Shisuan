@@ -686,7 +686,6 @@ body{
 }
 #pvProgressRow2 .sum-progress-fill{
   background:linear-gradient(90deg,#5a95e5,#a8cbf5);
-  box-shadow:0 0 12px rgba(90,149,229,.5);
 }
 #pvProgressRow3 .sum-progress-ic-wrap{
   border-color:rgba(181,101,216,.55);
@@ -696,7 +695,6 @@ body{
 }
 #pvProgressRow3 .sum-progress-fill{
   background:linear-gradient(90deg,#b565d8,#dbaef0);
-  box-shadow:0 0 12px rgba(181,101,216,.5);
 }
 .sum-progress-col.reached .sum-progress-ic-wrap{
   border-color:rgba(76,175,80,.55);
@@ -722,16 +720,11 @@ body{
 .sum-progress-fill{
   height:100%;border-radius:7px;width:0%;position:relative;overflow:hidden;
   background:linear-gradient(90deg,#c9a15a,#ffe9b0);
-  box-shadow:0 0 12px rgba(201,161,90,.55);
   transition:width .6s cubic-bezier(.22,.8,.36,1);
 }
-.sum-progress-fill::after{
-  content:'';position:absolute;inset:0;border-radius:7px;
-  background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 55%);
-}
+
 .sum-progress-col.reached .sum-progress-fill{
   background:linear-gradient(90deg,#2e9e63,#4caf50);
-  box-shadow:0 0 12px rgba(76,175,80,.55);
 }
 /* 修正：上面新增的藍/紫個別配色用了 #id 選擇器，特異度比
    .sum-progress-col.reached 這種雙 class 選擇器更高，會導致
@@ -740,7 +733,6 @@ body{
 #pvProgressRow2.reached .sum-progress-fill,
 #pvProgressRow3.reached .sum-progress-fill{
   background:linear-gradient(90deg,#2e9e63,#4caf50)!important;
-  box-shadow:0 0 12px rgba(76,175,80,.55)!important;
 }
 #pvProgressRow2.reached .sum-progress-ic-wrap,
 #pvProgressRow3.reached .sum-progress-ic-wrap{
