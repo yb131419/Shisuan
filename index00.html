@@ -97,11 +97,7 @@ body{
   animation:avatarPulse 2.6s ease-in-out infinite;
 }
 .login-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:2rem;background:#2a2a2a;color:#ccc;}
-#loginScreen .login-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:bold;margin-bottom:10px;}
-#loginScreen .login-badge.super{background:rgba(212,175,55,0.15);color:var(--super);border:1px solid rgba(212,175,55,0.4);}
-#loginScreen .login-badge.vip{background:rgba(0,191,165,0.15);color:var(--vip);border:1px solid rgba(0,191,165,0.4);}
-#loginScreen .login-badge.gold{background:rgba(201,161,90,0.15);color:var(--gold);border:1px solid rgba(201,161,90,0.4);}
-#loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
+#loginScreen .login-badge{display:inline-block;font-size:13px;font-weight:700;margin-bottom:10px;color:#e8c874;background:none;border:none;padding:0;}
 #loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
 #loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
 /* ============================================================
@@ -110,18 +106,18 @@ body{
    ============================================================ */
 .login-profile-card{
   display:inline-flex;flex-direction:column;align-items:center;
-  padding:16px 26px 14px;margin:4px 0 18px;border-radius:16px;min-width:220px;
-  background:linear-gradient(165deg, rgba(255,255,255,.04), rgba(255,255,255,0) 60%),
-             linear-gradient(160deg,#201a10,#161310);
+  padding:16px 26px 14px;margin:4px 0 18px;border-radius:20px;min-width:220px;
+  background:
+    linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,0) 40%),
+    linear-gradient(150deg,#232323 0%,#161616 100%);
+  border:1px solid rgba(201,161,90,0.4);
+  box-shadow:0 10px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
   position:relative;overflow:hidden;
 }
 .login-profile-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,rgba(217,184,115,.8),transparent);
 }
-.login-profile-card.super{border:1.5px solid rgba(212,175,55,.45);box-shadow:0 8px 24px rgba(0,0,0,.35);}
-.login-profile-card.vip{border:1.5px solid rgba(0,191,165,.4);box-shadow:0 8px 24px rgba(0,0,0,.35);}
-.login-profile-card.gold{border:1.5px solid rgba(201,161,90,.45);box-shadow:0 8px 24px rgba(0,0,0,.35);}
 .login-profile-card .login-badge{margin-bottom:12px;}
 .login-profile-card .login-name{font-size:1.3rem;margin-bottom:8px;}
 .login-profile-card .login-sub{margin-bottom:0;font-size:0.85rem;}
@@ -439,6 +435,28 @@ body{
    ============================================================ */
 .custom-select-wrap{position:relative;flex:0 0 auto;min-width:0;}
 .period-select-wrap{min-width:150px;}
+/* ============================================================
+   自訂天數輸入框，改成跟期數下拉選單一致的深色金框質感
+   ============================================================ */
+.custom-days-wrap{
+  margin-left:8px;display:flex;align-items:center;gap:8px;
+}
+.custom-days-input{
+  padding:11px 10px;width:78px;border-radius:12px;text-align:center;
+  background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
+  font-size:15px;font-weight:700;border:1.5px solid rgba(201,161,90,.4);
+  box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  -moz-appearance:textfield;
+}
+.custom-days-input::-webkit-outer-spin-button,
+.custom-days-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.custom-days-input:focus{
+  outline:none;border-color:rgba(217,184,115,.85);
+  box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.custom-days-input::placeholder{color:#8a8477;}
+.custom-days-unit{color:#e8dcc0;font-size:14px;font-weight:700;}
 .custom-select-btn{
   width:100%;background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
   text-align:center;padding:11px 32px 11px 14px;font-size:15px;font-weight:700;
@@ -1223,10 +1241,9 @@ body{
     <option value="11">十一個月</option>
     <option value="12">十二個月</option>
   </select>
-  <div style="margin-left:8px;display:flex;align-items:center;gap:6px;">
-    <input type="number" id="customDays" placeholder="自訂"
-      style="padding:6px 8px;width:70px;border-radius:6px;border:1px solid #ccc;text-align:center;background:#fff;color:#000;font-size:14px;">
-    <span style="color:#fff;font-size:14px;">天</span>
+  <div class="custom-days-wrap">
+    <input type="number" id="customDays" placeholder="自訂" class="custom-days-input">
+    <span class="custom-days-unit">天</span>
   </div>
 </div>
   <div class="userInputs">  
