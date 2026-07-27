@@ -104,6 +104,27 @@ body{
 #loginScreen .login-badge.normal{background:rgba(64,196,255,0.15);color:var(--highlight);border:1px solid rgba(64,196,255,0.4);}
 #loginScreen .login-name{font-size:1.15rem;font-weight:bold;margin-bottom:6px;}
 #loginScreen .login-sub{font-size:0.9rem;color:#bbb;margin-bottom:6px;}
+/* ============================================================
+   登入畫面的身分卡片（徽章＋姓名＋期限），改成有邊框的精品卡片，
+   取代原本浮在畫面上的裸露文字
+   ============================================================ */
+.login-profile-card{
+  display:inline-flex;flex-direction:column;align-items:center;
+  padding:16px 26px 14px;margin:4px 0 18px;border-radius:16px;min-width:220px;
+  background:linear-gradient(165deg, rgba(255,255,255,.04), rgba(255,255,255,0) 60%),
+             linear-gradient(160deg,#201a10,#161310);
+  position:relative;overflow:hidden;
+}
+.login-profile-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(217,184,115,.8),transparent);
+}
+.login-profile-card.super{border:1.5px solid rgba(212,175,55,.45);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.login-profile-card.vip{border:1.5px solid rgba(0,191,165,.4);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.login-profile-card.gold{border:1.5px solid rgba(201,161,90,.45);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.login-profile-card .login-badge{margin-bottom:12px;}
+.login-profile-card .login-name{font-size:1.3rem;margin-bottom:8px;}
+.login-profile-card .login-sub{margin-bottom:0;font-size:0.85rem;}
 .login-rules{
   text-align:left;background:rgba(255,255,255,0.045);border-left:3px solid var(--gold);
   border-radius:10px;padding:14px 14px 14px 16px;margin:18px 0;
@@ -433,6 +454,7 @@ body{
   box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .custom-select-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+.custom-select-label.placeholder{color:#8a8477;font-weight:600;}
 .custom-select-arrow{
   position:absolute;right:12px;top:50%;transform:translateY(-50%);
   font-size:11px;color:rgba(217,184,115,.85);transition:transform .25s cubic-bezier(.34,1.56,.64,1);
@@ -1181,12 +1203,13 @@ body{
 <div class="period-options">
   <div class="custom-select-wrap period-select-wrap" id="periodCustomWrap">
     <button type="button" class="custom-select-btn" id="periodCustomBtn">
-      <span class="custom-select-label" id="periodCustomLabel">一個月</span>
+      <span class="custom-select-label placeholder" id="periodCustomLabel">請選擇期數</span>
       <span class="custom-select-arrow">▾</span>
     </button>
     <div class="custom-select-list" id="periodCustomList"></div>
   </div>
   <select id="periodInput" style="display:none;">
+    <option value="" selected>請選擇期數</option>
     <option value="1">一個月</option>
     <option value="2">二個月</option>
     <option value="3">三個月</option>
@@ -1518,6 +1541,7 @@ function buildCustomDropdown(selectEl, wrapId, btnId, labelId, listId){
   function syncLabel(){
     const opt=selectEl.options[selectEl.selectedIndex];
     label.textContent=opt?opt.textContent:'';
+    label.classList.toggle('placeholder', !opt || opt.value==='');
   }
   function openList(){
     document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{
@@ -1926,7 +1950,7 @@ async function resetReport(){
   els.buyerInput.value='';
   els.cashOption.checked=false;
   els.cardOption.checked=false;
-  document.getElementById('periodInput').value='1';
+  document.getElementById('periodInput').value='';
   periodDropdown.syncLabel();
   clearImage();
 
@@ -2704,22 +2728,28 @@ function renderLoginScreen(info){
   let badgeHtml='';
   if(info.isSuperAdmin){
     badgeHtml=`
-      <div class="login-badge super">👑 超級管理員</div>
-      <div class="login-name super-admin-username">${info.displayName}</div>
-      <div class="login-sub">不限使用次數</div>
+      <div class="login-profile-card super">
+        <div class="login-badge super">👑 超級管理員</div>
+        <div class="login-name super-admin-username">${info.displayName}</div>
+        <div class="login-sub">不限使用次數</div>
+      </div>
     `;
   }else if(info.isVip){
     badgeHtml=`
-      <div class="login-badge vip">🌟 尊爵用戶</div>
-      <div class="login-name vip-admin-username">${info.displayName}</div>
-      <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
+      <div class="login-profile-card vip">
+        <div class="login-badge vip">🌟 尊爵用戶</div>
+        <div class="login-name vip-admin-username">${info.displayName}</div>
+        <div class="login-sub">有效期限：${info.remainingDays==="永久有效"?"永久有效":`${info.displayExpiryDate}（剩餘 ${info.remainingDays}）`}</div>
+      </div>
     `;
   }else{
     const remain=info.remainingTimes??0;
     badgeHtml=`
-      <div class="login-badge gold">🥇 黃金用戶</div>
-      <div class="login-name gold-username">${info.displayName}</div>
-      <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain} 次</span></div>
+      <div class="login-profile-card gold">
+        <div class="login-badge gold">🥇 黃金用戶</div>
+        <div class="login-name gold-username">${info.displayName}</div>
+        <div class="login-sub">剩餘可用次數：<span class="${remain<=0?'expired':'normal'}">${remain} 次</span></div>
+      </div>
     `;
   }
 
