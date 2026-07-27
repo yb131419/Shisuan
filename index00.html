@@ -369,7 +369,9 @@ body{
 }
 .dr-usage-row{
   display:flex;align-items:center;gap:10px;
-  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(160deg, rgba(255,255,255,.04), rgba(255,255,255,0) 70%),
+             rgba(255,255,255,.02);
+  border:1px solid rgba(201,161,90,.22);
   border-radius:12px;padding:10px 14px;margin-bottom:6px;font-size:13.5px;
 }
 .dr-usage-ic{font-size:15px;flex:0 0 auto;}
@@ -1193,8 +1195,13 @@ body{
   </div>
   <div class="dr-usage-row" id="drUsageRow">
     <span class="dr-usage-ic">♾️</span>
-    <span class="dr-usage-label">使用次數</span>
+    <span class="dr-usage-label">剩餘次數</span>
     <span class="dr-usage-val" id="drUsageVal">不限</span>
+  </div>
+  <div class="dr-usage-row" id="drUsedRow">
+    <span class="dr-usage-ic">📊</span>
+    <span class="dr-usage-label">已使用次數</span>
+    <span class="dr-usage-val" id="drUsedVal">0</span>
   </div>
   <div class="dr-sep"></div>
   <button class="dr-item" id="menuMemberCenter">
@@ -2291,17 +2298,23 @@ function updateDrawerProfile(){
   document.getElementById('drProfileName').textContent=userInfo.displayName;
   const badgeEl=document.getElementById('drProfileBadge');
   const usageVal=document.getElementById('drUsageVal');
+  const usedVal=document.getElementById('drUsedVal');
   if(authStatus.isSuperAdmin){
     badgeEl.innerHTML='👑 超級管理員';
     usageVal.textContent='不限';usageVal.className='dr-usage-val';
+    usedVal.textContent='不限';usedVal.className='dr-usage-val';
   }else if(authStatus.isVip){
     badgeEl.innerHTML='🌟 尊爵用戶';
     usageVal.textContent='不限';usageVal.className='dr-usage-val';
+    usedVal.textContent='不限';usedVal.className='dr-usage-val';
   }else{
     badgeEl.innerHTML='🥇 黃金用戶';
     const remain=authStatus.remainingTimes||0;
     usageVal.textContent=`${remain} 次`;
     usageVal.className='dr-usage-val '+(remain<=0?'expired':'normal');
+    const used=authStatus.usageCount||0;
+    usedVal.textContent=`${used} 次`;
+    usedVal.className='dr-usage-val normal';
   }
 }
 
