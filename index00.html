@@ -1055,6 +1055,79 @@ body{
 .guide-nav .btn{flex:1;}
 
 /* ============================================================
+   👑 超管會員管理面板
+   ============================================================ */
+#adminPanelOverlay{
+  position:fixed;inset:0;z-index:3100;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;padding:16px;
+}
+#adminPanelOverlay.show{display:flex;}
+.admin-panel-card{
+  width:100%;max-width:460px;max-height:88vh;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+  background:linear-gradient(160deg,#1c1c1c,#141414);
+  border:1px solid rgba(201,161,90,0.35);border-radius:20px;
+  padding:24px 18px 18px;box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  animation:loginCardIn .4s cubic-bezier(0.16,1,0.3,1);
+}
+.admin-panel-title{
+  font-size:1.2rem;font-weight:800;text-align:center;margin-bottom:14px;
+  background:linear-gradient(120deg,#c9a15a 0%,#fff6d6 30%,#ffe066 55%,#c9a15a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.admin-panel-tabs{display:flex;gap:8px;margin-bottom:12px;}
+.admin-tab-btn{
+  flex:1;padding:10px 8px;border-radius:12px;border:1.5px solid rgba(201,161,90,.3);
+  background:rgba(255,255,255,.03);color:#c7c1b4;font-weight:700;font-size:14px;
+  cursor:pointer;transition:all .2s ease;-webkit-tap-highlight-color:transparent;
+}
+.admin-tab-btn.active{
+  background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:var(--gold-light,#ffe9b0);
+  border-color:rgba(217,184,115,.7);box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.admin-panel-search{display:flex;gap:8px;margin-bottom:12px;}
+.admin-search-input{
+  flex:1;padding:10px 12px;border-radius:12px;background:linear-gradient(160deg,#2c2c2c,#1e1e1e);
+  color:#f0e6d2;border:1.5px solid rgba(201,161,90,.35);font-size:14px;
+}
+.admin-search-input::placeholder{color:#8a8477;}
+.admin-search-input:focus{outline:none;border-color:rgba(217,184,115,.8);}
+.admin-refresh-btn{
+  width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(201,161,90,.35);color:#e8dcc0;font-size:16px;cursor:pointer;
+  flex:0 0 auto;transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.admin-refresh-btn:active{transform:rotate(180deg);}
+.admin-panel-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;}
+.admin-panel-loading,.admin-panel-empty{
+  text-align:center;color:#8a8477;font-size:13.5px;padding:30px 0;
+}
+.admin-user-card{
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:12px 14px;
+}
+.admin-user-name{font-size:14.5px;font-weight:800;color:#f0e6d2;margin-bottom:2px;}
+.admin-user-id{font-size:10.5px;color:#75705f;margin-bottom:8px;word-break:break-all;}
+.admin-user-stats{
+  display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:#c7c1b4;margin-bottom:10px;
+}
+.admin-user-stats b{color:var(--gold-light,#ffe9b0);font-weight:800;}
+.admin-user-action{display:flex;gap:8px;}
+.admin-user-action input{
+  flex:1;min-width:0;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);
+  color:#f0e6d2;border:1.5px solid rgba(201,161,90,.3);font-size:13px;text-align:center;
+}
+.admin-user-action button{
+  flex:0 0 auto;padding:8px 14px;border-radius:10px;border:1.5px solid rgba(217,184,115,.5);
+  background:linear-gradient(160deg,#d9b873,#b3873c);color:#241a08;font-weight:800;font-size:13px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.admin-user-action button:disabled{opacity:.5;cursor:not-allowed;}
+
+
+
+/* ============================================================
    登入按鈕 — 燙金立體 CTA（流光掃過 + 內陰影立體感）
    ============================================================ */
 .login-cta{
@@ -1207,6 +1280,9 @@ body{
   <button class="dr-item" id="menuMemberCenter">
     <span class="ic gold">👤</span>會員中心
   </button>
+  <button class="dr-item" id="menuAdminPanel" style="display:none;">
+    <span class="ic gold">👑</span>會員管理
+  </button>
   <div class="dr-sep"></div>
   <button class="dr-item" id="menuStatusToggle">
     <span class="ic">📊</span>隱藏狀態欄
@@ -1217,6 +1293,26 @@ body{
   <div class="dr-sep"></div>
   <div class="dr-foot">彥彬🌿試算系統</div>
 </aside>
+<!-- ============================================================
+     👑 超管會員管理面板：查詢/新增 黃金用戶次數、尊爵用戶到期日
+     ============================================================ -->
+<div id="adminPanelOverlay">
+  <div class="admin-panel-card">
+    <button class="guide-close" id="adminPanelCloseBtn" title="關閉">✕</button>
+    <div class="admin-panel-title">👑 會員管理</div>
+    <div class="admin-panel-tabs">
+      <button class="admin-tab-btn active" id="adminTabGoldBtn">🥇 黃金用戶</button>
+      <button class="admin-tab-btn" id="adminTabVipBtn">💎 尊爵用戶</button>
+    </div>
+    <div class="admin-panel-search">
+      <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="搜尋暱稱或用戶ID..."/>
+      <button class="admin-refresh-btn" id="adminRefreshBtn" title="重新整理">🔄</button>
+    </div>
+    <div class="admin-panel-list" id="adminPanelList">
+      <div class="admin-panel-loading">載入中...</div>
+    </div>
+  </div>
+</div>
 <div id="captureArea">
   <div id="watermark">『彥彬🌿試算系統』</div>
 
@@ -1234,19 +1330,19 @@ body{
     <div class="custom-select-list" id="periodCustomList"></div>
   </div>
   <select id="periodInput" style="display:none;">
-    <option value="" selected> 請選擇月份 </option>
-    <option value="1"> 一個月 </option>
-    <option value="2"> 二個月 </option>
-    <option value="3"> 三個月 </option>
-    <option value="4"> 四個月 </option>
-    <option value="5"> 五個月 </option>
-    <option value="6"> 六個月 </option>
-    <option value="7"> 七個月 </option>
-    <option value="8"> 八個月 </option>
-    <option value="9"> 九個月 </option>
-    <option value="10"> 十個月 </option>
-    <option value="11"> 十一個月 </option>
-    <option value="12"> 十二個月 </option>
+    <option value="" selected>請選擇期數</option>
+    <option value="1">一個月</option>
+    <option value="2">二個月</option>
+    <option value="3">三個月</option>
+    <option value="4">四個月</option>
+    <option value="5">五個月</option>
+    <option value="6">六個月</option>
+    <option value="7">七個月</option>
+    <option value="8">八個月</option>
+    <option value="9">九個月</option>
+    <option value="10">十個月</option>
+    <option value="11">十一個月</option>
+    <option value="12">十二個月</option>
   </select>
   <div class="custom-days-wrap">
     <input type="number" id="customDays" placeholder="自訂" class="custom-days-input">
@@ -1521,6 +1617,7 @@ const els={
   sideDrawer:document.getElementById("sideDrawer"),
   menuStatusToggle:document.getElementById("menuStatusToggle"),
   menuMemberCenter:document.getElementById("menuMemberCenter"),
+  menuAdminPanel:document.getElementById("menuAdminPanel"),
   menuGuide:document.getElementById("menuGuide"),
   guideOverlay:document.getElementById("guideOverlay")
 };
@@ -1688,6 +1785,165 @@ els.menuMemberCenter.addEventListener('click',function(e){
 });
 document.getElementById('memberCloseBtn').addEventListener('click',closeMemberCenter);
 document.getElementById('memberOverlay').addEventListener('click',function(e){ if(e.target===this) closeMemberCenter(); });
+
+// ============================================================
+// 👑 超管會員管理面板
+// ============================================================
+let adminCurrentTab='gold'; // 'gold' 或 'vip'
+let adminGoldListCache=[];
+let adminVipListCache=[];
+
+function jsonpRequest(params){
+  return new Promise((resolve)=>{
+    const callbackName=`adminCb_${Date.now()}_${Math.random().toString(36).substr(2,6)}`;
+    window[callbackName]=function(resp){
+      delete window[callbackName];
+      resolve(resp);
+    };
+    $.ajax({
+      url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
+      timeout:JSONP_TIMEOUT,cache:false,data:params,
+      error:function(xhr,status,error){
+        delete window[callbackName];
+        resolve({status:'fail',message:status==='timeout'?'連線逾時，請重試':`連線失敗：${error||'未知錯誤'}`});
+      }
+    });
+  });
+}
+
+function openAdminPanel(){
+  if(!authStatus||!authStatus.isSuperAdmin){ showToast('僅限超級管理員使用','error'); return; }
+  document.getElementById('adminPanelOverlay').classList.add('show');
+  document.getElementById('adminSearchInput').value='';
+  loadAdminList(adminCurrentTab);
+}
+function closeAdminPanel(){
+  document.getElementById('adminPanelOverlay').classList.remove('show');
+}
+els.menuAdminPanel.addEventListener('click',function(e){
+  e.stopPropagation();
+  toggleMenu(false);
+  setTimeout(openAdminPanel,150);
+});
+document.getElementById('adminPanelCloseBtn').addEventListener('click',closeAdminPanel);
+document.getElementById('adminPanelOverlay').addEventListener('click',function(e){ if(e.target===this) closeAdminPanel(); });
+
+document.getElementById('adminTabGoldBtn').addEventListener('click',function(){
+  adminCurrentTab='gold';
+  document.getElementById('adminTabGoldBtn').classList.add('active');
+  document.getElementById('adminTabVipBtn').classList.remove('active');
+  document.getElementById('adminSearchInput').value='';
+  loadAdminList('gold');
+});
+document.getElementById('adminTabVipBtn').addEventListener('click',function(){
+  adminCurrentTab='vip';
+  document.getElementById('adminTabVipBtn').classList.add('active');
+  document.getElementById('adminTabGoldBtn').classList.remove('active');
+  document.getElementById('adminSearchInput').value='';
+  loadAdminList('vip');
+});
+document.getElementById('adminRefreshBtn').addEventListener('click',function(){
+  loadAdminList(adminCurrentTab);
+});
+document.getElementById('adminSearchInput').addEventListener('input',function(){
+  renderAdminList(adminCurrentTab, this.value.trim());
+});
+
+async function loadAdminList(tab){
+  const listEl=document.getElementById('adminPanelList');
+  listEl.innerHTML='<div class="admin-panel-loading">載入中...</div>';
+  const action = tab==='gold' ? 'listGoldUsers' : 'listVipUsers';
+  const resp = await jsonpRequest({action:action, operatorId:userInfo.userId, callback:'?'});
+  if(!resp || resp.status!=='success'){
+    listEl.innerHTML=`<div class="admin-panel-empty">載入失敗：${resp?resp.message:'未知錯誤'}</div>`;
+    return;
+  }
+  if(tab==='gold') adminGoldListCache=resp.list||[];
+  else adminVipListCache=resp.list||[];
+  renderAdminList(tab, document.getElementById('adminSearchInput').value.trim());
+}
+
+function renderAdminList(tab, keyword){
+  const listEl=document.getElementById('adminPanelList');
+  const source = tab==='gold' ? adminGoldListCache : adminVipListCache;
+  const kw=(keyword||'').toLowerCase();
+  const filtered = kw ? source.filter(u=>(u.userName||'').toLowerCase().includes(kw) || (u.userId||'').toLowerCase().includes(kw)) : source;
+
+  if(filtered.length===0){
+    listEl.innerHTML='<div class="admin-panel-empty">目前沒有資料</div>';
+    return;
+  }
+
+  listEl.innerHTML = filtered.map((u,idx)=>{
+    const safeId = `admin_${tab}_${idx}`;
+    if(tab==='gold'){
+      return `
+        <div class="admin-user-card">
+          <div class="admin-user-name">${u.userName||'（未填暱稱）'}</div>
+          <div class="admin-user-id">${u.userId}</div>
+          <div class="admin-user-stats">
+            <span>上限：<b>${u.customLimit||0}</b> 次</span>
+            <span>已用：<b>${u.usedCount||0}</b> 次</span>
+            <span>剩餘：<b>${u.remaining||0}</b> 次</span>
+          </div>
+          <div class="admin-user-action">
+            <input type="number" min="1" placeholder="要加值的次數" id="${safeId}_input"/>
+            <button id="${safeId}_btn">加值</button>
+          </div>
+        </div>
+      `;
+    }else{
+      return `
+        <div class="admin-user-card">
+          <div class="admin-user-name">${u.userName||'（未填暱稱）'}</div>
+          <div class="admin-user-id">${u.userId}</div>
+          <div class="admin-user-stats">
+            <span>到期日：<b>${u.expiryDate||'未設定'}</b></span>
+            <span>剩餘：<b>${u.remainingDaysDisplay||'-'}</b></span>
+          </div>
+          <div class="admin-user-action">
+            <input type="number" min="1" placeholder="要延長的天數" id="${safeId}_input"/>
+            <button id="${safeId}_btn">延長</button>
+          </div>
+        </div>
+      `;
+    }
+  }).join('');
+
+  filtered.forEach((u,idx)=>{
+    const safeId = `admin_${tab}_${idx}`;
+    const btn=document.getElementById(`${safeId}_btn`);
+    const input=document.getElementById(`${safeId}_input`);
+    btn.addEventListener('click', async function(){
+      const val=parseInt(input.value,10);
+      if(isNaN(val)||val<=0){ showToast('請輸入大於0的數字','warning'); return; }
+      btn.disabled=true; input.disabled=true;
+      const origText=btn.textContent;
+      btn.textContent='處理中...';
+      let resp;
+      if(tab==='gold'){
+        resp = await jsonpRequest({
+          action:'adminAddGoldCredit', operatorId:userInfo.userId,
+          targetUserId:u.userId, targetUserName:u.userName||'', addAmount:val, callback:'?'
+        });
+      }else{
+        resp = await jsonpRequest({
+          action:'adminExtendVip', operatorId:userInfo.userId,
+          targetUserId:u.userId, targetUserName:u.userName||'', addDays:val, callback:'?'
+        });
+      }
+      if(resp && resp.status==='success'){
+        showToast(resp.message||'操作成功');
+        loadAdminList(tab);
+      }else{
+        showToast(resp?resp.message:'操作失敗','error');
+        btn.disabled=false; input.disabled=false; btn.textContent=origText;
+      }
+    });
+  });
+}
+
+
 els.menuStatusToggle.addEventListener('click',function(e){
   e.stopPropagation();
   statusBarHidden=!statusBarHidden;
@@ -2316,6 +2572,8 @@ function updateDrawerProfile(){
     usedVal.textContent=`${used} 次`;
     usedVal.className='dr-usage-val normal';
   }
+  // 只有超級管理員才看得到「👑 會員管理」選單項目
+  if(els.menuAdminPanel) els.menuAdminPanel.style.display = authStatus.isSuperAdmin ? 'flex' : 'none';
 }
 
 function updateAuthStatusBar(){
@@ -2982,4 +3240,3 @@ async function initApp() {
 </script>
 </body>
 </html>
-
