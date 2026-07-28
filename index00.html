@@ -2002,7 +2002,12 @@ function renderAdminList(tab, keyword){
   const listEl=document.getElementById('adminPanelList');
   const source = tab==='gold' ? adminGoldListCache : adminVipListCache;
   const kw=(keyword||'').toLowerCase();
-  const filtered = kw ? source.filter(u=>(u.userName||'').toLowerCase().includes(kw) || (u.userId||'').toLowerCase().includes(kw)) : source;
+  let filtered = kw ? source.filter(u=>(u.userName||'').toLowerCase().includes(kw) || (u.userId||'').toLowerCase().includes(kw)) : source.slice();
+
+  // 修改：黃金用戶清單改成「已用次數」由高到低排序，用越多的排越上面
+  if(tab==='gold'){
+    filtered = filtered.slice().sort((a,b)=>(b.usedCount||0)-(a.usedCount||0));
+  }
 
   if(filtered.length===0){
     listEl.innerHTML='<div class="admin-panel-empty">目前沒有資料</div>';
