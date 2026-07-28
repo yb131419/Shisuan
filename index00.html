@@ -1184,6 +1184,31 @@ body{
   cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
 .admin-user-action button:disabled{opacity:.5;cursor:not-allowed;}
+/* ============================================================
+   會員管理清單分頁控制（一頁 3 筆）
+   ============================================================ */
+.admin-pagination{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:14px;padding-top:14px;border-top:1px dashed rgba(201,161,90,.25);
+}
+.admin-page-btn{
+  width:38px;height:38px;border-radius:12px;flex:0 0 auto;cursor:pointer;
+  background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#e8dcc0;
+  border:1.5px solid rgba(201,161,90,.4);font-size:15px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
+}
+.admin-page-btn:hover:not(:disabled){border-color:rgba(217,184,115,.8);box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.admin-page-btn:active:not(:disabled){transform:scale(.92);}
+.admin-page-btn:disabled{opacity:.3;cursor:not-allowed;}
+.admin-page-indicator{
+  min-width:76px;text-align:center;font-size:13px;font-weight:700;color:#c7c1b4;
+  padding:8px 14px;border-radius:20px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(201,161,90,.22);
+}
+.admin-page-indicator b{
+  color:var(--gold-light,#ffe9b0);font-weight:800;
+}
 
 
 
@@ -1297,7 +1322,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -1371,6 +1396,7 @@ body{
     <div class="admin-panel-list" id="adminPanelList">
       <div class="admin-panel-loading">載入中...</div>
     </div>
+    <div class="admin-pagination" id="adminPagination"></div>
   </div>
 </div>
 <div id="captureArea">
@@ -1927,6 +1953,8 @@ document.getElementById('memberOverlay').addEventListener('click',function(e){ i
 let adminCurrentTab='gold'; // 'gold' 或 'vip'
 let adminGoldListCache=[];
 let adminVipListCache=[];
+const ADMIN_PAGE_SIZE=3; // 一頁顯示 3 筆資料
+let adminCurrentPage=1;
 
 function jsonpRequest(params){
   return new Promise((resolve)=>{
@@ -1950,6 +1978,7 @@ function openAdminPanel(){
   if(!authStatus||!authStatus.isSuperAdmin){ showToast('僅限超級管理員使用','error'); return; }
   document.getElementById('adminPanelOverlay').classList.add('show');
   document.getElementById('adminSearchInput').value='';
+  adminCurrentPage=1;
   loadAdminList(adminCurrentTab);
 }
 function closeAdminPanel(){
@@ -1968,6 +1997,7 @@ document.getElementById('adminTabGoldBtn').addEventListener('click',function(){
   document.getElementById('adminTabGoldBtn').classList.add('active');
   document.getElementById('adminTabVipBtn').classList.remove('active');
   document.getElementById('adminSearchInput').value='';
+  adminCurrentPage=1;
   loadAdminList('gold');
 });
 document.getElementById('adminTabVipBtn').addEventListener('click',function(){
@@ -1975,12 +2005,15 @@ document.getElementById('adminTabVipBtn').addEventListener('click',function(){
   document.getElementById('adminTabVipBtn').classList.add('active');
   document.getElementById('adminTabGoldBtn').classList.remove('active');
   document.getElementById('adminSearchInput').value='';
+  adminCurrentPage=1;
   loadAdminList('vip');
 });
 document.getElementById('adminRefreshBtn').addEventListener('click',function(){
+  adminCurrentPage=1;
   loadAdminList(adminCurrentTab);
 });
 document.getElementById('adminSearchInput').addEventListener('input',function(){
+  adminCurrentPage=1;
   renderAdminList(adminCurrentTab, this.value.trim());
 });
 
@@ -2000,6 +2033,7 @@ async function loadAdminList(tab){
 
 function renderAdminList(tab, keyword){
   const listEl=document.getElementById('adminPanelList');
+  const pagerEl=document.getElementById('adminPagination');
   const source = tab==='gold' ? adminGoldListCache : adminVipListCache;
   const kw=(keyword||'').toLowerCase();
   let filtered = kw ? source.filter(u=>(u.userName||'').toLowerCase().includes(kw) || (u.userId||'').toLowerCase().includes(kw)) : source.slice();
@@ -2011,10 +2045,18 @@ function renderAdminList(tab, keyword){
 
   if(filtered.length===0){
     listEl.innerHTML='<div class="admin-panel-empty">目前沒有資料</div>';
+    pagerEl.innerHTML='';
     return;
   }
 
-  listEl.innerHTML = filtered.map((u,idx)=>{
+  // 修改：一頁只顯示 3 筆資料，並依目前頁碼切出這一頁要顯示的資料
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
+  if(adminCurrentPage > totalPages) adminCurrentPage = totalPages;
+  if(adminCurrentPage < 1) adminCurrentPage = 1;
+  const startIdx = (adminCurrentPage - 1) * ADMIN_PAGE_SIZE;
+  const pageItems = filtered.slice(startIdx, startIdx + ADMIN_PAGE_SIZE);
+
+  listEl.innerHTML = pageItems.map((u,idx)=>{
     const safeId = `admin_${tab}_${idx}`;
     if(tab==='gold'){
       return `
@@ -2050,7 +2092,7 @@ function renderAdminList(tab, keyword){
     }
   }).join('');
 
-  filtered.forEach((u,idx)=>{
+  pageItems.forEach((u,idx)=>{
     const safeId = `admin_${tab}_${idx}`;
     const btn=document.getElementById(`${safeId}_btn`);
     const input=document.getElementById(`${safeId}_input`);
@@ -2081,7 +2123,29 @@ function renderAdminList(tab, keyword){
       }
     });
   });
+
+  // 修改：渲染精品質感的翻頁控制列（上一頁／頁碼／下一頁）
+  if(totalPages <= 1){
+    pagerEl.innerHTML='';
+  }else{
+    pagerEl.innerHTML = `
+      <button class="admin-page-btn" id="adminPagePrev" ${adminCurrentPage<=1?'disabled':''}>‹</button>
+      <div class="admin-page-indicator">第 <b>${adminCurrentPage}</b> / ${totalPages} 頁</div>
+      <button class="admin-page-btn" id="adminPageNext" ${adminCurrentPage>=totalPages?'disabled':''}>›</button>
+    `;
+    const prevBtn=document.getElementById('adminPagePrev');
+    const nextBtn=document.getElementById('adminPageNext');
+    if(prevBtn) prevBtn.addEventListener('click',function(){
+      adminCurrentPage--;
+      renderAdminList(tab, keyword);
+    });
+    if(nextBtn) nextBtn.addEventListener('click',function(){
+      adminCurrentPage++;
+      renderAdminList(tab, keyword);
+    });
+  }
 }
+
 
 
 els.menuStatusToggle.addEventListener('click',function(e){
@@ -3236,7 +3300,7 @@ async function handleLoginClick(){
           🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
@@ -3334,7 +3398,7 @@ if(precheck.isExpired){
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
