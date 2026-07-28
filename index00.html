@@ -1079,6 +1079,16 @@ body{
   from{opacity:0;transform:translateY(18px) scale(.94);}
   to{opacity:1;transform:translateY(0) scale(1);}
 }
+.welcome-avatar-wrap{display:flex;justify-content:center;margin-bottom:14px;}
+.welcome-avatar{
+  width:76px;height:76px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--gold);box-shadow:0 0 0 4px rgba(201,161,90,.18),0 8px 22px rgba(0,0,0,.5);
+  animation:avatarPulse 2.6s ease-in-out infinite;
+}
+.welcome-avatar-fallback{
+  display:flex;align-items:center;justify-content:center;font-size:2.1rem;
+  background:#2a2a2a;color:#ccc;
+}
 .welcome-badge{
   font-size:13px;font-weight:800;letter-spacing:1px;color:#e8c874;margin-bottom:6px;
 }
@@ -1287,7 +1297,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -1501,6 +1511,10 @@ body{
      ============================================================ -->
 <div id="loginWelcomeOverlay">
   <div class="welcome-card">
+    <div class="welcome-avatar-wrap">
+      <img id="welcomeAvatar" class="welcome-avatar" alt="會員頭像" style="display:none;"/>
+      <div id="welcomeAvatarFallback" class="welcome-avatar welcome-avatar-fallback">🙂</div>
+    </div>
     <div class="welcome-badge" id="welcomeBadge"></div>
     <div class="welcome-name" id="welcomeName"></div>
     <div class="welcome-big-label" id="welcomeBigLabel"></div>
@@ -1796,12 +1810,19 @@ let welcomeOverlayTimer=null;
 function showLoginWelcome(){
   if(!authStatus||!userInfo)return;
   const overlay=document.getElementById('loginWelcomeOverlay');
+  const avatarImg=document.getElementById('welcomeAvatar');
+  const avatarFallback=document.getElementById('welcomeAvatarFallback');
   const badgeEl=document.getElementById('welcomeBadge');
   const nameEl=document.getElementById('welcomeName');
   const labelEl=document.getElementById('welcomeBigLabel');
   const numberEl=document.getElementById('welcomeBigNumber');
   const subEl=document.getElementById('welcomeSub');
 
+  if(userInfo.pictureUrl){
+    avatarImg.src=userInfo.pictureUrl;avatarImg.style.display='block';avatarFallback.style.display='none';
+  }else{
+    avatarImg.style.display='none';avatarFallback.style.display='flex';
+  }
   nameEl.textContent=userInfo.displayName;
   numberEl.className='welcome-big-number';
 
@@ -3210,7 +3231,7 @@ async function handleLoginClick(){
           🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
@@ -3308,7 +3329,7 @@ if(precheck.isExpired){
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
