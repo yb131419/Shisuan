@@ -1055,6 +1055,56 @@ body{
 .guide-nav .btn{flex:1;}
 
 /* ============================================================
+   登入成功大字幕浮窗
+   ============================================================ */
+#loginWelcomeOverlay{
+  position:fixed;inset:0;z-index:3200;display:none;
+  background:rgba(0,0,0,0.82);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:20px;
+  -webkit-tap-highlight-color:transparent;
+}
+#loginWelcomeOverlay.show{display:flex;}
+.welcome-card{
+  width:100%;max-width:380px;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(160deg,#201a10,#141210);
+  border:1px solid rgba(217,184,115,.45);border-radius:24px;
+  padding:34px 26px 30px;box-shadow:0 24px 60px rgba(0,0,0,.6);
+  animation:welcomeCardIn .5s cubic-bezier(0.16,1,0.3,1);
+}
+.welcome-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,rgba(217,184,115,.9),transparent);
+}
+@keyframes welcomeCardIn{
+  from{opacity:0;transform:translateY(18px) scale(.94);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.welcome-badge{
+  font-size:13px;font-weight:800;letter-spacing:1px;color:#e8c874;margin-bottom:6px;
+}
+.welcome-name{
+  font-size:1.15rem;font-weight:800;margin-bottom:20px;
+  background:linear-gradient(120deg,#c9a15a 0%,#fff6d6 30%,#ffe066 55%,#c9a15a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.welcome-big-label{
+  font-size:14px;font-weight:700;color:#b7b0a1;letter-spacing:2px;margin-bottom:4px;
+  text-transform:uppercase;
+}
+.welcome-big-number{
+  font-size:3.6rem;font-weight:900;line-height:1.1;margin-bottom:8px;
+  color:#ffd54f;text-shadow:0 0 26px rgba(255,213,79,.45);
+  animation:welcomeNumberPop .5s .1s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.welcome-big-number.days{color:#5b9dff;text-shadow:0 0 26px rgba(91,157,255,.45);}
+.welcome-big-number.unlimited{font-size:2.2rem;color:#e8c874;text-shadow:0 0 26px rgba(232,200,116,.4);}
+@keyframes welcomeNumberPop{
+  0%{opacity:0;transform:scale(.7);}
+  100%{opacity:1;transform:scale(1);}
+}
+.welcome-sub{font-size:12.5px;color:#8a8477;line-height:1.6;}
+
+/* ============================================================
    👑 超管會員管理面板
    ============================================================ */
 #adminPanelOverlay{
@@ -1237,7 +1287,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -1443,6 +1493,20 @@ body{
   <select id="nameInput"></select>
   <select id="qtyInput"></select>
   <button id="addBtn" class="btn btn-primary btn-lg">➕<br>新增品項</button>
+</div>
+
+<!-- ============================================================
+     登入成功大字幕浮窗：每次登入都會顯示剩餘次數／剩餘天數，
+     幾秒後自動淡出，也可以點擊背景提前關閉
+     ============================================================ -->
+<div id="loginWelcomeOverlay">
+  <div class="welcome-card">
+    <div class="welcome-badge" id="welcomeBadge"></div>
+    <div class="welcome-name" id="welcomeName"></div>
+    <div class="welcome-big-label" id="welcomeBigLabel"></div>
+    <div class="welcome-big-number" id="welcomeBigNumber"></div>
+    <div class="welcome-sub" id="welcomeSub"></div>
+  </div>
 </div>
 
 <!-- ============================================================
@@ -1726,6 +1790,56 @@ els.menuFab.addEventListener('click',function(e){
   toggleMenu();
 });
 // 會員中心：開啟會員資料彈窗（頭像 + 身分徽章 + 會員資料）
+// 登入成功大字幕浮窗：依身分顯示「剩餘次數」或「剩餘天數」大數字，
+// 幾秒後自動淡出，也可以點擊背景提前關閉
+let welcomeOverlayTimer=null;
+function showLoginWelcome(){
+  if(!authStatus||!userInfo)return;
+  const overlay=document.getElementById('loginWelcomeOverlay');
+  const badgeEl=document.getElementById('welcomeBadge');
+  const nameEl=document.getElementById('welcomeName');
+  const labelEl=document.getElementById('welcomeBigLabel');
+  const numberEl=document.getElementById('welcomeBigNumber');
+  const subEl=document.getElementById('welcomeSub');
+
+  nameEl.textContent=userInfo.displayName;
+  numberEl.className='welcome-big-number';
+
+  if(authStatus.isSuperAdmin){
+    badgeEl.textContent='👑 超級管理員';
+    labelEl.textContent='使用權限';
+    numberEl.textContent='不限次數';
+    numberEl.classList.add('unlimited');
+    subEl.textContent='歡迎回來，祝您使用愉快';
+  }else if(authStatus.isVip){
+    badgeEl.textContent='🌟 尊爵用戶';
+    if(authStatus.remainingDays==='永久有效'){
+      labelEl.textContent='有效期限';
+      numberEl.textContent='永久有效';
+      numberEl.classList.add('unlimited');
+      subEl.textContent='您的尊爵權益永久有效';
+    }else{
+      labelEl.textContent='剩餘天數';
+      numberEl.textContent=authStatus.remainingDays;
+      numberEl.classList.add('days');
+      subEl.textContent=`到期日：${authStatus.displayExpiryDate||''}`;
+    }
+  }else{
+    badgeEl.textContent='🥇 黃金用戶';
+    labelEl.textContent='剩餘次數';
+    numberEl.textContent=authStatus.remainingTimes||0;
+    subEl.textContent='每次登入會扣除 1 次使用次數';
+  }
+
+  overlay.classList.add('show');
+  if(welcomeOverlayTimer) clearTimeout(welcomeOverlayTimer);
+  welcomeOverlayTimer=setTimeout(()=>{ overlay.classList.remove('show'); },3200);
+}
+document.getElementById('loginWelcomeOverlay').addEventListener('click',function(){
+  this.classList.remove('show');
+  if(welcomeOverlayTimer) clearTimeout(welcomeOverlayTimer);
+});
+
 function openMemberCenter(){
   if(!userInfo||!authStatus){showToast('請先登入','warning');return;}
   const img=document.getElementById('mcAvatar');
@@ -3096,7 +3210,7 @@ async function handleLoginClick(){
           🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
@@ -3108,11 +3222,8 @@ async function handleLoginClick(){
     if(loginBtn){loginBtn.innerHTML='✅ 登入成功';loginBtn.classList.add('btn-success');}
     await new Promise(r=>setTimeout(r,320));
     enterCalculator();
-    if(authStatus.isSuperAdmin||authStatus.isVip){
-      showToast(`歡迎${authStatus.isSuperAdmin?'👑超級管理員':'🌟尊爵用戶'}<br><span class="toast-highlight-name">${userInfo.displayName}</span>`);
-    }else{
-      showToast(`🥇 黃金用戶登入成功，剩餘使用次數：${authStatus.remainingTimes} 次`);
-    }
+    // 修改：登入成功改用大字幕浮窗顯示剩餘次數/天數，取代原本的小提示
+    showLoginWelcome();
   }finally{
     if(loginBtn){loginBtn.disabled=false;loginBtn.classList.remove('btn-success');loginBtn.innerHTML='🔓 登入試算系統<span class="cta-sub">Premium Access</span>';}
   }
@@ -3197,7 +3308,7 @@ if(precheck.isExpired){
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
