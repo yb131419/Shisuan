@@ -1186,6 +1186,41 @@ body{
 }
 .admin-user-action button:disabled{opacity:.5;cursor:not-allowed;}
 /* ============================================================
+   黃金用戶卡片：每月使用量明細（點擊展開）
+   ============================================================ */
+.admin-monthly-toggle{
+  display:block;width:100%;margin-top:8px;padding:6px 0;background:none;border:none;
+  color:#c9a15a;font-size:12px;font-weight:700;cursor:pointer;text-align:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.admin-monthly-toggle:active{opacity:.7;}
+.admin-monthly-box{
+  margin-top:4px;padding:8px 10px;border-radius:10px;
+  background:rgba(255,255,255,.025);border:1px solid rgba(201,161,90,.18);
+  max-height:160px;overflow-y:auto;
+}
+.admin-monthly-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 2px;font-size:12.5px;color:#d8d2c4;
+}
+.admin-monthly-row+.admin-monthly-row{border-top:1px solid rgba(255,255,255,.05);}
+.admin-monthly-month{font-weight:700;color:#e8dcc0;}
+.admin-monthly-count{font-weight:800;color:var(--gold-light,#ffe9b0);}
+.admin-monthly-loading,.admin-monthly-empty{
+  text-align:center;font-size:12px;color:#8a8477;padding:10px 0;
+}
+/* ============================================================
+   全部人員月總次數（黃金用戶頁籤專用彙總區塊）
+   ============================================================ */
+.admin-alltotal-wrap{
+  flex:0 0 auto;margin-bottom:10px;padding:8px 10px;border-radius:12px;
+  background:rgba(201,161,90,.06);border:1px solid rgba(201,161,90,.28);
+}
+.admin-alltotal-toggle{margin-top:0;color:#e8c874;font-size:13px;}
+.admin-alltotal-box{max-height:200px;}
+.admin-alltotal-box .admin-monthly-row{font-size:13.5px;}
+.admin-alltotal-box .admin-monthly-count{color:#ffd54f;font-size:14.5px;}
+/* ============================================================
    會員管理清單分頁控制（一頁 3 筆）
    ============================================================ */
 .admin-pagination{
@@ -1324,7 +1359,7 @@ body{
     </div>
     <div id="loginExample">
       <div class="example-title">📌 實際使用範例</div>
-      <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"/>
+      <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"/>
       <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
     </div>
   </div>
@@ -1395,14 +1430,17 @@ body{
       <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="搜尋暱稱或用戶ID..."/>
       <button class="admin-refresh-btn" id="adminRefreshBtn" title="重新整理">🔄</button>
     </div>
+    <div class="admin-alltotal-wrap" id="adminAllTotalWrap">
+      <button class="admin-monthly-toggle admin-alltotal-toggle" id="adminAllTotalBtn">📊 查看全部人員月總次數 ▾</button>
+      <div class="admin-monthly-box admin-alltotal-box" id="adminAllTotalBox" style="display:none;"></div>
+    </div>
     <div class="admin-panel-list" id="adminPanelList">
       <div class="admin-panel-loading">載入中...</div>
     </div>
     <div class="admin-pagination" id="adminPagination"></div>
   </div>
 </div>
-<div id="captureArea">
-  <div id="watermark">『彥彬🌿試算系統』</div>
+<div id="captureArea">  <div id="watermark">『彥彬🌿試算系統』</div>
 
 <h2><br>🌿 康園試算報表</h2>
 <div class="payment-options">
@@ -1412,13 +1450,13 @@ body{
 <div class="period-options">
   <div class="custom-select-wrap period-select-wrap" id="periodCustomWrap">
     <button type="button" class="custom-select-btn" id="periodCustomBtn">
-      <span class="custom-select-label placeholder" id="periodCustomLabel">請選擇月份</span>
+      <span class="custom-select-label placeholder" id="periodCustomLabel">請選擇期數</span>
       <span class="custom-select-arrow">▾</span>
     </button>
     <div class="custom-select-list" id="periodCustomList"></div>
   </div>
   <select id="periodInput" style="display:none;">
-    <option value="" selected>請選擇月份</option>
+    <option value="" selected>請選擇期數</option>
     <option value="1">一個月</option>
     <option value="2">二個月</option>
     <option value="3">三個月</option>
@@ -1976,11 +2014,17 @@ function jsonpRequest(params){
   });
 }
 
+function updateAllTotalVisibility(){
+  // 修改：「全部人員月總次數」只在黃金用戶頁籤才有意義（尊爵用戶沒有次數概念），切到尊爵頁籤就隱藏
+  const wrap=document.getElementById('adminAllTotalWrap');
+  wrap.style.display = adminCurrentTab==='gold' ? 'block' : 'none';
+}
 function openAdminPanel(){
   if(!authStatus||!authStatus.isSuperAdmin){ showToast('僅限超級管理員使用','error'); return; }
   document.getElementById('adminPanelOverlay').classList.add('show');
   document.getElementById('adminSearchInput').value='';
   adminCurrentPage=1;
+  updateAllTotalVisibility();
   loadAdminList(adminCurrentTab);
 }
 function closeAdminPanel(){
@@ -2000,6 +2044,7 @@ document.getElementById('adminTabGoldBtn').addEventListener('click',function(){
   document.getElementById('adminTabVipBtn').classList.remove('active');
   document.getElementById('adminSearchInput').value='';
   adminCurrentPage=1;
+  updateAllTotalVisibility();
   loadAdminList('gold');
 });
 document.getElementById('adminTabVipBtn').addEventListener('click',function(){
@@ -2008,6 +2053,7 @@ document.getElementById('adminTabVipBtn').addEventListener('click',function(){
   document.getElementById('adminTabGoldBtn').classList.remove('active');
   document.getElementById('adminSearchInput').value='';
   adminCurrentPage=1;
+  updateAllTotalVisibility();
   loadAdminList('vip');
 });
 document.getElementById('adminRefreshBtn').addEventListener('click',function(){
@@ -2017,6 +2063,39 @@ document.getElementById('adminRefreshBtn').addEventListener('click',function(){
 document.getElementById('adminSearchInput').addEventListener('input',function(){
   adminCurrentPage=1;
   renderAdminList(adminCurrentTab, this.value.trim());
+});
+
+let adminAllTotalLoaded=false;
+document.getElementById('adminAllTotalBtn').addEventListener('click', async function(){
+  const box=document.getElementById('adminAllTotalBox');
+  const btn=this;
+  const isOpen = box.style.display!=='none';
+  if(isOpen){
+    box.style.display='none';
+    btn.textContent='📊 查看全部人員月總次數 ▾';
+    return;
+  }
+  box.style.display='block';
+  btn.textContent='📊 收合全部人員月總次數 ▴';
+  if(adminAllTotalLoaded) return; // 已查詢過就直接展開快取內容，不重複打 API
+  box.innerHTML='<div class="admin-monthly-loading">載入中...</div>';
+  const resp = await jsonpRequest({action:'getAllUsersMonthlyUsage', operatorId:userInfo.userId, callback:'?'});
+  if(!resp || resp.status!=='success'){
+    box.innerHTML=`<div class="admin-monthly-empty">載入失敗：${resp?resp.message:'未知錯誤'}</div>`;
+    return;
+  }
+  const list = resp.list||[];
+  if(list.length===0){
+    box.innerHTML='<div class="admin-monthly-empty">目前沒有使用紀錄</div>';
+  }else{
+    box.innerHTML = list.map(item=>`
+      <div class="admin-monthly-row">
+        <span class="admin-monthly-month">${item.month}</span>
+        <span class="admin-monthly-count">${item.count} 次</span>
+      </div>
+    `).join('');
+  }
+  adminAllTotalLoaded=true;
 });
 
 async function loadAdminList(tab){
@@ -2074,6 +2153,8 @@ function renderAdminList(tab, keyword){
             <input type="number" min="1" placeholder="要加值的次數" id="${safeId}_input"/>
             <button id="${safeId}_btn">加值</button>
           </div>
+          <button class="admin-monthly-toggle" id="${safeId}_monthlyBtn">📅 查看每月使用量 ▾</button>
+          <div class="admin-monthly-box" id="${safeId}_monthlyBox" style="display:none;"></div>
         </div>
       `;
     }else{
@@ -2124,6 +2205,44 @@ function renderAdminList(tab, keyword){
         btn.disabled=false; input.disabled=false; btn.textContent=origText;
       }
     });
+
+    // 修改：黃金用戶卡片新增「查看每月使用量」，點擊後才向後端查詢，避免每次開啟面板都要多打一次 API
+    if(tab==='gold'){
+      const monthlyBtn=document.getElementById(`${safeId}_monthlyBtn`);
+      const monthlyBox=document.getElementById(`${safeId}_monthlyBox`);
+      let monthlyLoaded=false;
+      monthlyBtn.addEventListener('click', async function(){
+        const isOpen = monthlyBox.style.display!=='none';
+        if(isOpen){
+          monthlyBox.style.display='none';
+          monthlyBtn.textContent='📅 查看每月使用量 ▾';
+          return;
+        }
+        monthlyBox.style.display='block';
+        monthlyBtn.textContent='📅 收合每月使用量 ▴';
+        if(monthlyLoaded) return; // 已經查詢過就不重複打 API，直接展開快取內容
+        monthlyBox.innerHTML='<div class="admin-monthly-loading">載入中...</div>';
+        const resp = await jsonpRequest({
+          action:'getMonthlyUsage', operatorId:userInfo.userId, targetUserId:u.userId, callback:'?'
+        });
+        if(!resp || resp.status!=='success'){
+          monthlyBox.innerHTML=`<div class="admin-monthly-empty">載入失敗：${resp?resp.message:'未知錯誤'}</div>`;
+          return;
+        }
+        const list = resp.list||[];
+        if(list.length===0){
+          monthlyBox.innerHTML='<div class="admin-monthly-empty">目前沒有使用紀錄</div>';
+        }else{
+          monthlyBox.innerHTML = list.map(item=>`
+            <div class="admin-monthly-row">
+              <span class="admin-monthly-month">${item.month}</span>
+              <span class="admin-monthly-count">${item.count} 次</span>
+            </div>
+          `).join('');
+        }
+        monthlyLoaded=true;
+      });
+    }
   });
 
   // 修改：渲染精品質感的翻頁控制列（上一頁／頁碼／下一頁）
@@ -2180,7 +2299,7 @@ els.sbToggleBtn.addEventListener('click',function(){
 const GUIDE_STEPS=[
   {icon:'👋',title:'歡迎使用 彥彬🌿試算系統',desc:'這份導覽會帶你快速認識每個功能。看完後隨時可以點左上角的「☰ 選單 → ❓ 使用導覽」重新開啟。'},
   {icon:'🛒',title:'新增品項',desc:'在下方選擇「品項」與「數量」，按「➕ 新增品項」加入報表。部分品項（新入會、2711AB、火山甘露…）有限購數量，系統會自動提醒並調整；選到新入會款式時，還會自動帶入對應組合。'},
-  {icon:'💵',title:'付款方式與月份',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
+  {icon:'💵',title:'付款方式與期數',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
   {icon:'🗑️',title:'刪除規則',desc:'每一批可免費刪除 3 次；用完後再刪除會扣 1 次使用次數，並回復 3 次刪除機會，如此循環。'},
   {icon:'🏅',title:'預計獎金試算',desc:'選擇「👤 非經理 / 🏅 經理階」身分，系統會依「總 PV」對應獎金比例，估算約略的獎金金額，方便當場向客戶說明。'},
   {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
@@ -3302,7 +3421,7 @@ async function handleLoginClick(){
           🌟 點擊贊助
               <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
@@ -3400,7 +3519,7 @@ if(precheck.isExpired){
     </a>
     <br><br>
     <div class="example-title">📌 實際使用範例</div>
-    <img src="https://yb131419.github.io/Shisuan/goods05_6.png" alt="彥彬試算系統使用範例" loading="lazy"
+    <img src="https://yb131419.github.io/Shisuan/goods05_5.png" alt="彥彬試算系統使用範例" loading="lazy"
       style="max-width:100%;width:100%;height:auto;display:block;border-radius:8px;"/>
     <div class="example-caption">建立完成的試算報表實際畫面<br>（僅供參考，實際內容以您輸入的品項為準）</div>
   `);
