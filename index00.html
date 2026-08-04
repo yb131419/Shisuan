@@ -866,6 +866,11 @@ body{
 .bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ff9f43;margin-top:2px;}
 .bonus-result-tax{font-size:0.92rem;font-weight:700;color:#ffea00;margin-top:4px;padding-top:6px;border-top:1px dashed rgba(255,255,255,0.15);}
 .bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
+.bonus-result-deduct{
+  font-size:0.8rem;font-weight:700;color:#5b9dff;margin-bottom:6px;
+  background:rgba(91,157,255,.1);border:1px solid rgba(91,157,255,.3);
+  border-radius:8px;padding:5px 8px;line-height:1.5;
+}
 .bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
 
 #inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
@@ -1695,11 +1700,24 @@ function updateBonusDisplay() {
     return;
   }
 
-  const result    = calcBonus(totalPv, selected.value);
+  // 新增規則：報表裡只要有勾選（新增）新入會相關品項，獎金試算會自動先扣除
+  // 2 萬 PV，PV 累積超過這 2 萬的門檻之後才開始計算獎金級距，
+  // 跟數量欄「新入會限購1」共用同一套品名判斷邏輯，維持一致
+  const NEW_MEMBER_PV_DEDUCT = 20000;
+  const hasNewMember = selectedProds.some(p => {
+    const n = (p.name || '').trim();
+    return n.includes('新入會') || n.includes('新會員') || n.includes('入會');
+  });
+  const effectivePv = hasNewMember ? Math.max(0, totalPv - NEW_MEMBER_PV_DEDUCT) : totalPv;
+
+  const result    = calcBonus(effectivePv, selected.value);
   const typeLabel = selected.value === 'manager' ? '🏅 經理階' : '👤 非經理';
+  const deductNote = hasNewMember
+    ? `<div class="bonus-result-deduct">🆕 已扣除新入會 ${formatNumber(NEW_MEMBER_PV_DEDUCT)} PV，實際計算 PV：${formatNumber(effectivePv)}</div>`
+    : '';
 
   if (!result) {
-    box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div><div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
+    box.innerHTML = `<div class="bonus-result-label">${typeLabel} · 預計獎金</div>${deductNote}<div class="bonus-result-none">PV 未達最低門檻，暫無獎金</div>`;
     return;
   }
 
@@ -1710,6 +1728,7 @@ function updateBonusDisplay() {
   // 螢幕互動版（轉圖片時直接截這個深色版本，不再切換白底版，畫面前後保證一致）
   box.innerHTML = `
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
+    ${deductNote}
     <div class="bonus-result-pct">${pctText}</div>
     <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
     <div class="bonus-result-tax">扣稅 10% 後：約 NT$ ${formatNumber(afterTaxAmt)}</div>
