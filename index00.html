@@ -442,7 +442,7 @@ body{
   padding:16px 14px 14px;margin:14px 0 16px;
   box-shadow:0 10px 28px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 4px rgba(201,161,90,.06);
 }
-.period-options{display:flex;justify-content:center;gap:10px;margin:10px 0 15px;flex-wrap:wrap;align-items:center;}
+.period-options{display:flex;justify-content:center;gap:8px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
 /* ============================================================
    自訂質感下拉選單（用於期數選擇：一個月～十二個月）
    ============================================================ */
@@ -455,9 +455,9 @@ body{
   margin-left:8px;display:flex;align-items:center;gap:8px;
 }
 .custom-days-input{
-  padding:11px 10px;width:78px;border-radius:12px;text-align:center;
+  padding:11px 6px;width:70px;border-radius:12px;text-align:center;
   background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
-  font-size:15px;font-weight:700;border:1.5px solid rgba(201,161,90,.4);
+  font-size:17px;font-weight:700;border:1.5px solid rgba(201,161,90,.4);
   box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);
   -moz-appearance:textfield;
@@ -469,10 +469,10 @@ body{
   box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .custom-days-input::placeholder{color:#ffffff;}
-.custom-days-unit{color:#e8dcc0;font-size:14px;font-weight:700;}
+.custom-days-unit{color:#e8dcc0;font-size:16px;font-weight:700;}
 .custom-select-btn{
   width:100%;background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
-  text-align:center;padding:11px 32px 11px 14px;font-size:15px;font-weight:700;
+  text-align:center;padding:11px 28px 11px 10px;font-size:17px;font-weight:700;
   border-radius:12px;border:1.5px solid rgba(201,161,90,.4);cursor:pointer;
   box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);
@@ -931,9 +931,9 @@ body{
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
 .toast.error{background:linear-gradient(145deg,#4a0000,#2a0000);border-color:rgba(255,82,82,0.3);}
 .toast.warning{background:linear-gradient(145deg,#4a3200,#2a1e00);border-color:rgba(255,152,0,0.3);}
-.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.1rem;flex-wrap:nowrap;}
+.payment-options{display:flex;justify-content:center;gap:15px;margin-top:8px;color:#fff;font-size:1.35rem;flex-wrap:nowrap;}
 .payment-options label{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;}
-.payment-options input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
+.payment-options input[type="checkbox"]{width:28px;height:28px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#000;}
   #authContainer,#authStatusBar,.drawer-mask,.side-drawer,#guideOverlay,#inputArea,#addBtn,#exportBtn,#shareToLineBtn,#clearImageBtn,#nativeShareBtn,#resetCalculatorBtn,#resetReportBtn{display:none!important;}
