@@ -439,16 +439,10 @@ body{
   background:
     radial-gradient(120% 140% at 50% -20%, rgba(201,161,90,.14), transparent 60%),
     linear-gradient(165deg,#242424,#151515);
-  border:1.5px solid rgba(201,161,90,.5);border-radius:18px;
+  border-radius:18px;
   padding:18px 14px 16px;margin:14px 0 16px;
-  box-shadow:0 12px 32px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 4px rgba(201,161,90,.07);
 }
-.payment-period-card::before{
-  content:'';position:absolute;top:0;left:14px;right:14px;height:2px;
-  border-radius:18px 18px 0 0;
-  background:linear-gradient(90deg,transparent,rgba(217,184,115,.85),transparent);
-}
-.period-options{display:flex;justify-content:center;gap:8px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
+.period-options{display:flex;justify-content:center;gap:6px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
 /* ============================================================
    自訂質感下拉選單（用於期數選擇：一個月～十二個月）
    ============================================================ */
@@ -458,12 +452,12 @@ body{
    自訂天數輸入框，改成跟期數下拉選單一致的深色金框質感
    ============================================================ */
 .custom-days-wrap{
-  margin-left:8px;display:flex;align-items:center;gap:8px;
+  margin-left:4px;display:flex;align-items:center;gap:6px;
 }
 .custom-days-input{
-  padding:11px 6px;width:70px;border-radius:12px;text-align:center;
+  padding:11px 4px;width:66px;border-radius:12px;text-align:center;
   background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#ffea00;
-  font-size:17px;font-weight:700;border:1.5px solid rgba(201,161,90,.4);
+  font-size:19px;font-weight:700;border:1.5px solid rgba(201,161,90,.4);
   box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);
   -moz-appearance:textfield;
@@ -475,10 +469,10 @@ body{
   box-shadow:0 4px 14px rgba(0,0,0,.3), 0 0 0 3px rgba(201,161,90,.22), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .custom-days-input::placeholder{color:#ffffff;}
-.custom-days-unit{color:#e8dcc0;font-size:16px;font-weight:700;}
+.custom-days-unit{color:#e8dcc0;font-size:18px;font-weight:700;}
 .custom-select-btn{
   width:100%;background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;
-  text-align:center;padding:11px 28px 11px 10px;font-size:17px;font-weight:700;
+  text-align:center;padding:11px 26px 11px 8px;font-size:19px;font-weight:700;
   border-radius:12px;border:1.5px solid rgba(201,161,90,.4);cursor:pointer;
   box-shadow:0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition:all .25s cubic-bezier(.34,1.56,.64,1);
