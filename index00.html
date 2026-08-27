@@ -435,7 +435,7 @@ body{
    付款方式＋期數選擇，改成一個獨立的大卡片，一眼可辨認
    ============================================================ */
 .payment-period-card{
-  position:relative;overflow:hidden;
+  position:relative;
   background:
     radial-gradient(120% 140% at 50% -20%, rgba(201,161,90,.14), transparent 60%),
     linear-gradient(165deg,#242424,#151515);
@@ -444,7 +444,8 @@ body{
   box-shadow:0 12px 32px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 4px rgba(201,161,90,.07);
 }
 .payment-period-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  content:'';position:absolute;top:0;left:14px;right:14px;height:2px;
+  border-radius:18px 18px 0 0;
   background:linear-gradient(90deg,transparent,rgba(217,184,115,.85),transparent);
 }
 .period-options{display:flex;justify-content:center;gap:8px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
