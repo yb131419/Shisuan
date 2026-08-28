@@ -444,6 +444,17 @@ body{
 }
 .period-options{display:flex;justify-content:center;gap:6px;margin:10px 0 15px;flex-wrap:nowrap;align-items:center;}
 /* ============================================================
+   預估可使用天數（依 2 字頭品項最高數量 x 15 天估算）
+   ============================================================ */
+.estimated-days-row{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:9px 12px;border-radius:12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(201,161,90,.25);
+  flex-wrap:nowrap;
+}
+.estimated-days-label{font-size:13.5px;font-weight:700;color:#c7c1b4;white-space:nowrap;}
+.estimated-days-val{font-size:17px;font-weight:800;color:#ffea00;white-space:nowrap;}
+/* ============================================================
    自訂質感下拉選單（用於期數選擇：一個月～十二個月）
    ============================================================ */
 .custom-select-wrap{position:relative;flex:0 0 auto;min-width:0;}
@@ -1505,6 +1516,10 @@ body{
       <span class="custom-days-unit">天</span>
     </div>
   </div>
+  <div class="estimated-days-row">
+    <span class="estimated-days-label">📦 預估可使用天數</span>
+    <span class="estimated-days-val" id="estimatedDaysVal">－</span>
+  </div>
 </div>
   <div class="userInputs">  
     <div class="row">
@@ -2403,6 +2418,14 @@ els.shareToLineBtn.addEventListener("click",shareToLine);
 els.nativeShareBtn.addEventListener("click",nativeShare);
 els.clearImageBtn.addEventListener("click",clearImage);
 els.cashOption.addEventListener("change",handleCashGift);
+// 修改：現金／刷卡改成互斥選項（只能勾選其中一個），但保留原生 checkbox
+// 可以再點一次取消勾選的行為，所以兩個都不勾也是合法狀態
+els.cashOption.addEventListener("change",function(){
+  if(this.checked) els.cardOption.checked=false;
+});
+els.cardOption.addEventListener("change",function(){
+  if(this.checked) els.cashOption.checked=false;
+});
 els.reportBody.addEventListener("click",function(e){
   const btn=e.target.closest('.deleteBtn');
   if(!btn||btn.disabled)return;
@@ -2729,6 +2752,23 @@ function renderTable(){
   });
   // 新增：每次渲染後同步更新獎金顯示
   updateBonusDisplay();
+  // 新增：每次渲染後同步更新「預估可使用天數」
+  updateEstimatedDays();
+}
+
+// 新增：預估產品可使用天數——只看品名開頭是數字「2」的品項（例如211/220/222/240/260/
+// 299A/2711AB...等2字頭品項），不含贈品，取這些品項裡「數量最高」的那個，
+// 以「1盒=15天」估算可使用天數
+function updateEstimatedDays(){
+  const el = document.getElementById('estimatedDaysVal');
+  if(!el) return;
+  const candidates = selectedProds.filter(p=>{
+    const n=(p.name||'').trim();
+    return /^2/.test(n) && !n.includes('贈品');
+  });
+  const maxQty = candidates.length ? Math.max(...candidates.map(p=>p.qty||0)) : 0;
+  const estimatedDays = maxQty * 15;
+  el.textContent = estimatedDays > 0 ? `${estimatedDays} 天` : '－';
 }
 
 const extraDeleteFromBackend=()=>{
