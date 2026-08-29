@@ -2424,7 +2424,13 @@ els.cashOption.addEventListener("change",function(){
   if(this.checked) els.cardOption.checked=false;
 });
 els.cardOption.addEventListener("change",function(){
-  if(this.checked) els.cashOption.checked=false;
+  if(this.checked){
+    els.cashOption.checked=false;
+    // 修正：改用程式改變 cashOption.checked 不會觸發它自己的 change 事件，
+    // 導致「現金滿額自動贈品」邏輯沒有跟著重新計算，勾選刷卡後贈品沒被取消。
+    // 這裡切到刷卡時主動呼叫一次，確保現金贈品正確移除。
+    handleCashGift();
+  }
 });
 els.reportBody.addEventListener("click",function(e){
   const btn=e.target.closest('.deleteBtn');
