@@ -598,10 +598,10 @@ body{
 .userInputs{display:flex;flex-direction:column;gap:10px;margin-bottom:15px;}
 .userInputs .row{display:flex;gap:10px;width:100%;}
 .userInputs label{flex:1;display:flex;flex-direction:column;font-size:14px;color:#ffffff;}
-.userInputs label span{text-align:center;margin-bottom:4px;font-size:15px;}
+.userInputs label span{text-align:center;margin-bottom:4px;font-size:19px;font-weight:700;white-space:nowrap;}
 .userInputs input{
-  padding:10px;font-size:16px;background:#333;color:var(--text);border:none;
-  border-radius:6px;width:100%;text-align:center;
+  padding:10px 6px;font-size:18px;background:#333;color:var(--text);border:none;
+  border-radius:6px;width:100%;text-align:center;white-space:nowrap;
 }
 .calculator-container{display:flex;gap:5px;}
 .btn{
@@ -923,10 +923,10 @@ body{
 #shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{
   background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
-  padding:10px 12px;font-size:16px;transition:border-color 0.3s ease,box-shadow 0.3s ease;
-  width:100%;font-weight:500;
+  padding:10px 12px;font-size:18px;transition:border-color 0.3s ease,box-shadow 0.3s ease;
+  width:100%;font-weight:500;white-space:nowrap;
 }
-@media (min-width:768px){#buyerInput,#calculatorDisplay{font-size:18px;}}
+@media (min-width:768px){#buyerInput,#calculatorDisplay{font-size:19px;}}
 #buyerInput:focus{
   border-color:#2563eb;box-shadow:0 0 8px 2px rgba(37,99,235,0.3);
   outline:none;background:#fff;
@@ -988,7 +988,7 @@ body{
 @media (max-width:360px){
   .userInputs .row{gap:5px;}
   .userInputs label{font-size:13px;}
-  .userInputs input{font-size:15px;padding:8px;}
+  .userInputs input{font-size:17px;padding:8px 5px;}
   #reportTable{font-size:11px;}
   #reportTable th:nth-child(2),#reportTable td:nth-child(2),.qtySelect,#qtyInput{font-size:15px!important;}
   .qtySelect{width:46px!important;min-width:46px!important;max-width:46px!important;padding:4px 2px!important;}
