@@ -1488,7 +1488,7 @@ body{
     <label style="white-space:nowrap;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
     <label style="white-space:nowrap;"><input type="checkbox" id="cardOption" /> 💳 刷卡</label>
   </div>
-  <div class="period-options">
+  <div class="period-options" id="periodOptionsRow">
     <div class="custom-select-wrap period-select-wrap" id="periodCustomWrap">
       <button type="button" class="custom-select-btn" id="periodCustomBtn">
         <span class="custom-select-label placeholder" id="periodCustomLabel">可使用月份</span>
@@ -3120,6 +3120,13 @@ async function exportToImage(){
   // 原封不動留在畫面上直接被截圖，不再切換成白底版，
   // 轉圖前後畫面保證一致。
   const bonusToggleRow = document.getElementById('bonusToggleRow');
+  // 新增：轉圖片時，「可使用月份／自訂天數」這排如果兩個都沒填，
+  // 圖片裡就直接不顯示這排（畫面上平常還是照常顯示，可以正常填寫，
+  // 只影響匯出的圖片內容），避免圖片裡出現一排空白沒意義的欄位
+  const periodOptionsRow = document.getElementById('periodOptionsRow');
+  const periodOriginalDisplay = periodOptionsRow.style.display;
+  const hasPeriodValue = document.getElementById('periodInput').value !== '';
+  const hasCustomDaysValue = document.getElementById('customDays').value.trim() !== '';
   let qtySwaps = [];
   let opCells = [];
   let originalStyles = null;
@@ -3127,6 +3134,11 @@ async function exportToImage(){
   try{
     // 修正⑤：只隱藏切換鈕列，深色獎金卡維持原樣直接截圖
     bonusToggleRow.style.display = 'none';
+
+    // 新增：兩個都沒填才隱藏，只要填了任一個就照常顯示在圖片裡
+    if(!hasPeriodValue && !hasCustomDaysValue){
+      periodOptionsRow.style.display = 'none';
+    }
 
     // 清除所有動畫殘留，防止截圖重複
     els.reportBody.querySelectorAll('.row-fade-in,.row-removing').forEach(tr=>tr.classList.remove('row-fade-in','row-removing'));
@@ -3245,6 +3257,9 @@ async function exportToImage(){
     // 修正④：無論上面在哪一步出錯，以下復原一定會執行
     // 修正⑤：截圖後恢復切換鈕列顯示（深色獎金卡本來就沒被隱藏過，不用復原）
     bonusToggleRow.style.display = '';
+    // 新增：截圖後恢復「可使用月份／自訂天數」原本的顯示狀態，
+    // 不管有沒有填，畫面上都要照原樣繼續能填寫
+    periodOptionsRow.style.display = periodOriginalDisplay;
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
     // 修正③：截圖完成後還原「數量」下拉選單
