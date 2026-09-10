@@ -1967,16 +1967,17 @@ function showLoginWelcome(){
     subEl.textContent='歡迎回來，祝您使用愉快';
   }else if(authStatus.isVip){
     badgeEl.textContent='🌟 尊爵用戶';
+    const vipUsedCount = authStatus.usageCount||0;
     if(authStatus.remainingDays==='永久有效'){
       labelEl.textContent='有效期限';
       numberEl.textContent='永久有效';
       numberEl.classList.add('unlimited');
-      subEl.textContent='您的尊爵權益永久有效';
+      subEl.textContent=`您的尊爵權益永久有效｜已使用次數：${vipUsedCount} 次`;
     }else{
       labelEl.textContent='剩餘天數';
       numberEl.textContent=authStatus.remainingDays;
       numberEl.classList.add('days');
-      subEl.textContent=`到期日：${authStatus.displayExpiryDate||''}`;
+      subEl.textContent=`到期日：${authStatus.displayExpiryDate||''}｜已使用次數：${vipUsedCount} 次`;
     }
   }else{
     badgeEl.textContent='🥇 黃金用戶';
