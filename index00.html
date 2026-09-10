@@ -2985,7 +2985,8 @@ function updateDrawerProfile(){
   }else if(authStatus.isVip){
     badgeEl.innerHTML='🌟 尊爵用戶';
     usageVal.textContent='不限';usageVal.className='dr-usage-val';
-    usedVal.textContent='不限';usedVal.className='dr-usage-val';
+    const vipUsed=authStatus.usageCount||0;
+    usedVal.textContent=`${vipUsed} 次`;usedVal.className='dr-usage-val normal';
   }else{
     badgeEl.innerHTML='🥇 黃金用戶';
     const remain=authStatus.remainingTimes||0;
