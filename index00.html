@@ -655,6 +655,22 @@ body{
 #resetCalculatorBtn:hover{background:#555;border-color:rgba(64,196,255,0.75);transform:scale(1.05);}
 #resetCalculatorBtn:active{transform:scale(0.95);}
 #addBtn{width:100%!important;padding:13px 16px!important;font-size:16px!important;font-weight:700!important;border-radius:14px!important;height:auto!important;letter-spacing:.3px;}
+/* ============================================================
+   浮動快速新增按鈕：固定在畫面右下角，品項列表變很長時
+   可以一鍵跳到「新增品項」控制項，不用手動滑到最下面
+   ============================================================ */
+#quickAddFab{
+  position:fixed;right:18px;bottom:26px;z-index:900;
+  width:54px;height:54px;border-radius:50%;border:1.5px solid rgba(217,184,115,.6);
+  background:linear-gradient(160deg,#1ad6ba,#00bfa5 55%,#008a75);
+  color:#fff;font-size:22px;font-weight:800;cursor:pointer;
+  box-shadow:0 8px 22px rgba(0,0,0,.45),0 0 0 4px rgba(0,209,178,.12);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+  -webkit-tap-highlight-color:transparent;
+}
+#quickAddFab:active{transform:scale(.9);}
+#quickAddFab.show{display:flex;}
 #nameInput option{padding:12px 10px;line-height:1.6;font-size:16px;height:auto;white-space:normal;}
 #reportTable{
   width:100%;min-width:300px;border-collapse:collapse;font-size:12px;border-radius:10px;
@@ -893,7 +909,7 @@ body{
 }
 .bonus-result-none{font-size:0.88rem;color:#888;padding:6px 0;}
 
-#inputArea{display:flex;flex-direction:column;gap:10px;margin:15px 0 30px 0;display:none;width:100%;max-width:600px;}
+#inputArea{display:flex;flex-direction:column;gap:14px;margin:15px 0 44px 0;padding-bottom:10px;display:none;width:100%;max-width:600px;}
 @media (min-width:576px){#inputArea{flex-direction:row;align-items:center;}}
 #nameInput,#qtyInput{
   background:linear-gradient(160deg,#2c2c2c,#1e1e1e);color:#f0e6d2;flex:1;text-align:center;padding:12px 14px;
@@ -1622,6 +1638,11 @@ body{
      登入成功大字幕浮窗：每次登入都會顯示剩餘次數／剩餘天數，
      幾秒後自動淡出，也可以點擊背景提前關閉
      ============================================================ -->
+<!-- ============================================================
+     浮動快速新增按鈕：品項一多、表格變很長時，不用滑到最下面，
+     點一下直接跳到「新增品項」控制項的位置
+     ============================================================ -->
+<button type="button" id="quickAddFab" style="display:none;" title="快速跳到新增品項">➕</button>
 <div id="loginWelcomeOverlay">
   <div class="welcome-card">
     <div class="welcome-avatar-wrap">
@@ -2434,6 +2455,11 @@ els.cardOption.addEventListener("change",function(){
     handleCashGift();
   }
 });
+document.getElementById('quickAddFab').addEventListener('click', function(){
+  const inputArea = document.getElementById('inputArea');
+  if(!inputArea) return;
+  inputArea.scrollIntoView({behavior:'smooth', block:'center'});
+});
 els.reportBody.addEventListener("click",function(e){
   const btn=e.target.closest('.deleteBtn');
   if(!btn||btn.disabled)return;
@@ -2762,6 +2788,18 @@ function renderTable(){
   updateBonusDisplay();
   // 新增：每次渲染後同步更新「預估可使用天數」
   updateEstimatedDays();
+  // 新增：品項數量夠多時，顯示浮動快速新增按鈕
+  updateQuickAddFab();
+}
+
+// 新增：品項超過一定數量時顯示浮動的「快速新增」按鈕，
+// 點擊直接捲動到「新增品項」控制項的位置，不用手動滑到最下面
+const QUICK_ADD_FAB_THRESHOLD = 4;
+function updateQuickAddFab(){
+  const fab = document.getElementById('quickAddFab');
+  if(!fab) return;
+  const shouldShow = selectedProds.length >= QUICK_ADD_FAB_THRESHOLD;
+  fab.classList.toggle('show', shouldShow);
 }
 
 // 新增：預估產品可使用天數——只看品名開頭是數字「2」的品項（例如211/220/222/240/260/
