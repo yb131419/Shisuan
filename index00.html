@@ -3616,6 +3616,9 @@ async function initLiffAndAuth(){
         authStatus=JSON.parse(cachedAuthRaw);
         if(!authStatus.isExpired){
           enterCalculator();
+          // 修改：尊爵用戶不管是重新登入還是沿用快取的 session（例如重新整理頁面），
+          // 都要看到已使用次數的大字幕提醒，不是只有第一次手動登入才顯示
+          if(authStatus.isVip) showLoginWelcome();
           return;
         }
       }catch(e){}
