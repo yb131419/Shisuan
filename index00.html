@@ -665,7 +665,7 @@ body{
   background:linear-gradient(160deg,#1ad6ba,#00bfa5 55%,#008a75);
   color:#fff;font-size:22px;font-weight:800;cursor:pointer;
   box-shadow:0 8px 22px rgba(0,0,0,.45),0 0 0 4px rgba(0,209,178,.12);
-  display:flex;align-items:center;justify-content:center;
+  display:none;align-items:center;justify-content:center;
   transition:transform .2s cubic-bezier(.34,1.56,.64,1);
   -webkit-tap-highlight-color:transparent;
 }
@@ -1642,7 +1642,7 @@ body{
      浮動快速新增按鈕：品項一多、表格變很長時，不用滑到最下面，
      點一下直接跳到「新增品項」控制項的位置
      ============================================================ -->
-<button type="button" id="quickAddFab" style="display:none;" title="快速跳到新增品項">➕</button>
+<button type="button" id="quickAddFab" title="快速跳到新增品項">➕</button>
 <div id="loginWelcomeOverlay">
   <div class="welcome-card">
     <div class="welcome-avatar-wrap">
@@ -2432,7 +2432,16 @@ document.getElementById('guideNextBtn').addEventListener('click',guideNext);
 els.guideOverlay.addEventListener('click',function(e){ if(e.target===this) closeGuide(); });
 
 // 事件綁定
-els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);});
+els.nameInput.addEventListener('change',function(){checkHerbalNewMember(this.value);adjustQtySelectOptions(this.value);updateAddBtnState();});
+// 新增：品項還沒選擇時，「新增品項」按鈕要保持無法點擊，避免誤按新增出空白/無效品項
+// （商品清單第一筆很可能是類似「下拉點選新增」這種提示用途的假資料，
+// 一併排除，不然瀏覽器預設選第一筆時會誤判成「已經選好了」）
+function updateAddBtnState(){
+  const val=(els.nameInput.value||'').trim();
+  const isPlaceholderLike = !val || val.includes('下拉點選') || val.includes('請選擇');
+  els.addBtn.disabled = isPlaceholderLike;
+}
+updateAddBtnState();
 els.addBtn.addEventListener("click",addProduct);
 els.resetCalculatorBtn.addEventListener("click",resetLineName);
 els.resetReportBtn.addEventListener("click",resetReport);
@@ -2714,7 +2723,7 @@ async function loadProducts(){
       opt.textContent=item.name;
       els.nameInput.appendChild(opt);
     });
-    setTimeout(()=>{checkHerbalNewMember(els.nameInput.value);adjustQtySelectOptions(els.nameInput.value);},300);
+    setTimeout(()=>{checkHerbalNewMember(els.nameInput.value);adjustQtySelectOptions(els.nameInput.value);updateAddBtnState();},300);
   }catch(error){
     showToast(`讀取商品失敗: ${error.message||'未知錯誤'}`, 'error');
   }
