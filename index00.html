@@ -2953,6 +2953,14 @@ function addProduct(){
       return;
     }
     const val=selectedName.trim();
+    // 修正：第二層防呆——就算按鈕沒被正確鎖住（例如舊版本還沒更新到、
+    // 或用其他方式觸發到這個函式），這裡直接擋掉「下拉點選新增」這種
+    // 提示用途的假資料，絕對不會被當成真正的品項加進報表
+    if(!val || val.includes('下拉點選') || val.includes('請選擇')){
+      alert("請先選擇實際品項，不能新增提示文字");
+      updateAddBtnState();
+      return;
+    }
     let maxQty=getMaxQtyForProduct(val);
     if(qty>maxQty){
       alert(`⚠️ 「${val}」限購${maxQty}個/組，已自動調整數量為${maxQty}`);
@@ -2981,7 +2989,7 @@ function addProduct(){
   }catch(error){
     showToast(`新增失敗：${error.message}`, 'error');
   }finally{
-    els.addBtn.disabled=false;
+    updateAddBtnState();
   }
 }
 
