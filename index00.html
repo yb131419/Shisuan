@@ -2459,8 +2459,10 @@ els.addBtn.addEventListener("click",addProduct);
 els.resetCalculatorBtn.addEventListener("click",resetLineName);
 els.resetBuyerBtn.addEventListener("click",function(){
   els.buyerInput.value='';
+  localStorage.removeItem('buyerName'); // 點擊清除按鈕才刪除本地儲存
   els.buyerInput.focus();
 });
+
 els.resetReportBtn.addEventListener("click",resetReport);
 els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
@@ -2680,33 +2682,33 @@ function resetLineName(){
   }
 }
 
+// 原resetReport函數替換成下面這段
 async function resetReport(){
   if(!authStatus||authStatus.isExpired)return;
   if(!confirm('確定要清空所有品項記錄並返回登入畫面嗎？\n（下次登入將重新計算使用次數）'))return;
-
   selectedProds=[];
   saveSelectedProds();
-  // 修改：尊爵用戶重置報表時保留「購買者」欄位，不用每次都重新輸入；
-  // 其他身分維持原本行為，重置時一併清空
-  if(!(authStatus&&authStatus.isVip)){
-    els.buyerInput.value='';
-  }
+  // ========== 這裡修改：不清除購買者，購買者存在localStorage，重置報表保留 ==========
+  // if(!(authStatus&&authStatus.isVip)){
+  //   els.buyerInput.value='';
+  // }
+  // 新增：購買者值存localStorage，頁面重載、重置報表都保留
+  const savedBuyer = localStorage.getItem('buyerName');
+  if(savedBuyer) els.buyerInput.value = savedBuyer;
+
   els.cashOption.checked=false;
   els.cardOption.checked=false;
   document.getElementById('periodInput').value='';
   periodDropdown.syncLabel();
   clearImage();
-
   // 新增：重置獎金選擇
   document.getElementById('radioNonMgr').checked = false;
   document.getElementById('radioMgr').checked = false;
   updateBonusDisplay();
-
   sessionStorage.removeItem(SESSION_KEY_ACTIVE);
   sessionStorage.removeItem(SESSION_KEY_AUTH);
   sessionStorage.removeItem(SESSION_KEY_DELETE_COUNT);
   authStatus=null;
-
   els.captureArea.style.display='none';
   els.inputArea.style.display='none';
   els.buttonGroup.style.display='none';
@@ -2716,13 +2718,10 @@ async function resetReport(){
   closeGuide();
   closeMemberCenter();
   statusBarHidden=false;
-
   document.getElementById('authContainer').style.display='flex';
   els.loginWrapper.style.display='flex';
   showLoginLoading("彥彬🌿試算系統","核對用戶權限中...");
-
   showToast('報表已清空，請重新登入以繼續使用');
-
   try{
     const precheck=await precheckUserFromBackend(userInfo);
     if(precheck)renderLoginScreen(precheck);
@@ -2730,6 +2729,20 @@ async function resetReport(){
     // precheckUserFromBackend 內部已處理錯誤顯示
   }
 }
+
+// 在buyerInput輸入事件，新增自動儲存購買者到localStorage，加到script裡適當位置（建議放在事件綁定區）
+els.buyerInput.addEventListener('input', function(){
+  localStorage.setItem('buyerName', this.value.trim());
+});
+
+// 在enterCalculator函數內，登入載入報表後，讀取本地保存的購買者（找到enterCalculator，在setupLineName();下面加入這段）
+setupLineName();
+// 載入本地保存的購買者
+const savedBuyerName = localStorage.getItem('buyerName');
+if(savedBuyerName){
+  els.buyerInput.value = savedBuyerName;
+}
+
 
 // 加載商品列表
 async function loadProducts(){
