@@ -602,6 +602,15 @@ body{
   border-radius:6px;width:100%;text-align:center;white-space:nowrap;
 }
 .calculator-container{display:flex;gap:5px;}
+.buyer-container{display:flex;gap:5px;}
+#resetBuyerBtn{
+  width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
+  border:2px solid rgba(64,196,255,0.45);cursor:pointer;font-size:14px;
+  box-shadow:0 0 10px rgba(64,196,255,0.15);
+  display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
+}
+#resetBuyerBtn:hover{background:#555;border-color:rgba(64,196,255,0.75);transform:scale(1.05);}
+#resetBuyerBtn:active{transform:scale(0.95);}
 .btn{
   border:1.5px solid transparent;border-radius:var(--btn-radius);padding:var(--btn-padding);
   font-size:13px;font-weight:700;color:#fff;cursor:pointer;
@@ -1542,7 +1551,10 @@ body{
     <div class="row">
       <label>
         <span>購買者：</span>
-        <input type="text" placeholder="輸入購買者" id="buyerInput" />
+        <div class="buyer-container">
+          <input type="text" placeholder="輸入購買者" id="buyerInput" />
+          <button id="resetBuyerBtn" title="清除購買者姓名">↺</button>
+        </div>
       </label>
       <label>
         <span>試算者：</span>
@@ -1826,6 +1838,7 @@ const els={
   buyerInput:document.getElementById("buyerInput"),
   calculatorDisplay:document.getElementById("calculatorDisplay"),
   resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),
+  resetBuyerBtn:document.getElementById("resetBuyerBtn"),
   toast:document.getElementById("toast"),
   loginWrapper:document.getElementById("loginWrapper"),
   loginScreen:document.getElementById("loginScreen"),
@@ -2444,6 +2457,10 @@ function updateAddBtnState(){
 updateAddBtnState();
 els.addBtn.addEventListener("click",addProduct);
 els.resetCalculatorBtn.addEventListener("click",resetLineName);
+els.resetBuyerBtn.addEventListener("click",function(){
+  els.buyerInput.value='';
+  els.buyerInput.focus();
+});
 els.resetReportBtn.addEventListener("click",resetReport);
 els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
@@ -2669,7 +2686,11 @@ async function resetReport(){
 
   selectedProds=[];
   saveSelectedProds();
-  els.buyerInput.value='';
+  // 修改：尊爵用戶重置報表時保留「購買者」欄位，不用每次都重新輸入；
+  // 其他身分維持原本行為，重置時一併清空
+  if(!(authStatus&&authStatus.isVip)){
+    els.buyerInput.value='';
+  }
   els.cashOption.checked=false;
   els.cardOption.checked=false;
   document.getElementById('periodInput').value='';
