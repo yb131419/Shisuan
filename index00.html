@@ -602,6 +602,15 @@ body{
   border-radius:6px;width:100%;text-align:center;white-space:nowrap;
 }
 .calculator-container{display:flex;gap:5px;}
+.buyer-container{display:flex;gap:5px;}
+#resetBuyerBtn{
+  width:35px;height:35px;border-radius:5px;background:var(--btn-grey);color:#fff;
+  border:2px solid rgba(64,196,255,0.45);cursor:pointer;font-size:14px;
+  box-shadow:0 0 10px rgba(64,196,255,0.15);
+  display:flex;align-items:center;justify-content:center;transition:var(--btn-transition);
+}
+#resetBuyerBtn:hover{background:#555;border-color:rgba(64,196,255,0.75);transform:scale(1.05);}
+#resetBuyerBtn:active{transform:scale(0.95);}
 .btn{
   border:1.5px solid transparent;border-radius:var(--btn-radius);padding:var(--btn-padding);
   font-size:13px;font-weight:700;color:#fff;cursor:pointer;
@@ -1542,7 +1551,10 @@ body{
     <div class="row">
       <label>
         <span>購買者：</span>
-        <input type="text" placeholder="輸入購買者" id="buyerInput" />
+        <div class="buyer-container">
+          <input type="text" placeholder="輸入購買者" id="buyerInput" />
+          <button id="resetBuyerBtn" title="清除購買者姓名">↺</button>
+        </div>
       </label>
       <label>
         <span>試算者：</span>
@@ -1826,6 +1838,7 @@ const els={
   buyerInput:document.getElementById("buyerInput"),
   calculatorDisplay:document.getElementById("calculatorDisplay"),
   resetCalculatorBtn:document.getElementById("resetCalculatorBtn"),
+  resetBuyerBtn:document.getElementById("resetBuyerBtn"),
   toast:document.getElementById("toast"),
   loginWrapper:document.getElementById("loginWrapper"),
   loginScreen:document.getElementById("loginScreen"),
@@ -2444,6 +2457,13 @@ function updateAddBtnState(){
 updateAddBtnState();
 els.addBtn.addEventListener("click",addProduct);
 els.resetCalculatorBtn.addEventListener("click",resetLineName);
+els.resetBuyerBtn.addEventListener("click",function(){
+  els.buyerInput.value='';
+  clearBuyerName();
+  els.buyerInput.focus();
+});
+// 新增：尊爵用戶每次輸入/修改購買者姓名，都即時存到 localStorage
+els.buyerInput.addEventListener("input",saveBuyerName);
 els.resetReportBtn.addEventListener("click",resetReport);
 els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
@@ -2637,6 +2657,22 @@ function loadSelectedProds(){
 // 保存已選商品
 function saveSelectedProds(){localStorage.setItem('selectedProducts',JSON.stringify(selectedProds));}
 
+// 新增：尊爵用戶的「購買者」姓名存到 localStorage，關閉網頁重開也會保留，
+// 只有按「重置報表」或手動點旁邊的重置鈕才會清除
+const VIP_BUYER_NAME_KEY='vipBuyerName';
+function saveBuyerName(){
+  if(authStatus&&authStatus.isVip){
+    localStorage.setItem(VIP_BUYER_NAME_KEY, els.buyerInput.value);
+  }
+}
+function loadBuyerName(){
+  const saved=localStorage.getItem(VIP_BUYER_NAME_KEY);
+  if(saved) els.buyerInput.value=saved;
+}
+function clearBuyerName(){
+  localStorage.removeItem(VIP_BUYER_NAME_KEY);
+}
+
 // 設置LINE名稱
 function setupLineName(isReset=false){
   if(isReset){
@@ -2669,7 +2705,11 @@ async function resetReport(){
 
   selectedProds=[];
   saveSelectedProds();
+  // 修改：「重置報表」現在會清除購買者姓名（包含本機儲存的），
+  // 購買者姓名改成靠 localStorage 在「關閉網頁、重新打開」之間保留，
+  // 但只要手動按下「重置報表」，就視為使用者主動要清空重新開始
   els.buyerInput.value='';
+  clearBuyerName();
   els.cashOption.checked=false;
   els.cardOption.checked=false;
   document.getElementById('periodInput').value='';
@@ -3362,7 +3402,12 @@ async function shareToLine(){
       const imageUrl=result.data.url;
       const buyerName=els.buyerInput.value.trim()||"未填";
       const calculatorName=lineName||"未設定";
-      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}\n${imageUrl}`)}`;
+      const _pv=document.getElementById('periodInput').value;
+      const _cd=document.getElementById('customDays').value.trim();
+      const _months=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+      const _m=parseInt(_pv,10);
+      const _periodText=_pv&&_m>0&&_m<=12?`\n使用月份：${_months[_m]}個月`:(_cd?`\n預計使用：${_cd}天`:'');
+      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}\n${imageUrl}`)}`;
       window.open(lineShareUrl,"_blank");
       showToast("✅ 圖片已上傳");
     }else{
@@ -3385,7 +3430,12 @@ async function nativeShare(){
     const filesArray=[new File([blob],"康園試算報表.png",{type:blob.type})];
     const buyer=els.buyerInput.value.trim()||"未填";
     const calculator=lineName||"未設定";
-    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}`;
+    const _pv2=document.getElementById('periodInput').value;
+    const _cd2=document.getElementById('customDays').value.trim();
+    const _months2=['',...'一二三四五六七八九十'.split('').concat(['十一','十二'])];
+    const _m2=parseInt(_pv2,10);
+    const _pt2=_pv2&&_m2>0&&_m2<=12?`\n使用月份：${_months2[_m2]}個月`:(_cd2?`\n預計使用：${_cd2}天`:'');
+    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}${_pt2}`;
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
@@ -3638,6 +3688,10 @@ function enterCalculator(){
       selectedProds=[];
       localStorage.removeItem('selectedProducts');
       renderTable();
+    }
+    // 新增：尊爵用戶進入計算機時，把上次存的購買者姓名帶回來（關閉網頁重開也有效）
+    if(authStatus.isVip){
+      loadBuyerName();
     }
     checkUserRemainingTimes();
     statusBarHidden=false;
