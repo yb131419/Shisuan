@@ -3438,7 +3438,11 @@ async function nativeShare(){
     const _months2=['',...'一二三四五六七八九十'.split('').concat(['十一','十二'])];
     const _m2=parseInt(_pv2,10);
 
-    // 新增：天數轉中文月份描述的輔助函數
+    // 購買方式
+    const _isCash=document.getElementById('cashOption')?.checked;
+    const _isCard=document.getElementById('cardOption')?.checked;
+    const _payText=_isCash&&_isCard?'\n購買方式：現金 + 刷卡':_isCash?'\n購買方式：現金':_isCard?'\n購買方式：刷卡':'';
+
     function daysToMonthText(days){
       const d=parseInt(days,10);
       if(!d||d<=0) return '';
@@ -3456,14 +3460,13 @@ async function nativeShare(){
     if(_pv2&&_m2>0&&_m2<=12){
       _pt2=`\n使用月份：${_months2[_m2]}個月`;
     }else{
-      // 月份未填：優先用自訂天數，再 fallback 到預估天數
       const candidates=selectedProds.filter(p=>{const n=(p.name||'').trim();return /^2/.test(n)&&!n.includes('贈品');});
       const maxQty=candidates.length?Math.max(...candidates.map(p=>p.qty||0)):0;
       const estDays=_cd2?parseInt(_cd2,10):maxQty*15;
       if(estDays>0) _pt2=`\n使用月份：${daysToMonthText(estDays)}`;
     }
 
-    const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_pt2}`;
+    const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_payText}${_pt2}`;
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
