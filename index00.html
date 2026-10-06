@@ -551,6 +551,9 @@ body{
 #captureArea.capture-mode *::after{
   transition:none!important;animation:none!important;
 }
+/* 轉圖片時隱藏購買者/試算者旁邊的重置按鈕，圖片輸出乾淨不顯示操作按鈕 */
+#captureArea.capture-mode #resetBuyerBtn,
+#captureArea.capture-mode #resetCalculatorBtn{display:none!important;}
 #captureArea.capture-mode .period-box,
 #captureArea.capture-mode .period-box.active{
   transform:none!important;box-shadow:none!important;
