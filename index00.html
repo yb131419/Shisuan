@@ -544,6 +544,17 @@ body{
   content:'';position:absolute;bottom:2px;right:2px;width:12px;height:12px;
   background:var(--period-text);border-radius:50%;opacity:0.8;
 }
+
+/* 幣別切換列：試算後可把總金額與預計獎金換算成其他幣別（PV 不換算） */
+.currency-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px;}
+.currency-btn{
+  flex:1 1 0;min-width:0;padding:7px 4px;border-radius:999px;cursor:pointer;
+  font-size:.92rem;font-weight:700;line-height:1.1;white-space:nowrap;
+  color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.22);
+  box-shadow:none;transition:background .2s,color .2s,border-color .2s;
+}
+.currency-btn.active{background:#ffd60a;color:#1a1a1a;border-color:#ffd60a;}
+#captureArea.capture-mode .currency-bar{display:none!important;}
 /* 修正：轉圖片瞬間套用 capture-mode，關閉光暈、位移與所有動畫，
    避免 box-shadow 白光與 translateY 在截圖中渲染成溢出的白色色塊 */
 #captureArea.capture-mode *,
@@ -1587,7 +1598,7 @@ body{
       <div class="sum-total-item">
         <div class="sum-total-ic-wrap"><span class="sum-total-ic">💰</span></div>
         <div class="sum-total-text">
-          <span class="sum-total-label">總金額</span>
+          <span class="sum-total-label" id="totalPriceLabel">總金額</span>
           <span class="sum-total-val" id="totalPriceCellDup">0</span>
         </div>
       </div>
@@ -1599,6 +1610,13 @@ body{
           <span class="sum-total-val" id="totalPvCellDup">0</span>
         </div>
       </div>
+    </div>
+    <div class="currency-bar" id="currencyBar" role="radiogroup" aria-label="選擇幣別">
+      <button type="button" class="currency-btn active" data-cur="TWD" role="radio" aria-checked="true">新台幣</button>
+      <button type="button" class="currency-btn" data-cur="SGD" role="radio" aria-checked="false">新加坡幣</button>
+      <button type="button" class="currency-btn" data-cur="CNY" role="radio" aria-checked="false">人民幣</button>
+      <button type="button" class="currency-btn" data-cur="HKD" role="radio" aria-checked="false">港幣</button>
+      <button type="button" class="currency-btn" data-cur="USD" role="radio" aria-checked="false">美金</button>
     </div>
     <div class="sum-progress-group">
       <div class="sum-progress-col" id="pvProgressRow2">
@@ -1757,13 +1775,55 @@ function calcBonus(totalPv, type) {
   return null;
 }
 
+// 幣別換算：TWD_PER_UNIT = 1 單位外幣等於多少新台幣（近似匯率，可依實際調整）
+const CURRENCY_TABLE = {
+  TWD:{label:'新台幣',symbol:'NT$',twdPerUnit:1},
+  SGD:{label:'新加坡幣',symbol:'S$',twdPerUnit:24.0},
+  CNY:{label:'人民幣',symbol:'¥',twdPerUnit:4.4},
+  HKD:{label:'港幣',symbol:'HK$',twdPerUnit:4.0},
+  USD:{label:'美金',symbol:'US$',twdPerUnit:31.0}
+};
+let currentCurrency='TWD';
+function convertFromTWD(twd){
+  const c=CURRENCY_TABLE[currentCurrency];
+  const v=(Number(twd)||0)/c.twdPerUnit;
+  return currentCurrency==='TWD' ? Math.round(v) : Math.round(v*100)/100;
+}
+function formatMoney(twd){
+  const v=convertFromTWD(twd);
+  const digits=currentCurrency==='TWD'?0:2;
+  return v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+}
+function setTotalPriceDisplay(twd){
+  els.totalPriceCellDup.dataset.twd=String(twd||0);
+  els.totalPriceCellDup.textContent=formatMoney(twd||0);
+}
+function refreshCurrencyDisplay(){
+  const c=CURRENCY_TABLE[currentCurrency];
+  const lbl=document.getElementById('totalPriceLabel');
+  if(lbl) lbl.textContent = currentCurrency==='TWD' ? '總金額' : `總金額（${c.label}）`;
+  setTotalPriceDisplay(Number(els.totalPriceCellDup.dataset.twd)||0);
+  document.querySelectorAll('#currencyBar .currency-btn').forEach(b=>{
+    const on=b.dataset.cur===currentCurrency;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-checked',on?'true':'false');
+  });
+  updateBonusDisplay();
+}
+document.getElementById('currencyBar').addEventListener('click',e=>{
+  const btn=e.target.closest('.currency-btn');
+  if(!btn) return;
+  currentCurrency=btn.dataset.cur;
+  refreshCurrencyDisplay();
+});
+
 function formatNumber(n) {
   return n.toLocaleString('zh-TW');
 }
 
 function updateBonusDisplay() {
   const totalPv    = parseInt(els.totalPvCellDup.textContent)    || 0;
-  const totalPrice = parseInt(els.totalPriceCellDup.textContent) || 0;
+  const totalPrice = Number(els.totalPriceCellDup.dataset.twd) || 0;
   const selected   = document.querySelector('input[name="bonusType"]:checked');
   const box        = document.getElementById('bonusResultBox');
 
@@ -1814,8 +1874,8 @@ function updateBonusDisplay() {
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
     ${thresholdNote}
     <div class="bonus-result-pct">${pctText}</div>
-    <div class="bonus-result-amount">約 NT$ ${formatNumber(bonusAmt)}</div>
-    <div class="bonus-result-tax">扣稅 10% 後：約 NT$ ${formatNumber(afterTaxAmt)}</div>
+    <div class="bonus-result-amount">約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(bonusAmt)}</div>
+    <div class="bonus-result-tax">扣稅 10% 後：約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(afterTaxAmt)}</div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 }
@@ -2808,7 +2868,7 @@ function renderTable(){
   setTimeout(()=>{
     els.reportBody.querySelectorAll('tr.row-fade-in').forEach(tr=>tr.classList.remove('row-fade-in'));
   },320);
-  els.totalPriceCellDup.textContent=totalPrice;
+  setTotalPriceDisplay(totalPrice);
   els.totalPvCellDup.textContent=totalPv;
   const diff2=TARGET_PV220-totalPv;
   const diff3=TARGET_PV300-totalPv;
@@ -3437,36 +3497,8 @@ async function nativeShare(){
     const _cd2=document.getElementById('customDays').value.trim();
     const _months2=['',...'一二三四五六七八九十'.split('').concat(['十一','十二'])];
     const _m2=parseInt(_pv2,10);
-
-    // 購買方式
-    const _isCash=document.getElementById('cashOption')?.checked;
-    const _isCard=document.getElementById('cardOption')?.checked;
-    const _payText=_isCash&&_isCard?'\n購買方式：現金 + 刷卡':_isCash?'\n購買方式：現金':_isCard?'\n購買方式：刷卡':'';
-
-    function daysToMonthText(days){
-      const d=parseInt(days,10);
-      if(!d||d<=0) return '';
-      const months=d/30;
-      if(months<1) return `${d}天`;
-      const whole=Math.floor(months);
-      const frac=months-whole;
-      const monthNames=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
-      if(frac===0) return whole<=12?`${monthNames[whole]}個月`:`${d}天`;
-      if(frac===0.5) return whole===0?'半個月':(whole<=12?`${monthNames[whole]}個半月`:`${d}天`);
-      return `${d}天`;
-    }
-
-    let _pt2='';
-    if(_pv2&&_m2>0&&_m2<=12){
-      _pt2=`\n使用月份：${_months2[_m2]}個月`;
-    }else{
-      const candidates=selectedProds.filter(p=>{const n=(p.name||'').trim();return /^2/.test(n)&&!n.includes('贈品');});
-      const maxQty=candidates.length?Math.max(...candidates.map(p=>p.qty||0)):0;
-      const estDays=_cd2?parseInt(_cd2,10):maxQty*15;
-      if(estDays>0) _pt2=`\n使用月份：${daysToMonthText(estDays)}`;
-    }
-
-    const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_payText}${_pt2}`;
+    const _pt2=_pv2&&_m2>0&&_m2<=12?`\n使用月份：${_months2[_m2]}個月`:(_cd2?`\n預計使用：${_cd2}天`:'');
+    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}${_pt2}`;
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
