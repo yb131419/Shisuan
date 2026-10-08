@@ -1808,12 +1808,11 @@ let currentCurrency='TWD';
 const RATE_STORAGE_KEY='currencyRatesManual_v2';
 // 預設匯率：依 Yahoo 匯率轉換 10/8 查到的數值（1 外幣 = 多少新台幣）
 // USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
-// 銀行牌告「現金賣出」（Yahoo 匯率轉換，1 外幣 = 多少新台幣）
-// USD 32.18（上海商銀 10/08 15:05）、CNY 4.854（上海商銀 10/08 15:05）
-// HKD 4.133（中國信託 10/08 13:31）、SGD 24.85（台灣銀行，資料日期 06/18，非當日）
-const DEFAULT_TWD_PER_UNIT={SGD:24.85,CNY:4.854,HKD:4.133,USD:32.18};
+// 臺灣銀行牌告「現金賣出」（rate.bot.com.tw，2026/10/08 09:36，四種幣別同一來源同一時間）
+// 1 外幣 = 多少新台幣：USD 32.12、SGD 25.23、CNY 4.817、HKD 4.106
+const DEFAULT_TWD_PER_UNIT={SGD:25.23,CNY:4.817,HKD:4.106,USD:32.12};
 const LIVE_RATE_CACHE_KEY='currencyRatesLive_v1';
-const LIVE_RATE_AUTO=false; // 目前使用銀行牌告固定值；改為 true 則改用 open.er-api 中間價每日更新
+const LIVE_RATE_AUTO=true; // 每日自動取得臺灣銀行牌告現金賣出匯率（由後端提供）
 const LIVE_RATE_INTERVAL_MS=24*60*60*1000; // 每日自動更新（24 小時）
 function readRateObj(key){
   try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
@@ -1867,46 +1866,49 @@ function todayKey(){
 }
 async function fetchLiveRates(force){
   if(liveRateFetching) return;
-  // 即時更新：超過 LIVE_RATE_INTERVAL_MS 才重新抓取，期間內直接用快取
+  // 每日自動更新：超過 LIVE_RATE_INTERVAL_MS 才向後端重新取得臺灣銀行牌告
   let cache={};
   try{ cache=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}')||{}; }catch(e){}
   if(!force && cache.at && (Date.now()-cache.at)<LIVE_RATE_INTERVAL_MS){
-    setRateSourceText(`✅ 即時匯率（${cache.time||''} 更新）`);
+    setRateSourceText(`✅ 臺銀牌告匯率（${cache.time||''} 更新）`);
     refreshCurrencyDisplay();
     return;
   }
   liveRateFetching=true;
-  setRateSourceText('⏳ 更新即時匯率中…');
-  const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-  const timer=ctrl?setTimeout(()=>ctrl.abort(),8000):null;
+  setRateSourceText('⏳ 取得臺灣銀行牌告匯率中…');
   try{
-    const res=await fetch(LIVE_RATE_URL,{signal:ctrl?ctrl.signal:undefined,cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    if(data.result!=='success'||!data.rates) throw new Error('bad response');
+    const data=await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(new Error('timeout')),10000);
+      $.ajax({
+        url:API_URL,
+        data:{action:'bankRates'},
+        dataType:'jsonp',
+        success:(d)=>{clearTimeout(timer);resolve(d);},
+        error:()=>{clearTimeout(timer);reject(new Error('network'));}
+      });
+    });
+    if(!data || data.status!=='success' || !data.rates) throw new Error(data&&data.message||'bad response');
     const newRates={};
     Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
-      const perTWD=Number(data.rates[k]);      // 1 TWD = perTWD 外幣
-      if(perTWD>0) newRates[k]=1/perTWD;
+      const v=Number(data.rates[k]);
+      if(v>0) newRates[k]=v;   // 臺銀現金賣出：1 外幣 = 多少新台幣
     });
     if(Object.keys(newRates).length===0) throw new Error('no rates');
+    Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
     const t=new Date();
     const hm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-    Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
-    // 寫入每日快取，並清除舊的手動覆寫，讓當日即時匯率生效
     try{
       localStorage.setItem(LIVE_RATE_CACHE_KEY,JSON.stringify(Object.assign({at:Date.now(),time:hm},newRates)));
       localStorage.removeItem(RATE_STORAGE_KEY);
     }catch(e){}
-    setRateSourceText(`✅ 已更新今日即時匯率（${hm}），可手動微調`);
+    setRateSourceText(`✅ 臺銀牌告匯率（${data.date||''} ${data.time||hm}）`);
   }catch(err){
     let last='';
-    try{last=localStorage.getItem(LIVE_RATE_CACHE_KEY)||'';}catch(e){}
+    try{last=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}').time||'';}catch(e){}
     setRateSourceText(last
-      ? `⚠️ 即時匯率抓取失敗，沿用上次匯率（${last}）`
-      : '⚠️ 即時匯率抓取失敗，請手動輸入匯率');
+      ? `⚠️ 取得失敗，沿用上次匯率（${last}）`
+      : '⚠️ 取得失敗，使用預設匯率（可手動修改）');
   }finally{
-    if(timer) clearTimeout(timer);
     liveRateFetching=false;
     refreshCurrencyDisplay();
   }
