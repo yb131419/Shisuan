@@ -1810,7 +1810,7 @@ const RATE_STORAGE_KEY='currencyRatesManual_v2';
 // USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
 const DEFAULT_TWD_PER_UNIT={SGD:24.94,CNY:4.77,HKD:4.07,USD:31.96};
 const LIVE_RATE_CACHE_KEY='currencyRatesLive_v1';
-const LIVE_RATE_AUTO=true;
+const LIVE_RATE_AUTO=false; // 目前固定使用指定匯率；改為 true 才會即時抓取
 const LIVE_RATE_INTERVAL_MS=5*60*1000; // 即時匯率：每 5 分鐘更新一次
 function readRateObj(key){
   try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
@@ -1821,7 +1821,7 @@ function loadRates(){
   const live=readRateObj(LIVE_RATE_CACHE_KEY);
   const manual=readRateObj(RATE_STORAGE_KEY);
   Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
-    if(Number(live[k])>0) CURRENCY_TABLE[k].twdPerUnit=Number(live[k]);
+    if(LIVE_RATE_AUTO && Number(live[k])>0) CURRENCY_TABLE[k].twdPerUnit=Number(live[k]);
     if(Number(manual[k])>0) CURRENCY_TABLE[k].twdPerUnit=Number(manual[k]);
   });
 }
@@ -3889,6 +3889,7 @@ async function handleLoginClick(){
 function enterCalculator(){
   // 每日自動匯率：登入時若今天尚未更新，從公開匯率 API 抓取正確的即時匯率
   if(LIVE_RATE_AUTO) fetchLiveRates(false);
+  else setRateSourceText('📌 固定匯率（10/8 指定數值）');
   // 頁面開著期間持續定時更新
   if(LIVE_RATE_AUTO && !window._liveRateTimer) window._liveRateTimer=setInterval(()=>fetchLiveRates(true),LIVE_RATE_INTERVAL_MS);
   const authContainer=document.getElementById('authContainer');
