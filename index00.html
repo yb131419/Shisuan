@@ -1637,7 +1637,6 @@ body{
       <span class="rate-setting-label" id="rateLabel">1 美金 =</span>
       <input type="number" id="rateInput" class="rate-input" step="0.0001" min="0" inputmode="decimal" aria-label="手動匯率" />
       <span class="rate-setting-unit">新台幣</span>
-      <button type="button" id="rateResetBtn" class="rate-reset-btn">預設</button>
       <div class="rate-source" id="rateSource"></div>
     </div>
     <div class="sum-progress-group">
@@ -1807,22 +1806,23 @@ const CURRENCY_TABLE = {
 };
 let currentCurrency='TWD';
 const RATE_STORAGE_KEY='currencyRatesManual_v2';
-// 預設匯率依 Yahoo 匯率轉換（現金買賣中間價，1 外幣 = 多少新台幣）
-// USD：上海商銀 10/08 15:05，(32.18+31.68)/2 ≈ 31.93
-// CNY：上海商銀 10/08 15:05，(4.854+4.654)/2 ≈ 4.754
-// HKD：中國信託 10/08 13:31，(4.133+3.949)/2 ≈ 4.041
-// SGD：cnyes 市場盤中 10/08 13:55，1 TWD = 0.0402 SGD → 約 24.88（Yahoo 的 SGD 資料為 06/18，已過期）
-const DEFAULT_TWD_PER_UNIT={SGD:24.88,CNY:4.754,HKD:4.041,USD:31.93};
+// 預設匯率：依 Yahoo 匯率轉換 10/8 查到的數值（1 外幣 = 多少新台幣）
+// USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
+const DEFAULT_TWD_PER_UNIT={SGD:24.94,CNY:4.77,HKD:4.07,USD:31.96};
+const LIVE_RATE_CACHE_KEY='currencyRatesLive_v1';
+const LIVE_RATE_AUTO=true;
+function readRateObj(key){
+  try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
+}
 function loadRates(){
-  try{
-    const saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||'{}');
-    Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
-      const v=Number(saved[k]);
-      CURRENCY_TABLE[k].twdPerUnit = v>0 ? v : DEFAULT_TWD_PER_UNIT[k];
-    });
-  }catch(e){
-    Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=DEFAULT_TWD_PER_UNIT[k];});
-  }
+  // 優先序：預設值 < 每日即時匯率快取 < 手動修改
+  Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=DEFAULT_TWD_PER_UNIT[k];});
+  const live=readRateObj(LIVE_RATE_CACHE_KEY);
+  const manual=readRateObj(RATE_STORAGE_KEY);
+  Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
+    if(Number(live[k])>0) CURRENCY_TABLE[k].twdPerUnit=Number(live[k]);
+    if(Number(manual[k])>0) CURRENCY_TABLE[k].twdPerUnit=Number(manual[k]);
+  });
 }
 function saveRates(){
   try{
@@ -1847,24 +1847,30 @@ document.getElementById('rateInput').addEventListener('change',e=>{
   saveRates();
   refreshCurrencyDisplay();
 });
-document.getElementById('rateResetBtn').addEventListener('click',()=>{
-  CURRENCY_TABLE[currentCurrency].twdPerUnit=DEFAULT_TWD_PER_UNIT[currentCurrency];
-  saveRates();
-  refreshCurrencyDisplay();
-});
 loadRates();
 
 // 即時匯率：登錄後向公開匯率 API 抓取最新換算（1 TWD 對各外幣），
 // 抓取失敗時沿用上次成功的匯率或預設值，仍可手動修改
 const LIVE_RATE_URL='https://open.er-api.com/v6/latest/TWD';
-const LIVE_RATE_CACHE_KEY='currencyRatesLive';
 let liveRateFetching=false;
 function setRateSourceText(text){
   const el=document.getElementById('rateSource');
   if(el) el.textContent=text;
 }
-async function fetchLiveRates(){
+function todayKey(){
+  const t=new Date();
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+async function fetchLiveRates(force){
   if(liveRateFetching) return;
+  // 每天只抓一次（同一天內重複登錄直接用快取）
+  let cache={};
+  try{ cache=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}')||{}; }catch(e){}
+  if(!force && cache.day===todayKey()){
+    setRateSourceText(`✅ 匯率已於今日更新（${cache.time||''}）`);
+    refreshCurrencyDisplay();
+    return;
+  }
   liveRateFetching=true;
   setRateSourceText('⏳ 更新即時匯率中…');
   const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
@@ -1874,17 +1880,21 @@ async function fetchLiveRates(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
     if(data.result!=='success'||!data.rates) throw new Error('bad response');
-    let updated=0;
+    const newRates={};
     Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
       const perTWD=Number(data.rates[k]);      // 1 TWD = perTWD 外幣
-      if(perTWD>0){ CURRENCY_TABLE[k].twdPerUnit=1/perTWD; updated++; }
+      if(perTWD>0) newRates[k]=1/perTWD;
     });
-    if(updated===0) throw new Error('no rates');
+    if(Object.keys(newRates).length===0) throw new Error('no rates');
     const t=new Date();
     const hm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-    setRateSourceText(`✅ 已更新即時匯率（${hm}），可手動微調`);
-    // 注意：即時匯率只更新畫面，不寫入 localStorage（避免舊的抓取值蓋過預設匯率）
-    try{localStorage.setItem(LIVE_RATE_CACHE_KEY,hm);}catch(e){}
+    Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
+    // 寫入每日快取，並清除舊的手動覆寫，讓當日即時匯率生效
+    try{
+      localStorage.setItem(LIVE_RATE_CACHE_KEY,JSON.stringify(Object.assign({day:todayKey(),time:hm},newRates)));
+      localStorage.removeItem(RATE_STORAGE_KEY);
+    }catch(e){}
+    setRateSourceText(`✅ 已更新今日即時匯率（${hm}），可手動微調`);
   }catch(err){
     let last='';
     try{last=localStorage.getItem(LIVE_RATE_CACHE_KEY)||'';}catch(e){}
@@ -3875,8 +3885,8 @@ async function handleLoginClick(){
 }
 
 function enterCalculator(){
-  // 已暫停登錄自動抓取（改用 Yahoo 匯率為準）；如需恢復，取消下一行註解
-  // fetchLiveRates();
+  // 每日自動匯率：登入時若今天尚未更新，從公開匯率 API 抓取正確的即時匯率
+  if(LIVE_RATE_AUTO) fetchLiveRates(false);
   const authContainer=document.getElementById('authContainer');
   authContainer.classList.add('fade-out');
   setTimeout(()=>{
