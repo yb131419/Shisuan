@@ -1938,7 +1938,7 @@ function getPaymentShareText(){
     lines.push(`幣別：${c.label}（${currentCurrency}）`);
     if(hasRateFor(currentCurrency)){
       const rate=Number(c.twdPerUnit).toFixed(4).replace(/\.?0+$/,'');
-      lines.push(`匯率：1 ${c.label}（${currentCurrency}）= ${rate} 新台幣（銀行中間價）`);
+      lines.push(`匯率：採用銀行中間價\n1 ${c.label} = ${rate} 新台幣`);
     }
   }
   return lines.length ? '\n'+lines.join('\n') : '';
