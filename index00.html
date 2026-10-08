@@ -1945,6 +1945,9 @@ function setTotalPriceDisplay(twd){
 }
 function refreshCurrencyDisplay(){
   const c=CURRENCY_TABLE[currentCurrency];
+  if(currentCurrency!=='TWD' && !hasRateFor(currentCurrency) && !liveRateFetching){
+    setRateSourceText(`⚠️ 尚未取得${c.label}匯率，金額暫以新台幣顯示`);
+  }
   const lbl=document.getElementById('totalPriceLabel');
   if(lbl) lbl.textContent = currentCurrency==='TWD' ? '總金額' : `總金額（${c.label}）`;
   setTotalPriceDisplay(Number(els.totalPriceCellDup.dataset.twd)||0);
@@ -1961,7 +1964,10 @@ document.getElementById('currencyBar').addEventListener('click',e=>{
   if(!btn) return;
   currentCurrency=btn.dataset.cur;
   refreshCurrencyDisplay();
-  if(LIVE_RATE_AUTO && currentCurrency!=='TWD') fetchLiveRates(false);
+  if(LIVE_RATE_AUTO && currentCurrency!=='TWD'){
+    // 尚未取得匯率時，切換幣別會重新向後端要一次
+    fetchLiveRates(!hasRateFor(currentCurrency));
+  }
 });
 
 function formatNumber(n) {
