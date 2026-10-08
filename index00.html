@@ -799,6 +799,13 @@ body{
 .sum-total-item:nth-child(3) .sum-total-val{
   color:#2be0c8;
 }
+/* 幣別符號統一顯示在金額數字上方（所有幣別一致，含新台幣） */
+#totalPriceCellDup{display:flex;flex-direction:column;align-items:flex-start;}
+#totalPriceCellDup .cur-sym{
+  display:block;font-size:.55em;font-weight:700;line-height:1;letter-spacing:.06em;
+  margin-bottom:3px;opacity:.92;-webkit-text-fill-color:currentColor;color:inherit;
+}
+#totalPriceCellDup .cur-num{display:block;-webkit-text-fill-color:currentColor;color:inherit;}
 .sum-total-divider{
   position:relative;z-index:1;
   width:1px;align-self:stretch;margin:2px 12px;
@@ -1607,7 +1614,7 @@ body{
         <div class="sum-total-ic-wrap"><span class="sum-total-ic">💰</span></div>
         <div class="sum-total-text">
           <span class="sum-total-label" id="totalPriceLabel">總金額</span>
-          <span class="sum-total-val" id="totalPriceCellDup">0</span>
+          <span class="sum-total-val" id="totalPriceCellDup"><span class="cur-sym">NT$</span><span class="cur-num">0</span></span>
         </div>
       </div>
       <div class="sum-total-divider"></div>
@@ -1913,7 +1920,8 @@ function getPaymentShareText(){
 }
 function setTotalPriceDisplay(twd){
   els.totalPriceCellDup.dataset.twd=String(twd||0);
-  els.totalPriceCellDup.textContent=`${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(twd||0)}`;
+  const c=CURRENCY_TABLE[currentCurrency];
+  els.totalPriceCellDup.innerHTML=`<span class="cur-sym">${c.symbol}</span><span class="cur-num">${formatMoney(twd||0)}</span>`;
 }
 function refreshCurrencyDisplay(){
   const c=CURRENCY_TABLE[currentCurrency];
