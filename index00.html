@@ -1869,7 +1869,7 @@ async function fetchLiveRates(force){
   let cache={};
   try{ cache=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}')||{}; }catch(e){}
   if(!force && cache.at && (Date.now()-cache.at)<LIVE_RATE_INTERVAL_MS){
-    setRateSourceText(`✅ 臺銀掛牌 ${cache.time||''}（台灣時間）`);
+    setRateSourceText(`✅ 匯率更新 ${cache.time||''}（台灣時間）`);
     refreshCurrencyDisplay();
     return;
   }
@@ -1895,19 +1895,19 @@ async function fetchLiveRates(force){
     if(Object.keys(newRates).length===0) throw new Error('no rates');
     Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
     // 顯示臺銀「牌價最新掛牌時間」（台灣時間）；沒有則顯示後端抓取時間
-    const hm=data.listed||data.fetched||'';
+    const hm=data.fetched||'';
     try{
       localStorage.setItem(LIVE_RATE_CACHE_KEY,JSON.stringify(Object.assign({at:Date.now(),time:hm},newRates)));
       localStorage.removeItem(RATE_STORAGE_KEY);
     }catch(e){}
-    setRateSourceText(`✅ 臺銀掛牌 ${hm}（台灣時間）`);
+    setRateSourceText(`✅ 匯率更新 ${hm}（台灣時間）`);
   }catch(err){
     let last='';
     try{last=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}').time||'';}catch(e){}
     const reason=(err&&err.message)||'未知原因';
     console.warn('匯率取得失敗：', reason);
     setRateSourceText(last
-      ? `📌 取得失敗（${reason}），沿用上次臺銀匯率（${last}）`
+      ? `📌 取得失敗（${reason}），沿用上次匯率（${last}）`
       : `⚠️ 取得失敗（${reason}）`);
   }finally{
     liveRateFetching=false;
