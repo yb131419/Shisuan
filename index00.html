@@ -1799,7 +1799,7 @@ const CURRENCY_TABLE = {
   USD:{label:'美金',symbol:'US$',twdPerUnit:31.0}
 };
 let currentCurrency='TWD';
-const RATE_STORAGE_KEY='currencyRatesManual';
+const RATE_STORAGE_KEY='currencyRatesManual_v2';
 // 預設匯率依 Yahoo 匯率轉換（現金買賣中間價，1 外幣 = 多少新台幣）
 // USD：上海商銀 10/08 15:05，(32.18+31.68)/2 ≈ 31.93
 // CNY：上海商銀 10/08 15:05，(4.854+4.654)/2 ≈ 4.754
@@ -1873,10 +1873,10 @@ async function fetchLiveRates(){
       if(perTWD>0){ CURRENCY_TABLE[k].twdPerUnit=1/perTWD; updated++; }
     });
     if(updated===0) throw new Error('no rates');
-    saveRates();
     const t=new Date();
     const hm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
     setRateSourceText(`✅ 已更新即時匯率（${hm}），可手動微調`);
+    // 注意：即時匯率只更新畫面，不寫入 localStorage（避免舊的抓取值蓋過預設匯率）
     try{localStorage.setItem(LIVE_RATE_CACHE_KEY,hm);}catch(e){}
   }catch(err){
     let last='';
@@ -1899,6 +1899,17 @@ function formatMoney(twd){
   const v=convertFromTWD(twd);
   const digits=currentCurrency==='TWD'?0:2;
   return v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+}
+// 分享文字用：付款方式與幣別（TWD 不額外標示）
+function getPaymentShareText(){
+  const lines=[];
+  if(els.cashOption.checked) lines.push('付款方式：💵 現金');
+  else if(els.cardOption.checked) lines.push('付款方式：💳 刷卡');
+  if(currentCurrency!=='TWD'){
+    const c=CURRENCY_TABLE[currentCurrency];
+    lines.push(`幣別：${c.label}（${currentCurrency}）`);
+  }
+  return lines.length ? '\n'+lines.join('\n') : '';
 }
 function setTotalPriceDisplay(twd){
   els.totalPriceCellDup.dataset.twd=String(twd||0);
@@ -3577,7 +3588,7 @@ async function shareToLine(){
       const _months=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
       const _m=parseInt(_pv,10);
       const _periodText=_pv&&_m>0&&_m<=12?`\n使用月份：${_months[_m]}個月`:(_cd?`\n預計使用：${_cd}天`:'');
-      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}\n${imageUrl}`)}`;
+      const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}${getPaymentShareText()}\n${imageUrl}`)}`;
       window.open(lineShareUrl,"_blank");
       showToast("✅ 圖片已上傳");
     }else{
@@ -3630,7 +3641,7 @@ async function nativeShare(){
       if(estDays>0) _pt2=`\n使用月份：${daysToMonthText(estDays)}`;
     }
 
-    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}${_pt2}`;
+    const shareText=`康園試算報表\n購買者：${buyer}\n試算者：${calculator}${_pt2}${getPaymentShareText()}`;
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
