@@ -1811,6 +1811,7 @@ const RATE_STORAGE_KEY='currencyRatesManual_v2';
 const DEFAULT_TWD_PER_UNIT={SGD:24.94,CNY:4.77,HKD:4.07,USD:31.96};
 const LIVE_RATE_CACHE_KEY='currencyRatesLive_v1';
 const LIVE_RATE_AUTO=true;
+const LIVE_RATE_INTERVAL_MS=5*60*1000; // 即時匯率：每 5 分鐘更新一次
 function readRateObj(key){
   try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
 }
@@ -1863,11 +1864,11 @@ function todayKey(){
 }
 async function fetchLiveRates(force){
   if(liveRateFetching) return;
-  // 每天只抓一次（同一天內重複登錄直接用快取）
+  // 即時更新：超過 LIVE_RATE_INTERVAL_MS 才重新抓取，期間內直接用快取
   let cache={};
   try{ cache=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}')||{}; }catch(e){}
-  if(!force && cache.day===todayKey()){
-    setRateSourceText(`✅ 匯率已於今日更新（${cache.time||''}）`);
+  if(!force && cache.at && (Date.now()-cache.at)<LIVE_RATE_INTERVAL_MS){
+    setRateSourceText(`✅ 即時匯率（${cache.time||''} 更新）`);
     refreshCurrencyDisplay();
     return;
   }
@@ -1891,7 +1892,7 @@ async function fetchLiveRates(force){
     Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
     // 寫入每日快取，並清除舊的手動覆寫，讓當日即時匯率生效
     try{
-      localStorage.setItem(LIVE_RATE_CACHE_KEY,JSON.stringify(Object.assign({day:todayKey(),time:hm},newRates)));
+      localStorage.setItem(LIVE_RATE_CACHE_KEY,JSON.stringify(Object.assign({at:Date.now(),time:hm},newRates)));
       localStorage.removeItem(RATE_STORAGE_KEY);
     }catch(e){}
     setRateSourceText(`✅ 已更新今日即時匯率（${hm}），可手動微調`);
@@ -1951,6 +1952,7 @@ document.getElementById('currencyBar').addEventListener('click',e=>{
   if(!btn) return;
   currentCurrency=btn.dataset.cur;
   refreshCurrencyDisplay();
+  if(LIVE_RATE_AUTO && currentCurrency!=='TWD') fetchLiveRates(false);
 });
 
 function formatNumber(n) {
@@ -3887,6 +3889,8 @@ async function handleLoginClick(){
 function enterCalculator(){
   // 每日自動匯率：登入時若今天尚未更新，從公開匯率 API 抓取正確的即時匯率
   if(LIVE_RATE_AUTO) fetchLiveRates(false);
+  // 頁面開著期間持續定時更新
+  if(LIVE_RATE_AUTO && !window._liveRateTimer) window._liveRateTimer=setInterval(()=>fetchLiveRates(true),LIVE_RATE_INTERVAL_MS);
   const authContainer=document.getElementById('authContainer');
   authContainer.classList.add('fade-out');
   setTimeout(()=>{
