@@ -1919,7 +1919,7 @@ function convertFromTWD(twd){
 }
 function formatMoney(twd){
   const v=convertFromTWD(twd);
-  if(!isFinite(v)) return '—';
+  if(!isFinite(v)) return '載入中';
   const digits=currentCurrency==='TWD'?0:2;
   return v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
 }
@@ -3893,7 +3893,7 @@ async function handleLoginClick(){
 
 function enterCalculator(){
   // 每日自動匯率：登入時若今天尚未更新，從公開匯率 API 抓取正確的即時匯率
-  if(LIVE_RATE_AUTO) fetchLiveRates(false);
+  if(LIVE_RATE_AUTO) fetchLiveRates(true); // 每次登錄都取最新匯率
   // 頁面開著期間持續定時更新
   if(LIVE_RATE_AUTO && !window._liveRateTimer) window._liveRateTimer=setInterval(()=>fetchLiveRates(true),LIVE_RATE_INTERVAL_MS);
   const authContainer=document.getElementById('authContainer');
