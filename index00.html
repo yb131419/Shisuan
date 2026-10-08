@@ -1809,8 +1809,8 @@ const RATE_STORAGE_KEY='currencyRatesManual_v2';
 // 預設匯率：依 Yahoo 匯率轉換 10/8 查到的數值（1 外幣 = 多少新台幣）
 // USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
 // 臺灣銀行牌告「即期賣出」（rate.bot.com.tw，2026/10/08 09:36）
-// 1 外幣 = 多少新台幣：USD 31.9、SGD 24.99、CNY 4.777、HKD 4.088
-const DEFAULT_TWD_PER_UNIT={SGD:24.99,CNY:4.777,HKD:4.088,USD:31.9};
+// 1 外幣 = 多少新台幣（四捨五入到小數點第二位）：USD 31.90、SGD 24.99、CNY 4.78、HKD 4.09
+const DEFAULT_TWD_PER_UNIT={SGD:24.99,CNY:4.78,HKD:4.09,USD:31.90};
 const LIVE_RATE_CACHE_KEY='bankRatesCache_v2'; // 臺銀牌告快取（與舊的 open.er-api 快取分開）
 const LIVE_RATE_AUTO=true; // 每日自動取得臺灣銀行牌告現金賣出匯率（由後端提供）
 const LIVE_RATE_INTERVAL_MS=24*60*60*1000; // 每日自動更新（24 小時）
@@ -1841,10 +1841,10 @@ function syncRateInput(){
   panel.classList.toggle('show', currentCurrency!=='TWD');
   document.getElementById('rateLabel').textContent=`1 ${c.label} =`;
   const inp=document.getElementById('rateInput');
-  if(document.activeElement!==inp) inp.value=c.twdPerUnit;
+  if(document.activeElement!==inp) inp.value=Number(c.twdPerUnit).toFixed(2);
 }
 document.getElementById('rateInput').addEventListener('change',e=>{
-  const v=Number(e.target.value);
+  const v=Math.round(Number(e.target.value)*100)/100;
   if(!(v>0)) { syncRateInput(); return; }
   CURRENCY_TABLE[currentCurrency].twdPerUnit=v;
   saveRates();
@@ -1891,7 +1891,7 @@ async function fetchLiveRates(force){
     const newRates={};
     Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
       const v=Number(data.rates[k]);
-      if(v>0) newRates[k]=v;   // 臺銀現金賣出：1 外幣 = 多少新台幣
+      if(v>0) newRates[k]=Math.round(v*100)/100;   // 臺銀即期賣出：1 外幣 = 多少新台幣（到小數第二位）
     });
     if(Object.keys(newRates).length===0) throw new Error('no rates');
     Object.keys(newRates).forEach(k=>{CURRENCY_TABLE[k].twdPerUnit=newRates[k];});
