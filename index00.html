@@ -1848,6 +1848,8 @@ document.getElementById('rateInput').addEventListener('change',e=>{
   refreshCurrencyDisplay();
 });
 loadRates();
+// 頁面載入即開始抓取匯率（不等登錄），登錄前就會完成
+window.addEventListener('DOMContentLoaded',()=>{ if(LIVE_RATE_AUTO) fetchLiveRates(true); });
 
 // 即時匯率：登錄後向公開匯率 API 抓取最新換算（1 TWD 對各外幣），
 // 抓取失敗時沿用上次成功的匯率或預設值，仍可手動修改
@@ -1911,16 +1913,18 @@ async function fetchLiveRates(force){
     refreshCurrencyDisplay();
   }
 }
+function hasRateFor(code){
+  return code==='TWD' || CURRENCY_TABLE[code].twdPerUnit>0;
+}
 function convertFromTWD(twd){
   const c=CURRENCY_TABLE[currentCurrency];
-  if(currentCurrency!=='TWD' && !(c.twdPerUnit>0)) return NaN;
+  if(!hasRateFor(currentCurrency)) return Math.round(Number(twd)||0); // 尚無匯率：暫顯示新台幣金額
   const v=(Number(twd)||0)/(currentCurrency==='TWD'?1:c.twdPerUnit);
   return currentCurrency==='TWD' ? Math.round(v) : Math.round(v*100)/100;
 }
 function formatMoney(twd){
   const v=convertFromTWD(twd);
-  if(!isFinite(v)) return '載入中';
-  const digits=currentCurrency==='TWD'?0:2;
+  const digits=(currentCurrency==='TWD'||!hasRateFor(currentCurrency))?0:2;
   return v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
 }
 // 分享文字用：付款方式與幣別（TWD 不額外標示）
@@ -1936,8 +1940,8 @@ function getPaymentShareText(){
 }
 function setTotalPriceDisplay(twd){
   els.totalPriceCellDup.dataset.twd=String(twd||0);
-  const c=CURRENCY_TABLE[currentCurrency];
-  els.totalPriceCellDup.innerHTML=`<span class="cur-sym">${c.symbol}</span><span class="cur-num">${formatMoney(twd||0)}</span>`;
+  const sym=hasRateFor(currentCurrency)?CURRENCY_TABLE[currentCurrency].symbol:'NT$';
+  els.totalPriceCellDup.innerHTML=`<span class="cur-sym">${sym}</span><span class="cur-num">${formatMoney(twd||0)}</span>`;
 }
 function refreshCurrencyDisplay(){
   const c=CURRENCY_TABLE[currentCurrency];
