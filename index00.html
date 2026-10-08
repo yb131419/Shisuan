@@ -1904,10 +1904,11 @@ async function fetchLiveRates(force){
   }catch(err){
     let last='';
     try{last=JSON.parse(localStorage.getItem(LIVE_RATE_CACHE_KEY)||'{}').time||'';}catch(e){}
-    console.warn('匯率取得失敗：', err && err.message);
+    const reason=(err&&err.message)||'未知原因';
+    console.warn('匯率取得失敗：', reason);
     setRateSourceText(last
-      ? `📌 取得失敗，沿用上次臺銀匯率（${last}）`
-      : '⚠️ 尚未取得匯率，會自動重試');
+      ? `📌 取得失敗（${reason}），沿用上次臺銀匯率（${last}）`
+      : `⚠️ 取得失敗（${reason}）`);
   }finally{
     liveRateFetching=false;
     refreshCurrencyDisplay();
