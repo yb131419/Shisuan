@@ -1936,6 +1936,10 @@ function getPaymentShareText(){
   if(currentCurrency!=='TWD'){
     const c=CURRENCY_TABLE[currentCurrency];
     lines.push(`幣別：${c.label}（${currentCurrency}）`);
+    if(hasRateFor(currentCurrency)){
+      const rate=Number(c.twdPerUnit).toFixed(4).replace(/\.?0+$/,'');
+      lines.push(`匯率：1 ${c.label}（${currentCurrency}）= ${rate} 新台幣（銀行中間價）`);
+    }
   }
   return lines.length ? '\n'+lines.join('\n') : '';
 }
