@@ -1800,7 +1800,12 @@ const CURRENCY_TABLE = {
 };
 let currentCurrency='TWD';
 const RATE_STORAGE_KEY='currencyRatesManual';
-const DEFAULT_TWD_PER_UNIT={SGD:24.0,CNY:4.4,HKD:4.0,USD:31.0};
+// 預設匯率依 Yahoo 匯率轉換（現金買賣中間價，1 外幣 = 多少新台幣）
+// USD：上海商銀 10/08 15:05，(32.18+31.68)/2 ≈ 31.93
+// CNY：上海商銀 10/08 15:05，(4.854+4.654)/2 ≈ 4.754
+// HKD：中國信託 10/08 13:31，(4.133+3.949)/2 ≈ 4.041
+// SGD：cnyes 市場盤中 10/08 13:55，1 TWD = 0.0402 SGD → 約 24.88（Yahoo 的 SGD 資料為 06/18，已過期）
+const DEFAULT_TWD_PER_UNIT={SGD:24.88,CNY:4.754,HKD:4.041,USD:31.93};
 function loadRates(){
   try{
     const saved=JSON.parse(localStorage.getItem(RATE_STORAGE_KEY)||'{}');
@@ -3851,7 +3856,8 @@ async function handleLoginClick(){
 }
 
 function enterCalculator(){
-  fetchLiveRates();
+  // 已暫停登錄自動抓取（改用 Yahoo 匯率為準）；如需恢復，取消下一行註解
+  // fetchLiveRates();
   const authContainer=document.getElementById('authContainer');
   authContainer.classList.add('fade-out');
   setTimeout(()=>{
