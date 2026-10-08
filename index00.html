@@ -552,6 +552,7 @@ body{
 .rate-input{width:110px;padding:5px 8px;border-radius:8px;border:1px solid #ffd60a;background:#0f0f0f;color:#ffd60a;font-size:1rem;font-weight:700;text-align:center;}
 .rate-reset-btn{padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-size:.85rem;cursor:pointer;}
 #captureArea.capture-mode .rate-setting{display:none!important;}
+.rate-source{width:100%;text-align:center;font-size:.78rem;color:rgba(255,255,255,.6);}
 /* 幣別切換列：試算後可把總金額與預計獎金換算成其他幣別（PV 不換算） */
 .currency-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px;}
 .currency-btn{
@@ -1630,6 +1631,7 @@ body{
       <input type="number" id="rateInput" class="rate-input" step="0.0001" min="0" inputmode="decimal" aria-label="手動匯率" />
       <span class="rate-setting-unit">新台幣</span>
       <button type="button" id="rateResetBtn" class="rate-reset-btn">預設</button>
+      <div class="rate-source" id="rateSource"></div>
     </div>
     <div class="sum-progress-group">
       <div class="sum-progress-col" id="pvProgressRow2">
@@ -1839,6 +1841,50 @@ document.getElementById('rateResetBtn').addEventListener('click',()=>{
   refreshCurrencyDisplay();
 });
 loadRates();
+
+// 即時匯率：登錄後向公開匯率 API 抓取最新換算（1 TWD 對各外幣），
+// 抓取失敗時沿用上次成功的匯率或預設值，仍可手動修改
+const LIVE_RATE_URL='https://open.er-api.com/v6/latest/TWD';
+const LIVE_RATE_CACHE_KEY='currencyRatesLive';
+let liveRateFetching=false;
+function setRateSourceText(text){
+  const el=document.getElementById('rateSource');
+  if(el) el.textContent=text;
+}
+async function fetchLiveRates(){
+  if(liveRateFetching) return;
+  liveRateFetching=true;
+  setRateSourceText('⏳ 更新即時匯率中…');
+  const ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+  const timer=ctrl?setTimeout(()=>ctrl.abort(),8000):null;
+  try{
+    const res=await fetch(LIVE_RATE_URL,{signal:ctrl?ctrl.signal:undefined,cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(data.result!=='success'||!data.rates) throw new Error('bad response');
+    let updated=0;
+    Object.keys(DEFAULT_TWD_PER_UNIT).forEach(k=>{
+      const perTWD=Number(data.rates[k]);      // 1 TWD = perTWD 外幣
+      if(perTWD>0){ CURRENCY_TABLE[k].twdPerUnit=1/perTWD; updated++; }
+    });
+    if(updated===0) throw new Error('no rates');
+    saveRates();
+    const t=new Date();
+    const hm=`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+    setRateSourceText(`✅ 已更新即時匯率（${hm}），可手動微調`);
+    try{localStorage.setItem(LIVE_RATE_CACHE_KEY,hm);}catch(e){}
+  }catch(err){
+    let last='';
+    try{last=localStorage.getItem(LIVE_RATE_CACHE_KEY)||'';}catch(e){}
+    setRateSourceText(last
+      ? `⚠️ 即時匯率抓取失敗，沿用上次匯率（${last}）`
+      : '⚠️ 即時匯率抓取失敗，請手動輸入匯率');
+  }finally{
+    if(timer) clearTimeout(timer);
+    liveRateFetching=false;
+    refreshCurrencyDisplay();
+  }
+}
 function convertFromTWD(twd){
   const c=CURRENCY_TABLE[currentCurrency];
   const v=(Number(twd)||0)/c.twdPerUnit;
@@ -3805,6 +3851,7 @@ async function handleLoginClick(){
 }
 
 function enterCalculator(){
+  fetchLiveRates();
   const authContainer=document.getElementById('authContainer');
   authContainer.classList.add('fade-out');
   setTimeout(()=>{
