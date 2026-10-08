@@ -1806,14 +1806,11 @@ const CURRENCY_TABLE = {
 };
 let currentCurrency='TWD';
 const RATE_STORAGE_KEY='currencyRatesManual_v2';
-// 預設匯率：依 Yahoo 匯率轉換 10/8 查到的數值（1 外幣 = 多少新台幣）
-// USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
-// 臺灣銀行牌告「即期賣出」（rate.bot.com.tw，2026/10/08 09:36）
-// 臺灣銀行牌告「即期賣出」，掛牌時間 2026/10/08 22:41，1 外幣 = 多少新台幣（原始數值）：USD 31.955、SGD 25、CNY 4.788、HKD 4.098
-const DEFAULT_TWD_PER_UNIT={SGD:25,CNY:4.788,HKD:4.098,USD:31.955};
+// 匯率只來自後端自動抓取的臺灣銀行牌告（即期賣出），沒有預設值；尚未取得時金額顯示「—」
+const DEFAULT_TWD_PER_UNIT={SGD:null,CNY:null,HKD:null,USD:null};
 const LIVE_RATE_CACHE_KEY='bankRatesCache_v2'; // 臺銀牌告快取（與舊的 open.er-api 快取分開）
-const LIVE_RATE_AUTO=true; // 每日自動取得臺灣銀行牌告現金賣出匯率（由後端提供）
-const LIVE_RATE_INTERVAL_MS=24*60*60*1000; // 每日自動更新（24 小時）
+const LIVE_RATE_AUTO=true; // 自動取得臺灣銀行牌告即期賣出匯率（由後端提供）
+const LIVE_RATE_INTERVAL_MS=30*60*1000; // 每 30 分鐘自動更新（對齊臺銀牌告掛牌）
 function readRateObj(key){
   try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
 }
@@ -1841,7 +1838,7 @@ function syncRateInput(){
   panel.classList.toggle('show', currentCurrency!=='TWD');
   document.getElementById('rateLabel').textContent=`1 ${c.label} =`;
   const inp=document.getElementById('rateInput');
-  if(document.activeElement!==inp) inp.value=c.twdPerUnit;
+  if(document.activeElement!==inp) inp.value=(c.twdPerUnit>0)?c.twdPerUnit:'';
 }
 document.getElementById('rateInput').addEventListener('change',e=>{
   const v=Number(e.target.value);
@@ -1908,7 +1905,7 @@ async function fetchLiveRates(force){
     console.warn('匯率取得失敗：', err && err.message);
     setRateSourceText(last
       ? `📌 取得失敗，沿用上次臺銀匯率（${last}）`
-      : '📌 使用預設臺銀即期賣出匯率（10/08 09:36，可手動修改）');
+      : '⚠️ 尚未取得匯率，會自動重試');
   }finally{
     liveRateFetching=false;
     refreshCurrencyDisplay();
@@ -1916,11 +1913,13 @@ async function fetchLiveRates(force){
 }
 function convertFromTWD(twd){
   const c=CURRENCY_TABLE[currentCurrency];
-  const v=(Number(twd)||0)/c.twdPerUnit;
+  if(currentCurrency!=='TWD' && !(c.twdPerUnit>0)) return NaN;
+  const v=(Number(twd)||0)/(currentCurrency==='TWD'?1:c.twdPerUnit);
   return currentCurrency==='TWD' ? Math.round(v) : Math.round(v*100)/100;
 }
 function formatMoney(twd){
   const v=convertFromTWD(twd);
+  if(!isFinite(v)) return '—';
   const digits=currentCurrency==='TWD'?0:2;
   return v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
 }
