@@ -1808,9 +1808,12 @@ let currentCurrency='TWD';
 const RATE_STORAGE_KEY='currencyRatesManual_v2';
 // 預設匯率：依 Yahoo 匯率轉換 10/8 查到的數值（1 外幣 = 多少新台幣）
 // USD 31.96、SGD 24.94、CNY 4.77、HKD 4.07
-const DEFAULT_TWD_PER_UNIT={SGD:24.94,CNY:4.77,HKD:4.07,USD:31.96};
+// 銀行牌告「現金賣出」（Yahoo 匯率轉換，1 外幣 = 多少新台幣）
+// USD 32.18（上海商銀 10/08 15:05）、CNY 4.854（上海商銀 10/08 15:05）
+// HKD 4.133（中國信託 10/08 13:31）、SGD 24.85（台灣銀行，資料日期 06/18，非當日）
+const DEFAULT_TWD_PER_UNIT={SGD:24.85,CNY:4.854,HKD:4.133,USD:32.18};
 const LIVE_RATE_CACHE_KEY='currencyRatesLive_v1';
-const LIVE_RATE_AUTO=true; // 自動匯率：每日更新一次
+const LIVE_RATE_AUTO=false; // 目前使用銀行牌告固定值；改為 true 則改用 open.er-api 中間價每日更新
 const LIVE_RATE_INTERVAL_MS=24*60*60*1000; // 每日自動更新（24 小時）
 function readRateObj(key){
   try{ return JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ return {}; }
