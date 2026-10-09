@@ -3459,6 +3459,10 @@ async function exportToImage(){
   // 手動填寫了使用月份或使用天數時，圖片中隱藏「預估可使用天數」
   const estDaysRow = document.querySelector('.estimated-days-row');
   const estDaysOriginalDisplay = estDaysRow ? estDaysRow.style.display : '';
+  // 自訂天數沒填：圖片中隱藏「自訂 天」，並在月份前面加上「預估使用」欄位
+  const customWrapEl = document.querySelector('.custom-days-wrap');
+  const customWrapOriginalDisplay = customWrapEl ? customWrapEl.style.display : '';
+  let estUseLabelEl = null;
   let qtySwaps = [];
   let opCells = [];
   let originalStyles = null;
@@ -3473,6 +3477,14 @@ async function exportToImage(){
     }
     if((hasPeriodValue || hasCustomDaysValue) && estDaysRow){
       estDaysRow.style.display = 'none';
+    }
+    if(!hasCustomDaysValue && customWrapEl && periodOptionsRow.style.display !== 'none'){
+      customWrapEl.style.display = 'none';
+      estUseLabelEl = document.createElement('span');
+      estUseLabelEl.className = 'period-est-use-label';
+      estUseLabelEl.textContent = '預估使用';
+      estUseLabelEl.style.cssText = 'color:#ffd60a;font-weight:800;font-size:1rem;white-space:nowrap;align-self:center;';
+      periodOptionsRow.insertBefore(estUseLabelEl, periodOptionsRow.firstChild);
     }
 
     // 清除所有動畫殘留，防止截圖重複
@@ -3596,6 +3608,8 @@ async function exportToImage(){
     // 不管有沒有填，畫面上都要照原樣繼續能填寫
     periodOptionsRow.style.display = periodOriginalDisplay;
     if(estDaysRow) estDaysRow.style.display = estDaysOriginalDisplay;
+    if(customWrapEl) customWrapEl.style.display = customWrapOriginalDisplay;
+    if(estUseLabelEl && estUseLabelEl.parentNode) estUseLabelEl.parentNode.removeChild(estUseLabelEl);
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
     // 修正③：截圖完成後還原「數量」下拉選單
