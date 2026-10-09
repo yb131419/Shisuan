@@ -1675,6 +1675,13 @@ body.v-mode #quickAddFab{display:none!important}
 #vBottom.vb-full #vfList{flex:1 1 0;min-height:160px}
 #vCard .vf-item{padding:10px 12px}
 #vCard .vf-nm{font-size:15px}
+#vBottom.vb-full #vCard{display:flex;flex-direction:column;height:100%;max-height:none}
+#vBottom.vb-full #vcF{flex:0 0 auto;max-height:none;overflow:visible}
+#vBottom.vb-full #vfList{flex:1 1 0 !important;min-height:0 !important;max-height:none !important}
+#vNpcTog{position:absolute;left:8px;top:8px;z-index:6;min-height:30px;padding:0 10px;border-radius:999px;border:1px solid rgba(232,196,104,.7);background:rgba(20,14,40,.88);color:#FFE9A8;font:700 12px "Noto Sans TC",sans-serif;cursor:pointer}
+#vNpcList{position:absolute;left:8px;top:46px;z-index:6;width:150px;max-height:55%;overflow-y:auto;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:rgba(20,14,40,.92);border:1px solid rgba(232,196,104,.5)}
+.vnpc-it{text-align:left;min-height:30px;border-radius:8px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 12.5px "Noto Sans TC",sans-serif;padding:0 8px;cursor:pointer}
+.vnpc-it:active{background:rgba(232,196,104,.3)}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
 #vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
@@ -2019,6 +2026,8 @@ body.v-mode #quickAddFab{display:none!important}
     <div id="vWrap">
       <canvas id="vCv" width="384" height="256"></canvas>
       <div id="vLbls"></div>
+      <button id="vNpcTog" type="button">📋 NPC ▴</button>
+      <div id="vNpcList"></div>
     </div>
   </div>
   <div id="vBottom">
@@ -4405,17 +4414,17 @@ const PLAYER_LOOK={skin:'#F2C9A0',hair:'#3A2A1E',cloth:'#2F7A52',pants:'#2A2A36'
 
 /* ---------- NPC：依序為 付款方式 → 購買者 → 新增品項 → 報表轉圖片 → 分享圖片 ---------- */
 const NPC=[
-  {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:5,y:14,look:L('#B5652E','#FFD9A8','hat'),
-   lines:['先決定怎麼付款，我來幫你勾選。','現金、刷卡擇一，月份可以挑。']},
   {id:'buyer',name:'購買者',role:'填寫購買者姓名',ic:'🧾',sprite:'warmup',x:8,y:14,look:L('#2E6FB0','#CFE3FA','hat'),
    lines:['購買者是誰？寫下名字就好。','名字寫清楚，報表才好認。']},
   {id:'add',name:'新增品項',role:'下拉選擇品項並添加',ic:'🛒',sprite:'market',x:5,y:17,look:L('#2E7A6A','#CFEFE3','bag'),
    lines:['選好品項和數量，一項一項加進來。','限購的品項，我會幫你看著。']},
+  {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:5,y:14,look:L('#B5652E','#FFD9A8','hat'),
+   lines:['先決定怎麼付款，我來幫你勾選。','現金、刷卡擇一，月份可以挑。']},
   {id:'export',name:'報表轉圖片',role:'把報表做成一張圖',ic:'🖼',sprite:'results',x:8,y:17,look:L('#5A4A8A','#E2D6FA','hat'),
    lines:['品項都齊了嗎？轉成圖片就能傳出去。']},
   {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:8,y:20,look:L('#7A3E2A','#E7C27A','crown'),
    lines:['圖片做好了，最後一步，分享出去。']},
-  {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:5,y:20,look:L('#8A3A3A','#F5D0C0','hat'),
+  {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
    lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
   {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:3,y:6,look:L('#F7F7F2','#E8C468','hat'),
    lines:['善念常在，步步平安。','慢慢來，不急，一步一步完成。','願這份報表順利成交。']}
@@ -4691,6 +4700,27 @@ async function runNPC(n,which){
   else if(n.id==='reset'){ walkNear(STEPS[0]); }
   else { showToast('🎉 全部完成！回到試算畫面確認報表'); }
 }
+
+/* ---------- NPC 快速列表：可隱藏，點名字即前往 ---------- */
+function buildNpcList(){
+  const box=document.getElementById('vNpcList');
+  box.innerHTML='';
+  STEPS.concat(NPC.filter(n=>n.decor)).forEach(n=>{
+    const idx=STEPS.indexOf(n);
+    const b=document.createElement('button'); b.type='button'; b.className='vnpc-it';
+    b.textContent=(idx>=0?(idx+1)+'. ':'')+n.name;
+    b.onclick=()=>{ setNpcList(false); walkNear(n); };
+    box.appendChild(b);
+  });
+}
+function setNpcList(show){
+  const box=document.getElementById('vNpcList'), tg=document.getElementById('vNpcTog');
+  if(show && !box.childElementCount) buildNpcList();
+  box.style.display=show?'flex':'none';
+  tg.textContent=show?'📋 NPC ▴':'📋 NPC ▾';
+}
+document.getElementById('vNpcTog').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
+setNpcList(true);
 /* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
 function flower(X,Y,R){
   const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
