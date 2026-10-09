@@ -1649,6 +1649,13 @@ body.v-mode #quickAddFab{display:none!important}
 #vBottom.vb-full{top:calc(env(safe-area-inset-top,0px) + 150px);max-height:none;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 #vBottom.vb-full #vCard{height:100%;display:flex;flex-direction:column;overflow:hidden}
 #vBottom.vb-full #vfList{flex:1 1 auto;min-height:0;max-height:none}
+#vBottom,#vBottom.vb-full{bottom:calc(30px + env(safe-area-inset-bottom,0px)) !important}
+#vCard{display:flex;flex-direction:column;max-height:56vh;overflow:hidden}
+#vCard>.vc-h,#vCard>.vc-t{flex:0 0 auto}
+#vcF{flex:0 1 auto;min-height:0;overflow-y:auto;max-height:34vh}
+#vCard #vfList{flex:1 1 auto;min-height:56px;max-height:150px;overflow-y:auto}
+#vBottom.vb-full #vcF{max-height:34vh}
+#vCard .vc-btns{flex:0 0 auto;margin-top:10px;padding-top:4px}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
 #vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
@@ -4343,13 +4350,13 @@ function fillOn(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h);}
 
 /* ---------- 版面資料 ---------- */
 const BLDS=[
-  {x:2, y:3, w:3,h:2, roof:'#2E6FB0', wall:'#E9E0C8', win:1},  // 資料收集的小屋
+  {x:2, y:1, w:3,h:2, roof:'#2E6FB0', wall:'#E9E0C8', win:1},  // 資料收集的小屋
   {x:9, y:6, w:3,h:2, roof:'#7A3E2A', wall:'#EADCB8', win:2},  // 大長老殿
   {x:9, y:15,w:3,h:2, roof:'#5A4A8A', wall:'#E9E0C8', win:2},  // 成品館
   {x:2, y:15,w:3,h:2, roof:'#2A67A6', wall:'#E9E0C8', win:1},  // 市場店
 ];
 const POND={x0:1,y0:11,x1:12,y1:12};
-const LOTUS={x0:2,y0:2,x1:5,y1:3};              // 河流（中間留出小橋）
+const LOTUS={x0:2,y0:3,x1:5,y1:4};              // 河流（中間留出小橋）
 const isBridge=(x,y)=>(x===6||x===7)&&y>=11&&y<=12;
 const TREES=[[5,1],[12,1],[1,8],[12,24],[4,13],[11,13]];
 const CHERRY=[[11,3],[1,21]];                    // 櫻花樹
@@ -4389,7 +4396,7 @@ const NPC=[
    lines:['品項都齊了嗎？轉成圖片就能傳出去。']},
   {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:8,y:22,look:L('#7A3E2A','#E7C27A','crown'),
    lines:['圖片做好了，最後一步，分享出去。']},
-  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:1,y:2,look:L('#F7F7F2','#E8C468','hat'),
+  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:1,y:3,look:L('#F7F7F2','#E8C468','hat'),
    lines:['善念常在，步步平安。','慢慢來，不急，一步一步完成。','願這份報表順利成交。']}
 ];
 const STEPS=NPC.filter(n=>!n.decor);
@@ -4606,7 +4613,9 @@ function addOne(){
   adjustQtySelectOptions(name);
   els.qtyInput.value=qty;
   addProduct();
+  checkHerbalNewMember(name);
   renderItemList();
+  setTimeout(renderItemList,420);
   return JSON.stringify(selectedProds)!==before;
 }
 
@@ -4992,8 +5001,8 @@ function makeCelestialBG(){
     lotus.push(rc(x*T,y*T,T,T,(x+y)%2?'#2A8EA0':'#23798C',1));
     lotus.push(rc(x*T+4,y*T+6,7,1.2,'#9EEBF2',.5));
   }
-  [[40,40],[70,44],[56,52],[86,56],[50,58]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy,4.5,2.6,'#3E9A6A',.95)); lotus.push(el(cx-1.5,cy-.5,1.2,.8,'#5CB884',.9)); });
-  [[42,36],[72,40]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy+2,4,1.6,'#F4A6C0',.95)); lotus.push(el(cx,cy-1,2.2,3,'#F8C4D6',.95)); lotus.push(el(cx,cy-2,1,1.4,'#FFF1F6',.95)); });
+  [[40,56],[70,60],[56,68],[86,72],[50,74]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy,4.5,2.6,'#3E9A6A',.95)); lotus.push(el(cx-1.5,cy-.5,1.2,.8,'#5CB884',.9)); });
+  [[42,52],[72,56]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy+2,4,1.6,'#F4A6C0',.95)); lotus.push(el(cx,cy-1,2.2,3,'#F8C4D6',.95)); lotus.push(el(cx,cy-2,1,1.4,'#FFF1F6',.95)); });
   P.push(lotus.join(''));
   const bridge=[];
   for(let y=POND.y0;y<=POND.y1;y++)for(const x of [6,7]){ bridge.push(rc(x*T,y*T,T,T,'#F2EEDF',1)); bridge.push(rc(x*T,y*T+7,T,1,'#E8C468',.9)); }
