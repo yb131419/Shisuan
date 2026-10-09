@@ -4517,18 +4517,15 @@ function hideCard(){
 
 const NPC_UI={
   reset:{
-    go:'♻️ 執行，前往下一位',
+    go:'♻️ 重置並重新登入',
     render(f){
-      f.innerHTML='<div class="vf-note">會清空目前報表的所有品項與圖片（不影響經驗值）。</div>'+
+      f.innerHTML='<div class="vf-note">會清空目前報表並返回登入畫面，需重新登入（不影響經驗值）。</div>'+
         '<div class="vf-note">目前報表：'+selectedProds.length+' 項</div>';
     },
-    run(){
-      if(!selectedProds.length){ showToast('報表已經是空的'); return true; }
-      if(!confirm('確定要清空目前報表嗎？')) return false;
-      selectedProds=[]; saveSelectedProds(); renderTable(); clearImage();
-      if(els.cashOption.checked){ els.cashOption.checked=false; els.cashOption.dispatchEvent(new Event('change')); }
-      showToast('報表已重置');
-      return true;
+    async run(){
+      closeVillage();
+      await resetReport();
+      return false;
     }
   },
   guanyin:{
