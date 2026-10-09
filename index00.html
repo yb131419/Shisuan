@@ -581,6 +581,16 @@ body{
   background:linear-gradient(145deg,#ffffff,#e8e8e8)!important;color:#000!important;
   border-color:#ffffff!important;
 }
+/* 修正：付款方式／期數／預估天數區塊（紅圈處）轉圖時不要影子：
+   關閉卡片、按鈕與其偽元素的陰影、光暈與濾鏡 */
+#captureArea.capture-mode .payment-period-card,
+#captureArea.capture-mode .payment-period-card *,
+#captureArea.capture-mode .payment-period-card *::before,
+#captureArea.capture-mode .payment-period-card *::after,
+#captureArea.capture-mode .payment-period-card::before,
+#captureArea.capture-mode .payment-period-card::after{
+  box-shadow:none!important;text-shadow:none!important;filter:none!important;
+}
 /* 修正：統計卡「總金額／總PV」轉圖後出現殘影／黑色缺角。
    根因是卡片邊框那道流動金色微光用了 CSS mask-composite 疊圖技法，
    dom-to-image 無法正確渲染這種遮罩效果，會產生錯誤的黑色殘影形狀。
