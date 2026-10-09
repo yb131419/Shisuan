@@ -4601,7 +4601,7 @@ const NPC_UI={
       prod.addEventListener('change',refresh);
       refresh();
     },
-    run(){ return addOne(); }
+    run(){ if(!selectedProds.length){ showToast('請先新增至少一個品項','warning'); return false; } return true; }
   },
   export:{
     full:true,
@@ -4618,8 +4618,8 @@ const NPC_UI={
   },
   share:{
     list:false,
-    go:'📱 分享圖片',
-    extra:{label:'🟢 安卓分享（LINE）', advance:true, async run(){
+    go:'📱 分享圖片（LINE）',
+    extra:{label:'🟢 安卓分享', advance:true, async run(){
       if(!els.previewImage.src){ showToast('請先完成報表轉圖片','warning'); return false; }
       await shareToLine();
       return true;
