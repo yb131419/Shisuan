@@ -1649,6 +1649,9 @@ body.v-mode #quickAddFab{display:none!important}
 #vBottom.vb-full{top:calc(env(safe-area-inset-top,0px) + 150px);max-height:none;bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 #vBottom.vb-full #vCard{height:100%;display:flex;flex-direction:column;overflow:hidden}
 #vBottom.vb-full #vfList{flex:1 1 auto;min-height:0;max-height:none}
+#sbHeaderMid{display:none !important}
+#sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
+#vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
 </style>
 </head>
 <body>
@@ -1680,7 +1683,7 @@ body.v-mode #quickAddFab{display:none!important}
   <div class="sb-header">
     <button id="menuFab" class="menu-btn" title="功能選單">☰</button>
     <div class="sb-header-mid" id="sbHeaderMid"></div>
-    <button class="sb-toggle-btn" id="sbVillageBtn" type="button" style="display:none">🏯 仙界</button><button class="sb-toggle-btn" id="sbToggleBtn" title="收合/展開狀態欄">
+    <button class="sb-toggle-btn" id="sbVillageBtn" type="button" style="display:none">🏯 返回仙界</button><button class="sb-toggle-btn" id="sbToggleBtn" title="收合/展開狀態欄">
       <span class="sb-toggle-label" id="sbToggleLabel">收合</span>
       <span class="chevron">▾</span>
     </button>
@@ -1980,7 +1983,7 @@ body.v-mode #quickAddFab{display:none!important}
         <div id="vName">冒險者</div>
         <div id="vTitle">見習冒險者</div>
       </div>
-      <button class="vbtn g sm" id="vBack" type="button">📜 列表</button>
+      <button class="vbtn g sm" id="vBack" type="button">📜 返回列表</button>
       <div id="vLv">Lv.1</div>
     </div>
     <div id="vXp"><div id="vXpFill"></div></div>
