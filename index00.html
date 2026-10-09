@@ -4428,7 +4428,7 @@ const NPC=[
   {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
    lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
   {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:3,y:6,look:L('#F7F7F2','#E8C468','hat'),
-   lines:['善念常在，步步平安。','慢慢來，不急，一步一步完成。','願這份報表順利成交。']}
+   lines:['嗡嘛呢叭咪吽','嗡嘛呢叭咪吽 🙏','嗡嘛呢叭咪吽']}
 ];
 const STEPS=NPC.filter(n=>!n.decor);
 const npcAt=new Map();
@@ -4532,8 +4532,8 @@ const NPC_UI={
   guanyin:{
     list:false,
     go:'🙏 合十祈福',
-    render(f){ f.innerHTML='<div class="vf-note">慈悲護佑，此處不需任何操作，安心試算即可。</div>'; },
-    run(){ showToast('願菩薩保佑，平安順利 🙏'); return false; }
+    render(f){ f.innerHTML='<div class="vf-note">嗡嘛呢叭咪吽　此處不需任何操作，安心試算即可。</div>'; },
+    run(){ showToast('嗡嘛呢叭咪吽 🙏'); return false; }
   },
   pay:{
     list:false,
@@ -4590,13 +4590,16 @@ const NPC_UI={
         '</div><div class="vf-note" id="vfNote"></div>';
       const prod=document.getElementById('vfProd'), qty=document.getElementById('vfQty'), note=document.getElementById('vfNote');
       list.forEach(p=>{ const o=document.createElement('option'); o.value=p.name; o.textContent=p.name; prod.appendChild(o); });
+      if(lastAddSel.prod && list.some(p=>p.name===lastAddSel.prod)) prod.value=lastAddSel.prod;
       const refresh=()=>{
         const max=Math.min(getMaxQtyForProduct(prod.value),99);
         qty.innerHTML='';
         for(let i=1;i<=max;i++){ const o=document.createElement('option'); o.value=String(i); o.textContent=String(i); qty.appendChild(o); }
+        if(lastAddSel.qty && Number(lastAddSel.qty)<=max) qty.value=lastAddSel.qty;
         note.textContent='限購 '+max+' 個/組｜目前報表 '+selectedProds.length+' 項';
       };
-      prod.addEventListener('change',refresh);
+      prod.addEventListener('change',()=>{ lastAddSel.prod=prod.value; lastAddSel.qty='1'; refresh(); });
+      qty.addEventListener('change',()=>{ lastAddSel.qty=qty.value; });
       refresh();
     },
     run(){ if(!selectedProds.length){ showToast('請先新增至少一個品項','warning'); return false; } return true; }
@@ -4664,7 +4667,8 @@ function renderItemList(){
   const sum=document.createElement('div'); sum.className='vf-total'; sum.textContent='合計　金額 '+tp+'　PV '+tv;
   el.appendChild(sum);
 }
-/* 「新增品項」：沿用試算原本的下拉與 addProduct() 流程 */
+/* 「新增品項」：沿用試算原本的下拉與 addProduct() 流程；記住上一次選的品項與數量 */
+let lastAddSel={prod:'',qty:'1'};
 function addOne(){
   const name=document.getElementById('vfProd').value;
   if(!name){ showToast('請先選擇品項','warning'); return false; }
