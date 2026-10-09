@@ -1656,6 +1656,16 @@ body.v-mode #quickAddFab{display:none!important}
 #vCard #vfList{flex:1 1 auto;min-height:56px;max-height:150px;overflow-y:auto}
 #vBottom.vb-full #vcF{max-height:34vh}
 #vCard .vc-btns{flex:0 0 auto;margin-top:10px;padding-top:4px}
+#vBottom.vb-full #vCard{max-height:none;height:100%}
+#vBottom.vb-full #vcF{flex:0 0 auto;max-height:none;overflow:visible}
+#vCard .vf-item{display:block;padding:8px 10px}
+.vf-top{display:flex;align-items:center;gap:8px}
+.vf-nm{flex:1;min-width:0;font:700 14px/1.35 "Noto Sans TC",sans-serif;color:#F3EBD3;word-break:break-all}
+.vf-del{flex:0 0 auto;min-height:30px;border-radius:999px;border:1px solid rgba(255,140,140,.8);background:rgba(255,82,82,.2);color:#FFB4B4;padding:0 12px;font:700 12px "Noto Sans TC",sans-serif}
+.vf-bot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.vf-qs{min-height:34px;border-radius:10px;border:1px solid rgba(232,196,104,.5);background:#1A1436;color:#F6E3B4;font:700 13px "Noto Sans TC",sans-serif;padding:0 6px}
+.vf-m{font:700 12.5px "Noto Sans TC",sans-serif;color:#FFE9A8}
+.vf-total{padding:10px 12px;font:900 14px "Noto Sans TC",sans-serif;color:#FFE9A8;border-top:1px solid rgba(232,196,104,.45);background:rgba(232,196,104,.1)}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
 #vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
@@ -4362,7 +4372,7 @@ const TREES=[[5,1],[12,1],[1,8],[12,24],[4,13],[11,13]];
 const CHERRY=[[11,3],[1,21]];                    // 櫻花樹
 const ROCKS=[[4,9],[12,18],[1,13]];
 const BUSHES=[[1,17],[11,18],[4,24],[12,8]];
-const MUSH=[[3,6],[4,23]];
+const MUSH=[[1,6],[4,23]];
 const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
 const CROPS=[[2,19]];                            // 小菜園（3×2）
 const LANTERNS=[[5,9],[8,13],[5,22]];
@@ -4386,17 +4396,19 @@ const PLAYER_LOOK={skin:'#F2C9A0',hair:'#3A2A1E',cloth:'#2F7A52',pants:'#2A2A36'
 
 /* ---------- NPC：依序為 付款方式 → 購買者 → 新增品項 → 報表轉圖片 → 分享圖片 ---------- */
 const NPC=[
-  {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:8,y:8,look:L('#B5652E','#FFD9A8','hat'),
+  {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:5,y:15,look:L('#B5652E','#FFD9A8','hat'),
    lines:['先決定怎麼付款，我來幫你勾選。','現金、刷卡擇一，月份可以挑。']},
-  {id:'buyer',name:'購買者',role:'填寫購買者姓名',ic:'🧾',sprite:'warmup',x:5,y:11,look:L('#2E6FB0','#CFE3FA','hat'),
+  {id:'buyer',name:'購買者',role:'填寫購買者姓名',ic:'🧾',sprite:'warmup',x:8,y:15,look:L('#2E6FB0','#CFE3FA','hat'),
    lines:['購買者是誰？寫下名字就好。','名字寫清楚，報表才好認。']},
-  {id:'add',name:'新增品項',role:'下拉選擇品項並添加',ic:'🛒',sprite:'market',x:8,y:15,look:L('#2E7A6A','#CFEFE3','bag'),
+  {id:'add',name:'新增品項',role:'下拉選擇品項並添加',ic:'🛒',sprite:'market',x:5,y:17,look:L('#2E7A6A','#CFEFE3','bag'),
    lines:['選好品項和數量，一項一項加進來。','限購的品項，我會幫你看著。']},
-  {id:'export',name:'報表轉圖片',role:'把報表做成一張圖',ic:'🖼',sprite:'results',x:5,y:18,look:L('#5A4A8A','#E2D6FA','hat'),
+  {id:'export',name:'報表轉圖片',role:'把報表做成一張圖',ic:'🖼',sprite:'results',x:8,y:17,look:L('#5A4A8A','#E2D6FA','hat'),
    lines:['品項都齊了嗎？轉成圖片就能傳出去。']},
-  {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:8,y:22,look:L('#7A3E2A','#E7C27A','crown'),
+  {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:8,y:19,look:L('#7A3E2A','#E7C27A','crown'),
    lines:['圖片做好了，最後一步，分享出去。']},
-  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:1,y:3,look:L('#F7F7F2','#E8C468','hat'),
+  {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:5,y:19,look:L('#8A3A3A','#F5D0C0','hat'),
+   lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
+  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:3,y:6,look:L('#F7F7F2','#E8C468','hat'),
    lines:['善念常在，步步平安。','慢慢來，不急，一步一步完成。','願這份報表順利成交。']}
 ];
 const STEPS=NPC.filter(n=>!n.decor);
@@ -4466,8 +4478,8 @@ function openCard(n){
     '<div id="vcF"></div>'+
     (ui.list===false?'':'<div class="vf-lb">目前報表品項</div><div id="vfList"></div>')+
     '<div class="vc-btns" id="vcB">'+
-      '<button class="vbtn" id="vcGo" type="button">'+ui.go+'</button>'+
       (ui.extra?'<button class="vbtn g" id="vcEx" type="button">'+ui.extra.label+'</button>':'')+
+      '<button class="vbtn" id="vcGo" type="button">'+ui.go+'</button>'+
     '</div>';
   c.hidden=false;
   document.getElementById('vBottom').classList.toggle('vb-full', !!ui.full);
@@ -4486,6 +4498,21 @@ function hideCard(){
 }
 
 const NPC_UI={
+  reset:{
+    go:'♻️ 執行，前往下一位',
+    render(f){
+      f.innerHTML='<div class="vf-note">會清空目前報表的所有品項與圖片（不影響經驗值）。</div>'+
+        '<div class="vf-note">目前報表：'+selectedProds.length+' 項</div>';
+    },
+    run(){
+      if(!selectedProds.length){ showToast('報表已經是空的'); return true; }
+      if(!confirm('確定要清空目前報表嗎？')) return false;
+      selectedProds=[]; saveSelectedProds(); renderTable(); clearImage();
+      if(els.cashOption.checked){ els.cashOption.checked=false; els.cashOption.dispatchEvent(new Event('change')); }
+      showToast('報表已重置');
+      return true;
+    }
+  },
   guanyin:{
     list:false,
     go:'🙏 合十祈福',
@@ -4596,12 +4623,29 @@ function renderItemList(){
   const el=document.getElementById('vfList'); if(!el) return;
   el.innerHTML='';
   if(!selectedProds.length){ const d=document.createElement('div'); d.className='vf-note'; d.textContent='報表目前沒有品項'; el.appendChild(d); return; }
-  selectedProds.forEach(p=>{
+  let tp=0, tv=0;
+  selectedProds.forEach((p,i)=>{
+    const q=Number(p.qty)||0;
+    const sp=(Number(p.price)||0)*q, sv=(Number(p.pv)||0)*q;
+    tp+=sp; tv+=sv;
     const r=document.createElement('div'); r.className='vf-item';
-    const a=document.createElement('span'); a.textContent=p.name;
-    const b=document.createElement('span'); b.textContent='× '+p.qty;
-    r.appendChild(a); r.appendChild(b); el.appendChild(r);
+    const top=document.createElement('div'); top.className='vf-top';
+    const nm=document.createElement('span'); nm.className='vf-nm'; nm.textContent=p.name;
+    const del=document.createElement('button'); del.type='button'; del.className='vf-del'; del.textContent='刪除';
+    del.onclick=async()=>{ const fake=document.createElement('button'); fake.dataset.index=String(i); await handleDelete(fake); renderItemList(); };
+    top.appendChild(nm); top.appendChild(del);
+    const bot=document.createElement('div'); bot.className='vf-bot';
+    const sel=document.createElement('select'); sel.className='vf-qs';
+    const max=getMaxQtyForProduct(p.name);
+    for(let k=1;k<=max;k++){ const o=document.createElement('option'); o.value=String(k); o.textContent='數量 '+k; if(k===q) o.selected=true; sel.appendChild(o); }
+    sel.onchange=()=>{ selectedProds[i].qty=parseInt(sel.value,10); saveSelectedProds(); renderTable(); if(els.cashOption.checked) handleCashGift(); renderItemList(); };
+    const money=document.createElement('span'); money.className='vf-m'; money.textContent='金額 '+sp;
+    const pvs=document.createElement('span'); pvs.className='vf-m'; pvs.textContent='PV '+sv;
+    bot.appendChild(sel); bot.appendChild(money); bot.appendChild(pvs);
+    r.appendChild(top); r.appendChild(bot); el.appendChild(r);
   });
+  const sum=document.createElement('div'); sum.className='vf-total'; sum.textContent='合計　金額 '+tp+'　PV '+tv;
+  el.appendChild(sum);
 }
 /* 「新增品項」：沿用試算原本的下拉與 addProduct() 流程 */
 function addOne(){
