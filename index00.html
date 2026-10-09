@@ -3456,6 +3456,9 @@ async function exportToImage(){
   const periodOriginalDisplay = periodOptionsRow.style.display;
   const hasPeriodValue = document.getElementById('periodInput').value !== '';
   const hasCustomDaysValue = document.getElementById('customDays').value.trim() !== '';
+  // 手動填寫了使用月份或使用天數時，圖片中隱藏「預估可使用天數」
+  const estDaysRow = document.querySelector('.estimated-days-row');
+  const estDaysOriginalDisplay = estDaysRow ? estDaysRow.style.display : '';
   let qtySwaps = [];
   let opCells = [];
   let originalStyles = null;
@@ -3467,6 +3470,9 @@ async function exportToImage(){
     // 新增：兩個都沒填才隱藏，只要填了任一個就照常顯示在圖片裡
     if(!hasPeriodValue && !hasCustomDaysValue){
       periodOptionsRow.style.display = 'none';
+    }
+    if((hasPeriodValue || hasCustomDaysValue) && estDaysRow){
+      estDaysRow.style.display = 'none';
     }
 
     // 清除所有動畫殘留，防止截圖重複
@@ -3589,6 +3595,7 @@ async function exportToImage(){
     // 新增：截圖後恢復「可使用月份／自訂天數」原本的顯示狀態，
     // 不管有沒有填，畫面上都要照原樣繼續能填寫
     periodOptionsRow.style.display = periodOriginalDisplay;
+    if(estDaysRow) estDaysRow.style.display = estDaysOriginalDisplay;
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
     // 修正③：截圖完成後還原「數量」下拉選單
