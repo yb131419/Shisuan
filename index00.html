@@ -1439,6 +1439,185 @@ body{
 .mc-cta-label{font-size:12.5px;color:#a89b7d;font-weight:700;flex:0 0 auto;}
 .mc-cta-row .support-btn{margin-left:0;flex:0 0 auto;}
 
+
+/* 列表模式時，原本的 .app 不顯示（由村莊接管畫面） */
+body.v-mode .app{visibility:hidden}
+
+/* 切換按鈕（村莊 ⇄ 列表）：列表時放在右上角標題列，村莊時放在村莊標題列 */
+#vToggle{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border-radius:999px;
+  border:1px solid rgba(243,217,163,.5);background:linear-gradient(160deg,rgba(243,217,163,.2),rgba(243,217,163,.05));
+  color:#F6E3B4;font:800 13px/1 "Noto Serif TC","Songti TC",serif;letter-spacing:.5px;cursor:pointer;flex:0 0 auto;
+  white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .15s}
+#vToggle:active{transform:scale(.94)}
+
+/* 村莊外框 */
+#village{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,500px);height:100%;z-index:120;
+  display:none;flex-direction:column;overflow:hidden;color:#F3EBD3;
+  background:radial-gradient(120% 70% at 50% 0%,#1F5139 0%,#0E2A1E 55%,#061510 100%)}
+body.v-mode #village{display:flex}
+#vFlash{position:absolute;inset:0;pointer-events:none;z-index:9;opacity:0;
+  background:radial-gradient(circle,rgba(255,236,170,.55),transparent 70%)}
+#vFlash.on{animation:vFlash .9s ease-out}
+@keyframes vFlash{0%{opacity:1}100%{opacity:0}}
+
+/* 標題列與角色資訊 */
+#vHead{position:relative;z-index:3;display:flex;align-items:center;gap:10px;padding:14px 14px 10px}
+#vHead::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,#E7C27A,transparent)}
+.vAv{width:44px;height:44px;border-radius:50%;flex:0 0 auto;border:2px solid #E7C27A;background:#0C2219;overflow:hidden;
+  display:grid;place-items:center;font-size:20px;box-shadow:0 0 0 3px rgba(231,194,122,.15)}
+.vAv img{width:100%;height:100%;object-fit:cover}
+#vInfo{flex:1;min-width:0}
+#vName{font:900 16px/1.2 "Noto Serif TC","Songti TC",serif;color:#F6E3B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#vTitle{font-size:11.5px;letter-spacing:1.5px;color:rgba(243,217,163,.7);margin-top:2px}
+#vLv{font:800 22px/1 "Courier New",monospace;color:#F3D9A3;text-shadow:0 2px 0 #000}
+#vXp{position:relative;z-index:3;margin:0 14px 8px;height:10px;border-radius:99px;background:rgba(0,0,0,.45);
+  box-shadow:inset 0 0 0 1px rgba(231,194,122,.35);overflow:hidden}
+#vXpFill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#8A6428,#E7C27A,#FFF1CC,#E7C27A);
+  box-shadow:0 0 12px rgba(231,194,122,.6);transition:width .6s}
+#vMeta{position:relative;z-index:3;display:flex;justify-content:space-between;margin:0 16px 10px;font-size:12px;color:rgba(243,236,220,.72)}
+
+/* 地圖 */
+#vMapBox{position:relative;z-index:2;padding:0 8px}
+#vWrap{position:relative;width:100%;aspect-ratio:3/2;border-radius:16px;overflow:hidden;
+  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 2px rgba(231,194,122,.45)}
+#vCv{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges;
+  cursor:pointer;touch-action:manipulation}
+#vLbls{position:absolute;inset:0;pointer-events:none}
+.vLbl{position:absolute;transform:translate(-50%,-100%);padding:3px 6px;border-radius:6px;white-space:nowrap;
+  font:700 10.5px/1.2 "Noto Sans TC","PingFang TC",sans-serif;color:#F6E3B4;background:rgba(6,20,14,.84);
+  border:1px solid rgba(231,194,122,.55);box-shadow:0 2px 0 #000;transition:background .2s,color .2s}
+.vLbl.hot{background:#E7C27A;color:#0B1A12}
+
+/* 底部：對話卡與快速清單 */
+#vBottom{position:relative;z-index:3;flex:1;min-height:0;overflow-y:auto;padding:12px 14px calc(16px + env(safe-area-inset-bottom,0px))}
+#vCard{background:linear-gradient(170deg,#173D2D,#0B2119);border:1.5px solid rgba(231,194,122,.5);border-radius:18px;
+  padding:14px;box-shadow:0 14px 30px rgba(0,0,0,.35);animation:vIn .35s ease both}
+#vCard[hidden],#vGridBox[hidden]{display:none}
+@keyframes vIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.vc-h{display:flex;align-items:center;gap:10px}
+.vc-ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;flex:0 0 auto;border:1px solid}
+.vc-n{font:900 17px/1.2 "Noto Serif TC","Songti TC",serif;color:#F6E3B4}
+.vc-r{font-size:12px;color:rgba(243,236,220,.65);margin-top:3px}
+.vc-x{margin-left:auto;flex:0 0 auto}
+.vc-t{margin:12px 0;font-size:14px;line-height:1.7;color:#EFE9D6;background:rgba(0,0,0,.25);border-radius:12px;padding:10px 12px}
+.vc-btns{display:flex;flex-wrap:wrap;gap:8px}
+.vbtn{flex:1 1 auto;min-height:46px;padding:0 14px;border-radius:999px;border:1px solid rgba(231,194,122,.5);
+  background:linear-gradient(170deg,#FBE9B9,#E7C27A 55%,#C79A4B);color:#14201A;
+  font:800 14px/1 "Noto Serif TC","Songti TC",serif;letter-spacing:.5px;box-shadow:0 4px 0 #7A5520;cursor:pointer;transition:transform .12s}
+.vbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #7A5520}
+.vbtn.g{background:rgba(243,217,163,.08);color:#F6E3B4;border-color:rgba(243,217,163,.3);box-shadow:none}
+.vbtn.sm{flex:0 0 auto;min-height:36px;padding:0 12px}
+#vHint{font-size:12.5px;color:rgba(243,236,220,.72);text-align:center;margin:0 0 10px;letter-spacing:.3px}
+#vGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vchip{display:flex;align-items:center;gap:6px;min-height:44px;padding:8px 10px;border-radius:14px;
+  border:1px solid rgba(231,194,122,.3);background:rgba(255,255,255,.04);color:#F3EBD3;
+  font:700 13px/1.2 "Noto Sans TC",sans-serif;cursor:pointer;text-align:left;transition:transform .12s,background .2s}
+.vchip span{font-size:17px}
+.vchip:active{transform:scale(.96);background:rgba(231,194,122,.16)}
+
+/* ===== 全螢幕村莊（覆寫前面的版面） ===== */
+#village{left:0;transform:none;width:100%;max-width:none;height:100%;background:#0E2A1E}
+#vHead{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 14px;
+  background:linear-gradient(180deg,rgba(4,16,11,.82),rgba(4,16,11,0));pointer-events:none}
+#vHead > *{pointer-events:auto}
+#vHead::after{display:none}
+#vXp{position:absolute;top:calc(env(safe-area-inset-top,0px) + 74px);left:14px;right:14px;margin:0;z-index:4;pointer-events:none}
+#vMeta{position:absolute;top:calc(env(safe-area-inset-top,0px) + 92px);left:0;right:0;margin:0 16px;z-index:4;pointer-events:none}
+#vMapBox{position:absolute;inset:0;padding:0;z-index:1}
+#vWrap{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none;overflow:hidden}
+#vCv{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer}
+#vLbls{display:none}
+#vGridBox,#vHint{display:none !important}
+#vBottom{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));top:auto;flex:none;
+  max-height:58%;overflow-y:auto;padding:0;background:none;z-index:5;pointer-events:none}
+#vCard{pointer-events:auto}
+
+/* 覆蓋層：原本的頁面疊在村莊上方，村莊仍在背後 */
+body.v-mode.v-sheet .app{visibility:visible !important;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);
+  width:min(100vw,500px);height:100%;z-index:125;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg,#F5F3EC)}
+#vSheetBack{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64% + 10px);z-index:140;
+  min-height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(243,217,163,.6);
+  background:linear-gradient(170deg,#173D2D,#0B2119);color:#F6E3B4;font:800 14px/1 "Noto Serif TC","Songti TC",serif;
+  box-shadow:0 6px 18px rgba(0,0,0,.4);cursor:pointer}
+body.v-sheet #vSheetBack{display:block}
+
+/* 村莊下方面板：頁面功能在村莊畫面中開啟，地圖仍可見 */
+body.v-mode.v-sheet .app{visibility:visible !important;position:fixed;top:auto;bottom:0;left:50%;transform:translateX(-50%);
+  width:min(100vw,500px);height:62%;z-index:125;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  border-radius:20px 20px 0 0;box-shadow:0 -12px 32px rgba(0,0,0,.45);background:var(--bg,#F5F3EC)}
+#vStatus{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 116px);z-index:6;
+  font:700 12.5px/1.4 "Noto Sans TC","PingFang TC",sans-serif;color:#F6E3B4;background:rgba(6,20,14,.82);
+  border:1px solid rgba(231,194,122,.5);border-radius:10px;padding:6px 10px;pointer-events:none}
+#vStatus[hidden]{display:none}
+
+/* 對話下拉選單：樣式與列表項目一致 */
+.vdd-toggle{width:100%;min-height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+  border-radius:14px;border:1px solid rgba(231,194,122,.5);background:linear-gradient(170deg,#FBE9B9,#E7C27A 55%,#C79A4B);
+  color:#14201A;font:800 14.5px/1 "Noto Serif TC","Songti TC",serif;cursor:pointer;box-shadow:0 3px 0 #7A5520}
+.vdd-toggle:active{transform:translateY(2px);box-shadow:0 1px 0 #7A5520}
+.vdd-n{font-size:12px;font-weight:700;opacity:.7}
+.vdd-list{margin-top:8px;border:1px solid rgba(231,194,122,.35);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.28)}
+.vdd-item{display:block;width:100%;text-align:left;min-height:46px;padding:12px 14px;border:0;border-bottom:1px solid rgba(231,194,122,.18);
+  background:transparent;color:#F3EBD3;font:700 14px/1.3 "Noto Sans TC","PingFang TC",sans-serif;cursor:pointer}
+.vdd-item:last-child{border-bottom:0}
+.vdd-item:active{background:rgba(231,194,122,.16)}
+
+.vdd-head{font-size:12.5px;color:rgba(243,236,220,.72);margin:12px 2px 8px}
+.vdd-btns{display:flex;gap:8px;margin-top:12px}
+.vdd-btns .vbtn{flex:1}
+
+/* 水彩風介面：紙張色、褐色字 */
+#village{background:#F1EBD6;color:#4A3626}
+#vHead{background:linear-gradient(180deg,rgba(241,235,214,.96),rgba(241,235,214,0))}
+#vHead::after{background:linear-gradient(90deg,transparent,#B99262,transparent)}
+#vName{color:#3E2A18} #vTitle{color:rgba(74,54,38,.75)} #vLv{color:#6A4A2A;text-shadow:none}
+.vAv{background:#FBF6E9;border-color:#B99262}
+#vXp{background:rgba(120,90,50,.15);box-shadow:inset 0 0 0 1px rgba(185,146,98,.5)}
+#vXpFill{background:linear-gradient(90deg,#B99262,#D9B77E,#E9CFA0)}
+#vMeta{color:rgba(74,54,38,.8)}
+#vWrap{box-shadow:0 10px 26px rgba(90,70,40,.25),0 0 0 2px rgba(185,146,98,.5)}
+#vCard{background:linear-gradient(170deg,#FFFBF0,#F6EDD8);border-color:rgba(185,146,98,.7);color:#4A3626;box-shadow:0 12px 26px rgba(90,70,40,.22)}
+.vc-n{color:#3E2A18} .vc-r{color:rgba(74,54,38,.7)}
+.vc-t{background:#F3EAD3;color:#4A3626}
+.vbtn{background:linear-gradient(170deg,#F5E6C2,#E2C894 55%,#CFB07A);color:#3E2A18;border-color:rgba(160,120,70,.6);box-shadow:0 4px 0 #A8854F}
+.vbtn:active{box-shadow:0 2px 0 #A8854F}
+.vbtn.g{background:rgba(185,146,98,.12);color:#4A3626;border-color:rgba(160,120,70,.45);box-shadow:none}
+.vdd-toggle,.vdd-btns .vbtn{color:#3E2A18}
+.vdd-head{color:rgba(74,54,38,.75)}
+.vdd-list{background:#FBF6E9;border-color:rgba(185,146,98,.55)}
+.vdd-item{color:#4A3626;border-bottom-color:rgba(185,146,98,.3)}
+.vdd-item:active{background:rgba(185,146,98,.18)}
+#vStatus{color:#4A3626;background:rgba(251,246,233,.92);border-color:rgba(185,146,98,.6)}
+#vSheetBack{background:linear-gradient(170deg,#FFFBF0,#F3E7CC);color:#4A3626;border-color:rgba(185,146,98,.7)}
+body.v-mode.v-sheet .app{background:#F6F0DF}
+
+/* 標題區：紅圈範圍。實體區塊，地圖只使用它下方的畫面 */
+#vTop{position:absolute;top:0;left:0;right:0;z-index:7;background:#F1EBD6;padding-top:env(safe-area-inset-top,0px);
+  box-shadow:0 3px 10px rgba(90,70,40,.2);border-bottom:1px solid rgba(185,146,98,.55)}
+#vTop #vHead{position:relative;top:auto;left:auto;right:auto;background:none;padding:12px 14px 6px;pointer-events:auto}
+#vTop #vHead::after{display:none}
+#vTop #vXp{position:relative;top:auto;left:auto;right:auto;margin:0 14px 8px;z-index:auto}
+#vTop #vMeta{position:relative;top:auto;left:auto;right:auto;margin:0 16px 8px;z-index:auto}
+#vTop #vStatus{position:relative;top:auto;left:auto;right:auto;margin:0 14px 10px;z-index:auto}
+#vToggle{background:linear-gradient(170deg,#FFFBF0,#F3E7CC);color:#4A3626;border-color:rgba(160,120,70,.6);
+  box-shadow:0 3px 8px rgba(90,70,40,.2);min-height:38px;padding:0 12px;font-size:12.5px}
+#vTop #vLv{margin-left:auto}
+
+#village{z-index:1500}
+body.v-mode #quickAddFab{display:none!important}
+#vBack{margin-left:auto;flex:0 0 auto;min-height:36px;padding:0 12px;font-size:12.5px;white-space:nowrap}
+#vTop #vLv{margin-left:8px}
+.vbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.vf-lb{font:700 12.5px/1.4 "Noto Sans TC","PingFang TC",sans-serif;color:#6A4A2A;margin:10px 0 6px}
+.vf-row{display:flex;gap:8px}
+.vf-chk{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:12px;
+  border:1px solid rgba(160,120,70,.5);background:#FBF6E9;color:#4A3626;font:700 14px "Noto Sans TC",sans-serif;cursor:pointer}
+.vf-chk input{width:18px;height:18px;accent-color:#B99262}
+.vf-sel,.vf-in{width:100%;min-height:44px;border-radius:12px;border:1px solid rgba(160,120,70,.6);background:#FFFDF6;
+  color:#4A3626;font:700 15px "Noto Sans TC",sans-serif;padding:0 12px}
+.vf-note{font-size:12.5px;color:rgba(74,54,38,.78);margin-top:8px;line-height:1.6}
+.vf-prev{width:100%;border-radius:10px;border:1px solid rgba(160,120,70,.5);margin-top:8px}
 </style>
 </head>
 <body>
@@ -1514,6 +1693,7 @@ body{
   <button class="dr-item" id="menuGuide">
     <span class="ic gold">❓</span>使用導覽
   </button>
+  <button class="dr-item" id="menuVillage"><span class="ic gold">🏘</span>水彩村莊</button>
   <a class="dr-item" href="https://liff.line.me/2007434020-Ovz5apjn" target="_blank" rel="noopener">
     <span class="ic gold">💰</span>產品價錢
   </a>
@@ -1760,6 +1940,32 @@ body{
   </div>
 </div>
 
+<div id="village" aria-label="水彩村莊">
+  <div id="vFlash"></div>
+  <div id="vTop">
+    <div id="vHead">
+      <div class="vAv" id="vAv"><span>👤</span></div>
+      <div id="vInfo">
+        <div id="vName">冒險者</div>
+        <div id="vTitle">見習冒險者</div>
+      </div>
+      <button class="vbtn g sm" id="vBack" type="button">✕ 返回試算</button>
+      <div id="vLv">Lv.1</div>
+    </div>
+    <div id="vXp"><div id="vXpFill"></div></div>
+    <div id="vMeta"><span id="vCount">已完成 0 次</span><span id="vNext"></span></div>
+  </div>
+  <div id="vMapBox">
+    <div id="vWrap">
+      <canvas id="vCv" width="384" height="256"></canvas>
+      <div id="vLbls"></div>
+    </div>
+  </div>
+  <div id="vBottom">
+    <div id="vCard" hidden></div>
+    <div id="vGridBox" hidden><div id="vHint"></div><div id="vGrid"></div></div>
+  </div>
+</div>
 <div class="spacer"></div>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
@@ -4067,6 +4273,845 @@ async function initApp() {
     showError(`應用初始化失敗：${error.message||'未知錯誤'}`);
   }
 }
+</script>
+<script>
+(function(){
+'use strict';
+/* =========================================================
+   智囊村莊 · 像素村（整合版）
+   村莊只是入口：所有功能都呼叫原本的函式（openDept、
+   openCollector、openCards、openLibrary、openResults、
+   openView、runAllDepartments），行為與列表模式完全一致。
+   升級以「成品數量」為準：每則圖文或短影音成品 +1 點。
+   ========================================================= */
+
+const VW=14, VH=26, T=16, W=VW*T, H=VH*T;
+const cv=document.getElementById('vCv');
+const g=cv.getContext('2d'); g.imageSmoothingEnabled=false;
+const CAM={x:0,y:0,sw:W,sh:H,Z:1,dpr:1,cw:W,ch:H};
+function fit(){
+  const dpr=Math.min(window.devicePixelRatio||1,3);
+  const cw=window.innerWidth, ch=window.innerHeight;
+  const topEl=document.getElementById('vTop');
+  CAM.head=(topEl && topEl.offsetHeight) || 150;
+  cv.style.width=cw+'px'; cv.style.height=ch+'px';
+  cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr);
+  CAM.Z=Math.max(cw/W, ch/H);
+  CAM.sw=cw/CAM.Z; CAM.sh=(ch-CAM.head)/CAM.Z;
+  CAM.dpr=dpr; CAM.cw=cw; CAM.ch=ch;
+}
+const bgC=document.createElement('canvas'); bgC.width=W; bgC.height=H;
+const b=bgC.getContext('2d'); b.imageSmoothingEnabled=false;
+
+const key=(x,y)=>x+','+y;
+function mulberry(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function fillOn(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h);}
+
+/* ---------- 版面資料 ---------- */
+const BLDS=[
+  {x:2, y:3, w:3,h:2, roof:'#2E6FB0', wall:'#E9E0C8', win:1},  // 資料收集的小屋
+  {x:9, y:6, w:3,h:2, roof:'#7A3E2A', wall:'#EADCB8', win:2},  // 大長老殿
+  {x:9, y:15,w:3,h:2, roof:'#5A4A8A', wall:'#E9E0C8', win:2},  // 成品館
+  {x:2, y:15,w:3,h:2, roof:'#2A67A6', wall:'#E9E0C8', win:1},  // 市場店
+];
+const POND={x0:1,y0:11,x1:12,y1:12};              // 河流（中間留出小橋）
+const isBridge=(x,y)=>(x===6||x===7)&&y>=11&&y<=12;
+const TREES=[[5,1],[12,1],[1,8],[12,24],[4,13],[11,13]];
+const CHERRY=[[11,3],[1,21]];                    // 櫻花樹
+const ROCKS=[[4,9],[12,18],[1,13]];
+const BUSHES=[[1,17],[11,18],[4,24],[12,8]];
+const MUSH=[[3,6],[4,23]];
+const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
+const CROPS=[[2,19]];                            // 小菜園（3×2）
+const LANTERNS=[[5,9],[8,13],[5,22]];
+const PAVILION={x:9,y:21};                       // 涼亭（暖身）
+const isPath=(x,y)=>((x===6||x===7)&&y>=1&&y<=24)||(y===13&&x>=1&&x<=12);
+
+const BLK=new Set();
+for(let x=0;x<VW;x++){BLK.add(key(x,0));BLK.add(key(x,VH-1));}
+for(let y=0;y<VH;y++){BLK.add(key(0,y));BLK.add(key(VW-1,y));}
+BLDS.forEach(d=>{for(let yy=0;yy<d.h;yy++)for(let xx=0;xx<d.w;xx++)BLK.add(key(d.x+xx,d.y+yy));});
+for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){ if(!isBridge(x,y)) BLK.add(key(x,y)); }
+TREES.concat(CHERRY,ROCKS,BUSHES).forEach(([x,y])=>BLK.add(key(x,y)));
+BLK.add(key(PAVILION.x,PAVILION.y)); BLK.add(key(PAVILION.x+1,PAVILION.y));
+
+/* ---------- 角色外觀 ---------- */
+function L(cloth,acc,kind,hair,beard){
+  return {skin:'#F2C9A0',hair:hair||'#3A2A1E',cloth,pants:'#2A2A36',shoe:'#1A1210',acc,kind:kind||'hat',beard:!!beard,line:'#0B1A12'};
+}
+const PLAYER_LOOK={skin:'#F2C9A0',hair:'#3A2A1E',cloth:'#2F7A52',pants:'#2A2A36',shoe:'#1A1210',acc:'#E7C27A',kind:'bag',beard:false,line:'#0B1A12'};
+
+/* ---------- NPC：依序為 付款方式 → 購買者 → 新增品項 → 報表轉圖片 → 分享圖片 ---------- */
+const NPC=[
+  {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:8,y:8,look:L('#B5652E','#FFD9A8','hat'),
+   lines:['先決定怎麼付款，我來幫你勾選。','現金、刷卡擇一，月份可以挑。']},
+  {id:'buyer',name:'購買者',role:'填寫購買者姓名',ic:'🧾',sprite:'warmup',x:5,y:11,look:L('#2E6FB0','#CFE3FA','hat'),
+   lines:['購買者是誰？寫下名字就好。','名字寫清楚，報表才好認。']},
+  {id:'add',name:'新增品項',role:'下拉選擇品項並添加',ic:'🛒',sprite:'market',x:8,y:15,look:L('#2E7A6A','#CFEFE3','bag'),
+   lines:['選好品項和數量，一項一項加進來。','限購的品項，我會幫你看著。']},
+  {id:'export',name:'報表轉圖片',role:'把報表做成一張圖',ic:'🖼',sprite:'results',x:5,y:18,look:L('#5A4A8A','#E2D6FA','hat'),
+   lines:['品項都齊了嗎？轉成圖片就能傳出去。']},
+  {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:8,y:22,look:L('#7A3E2A','#E7C27A','crown'),
+   lines:['圖片做好了，最後一步，分享出去。']}
+];
+const npcAt=new Map();
+NPC.forEach(n=>npcAt.set(key(n.x,n.y),n));
+NPC.forEach(n=>BLK.has(key(n.x,n.y)) && console.warn('NPC 位置被障礙佔用：',n.name));
+
+/* ---------- 開啟／關閉村莊（由試算的 ☰ 選單進入） ---------- */
+function openVillage(){
+  if(!authStatus){ showToast('請先登入','warning'); return; }
+  document.body.classList.add('v-mode');
+  fit();
+  renderVillage();
+  window.scrollTo(0,0);
+}
+function closeVillage(){
+  hideCard();
+  document.body.classList.remove('v-mode');
+}
+document.getElementById('vBack').addEventListener('click',closeVillage);
+
+/* ---------- 等級（以完成的步驟次數計算） ---------- */
+function levelOf(p){ let lv=1, need=3; while(p>=need){ p-=need; lv++; need=2+lv; } return {lv:lv, cur:p, need:need}; }
+const TITLES=['見習冒險者','初階軍師','中階謀士','高階智囊','名家軍師','大師軍師'];
+function vzFlash(){ const f=document.getElementById('vFlash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+function renderVillage(){
+  const pts=parseInt(localStorage.getItem('vz_total'),10)||0;
+  const L2=levelOf(pts);
+  document.getElementById('vLv').textContent='Lv.'+L2.lv;
+  document.getElementById('vTitle').textContent=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
+  document.getElementById('vName').textContent=(userInfo&&userInfo.displayName)||'冒險者';
+  document.getElementById('vXpFill').style.width=(L2.cur/L2.need*100).toFixed(1)+'%';
+  document.getElementById('vCount').textContent='已完成 '+pts+' 次';
+  document.getElementById('vNext').textContent='距 Lv.'+(L2.lv+1)+' 還需 '+(L2.need-L2.cur)+' 次';
+  const av=document.getElementById('vAv');
+  const pic=(userInfo&&userInfo.pictureUrl)||'';
+  if(pic && av.dataset.pic!==pic){ av.dataset.pic=pic; av.innerHTML='<img src="'+pic+'" alt="">'; }
+  else if(!pic && av.dataset.pic!=='none'){ av.dataset.pic='none'; av.innerHTML='<span>👤</span>'; }
+  const prev=parseInt(localStorage.getItem('vz_lv'),10)||1;
+  if(L2.lv>prev){ showToast('🎉 升級！Lv.'+L2.lv+'　'+TITLES[Math.min(L2.lv-1,TITLES.length-1)]); vzFlash(); }
+  localStorage.setItem('vz_lv',String(L2.lv));
+}
+function markDone(){
+  localStorage.setItem('vz_total', String((parseInt(localStorage.getItem('vz_total'),10)||0)+1));
+  renderVillage();
+}
+
+/* ---------- 對話卡：每個 NPC 的表單與執行 ---------- */
+let curN=null;
+const CN=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+function setBtnsDisabled(v){ document.querySelectorAll('#vcB button').forEach(b=>{ b.disabled=v; }); }
+function openCard(n){
+  curN=n;
+  const ui=NPC_UI[n.id];
+  const idx=NPC.indexOf(n);
+  const c=document.getElementById('vCard');
+  c.innerHTML=
+    '<div class="vc-h">'+
+      '<div class="vc-ic" style="background:'+n.look.cloth+'33;border-color:'+n.look.cloth+'">'+n.ic+'</div>'+
+      '<div><div class="vc-n">'+n.name+'</div><div class="vc-r">第 '+(idx+1)+' 步，共 '+NPC.length+' 步・'+n.role+'</div></div>'+
+      '<button class="vbtn g sm vc-x" id="vcX" type="button">✕</button>'+
+    '</div>'+
+    '<div class="vc-t">'+n.lines[Math.floor(Math.random()*n.lines.length)]+'</div>'+
+    '<div id="vcF"></div>'+
+    '<div class="vc-btns" id="vcB">'+
+      '<button class="vbtn" id="vcGo" type="button">'+ui.go+'</button>'+
+      (ui.extra?'<button class="vbtn g" id="vcEx" type="button">'+ui.extra.label+'</button>':'')+
+    '</div>';
+  c.hidden=false;
+  document.getElementById('vGridBox').hidden=true;
+  document.getElementById('vcX').onclick=hideCard;
+  ui.render(document.getElementById('vcF'));
+  document.getElementById('vcGo').onclick=()=>runNPC(n,'main');
+  if(ui.extra) document.getElementById('vcEx').onclick=()=>runNPC(n,'extra');
+}
+function hideCard(){
+  curN=null;
+  document.getElementById('vCard').hidden=true;
+  document.getElementById('vGridBox').hidden=false;
+}
+
+const NPC_UI={
+  pay:{
+    go:'✔ 執行，前往下一位',
+    render(f){
+      const opts=CN.slice(1).map((c,i)=>'<option value="'+(i+1)+'">'+c+' 個月</option>').join('');
+      f.innerHTML=
+        '<div class="vf-lb">付款方式（現金、刷卡擇一）</div>'+
+        '<div class="vf-row">'+
+          '<label class="vf-chk"><input type="checkbox" id="vfCash"> 💵 現金</label>'+
+          '<label class="vf-chk"><input type="checkbox" id="vfCard"> 💳 刷卡</label>'+
+        '</div>'+
+        '<div class="vf-lb">可使用月份</div>'+
+        '<select class="vf-sel" id="vfPeriod"><option value="">不指定</option>'+opts+'</select>';
+      const cash=document.getElementById('vfCash'), card=document.getElementById('vfCard');
+      cash.checked=els.cashOption.checked;
+      card.checked=els.cardOption.checked;
+      cash.addEventListener('change',()=>{ if(cash.checked) card.checked=false; });
+      card.addEventListener('change',()=>{ if(card.checked) cash.checked=false; });
+      document.getElementById('vfPeriod').value=document.getElementById('periodInput').value;
+    },
+    run(){
+      els.cashOption.checked=document.getElementById('vfCash').checked;
+      els.cardOption.checked=document.getElementById('vfCard').checked;
+      els.cashOption.dispatchEvent(new Event('change'));
+      els.cardOption.dispatchEvent(new Event('change'));
+      document.getElementById('periodInput').value=document.getElementById('vfPeriod').value;
+      periodDropdown.syncLabel();
+      return true;
+    }
+  },
+  buyer:{
+    go:'✔ 執行，前往下一位',
+    render(f){
+      f.innerHTML='<div class="vf-lb">購買者姓名</div><input class="vf-in" id="vfBuyer" placeholder="輸入購買者姓名" autocomplete="off">';
+      document.getElementById('vfBuyer').value=els.buyerInput.value;
+    },
+    run(){
+      els.buyerInput.value=document.getElementById('vfBuyer').value.trim();
+      els.buyerInput.dispatchEvent(new Event('input'));
+      return true;
+    }
+  },
+  add:{
+    go:'✔ 執行，前往下一位',
+    extra:{label:'＋ 再加一項', advance:false, run(){ return addOne(); }},
+    render(f){
+      const list=products.filter(p=>{ const s=(p.name||'').trim(); return s && s.indexOf('下拉點選')<0 && s.indexOf('請選擇')<0; });
+      f.innerHTML='<div class="vf-lb">品項（下拉選擇）</div><select class="vf-sel" id="vfProd"></select>'+
+        '<div class="vf-lb">數量</div><select class="vf-sel" id="vfQty"></select>'+
+        '<div class="vf-note" id="vfNote"></div>';
+      const prod=document.getElementById('vfProd'), qty=document.getElementById('vfQty'), note=document.getElementById('vfNote');
+      list.forEach(p=>{ const o=document.createElement('option'); o.value=p.name; o.textContent=p.name; prod.appendChild(o); });
+      const refresh=()=>{
+        const max=Math.min(getMaxQtyForProduct(prod.value),99);
+        qty.innerHTML='';
+        for(let i=1;i<=max;i++){ const o=document.createElement('option'); o.value=String(i); o.textContent=String(i); qty.appendChild(o); }
+        note.textContent='限購 '+max+' 個/組｜目前報表 '+selectedProds.length+' 項';
+      };
+      prod.addEventListener('change',refresh);
+      refresh();
+    },
+    run(){ return addOne(); }
+  },
+  export:{
+    go:'✔ 執行，前往下一位',
+    render(f){
+      f.innerHTML='<div class="vf-note">把目前報表轉成一張圖片（需至少一個品項）。</div>'+
+        '<div class="vf-note">目前報表：'+selectedProds.length+' 項</div>';
+    },
+    async run(){
+      if(!selectedProds.length){ showToast('請先新增品項','warning'); return false; }
+      await exportToImage();
+      return !!els.previewImage.src;
+    }
+  },
+  share:{
+    go:'📱 分享圖片',
+    extra:{label:'🟢 安卓分享（LINE）', advance:true, async run(){
+      if(!els.previewImage.src){ showToast('請先完成報表轉圖片','warning'); return false; }
+      await shareToLine();
+      return true;
+    }},
+    render(f){
+      f.innerHTML = els.previewImage.src
+        ? '<img class="vf-prev" src="'+els.previewImage.src+'" alt="">'
+        : '<div class="vf-note">還沒有圖片，請先完成「報表轉圖片」。</div>';
+    },
+    async run(){
+      if(!els.previewImage.src){ showToast('請先完成報表轉圖片','warning'); return false; }
+      if(navigator.share){ await nativeShare(); } else { await shareToLine(); }
+      return true;
+    }
+  }
+};
+
+/* 「新增品項」：沿用試算原本的下拉與 addProduct() 流程 */
+function addOne(){
+  const name=document.getElementById('vfProd').value;
+  if(!name){ showToast('請先選擇品項','warning'); return false; }
+  const qty=document.getElementById('vfQty').value;
+  const before=JSON.stringify(selectedProds);
+  els.nameInput.value=name;
+  adjustQtySelectOptions(name);
+  els.qtyInput.value=qty;
+  addProduct();
+  return JSON.stringify(selectedProds)!==before;
+}
+
+/* 執行後自動跑向下一位 NPC */
+async function runNPC(n,which){
+  const ui=NPC_UI[n.id];
+  const spec = which==='extra' ? ui.extra : ui;
+  setBtnsDisabled(true);
+  let ok=false;
+  try{ ok=await spec.run(); }
+  catch(e){ showToast('執行失敗：'+((e&&e.message)||e),'error'); }
+  setBtnsDisabled(false);
+  if(!ok) return;
+  if(spec.advance===false){ ui.render(document.getElementById('vcF')); return; }
+  markDone();
+  hideCard();
+  const idx=NPC.indexOf(n);
+  if(idx<NPC.length-1){ walkNear(NPC[idx+1]); }
+  else { showToast('🎉 全部完成！回到試算畫面確認報表'); }
+}
+/* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
+function flower(X,Y,R){
+  const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
+  const c=cols[Math.floor(R()*cols.length)];
+  const ox=X+3+Math.floor(R()*9), oy=Y+3+Math.floor(R()*9);
+  fillOn(b,ox,oy,2,2,c); fillOn(b,ox,oy+2,1,2,'#3E7A36');
+}
+function tree(X,Y){
+  fillOn(b,X+2,Y+13,12,2,'rgba(0,0,0,.22)');
+  fillOn(b,X+6,Y+9,4,5,'#5A3A22'); fillOn(b,X+6,Y+9,1,5,'#7A5230');
+  const cx=X+8, cy=Y+6;
+  const sh=[[-5,4,'#2F6B3A'],[-4,6,'#2F6B3A'],[-3,8,'#2F6B3A'],[-2,8,'#2F6B3A'],[-1,8,'#2F6B3A'],
+            [0,8,'#2F6B3A'],[1,8,'#245A2F'],[2,6,'#245A2F'],[3,4,'#245A2F']];
+  sh.forEach(([dy,w,col])=>fillOn(b,cx-Math.floor(w/2),cy+dy,w,1,col));
+  fillOn(b,cx-4,cy-4,3,1,'#4C8F4E'); fillOn(b,cx-3,cy-3,2,1,'#4C8F4E');
+  fillOn(b,cx-5,cy-2,2,1,'#3F7E45'); fillOn(b,cx+1,cy+3,3,1,'#1D4D29');
+}
+function building(d){
+  const X=d.x*T, Y=d.y*T, W2=d.w*T, H2=d.h*T, roofH=Math.round(H2*0.46);
+  fillOn(b,X+3,Y+H2,W2-3,3,'rgba(0,0,0,.28)');
+  fillOn(b,X+1,Y+roofH,W2-2,H2-roofH,d.wall);
+  fillOn(b,X+1,Y+H2-3,W2-2,3,'rgba(120,90,50,.25)');
+  fillOn(b,X,Y,W2,roofH,d.roof);
+  fillOn(b,X,Y+roofH-2,W2,2,'rgba(0,0,0,.28)');
+  fillOn(b,X,Y,W2,1,'rgba(255,255,255,.28)');
+  for(let rx=X+3;rx<X+W2-2;rx+=5) fillOn(b,rx,Y+3,1,roofH-6,'rgba(0,0,0,.16)');
+  const wy=Y+roofH+3;
+  const wx=[X+4, X+W2-9];
+  for(let i=0;i<d.win;i++){
+    const x0=wx[i]; if(x0===undefined) break;
+    fillOn(b,x0-1,wy-1,7,6,'#3A2414');
+    fillOn(b,x0,wy,5,4,'#F7D98B');
+    fillOn(b,x0+2,wy,1,4,'#B88A3A');
+  }
+  const dx=X+Math.floor(W2/2)-3, dy=Y+H2-8;
+  fillOn(b,dx-2,dy-2,10,2,d.roof);
+  fillOn(b,dx,dy,6,8,'#5A3A22'); fillOn(b,dx+1,dy+1,4,7,'#3A2414');
+}
+function lantern(X,Y){
+  fillOn(b,X+7,Y+7,2,8,'#2A1E14');
+  fillOn(b,X+5,Y+4,6,4,'#8A5A2E');
+  fillOn(b,X+6,Y+5,4,2,'#FFD27A');
+  fillOn(b,X+6,Y+3,4,1,'#5A3A22');
+  fillOn(b,X+6,Y+15,4,1,'rgba(0,0,0,.25)');
+}
+function pavilion(){
+  const X=PAVILION.x*T, Y=PAVILION.y*T;
+  fillOn(b,X+1,Y+15,2*T-2,2,'rgba(0,0,0,.22)');
+  fillOn(b,X+1,Y+3,2*T-2,1,'#D9864A');
+  fillOn(b,X+2,Y+4,2*T-4,4,'#B5652E');
+  fillOn(b,X,Y+8,2*T,2,'#8A4A22');
+  fillOn(b,X+2,Y+10,3,5,'#F3EBD3'); fillOn(b,X+2*T-5,Y+10,3,5,'#F3EBD3');
+  fillOn(b,X+7,Y+11,2,2,'#8A5A2E');
+}
+function cherry(X,Y){
+  fillOn(b,X+2,Y+13,12,2,'rgba(0,0,0,.22)');
+  fillOn(b,X+6,Y+9,4,5,'#5A3A22'); fillOn(b,X+6,Y+9,1,5,'#7A5230');
+  const cx=X+8, cy=Y+6;
+  const sh=[[-5,4,'#D9789A'],[-4,6,'#D9789A'],[-3,8,'#E38CA9'],[-2,8,'#E38CA9'],[-1,8,'#E38CA9'],
+            [0,8,'#E38CA9'],[1,8,'#C9678A'],[2,6,'#C9678A'],[3,4,'#C9678A']];
+  sh.forEach(([dy,w,col])=>fillOn(b,cx-Math.floor(w/2),cy+dy,w,1,col));
+  fillOn(b,cx-4,cy-4,3,1,'#FAD2DF'); fillOn(b,cx-3,cy-3,2,1,'#FAD2DF');
+  fillOn(b,cx+2,cy-1,1,1,'#FFF0F5'); fillOn(b,cx-1,cy+2,1,1,'#FFF0F5');
+}
+function rock(X,Y){
+  fillOn(b,X+2,Y+12,12,2,'rgba(0,0,0,.2)');
+  fillOn(b,X+3,Y+7,10,6,'#9AA0A6'); fillOn(b,X+4,Y+5,7,3,'#B4BAC0');
+  fillOn(b,X+5,Y+6,3,1,'#D6DADF'); fillOn(b,X+3,Y+11,10,2,'#6E757C');
+}
+function bush(X,Y){
+  fillOn(b,X+2,Y+13,12,2,'rgba(0,0,0,.2)');
+  [[4,8,6,4],[2,9,12,4],[3,11,10,3]].forEach(([x,y,w,h],i)=>fillOn(b,X+x,Y+y,w,h,['#3F7E45','#2F6B3A','#245A2F'][i]));
+  fillOn(b,X+5,Y+6,2,1,'#6FA55A'); fillOn(b,X+9,Y+8,2,1,'#4C8F4E');
+  fillOn(b,X+6,Y+5,3,1,'#E9A8C0');
+}
+function mush(X,Y){
+  fillOn(b,X+6,Y+10,4,5,'#F3E6CC');
+  fillOn(b,X+4,Y+6,8,4,'#D8452E'); fillOn(b,X+5,Y+7,1,1,'#FFFFFF'); fillOn(b,X+9,Y+8,1,1,'#FFFFFF');
+  fillOn(b,X+4,Y+9,8,1,'#F3E6CC');
+}
+function reed(X,Y){
+  [[3,'#5E8A3A'],[6,'#4C7A30'],[10,'#5E8A3A'],[13,'#4C7A30']].forEach(([x,c])=>{
+    fillOn(b,X+x,Y+4,1,12,c); fillOn(b,X+x,Y+2,1,2,'#8A6A3A');
+  });
+}
+function crop(X,Y){
+  for(let r=0;r<2;r++){
+    fillOn(b,X,Y+r*T,T*3,T,'#7A5230');
+    for(let i=0;i<3;i++){
+      const cx=X+i*T;
+      fillOn(b,cx+3,Y+r*T+6,2,4,'#3F8A3F'); fillOn(b,cx+8,Y+r*T+6,2,4,'#3F8A3F');
+      fillOn(b,cx+3,Y+r*T+5,2,1,'#6FBF5A'); fillOn(b,cx+8,Y+r*T+5,2,1,'#6FBF5A');
+    }
+  }
+}
+
+function buildBG(){
+  const R=mulberry(20261010);
+  const pal=['#5E9C4E','#63A553','#58924A','#5A9A4C'];
+  for(let ty=0;ty<VH;ty++)for(let tx=0;tx<VW;tx++){
+    const X=tx*T, Y=ty*T;
+    fillOn(b,X,Y,T,T,pal[Math.floor(R()*pal.length)]);
+    for(let i=0;i<5;i++){
+      const bx=X+Math.floor(R()*15), by=Y+Math.floor(R()*15);
+      fillOn(b,bx,by,1,2,R()<.5?'#77B864':'#4A7E3E');
+    }
+  }
+  for(let ty=0;ty<VH;ty++)for(let tx=0;tx<VW;tx++){
+    if(!isPath(tx,ty)) continue;
+    const X=tx*T, Y=ty*T;
+    fillOn(b,X,Y,T,T,'#C9A56A');
+    fillOn(b,X+2+(tx%3),Y+3,4,3,'#B8925A');
+    fillOn(b,X+9,Y+9-(ty%2),4,3,'#D9B98A');
+    fillOn(b,X,Y+T-1,T,1,'#A88050');
+  }
+  for(let x=POND.x0;x<=POND.x1;x++) for(const y of [POND.y0-1,POND.y1+1]){
+    if(y<0||y>=VH||isPath(x,y)||isBridge(x,y)) continue;
+    fillOn(b,x*T,y*T,T,T,'#D9C48E');
+  }
+  for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){
+    if(isBridge(x,y)) continue;
+    const X=x*T, Y=y*T;
+    fillOn(b,X,Y,T,T,(x+y)%2?'#2E6FB0':'#2A67A6');
+    fillOn(b,X+2,Y+4,5,1,'#5C9ED8');
+    fillOn(b,X+9,Y+11,4,1,'#4D8ACB');
+  }
+  for(let i=0;i<46;i++){
+    const tx=Math.floor(R()*VW), ty=Math.floor(R()*VH);
+    if(BLK.has(key(tx,ty))||isPath(tx,ty)||npcAt.has(key(tx,ty))) continue;
+    flower(tx*T,ty*T,R);
+  }
+  for(let y=POND.y0;y<=POND.y1;y++)for(const x of [6,7]){
+    const X=x*T, Y=y*T;
+    fillOn(b,X,Y,T,T,'#9A6B3A');
+    fillOn(b,X,Y+4,T,1,'#6E4A22'); fillOn(b,X,Y+10,T,1,'#6E4A22');
+    fillOn(b,X+(x===6?0:T-2),Y,2,T,'#B98B52');
+  }
+  REEDS.forEach(([x,y])=>reed(x*T,y*T));
+  MUSH.forEach(([x,y])=>mush(x*T,y*T));
+  CROPS.forEach(([x,y])=>crop(x*T,y*T));
+  pavilion();
+  CHERRY.forEach(([x,y])=>cherry(x*T,y*T));
+  ROCKS.forEach(([x,y])=>rock(x*T,y*T));
+  BUSHES.forEach(([x,y])=>bush(x*T,y*T));
+  for(let x=0;x<VW;x++){ tree(x*T,0); tree(x*T,(VH-1)*T); }
+  for(let y=1;y<VH-1;y++){ tree(0,y*T); tree((VW-1)*T,y*T); }
+  TREES.forEach(([x,y])=>tree(x*T,y*T));
+  BLDS.forEach(building);
+  LANTERNS.forEach(([x,y])=>lantern(x*T,y*T));
+}
+
+/* ---------- 人物 SVG（高解析，內嵌於本檔） ---------- */
+const SPRITES={"player": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n<filter id=\"cwc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/></filter>\n<linearGradient id=\"cfur\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#DCE0E4\"/><stop offset=\"1\" stop-color=\"#A9B0B8\"/></linearGradient>\n</defs>\n<ellipse cx=\"40\" cy=\"116\" rx=\"25\" ry=\"3.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#cwc)\" stroke=\"#5B6168\" stroke-width=\"1.3\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<path d=\"M58,104 Q78,102 76,86 Q74,74 68,78\" fill=\"none\" stroke=\"#5B6168\" stroke-width=\"9\"/>\n<path d=\"M58,104 Q78,102 76,86 Q74,74 68,78\" fill=\"none\" stroke=\"#B5BCC3\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n<path d=\"M74,96 L66,94 M75,88 L69,88\" fill=\"none\" stroke=\"#4A5058\" stroke-width=\"2.2\"/>\n<path d=\"M22,68 Q18,104 28,112 L52,112 Q62,104 58,68 Z\" fill=\"url(#cfur)\"/>\n<path d=\"M33,70 Q40,78 47,70 Q52,92 46,108 Q40,112 34,108 Q28,92 33,70 Z\" fill=\"#F4F3EE\" stroke=\"none\"/>\n<path d=\"M26,80 Q31,84 27,92 M54,80 Q49,84 53,92 M24,98 L30,100\" fill=\"none\" stroke=\"#7C848C\" stroke-width=\"2.2\"/>\n<rect x=\"30\" y=\"98\" width=\"8\" height=\"15\" rx=\"4\" fill=\"#EEF0F2\"/>\n<rect x=\"42\" y=\"98\" width=\"8\" height=\"15\" rx=\"4\" fill=\"#EEF0F2\"/>\n<ellipse cx=\"34\" cy=\"113\" rx=\"6\" ry=\"3.6\" fill=\"#F7F7F5\"/>\n<ellipse cx=\"46\" cy=\"113\" rx=\"6\" ry=\"3.6\" fill=\"#F7F7F5\"/>\n<path d=\"M31,113 L31,110.5 M34,113.5 L34,110.8 M37,113 L37,110.5 M43,113 L43,110.5 M46,113.5 L46,110.8 M49,113 L49,110.5\" fill=\"none\" stroke-width=\".7\" stroke=\"#8A9097\"/>\n<path d=\"M21,32 L19,12 L35,22 Z\" fill=\"#B9C0C7\"/>\n<path d=\"M59,32 L61,12 L45,22 Z\" fill=\"#B9C0C7\"/>\n<path d=\"M24,28 L23,18 L31,23 Z\" fill=\"#E8B3AE\" stroke=\"none\"/>\n<path d=\"M56,28 L57,18 L49,23 Z\" fill=\"#E8B3AE\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"36\" rx=\"21\" ry=\"18\" fill=\"url(#cfur)\"/>\n<path d=\"M40,19 L40,27 M34,20 L35,26 M46,20 L45,26\" fill=\"none\" stroke=\"#6E757D\" stroke-width=\"1.6\"/>\n<path d=\"M19,34 L26,36 M19,41 L26,40 M61,34 L54,36 M61,41 L54,40\" fill=\"none\" stroke=\"#6E757D\" stroke-width=\"1.5\"/>\n<path d=\"M30,22 Q36,18 42,20\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.8\" stroke-linecap=\"round\" opacity=\".7\"/>\n<ellipse cx=\"40\" cy=\"45\" rx=\"11\" ry=\"7\" fill=\"#F4F3EE\" stroke=\"none\"/>\n<ellipse cx=\"32\" cy=\"35\" rx=\"5.2\" ry=\"4.6\" fill=\"#D2DC5A\" stroke=\"#4A4F3A\" stroke-width=\"1\"/>\n<ellipse cx=\"32\" cy=\"35\" rx=\"1.5\" ry=\"3.8\" fill=\"#1E1A16\" stroke=\"none\"/>\n<circle cx=\"33.4\" cy=\"33.6\" r=\"1\" fill=\"#FFFFFF\" stroke=\"none\"/>\n<ellipse cx=\"48\" cy=\"35\" rx=\"5.2\" ry=\"4.6\" fill=\"#D2DC5A\" stroke=\"#4A4F3A\" stroke-width=\"1\"/>\n<ellipse cx=\"48\" cy=\"35\" rx=\"1.5\" ry=\"3.8\" fill=\"#1E1A16\" stroke=\"none\"/>\n<circle cx=\"49.4\" cy=\"33.6\" r=\"1\" fill=\"#FFFFFF\" stroke=\"none\"/>\n<path d=\"M36.5,43.5 L43.5,43.5 L40,47.2 Z\" fill=\"#E59A98\" stroke=\"#8A4A48\" stroke-width=\".8\"/>\n<path d=\"M40,47.2 L40,49 M36,49.6 Q40,52 40,49 Q40,52 44,49.6\" fill=\"none\" stroke=\"#5A4A42\" stroke-width=\"1\"/>\n<path d=\"M26,45 L8,42 M26,48 L8,49 M54,45 L72,42 M54,48 L72,49\" fill=\"none\" stroke=\"#8A9097\" stroke-width=\".6\"/>\n</g>\n</svg>", "settings": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8D5948\"/><stop offset=\"1\" stop-color=\"#693524\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#EDD19B\"/><stop offset=\"1\" stop-color=\"#D0AF6E\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#61554B\"/><stop offset=\"1\" stop-color=\"#31241A\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#582D1E\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#A98275\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#E7C27A\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#7F756D\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<polygon points=\"25,24 55,24 57,11 49,17 40,7 31,17 23,11\" fill=\"url(#ag)\" stroke=\"#6A4E38\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/>\n<circle cx=\"40\" cy=\"18\" r=\"2.2\" fill=\"#B8323A\" stroke=\"#6A4E38\" stroke-width=\"1\"/>\n<circle cx=\"28.5\" cy=\"19.5\" r=\"1.4\" fill=\"#4C8BD0\" stroke=\"#6A4E38\" stroke-width=\".8\"/>\n<circle cx=\"51.5\" cy=\"19.5\" r=\"1.4\" fill=\"#4C8BD0\" stroke=\"#6A4E38\" stroke-width=\".8\"/>\n<\/g>\n<\/svg>\n", "collector": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8067AC\"/><stop offset=\"1\" stop-color=\"#5C4388\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#E9E0FB\"/><stop offset=\"1\" stop-color=\"#CBC1E1\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#554D59\"/><stop offset=\"1\" stop-color=\"#241B29\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#4D3872\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#9F8CC0\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#E2D6FA\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#241B29\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#241B29\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<circle cx=\"40\" cy=\"11\" r=\"8\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#756E78\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#B5ABC8\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#C7BCDC\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "library": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#4B8D7F\"/><stop offset=\"1\" stop-color=\"#28695B\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#DBF3EA\"/><stop offset=\"1\" stop-color=\"#BAD7CC\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#61554B\"/><stop offset=\"1\" stop-color=\"#31241A\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"57\" y=\"62\" width=\"14\" height=\"27\" rx=\"5\" fill=\"#CFEFE3\"/>\n<rect x=\"60\" y=\"66\" width=\"8\" height=\"6\" rx=\"2\" fill=\"#A6BFB6\" stroke-width=\"1.2\"/>\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#21584C\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#77A99E\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#CFEFE3\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<path d=\"M31,59 L47,93\" fill=\"none\" stroke=\"#9BB3AA\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#7F756D\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<\/g>\n<\/svg>\n", "pipeline": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#73639A\"/><stop offset=\"1\" stop-color=\"#4F4077\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#EDD19B\"/><stop offset=\"1\" stop-color=\"#D0AF6E\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#E0E0E5\"/><stop offset=\"1\" stop-color=\"#B8B8BD\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<path d=\"M15,36 Q15,33 19,33 L61,33 Q65,33 65,36 L67,73 Q40,81 13,73 Z\" fill=\"url(#hg)\"/>\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#423563\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#9589B3\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#E7C27A\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#B8B8BD\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#B8B8BD\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M26,50 Q28,70 40,71 Q52,70 54,50 Q52,58 40,58 Q28,58 26,50 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#E6E6EA\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<polygon points=\"25,24 55,24 57,11 49,17 40,7 31,17 23,11\" fill=\"url(#ag)\" stroke=\"#6A4E38\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/>\n<circle cx=\"40\" cy=\"18\" r=\"2.2\" fill=\"#B8323A\" stroke=\"#6A4E38\" stroke-width=\"1\"/>\n<circle cx=\"28.5\" cy=\"19.5\" r=\"1.4\" fill=\"#4C8BD0\" stroke=\"#6A4E38\" stroke-width=\".8\"/>\n<circle cx=\"51.5\" cy=\"19.5\" r=\"1.4\" fill=\"#4C8BD0\" stroke=\"#6A4E38\" stroke-width=\".8\"/>\n<\/g>\n<\/svg>\n", "icebreak": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#CFA049\"/><stop offset=\"1\" stop-color=\"#AB7C25\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFF4D9\"/><stop offset=\"1\" stop-color=\"#E6D9B8\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#6E594D\"/><stop offset=\"1\" stop-color=\"#3F291B\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#8F681F\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#DBB775\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#FFF1CC\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#3F291B\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#3F291B\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#89786E\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#CCC1A3\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#E0D4B4\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "core": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#3E9A86\"/><stop offset=\"1\" stop-color=\"#1B7762\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#DBF3EA\"/><stop offset=\"1\" stop-color=\"#BAD7CC\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#554B43\"/><stop offset=\"1\" stop-color=\"#241A11\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#166352\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#6DB3A3\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#CFEFE3\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#756D66\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#A6BFB6\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#B6D2C8\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "video": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#BF7B4B\"/><stop offset=\"1\" stop-color=\"#9C5728\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFE2BE\"/><stop offset=\"1\" stop-color=\"#E6C397\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#61554B\"/><stop offset=\"1\" stop-color=\"#31241A\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<path d=\"M15,36 Q15,33 19,33 L61,33 Q65,33 65,36 L67,73 Q40,81 13,73 Z\" fill=\"url(#hg)\"/>\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#824921\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#CF9B77\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#FFD9A8\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#7F756D\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#CCAE86\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#E0BF94\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "market": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#4B83BB\"/><stop offset=\"1\" stop-color=\"#285F97\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#DBEAFB\"/><stop offset=\"1\" stop-color=\"#BACCE1\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#554B43\"/><stop offset=\"1\" stop-color=\"#241A11\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#21507F\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#77A1CC\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#CFE3FA\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#756D66\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#A6B6C8\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#B6C8DC\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "warmup": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#9A714B\"/><stop offset=\"1\" stop-color=\"#774D28\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#F6E2BA\"/><stop offset=\"1\" stop-color=\"#DBC393\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#7B614E\"/><stop offset=\"1\" stop-color=\"#4C311D\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<path d=\"M15,36 Q15,33 19,33 L61,33 Q65,33 65,36 L67,73 Q40,81 13,73 Z\" fill=\"url(#hg)\"/>\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#634121\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#B39477\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#F3D9A3\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#4C311D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#4C311D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#947F6F\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#C2AE82\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#D6BF8F\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "results": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#56639A\"/><stop offset=\"1\" stop-color=\"#324077\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#F6E2BA\"/><stop offset=\"1\" stop-color=\"#DBC393\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#554B43\"/><stop offset=\"1\" stop-color=\"#241A11\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#2A3563\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#7F89B3\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#F3D9A3\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#241A11\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<circle cx=\"40\" cy=\"11\" r=\"8\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#756D66\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#C2AE82\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#D6BF8F\"/>\n<\/g>\n<\/g>\n<\/svg>\n", "cards": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 80 120\" width=\"80\" height=\"120\">\n<defs>\n  <filter id=\"wc\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.09\" numOctaves=\"2\" seed=\"6\" result=\"n\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"n\" scale=\"2.2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/><\/filter>\n  <linearGradient id=\"cg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#B48B4B\"/><stop offset=\"1\" stop-color=\"#906728\"/><\/linearGradient>\n  <linearGradient id=\"ag\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FCEECA\"/><stop offset=\"1\" stop-color=\"#E2D2A6\"/><\/linearGradient>\n  <linearGradient id=\"hg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#61554B\"/><stop offset=\"1\" stop-color=\"#31241A\"/><\/linearGradient>\n  <clipPath id=\"bc\"><path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\"/><\/clipPath>\n  <clipPath id=\"hc\"><ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\"/><\/clipPath>\n<\/defs>\n<ellipse cx=\"40\" cy=\"115\" rx=\"19\" ry=\"4.5\" fill=\"#6B5A44\" opacity=\".22\"/>\n<g filter=\"url(#wc)\">\n<g stroke=\"#6A4E38\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\">\n<rect x=\"30\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<rect x=\"41\" y=\"86\" width=\"9\" height=\"24\" rx=\"4\" fill=\"#2A2A36\"/>\n<ellipse cx=\"34.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<ellipse cx=\"45.5\" cy=\"110\" rx=\"6.5\" ry=\"4.2\" fill=\"#1A1210\"/>\n<path d=\"M24,66 Q24,59 33,58 L47,58 Q56,59 56,66 L60,94 Q60,97 57,97 L23,97 Q20,97 20,94 Z\" fill=\"url(#cg)\"/>\n<rect x=\"48\" y=\"54\" width=\"14\" height=\"46\" fill=\"#795621\" opacity=\".55\" clip-path=\"url(#bc)\" stroke=\"none\"/>\n<path d=\"M29,64 Q27,78 29,92\" fill=\"none\" stroke=\"#C6A777\" stroke-width=\"2.6\" opacity=\".7\" stroke-linecap=\"round\"/>\n<rect x=\"20\" y=\"80\" width=\"40\" height=\"4.5\" fill=\"#FBE9B9\" stroke=\"none\" clip-path=\"url(#bc)\"/>\n<rect x=\"17\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<rect x=\"54\" y=\"62\" width=\"9\" height=\"24\" rx=\"4.5\" fill=\"url(#cg)\"/>\n<circle cx=\"21.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<circle cx=\"58.5\" cy=\"88\" r=\"4.6\" fill=\"#F2C9A0\"/>\n<rect x=\"35.5\" y=\"50\" width=\"9\" height=\"12\" rx=\"3\" fill=\"#E0A777\" stroke=\"none\"/>\n<circle cx=\"18.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<circle cx=\"61.5\" cy=\"41\" r=\"4\" fill=\"#F2C9A0\"/>\n<ellipse cx=\"40\" cy=\"38\" rx=\"22\" ry=\"21\" fill=\"#F2C9A0\"/>\n<\/g>\n<ellipse cx=\"48\" cy=\"46\" rx=\"17\" ry=\"15\" fill=\"#E0A777\" opacity=\".35\" clip-path=\"url(#hc)\"/>\n<path d=\"M26,31 Q31,28.5 36,30.5\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<path d=\"M44,30.5 Q49,28.5 54,31\" fill=\"none\" stroke=\"#31241A\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n<ellipse cx=\"32.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<ellipse cx=\"47.5\" cy=\"40\" rx=\"2.6\" ry=\"3.4\" fill=\"#1E1A16\"/>\n<circle cx=\"33.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<circle cx=\"48.5\" cy=\"38.6\" r=\"1\" fill=\"#FFFFFF\"/>\n<ellipse cx=\"27\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<ellipse cx=\"53\" cy=\"48\" rx=\"3.6\" ry=\"2.1\" fill=\"#F28C7E\" opacity=\".5\"/>\n<path d=\"M36.5,50.5 Q40,53.8 43.5,50.5\" fill=\"none\" stroke=\"#8A3D2C\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>\n<path d=\"M18,40 C14,24 26,14 40,14 C56,14 66,24 62,40 C60,33 58,29 54,27 C48,31 42,30 38,25 C32,30 24,31 22,28 C19,31 18,35 18,40 Z\" fill=\"url(#hg)\" stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n<path d=\"M26,22 Q34,16 45,17\" fill=\"none\" stroke=\"#7F756D\" stroke-width=\"2.2\" stroke-linecap=\"round\" opacity=\".8\"/>\n<g stroke=\"#6A4E38\" stroke-width=\"2\" stroke-linejoin=\"round\">\n<path d=\"M19,25 C17,9 28,3 40,3 C52,3 63,9 61,25 Z\" fill=\"url(#ag)\"/>\n<rect x=\"19.5\" y=\"18.5\" width=\"41\" height=\"5\" fill=\"#C9BA94\" stroke=\"none\"/>\n<ellipse cx=\"40\" cy=\"25\" rx=\"31\" ry=\"5.5\" fill=\"#DDCDA3\"/>\n<\/g>\n<\/g>\n<\/svg>\n"};
+const SPR={};
+Object.keys(SPRITES).forEach(k=>{
+  const im=new Image();
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(SPRITES[k]);
+  SPR[k]=im;
+});
+
+/* ---------- 人物像素繪製（SVG 尚未載入時的備用） ---------- */
+function human(X,Y,o,dir,step,bob,alert){
+  const ax=X+2, ay=Y-2+bob, K=o.line;
+  fillOn(g,ax+1,Y+12,10,2,'rgba(0,0,0,.32)');
+  const lu=step===1, ru=step===2;
+  fillOn(g,ax+3,ay+12,2,lu?1:2,o.pants); fillOn(g,ax+3,ay+(lu?13:14),2,1,o.shoe);
+  fillOn(g,ax+7,ay+12,2,ru?1:2,o.pants); fillOn(g,ax+7,ay+(ru?13:14),2,1,o.shoe);
+  fillOn(g,ax+2,ay+6,8,7,K);
+  fillOn(g,ax+3,ay+7,6,5,o.cloth);
+  fillOn(g,ax+3,ay+10,6,1,o.acc);
+  fillOn(g,ax+2,ay+7,1,4,o.cloth); fillOn(g,ax+9,ay+7,1,4,o.cloth);
+  fillOn(g,ax+2,ay+11,1,1,o.skin); fillOn(g,ax+9,ay+11,1,1,o.skin);
+  fillOn(g,ax+3,ay,6,7,K);
+  fillOn(g,ax+4,ay+1,4,5,o.skin);
+  fillOn(g,ax+4,ay,4,2,o.hair); fillOn(g,ax+3,ay+1,1,2,o.hair); fillOn(g,ax+8,ay+1,1,2,o.hair);
+  if(dir===3){
+    fillOn(g,ax+4,ay+1,4,3,o.hair);
+  }else{
+    const e='#1A1C1A';
+    if(dir===0){ fillOn(g,ax+5,ay+3,1,1,e); fillOn(g,ax+7,ay+3,1,1,e); fillOn(g,ax+6,ay+5,1,1,'#B5654A'); }
+    if(dir===1){ fillOn(g,ax+4,ay+3,1,1,e); }
+    if(dir===2){ fillOn(g,ax+7,ay+3,1,1,e); }
+  }
+  if(o.beard) fillOn(g,ax+4,ay+5,4,2,'#D8D8DE');
+  if(o.kind==='crown'){
+    fillOn(g,ax+4,ay-1,4,1,o.acc); fillOn(g,ax+4,ay-2,1,1,o.acc);
+    fillOn(g,ax+6,ay-2,1,1,o.acc); fillOn(g,ax+7,ay-2,1,1,o.acc);
+  }
+  if(o.kind==='hat'){
+    fillOn(g,ax+2,ay+1,8,1,o.acc); fillOn(g,ax+4,ay-2,4,3,o.acc);
+    fillOn(g,ax+4,ay,4,1,'rgba(0,0,0,.25)');
+  }
+  if(o.kind==='bag'){
+    fillOn(g,ax+10,ay+7,2,4,o.acc); fillOn(g,ax+10,ay+9,2,1,'#5A3A22');
+  }
+  if(alert){
+    const blink=Math.floor(performance.now()/380)%2===0;
+    if(blink){ fillOn(g,ax+5,ay-6,2,3,'#FFD27A'); fillOn(g,ax+5,ay-2,2,1,'#FFD27A'); }
+  }
+}
+function dirOf(dx,dy){ if(dy>0)return 0; if(dx<0)return 1; if(dx>0)return 2; return 3; }
+
+/* ---------- 玩家與移動 ---------- */
+const P={x:6,y:13,vx:6,vy:13,dir:0,path:[],after:null,last:0};
+
+function walkable(x,y){
+  if(x<0||y<0||x>=VW||y>=VH) return false;
+  const k=key(x,y);
+  return !BLK.has(k)&&!npcAt.has(k);
+}
+function findPath(sx,sy,tx,ty){
+  if(sx===tx&&sy===ty) return [];
+  const prev=new Map(); const q=[[sx,sy]]; prev.set(key(sx,sy),null);
+  let found=false;
+  for(let qi=0;qi<q.length;qi++){
+    const [x,y]=q[qi];
+    if(x===tx&&y===ty){found=true;break;}
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+dx, ny=y+dy, k=key(nx,ny);
+      if(prev.has(k)) continue;
+      if(!walkable(nx,ny)&&!(nx===tx&&ny===ty)) continue;
+      prev.set(k,[x,y]); q.push([nx,ny]);
+    }
+  }
+  if(!found) return null;
+  const path=[]; let cur=[tx,ty];
+  while(cur && !(cur[0]===sx&&cur[1]===sy)){ path.unshift(cur); cur=prev.get(key(cur[0],cur[1])); }
+  return path;
+}
+function tapTile(tx,ty){
+  if(tx<0||ty<0||tx>=VW||ty>=VH) return;
+  const n=npcAt.get(key(tx,ty));
+  if(n){ walkNear(n); return; }
+  if(!walkable(tx,ty)) return;
+  const p=findPath(P.x,P.y,tx,ty);
+  if(p && p.length){ hideCard(); P.path=p; P.after=null; }
+  else if(!p) toast('走不過去，換個位置試試');
+}
+function walkNear(n){
+  hideCard();
+  if(Math.abs(n.x-P.x)+Math.abs(n.y-P.y)===1){ P.dir=dirOf(n.x-P.x,n.y-P.y); openCard(n); return; }
+  let best=null;
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const ax=n.x+dx, ay=n.y+dy;
+    if(!walkable(ax,ay)) continue;
+    const p=findPath(P.x,P.y,ax,ay);
+    if(p && (!best || p.length<best.length)) best=p;
+  }
+  if(!best){ toast('走不過去，換個位置試試'); return; }
+  P.path=best;
+  P.after=()=>{ P.dir=dirOf(n.x-P.x,n.y-P.y); openCard(n); };
+}
+function stepPlayer(t){
+  if(!P.path.length) return;
+  if(t-P.last<130) return;
+  P.last=t;
+  const [nx,ny]=P.path.shift();
+  P.dir=dirOf(nx-P.x,ny-P.y);
+  P.x=nx; P.y=ny;
+  if(!P.path.length && P.after){ const f=P.after; P.after=null; f(); }
+}
+
+/* ---------- 標籤與格子清單 ---------- */
+function buildLabels(){
+  const box=document.getElementById('vLbls');
+  NPC.forEach(n=>{
+    const el=document.createElement('div');
+    el.className='vLbl';
+    el.textContent=n.name;
+    el.style.left=((n.x+.5)/VW*100)+'%';
+    el.style.top=((n.y*T-4)/H*100)+'%';
+    box.appendChild(el);
+    n._el=el;
+  });
+}
+function updateLabels(){
+  NPC.forEach(n=>n._el.classList.toggle('hot', Math.abs(n.x-P.x)+Math.abs(n.y-P.y)===1));
+}
+function buildGrid(){
+  const box=document.getElementById('vGrid');
+  box.innerHTML=NPC.map(n=>'<button class="vchip" type="button" data-id="'+n.id+'"><span>'+n.ic+'</span>'+n.name+'</button>').join('');
+  box.querySelectorAll('.vchip').forEach(bt=>bt.onclick=()=>{
+    const n=NPC.find(x=>x.id===bt.dataset.id); if(n) walkNear(n);
+  });
+}
+
+/* ---------- 光影與動態 ---------- */
+function isNight(){ return false; // 村莊固定白天
+
+  const h=+new Intl.DateTimeFormat('en-US',{hour:'numeric',hour12:false,timeZone:'Asia/Taipei'}).format(new Date())%24;
+  return h>=18||h<6;
+}
+function bobOf(i,t){ return Math.sin(t/520+i*1.9)>0.55?-1:0; }
+
+const SPR_W=18.7, SPR_H=28;   // 人物在世界座標中的大小
+function drawBubble(txt,cx,bottomY){
+  g.font='600 6.5px "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  const maxW=74, lines=[]; let cur='';
+  for(const ch of txt){ if(g.measureText(cur+ch).width>maxW){ lines.push(cur); cur=ch; } else cur+=ch; }
+  if(cur) lines.push(cur);
+  const lh=8, pad=3;
+  const w=Math.max(...lines.map(l=>g.measureText(l).width))+pad*2;
+  const h=lines.length*lh+pad*2-1;
+  const x=cx-w/2, y=bottomY-4-h;
+  g.fillStyle='#FFF8E6'; g.strokeStyle='#1B2A22'; g.lineWidth=.7;
+  g.beginPath(); if(g.roundRect){ g.roundRect(x,y,w,h,3); } else { g.rect(x,y,w,h); }
+  g.fill(); g.stroke();
+  g.beginPath(); g.moveTo(cx-2.5,bottomY-4.4); g.lineTo(cx+2.5,bottomY-4.4); g.lineTo(cx,bottomY); g.closePath();
+  g.fill();
+  g.fillStyle='#1E2A24';
+  lines.forEach((l,i)=>g.fillText(l,cx,y+pad+lh/2+i*lh));
+}
+let nextSay=0;
+function ambient(t){
+  if(t<nextSay) return;
+  nextSay=t+2600+Math.random()*2200;
+  const cands=NPC.filter(n=>Math.abs(n.x-P.x)+Math.abs(n.y-P.y)<=9 && !(n._say&&t<n._say.until));
+  if(!cands.length) return;
+  const n=cands[Math.floor(Math.random()*cands.length)];
+  const line=n.lines[Math.floor(Math.random()*n.lines.length)];
+  const short=line.split(/[。！？，]/)[0].slice(0,16);
+  n._say={text:short, until:t+4200};
+}
+/* ---------- 水彩背景（以 SVG 一次繪製，邊緣帶暈染效果） ---------- */
+let bgImg=new Image();
+function makeWatercolorBG(){
+  const R=mulberry(7);
+  const rnd=(a,b)=>a+(b-a)*R();
+  const P=[];
+  const blob=(cx,cy,rx,ry,col,op)=>'<ellipse cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" rx="'+rx.toFixed(1)+'" ry="'+ry.toFixed(1)+'" fill="'+col+'" opacity="'+op.toFixed(2)+'"/>';
+  const rect=(x,y,w,h,col,op,rx)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(rx||0)+'" fill="'+col+'" opacity="'+op+'"/>';
+  const GRASS=['#A7CB8A','#93BC74','#B6D59C','#84AE6A','#C2DDA6'];
+  P.push(rect(0,0,W,H,'#F1EBD6',1));
+  // 草地暈染
+  const grass=[];
+  for(let i=0;i<340;i++) grass.push(blob(R()*W,R()*H,rnd(7,18),rnd(5,12),GRASS[Math.floor(R()*GRASS.length)],rnd(.28,.5)));
+  P.push('<g filter="url(#wc)">'+grass.join('')+'</g>');
+  // 小路
+  const path=[];
+  for(let ty=0;ty<VH;ty++)for(let tx=0;tx<VW;tx++){
+    if(!isPath(tx,ty)) continue;
+    path.push(blob(tx*T+8,ty*T+8,rnd(10,12),rnd(9,11),'#E2C797',.9));
+    path.push(blob(tx*T+rnd(3,13),ty*T+rnd(3,13),rnd(2,4),rnd(1.5,3),'#B99262',.35));
+  }
+  P.push('<g filter="url(#wc)">'+path.join('')+'</g>');
+  // 河流
+  const river=[];
+  for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){
+    if(isBridge(x,y)) continue;
+    river.push(blob(x*T+8,y*T+8,rnd(10,12),rnd(8,9.5),(x+y)%2?'#8CC0DE':'#74B1D4',.9));
+    river.push(blob(x*T+rnd(4,12),y*T+rnd(4,12),3,1.2,'#FFFFFF',.45));
+  }
+  P.push('<g filter="url(#wc)">'+river.join('')+'</g>');
+  // 小橋
+  const bridge=[];
+  for(let y=POND.y0;y<=POND.y1;y++)for(const x of [6,7]){
+    bridge.push(rect(x*T,y*T,T,T,'#C9915A',.95));
+    bridge.push(rect(x*T,y*T+4,T,1,'#7A5232',.7)); bridge.push(rect(x*T,y*T+10,T,1,'#7A5232',.7));
+  }
+  P.push('<g filter="url(#wc)">'+bridge.join('')+'</g>');
+  // 房屋
+  const houses=[];
+  BLDS.forEach(d=>{
+    const X=d.x*T, Y=d.y*T, W2=d.w*T, H2=d.h*T, rH=H2*0.46;
+    houses.push(blob(X+W2/2,Y+H2+1,W2/2,2.5,'#5A4A30',.22));
+    houses.push(rect(X+2,Y+rH,W2-4,H2-rH,d.wall,.95));
+    houses.push(rect(X+W2-8,Y+rH,6,H2-rH,'#B9A07A',.35));
+    houses.push(rect(X,Y,W2,rH,d.roof,.92));
+    houses.push(rect(X+1,Y+rH-2,W2-2,2,'#3E2E20',.35));
+    for(let i=0;i<d.win;i++){ const wx=i===0?X+5:X+W2-11; houses.push(rect(wx,Y+rH+4,6,5,'#5E4530',.85)); houses.push(rect(wx+1,Y+rH+5,4,3,'#F7E7B0',.9)); }
+    houses.push(rect(X+W2/2-3,Y+H2-8,6,8,'#7A5232',.92));
+  });
+  P.push('<g filter="url(#wc)">'+houses.join('')+'</g>');
+  // 樹
+  const tree=(X,Y,cols)=>{
+    let s=blob(X+8,Y+14,6,2.2,'#5A4A30',.25)+rect(X+7,Y+9,2.6,6,'#8A6A44',.9);
+    const cx=X+8, cy=Y+6;
+    [[0,0,6.5,5.5],[-2.5,-2,4.5,3.8],[2.5,-1,4.5,3.6],[0,3,6,3]].forEach(([dx,dy,rx,ry],i)=>{ s+=blob(cx+dx,cy+dy,rx,ry,cols[i%cols.length],.85); });
+    return s;
+  };
+  const trees=[];
+  for(let x=0;x<VW;x++){ trees.push(tree(x*T,0,['#5E8F50','#7AA765','#4C7C44','#6F9E5C'])); trees.push(tree(x*T,(VH-1)*T,['#5E8F50','#7AA765','#4C7C44','#6F9E5C'])); }
+  for(let y=1;y<VH-1;y++){ trees.push(tree(0,y*T,['#5E8F50','#7AA765','#4C7C44','#6F9E5C'])); trees.push(tree((VW-1)*T,y*T,['#5E8F50','#7AA765','#4C7C44','#6F9E5C'])); }
+  TREES.forEach(([x,y])=>trees.push(tree(x*T,y*T,['#5E8F50','#7AA765','#4C7C44','#6F9E5C'])));
+  CHERRY.forEach(([x,y])=>trees.push(tree(x*T,y*T,['#EBA3BD','#F4C2D3','#D98AA8','#F7D6E2'])));
+  P.push('<g filter="url(#wc)">'+trees.join('')+'</g>');
+  // 石頭、灌木、蘑菇、蘆葦、菜園、涼亭、燈籠
+  const misc=[];
+  ROCKS.forEach(([x,y])=>{ misc.push(blob(x*T+8,y*T+12,6,2,'#4E4A40',.2)); misc.push(blob(x*T+8,y*T+8,5.5,4,'#A9AEB2',.95)); misc.push(blob(x*T+6,y*T+6,2.5,1.5,'#D5D9DC',.9)); });
+  BUSHES.forEach(([x,y])=>{ misc.push(blob(x*T+8,y*T+11,7,4,'#4E8A4C',.9)); misc.push(blob(x*T+6,y*T+8,4,3,'#6FA863',.9)); misc.push(blob(x*T+11,y*T+9,2,1.5,'#F2B8CB',.9)); });
+  MUSH.forEach(([x,y])=>{ misc.push(rect(x*T+7,y*T+9,2,4,'#F3E6CC',1)); misc.push(blob(x*T+8,y*T+8,3.5,2.5,'#D8553A',.95)); misc.push(blob(x*T+7,y*T+7,.8,.8,'#FFFFFF',1)); });
+  REEDS.forEach(([x,y])=>{ [3,6,10,13].forEach(dx=>{ misc.push(rect(x*T+dx,y*T+3,.9,12,'#6E9A4E',.9)); misc.push(rect(x*T+dx,y*T+2,1.6,2.5,'#9A7A4A',.9)); }); });
+  CROPS.forEach(([x,y])=>{ for(let r=0;r<2;r++){ misc.push(rect(x*T,y*T+r*T,T*3,T,'#A67A4E',.85)); for(let i=0;i<3;i++){ misc.push(blob(x*T+i*T+5,y*T+r*T+8,2.5,2,'#6FA65A',.95)); misc.push(blob(x*T+i*T+11,y*T+r*T+8,2.5,2,'#6FA65A',.95)); } } });
+  misc.push(rect(PAVILION.x*T,PAVILION.y*T+4,2*T,6,'#B4703E',.95));
+  misc.push(rect(PAVILION.x*T-2,PAVILION.y*T+1,2*T+4,4,'#D98A52',.95));
+  misc.push(rect(PAVILION.x*T+2,PAVILION.y*T+10,2,4,'#8A5A34',.95)); misc.push(rect(PAVILION.x*T+2*T-4,PAVILION.y*T+10,2,4,'#8A5A34',.95));
+  LANTERNS.forEach(([x,y])=>{ misc.push(rect(x*T+7,y*T+6,2,10,'#6A4A2A',.95)); misc.push(blob(x*T+8,y*T+5,3,2.5,'#F7D27A',.95)); misc.push(blob(x*T+8,y*T+5,6,5,'#FFE9A0',.25)); });
+  // 花朵
+  for(let i=0;i<70;i++){
+    const tx=Math.floor(R()*VW), ty=Math.floor(R()*VH);
+    if(BLK.has(key(tx,ty))||isPath(tx,ty)) continue;
+    const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
+    misc.push(blob(tx*T+rnd(3,12),ty*T+rnd(3,12),1.8,1.8,cols[Math.floor(R()*cols.length)],.95));
+  }
+  P.push('<g filter="url(#wc)">'+misc.join('')+'</g>');
+  // 紙張紋理
+  P.push('<rect width="'+W+'" height="'+H+'" filter="url(#paper)" opacity=".28"/>');
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+(W*4)+'" height="'+(H*4)+'" viewBox="0 0 '+W+' '+H+'">'+
+    '<defs>'+
+    '<filter id="wc" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="3" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="0.35"/></filter>'+
+    '<filter id="paper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2"/><feColorMatrix type="matrix" values="0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0 0.2 0 0 0 -1.4 1"/></filter>'+
+    '</defs>'+P.join('')+'</svg>';
+  bgImg=new Image();
+  bgImg.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+function drawName(name,cx,topY,hot){
+  g.font='700 7px "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  const w=g.measureText(name).width+6, h=9, x=cx-w/2, y=topY-h-1;
+  g.fillStyle=hot?'#E9C98A':'rgba(251,246,233,.95)';
+  g.strokeStyle='#8A6A44'; g.lineWidth=.6;
+  g.beginPath(); if(g.roundRect){ g.roundRect(x,y,w,h,2.5); } else { g.rect(x,y,w,h); }
+  g.fill(); g.stroke();
+  g.fillStyle=hot?'#2E1F12':'#4A3626';
+  g.fillText(name,cx,y+h/2+.3);
+}
+function drawChar(id,look,X,Y,dir,step,bob,alert,name,hot,say){
+  const im=SPR[id];
+  const feet=Y+14, cx=X+8;
+  if(im && im.complete && im.naturalWidth){
+    g.imageSmoothingEnabled=true;
+    g.drawImage(im, cx-SPR_W/2, feet-SPR_H*0.952+bob, SPR_W, SPR_H);
+    g.imageSmoothingEnabled=false;
+  }else{
+    human(X,Y,look,dir,step,bob,false);
+  }
+  if(name) drawName(name,cx,feet-SPR_H+bob-1,hot);
+  if(say) drawBubble(say,cx,feet-SPR_H+bob-12);
+  if(alert && Math.floor(performance.now()/380)%2===0){
+    g.fillStyle='#FFD27A';
+    g.fillRect(cx-1, feet-SPR_H+bob+7, 2, 4);
+    g.fillRect(cx-1, feet-SPR_H+bob+12, 2, 1.5);
+  }
+}
+function render(t){
+  const S=CAM.Z*CAM.dpr;
+  CAM.x=Math.max(0,Math.min(W-CAM.sw, P.vx*T+T/2-CAM.sw/2));
+  CAM.y=Math.max(0,Math.min(H-CAM.sh, P.vy*T+T/2-CAM.sh/2));
+  g.setTransform(1,0,0,1,0,0);
+  g.globalCompositeOperation='source-over';
+  g.setTransform(1,0,0,1,0,0);
+  g.fillStyle='#0E2A1E'; g.fillRect(0,0,cv.width,cv.height);
+  g.setTransform(S,0,0,S,-CAM.x*S,CAM.head*CAM.dpr-CAM.y*S);
+  g.imageSmoothingEnabled=false;
+  if(bgImg.complete && bgImg.naturalWidth){ g.imageSmoothingEnabled=true; g.drawImage(bgImg,0,0,W,H); g.imageSmoothingEnabled=false; }
+  else g.drawImage(bgC,0,0);
+
+  // 水面閃光
+  for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){
+    if(isBridge(x,y)) continue;
+    const o=((t/700)+x*2.3+y*1.7)%1;
+    fillOn(g,x*T+Math.floor(o*12)+1,y*T+5+((x+y)%3)*3,3,1,'rgba(255,255,255,.35)');
+  }
+
+  // 人物與 NPC（依 y 排序，形成前後遮擋）
+  const list=NPC.map((n,i)=>({y:n.y,draw:()=>{
+    const near=Math.abs(n.x-P.x)+Math.abs(n.y-P.y);
+    const d=near<=2 ? dirOf(P.x-n.x,P.y-n.y) : 0;
+    drawChar(n.sprite,n.look,n.x*T,n.y*T,d,0,bobOf(i,t)*0.6,near===1,n.name,near===1,(n._say&&t<n._say.until)?n._say.text:'');
+  }}));
+  const walking=P.path.length>0;
+  const pStep=walking ? (Math.floor(t/130)%2===0?1:2) : 0;
+  list.push({y:P.vy,draw:()=>{
+    drawChar('player',PLAYER_LOOK,P.vx*T,P.vy*T,P.dir,pStep,(walking&&pStep===1)?-0.8:0,false,'太極',false);
+  }});
+  list.sort((a,c)=>a.y-c.y).forEach(o=>o.draw());
+
+  // 夜間光效
+  const night=isNight();
+  if(night){
+    fillOn(g,0,0,W,H,'rgba(12,22,64,.42)');
+  }else{
+    fillOn(g,0,0,W,H,'rgba(255,200,120,.05)');
+  }
+  g.globalCompositeOperation='lighter';
+  const glowA=night?0.5:0;
+  LANTERNS.forEach(([x,y])=>{
+    const cx=x*T+8, cy=y*T+6;
+    const rg=g.createRadialGradient(cx,cy,1,cx,cy,night?26:16);
+    rg.addColorStop(0,'rgba(255,190,100,'+glowA+')');
+    rg.addColorStop(1,'rgba(255,190,100,0)');
+    g.fillStyle=rg; g.fillRect(cx-28,cy-28,56,56);
+  });
+  if(night){
+    for(let i=0;i<16;i++){
+      const fx=(i*97.3+t*0.012*(1+i%3))%W;
+      const fy=60+(i*53.7)%(H-80)+Math.sin(t/500+i)*6;
+      const a=0.4+0.4*Math.sin(t/300+i);
+      g.fillStyle='rgba(255,240,150,'+a.toFixed(2)+')';
+      g.fillRect(Math.round(fx),Math.round(fy),1,1);
+      g.fillStyle='rgba(255,240,150,'+(a*0.25).toFixed(2)+')';
+      g.fillRect(Math.round(fx)-1,Math.round(fy)-1,3,3);
+    }
+  }
+  g.globalCompositeOperation='source-over';
+
+  // 暗角
+  const vg=g.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,W*0.62);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.16)');
+  g.fillStyle=vg; g.fillRect(0,0,W,H);
+  g.setTransform(1,0,0,1,0,0);
+}
+
+/* ---------- 迴圈與輸入 ---------- */
+function loop(t){
+  requestAnimationFrame(loop);
+  if(!document.body.classList.contains('v-mode')) return;
+  stepPlayer(t);
+  P.vx+=(P.x-P.vx)*0.32; P.vy+=(P.y-P.vy)*0.32;
+  if(Math.abs(P.x-P.vx)<0.01) P.vx=P.x;
+  if(Math.abs(P.y-P.vy)<0.01) P.vy=P.y;
+  ambient(t);
+  render(t);
+}
+
+cv.addEventListener('pointerdown',e=>{
+  const r=cv.getBoundingClientRect();
+  const wx=CAM.x+(e.clientX-r.left)/CAM.Z;
+  const wy=CAM.y+(e.clientY-r.top-CAM.head)/CAM.Z;
+  tapTile(Math.floor(wx/T), Math.floor(wy/T));
+});
+
+document.addEventListener('keydown',e=>{
+  if(!document.body.classList.contains('v-mode')) return;
+  if(!document.getElementById('vCard').hidden) return;
+  const m={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]};
+  const d=m[e.key]; if(!d) return;
+  e.preventDefault();
+  const nx=P.x+d[0], ny=P.y+d[1];
+  if(walkable(nx,ny)){ P.path=[[nx,ny]]; P.after=null; }
+  else P.dir=dirOf(d[0],d[1]);
+});
+
+/* ---------- 啟動 ---------- */
+buildBG();
+makeWatercolorBG();
+fit();
+window.addEventListener('resize',fit);
+window.addEventListener('orientationchange',fit);
+window.openVillage=openVillage;
+document.getElementById('menuVillage').addEventListener('click',function(){ toggleMenu(false); setTimeout(openVillage,150); });
+requestAnimationFrame(loop);
+setInterval(()=>{ if(document.body.classList.contains('v-mode')) renderVillage(); },3000);
+})();
 </script>
 </body>
 </html>
