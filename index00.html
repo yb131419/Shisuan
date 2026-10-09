@@ -4411,7 +4411,8 @@ function closeVillage(){
 document.getElementById('vBack').addEventListener('click',closeVillage);
 
 /* ---------- 等級（以完成的步驟次數計算） ---------- */
-function levelOf(p){ let lv=1, need=3; while(p>=need){ p-=need; lv++; need=2+lv; } return {lv:lv, cur:p, need:need}; }
+function needOf(lv){ return lv<=3?50:100; } // 前三級每級50次，之後每100次增加一級
+function levelOf(p){ let lv=1; while(p>=needOf(lv)){ p-=needOf(lv); lv++; } return {lv:lv, cur:p, need:needOf(lv)}; }
 const TITLES=['見習試算','初階試算','中階試算','高階試算','名家試算','大師試算'];
 function vzFlash(){ const f=document.getElementById('vFlash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
 function renderVillage(){
@@ -4421,7 +4422,7 @@ function renderVillage(){
   document.getElementById('vTitle').textContent=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
   document.getElementById('vName').textContent=(userInfo&&userInfo.displayName)||'冒險者';
   document.getElementById('vXpFill').style.width=(L2.cur/L2.need*100).toFixed(1)+'%';
-  document.getElementById('vCount').textContent='成功轉圖 '+pts+' 次';
+  document.getElementById('vCount').textContent='已完成 '+pts+' 次';
   document.getElementById('vNext').textContent='距 Lv.'+(L2.lv+1)+' 還需 '+(L2.need-L2.cur)+' 次';
   const av=document.getElementById('vAv');
   const pic=(userInfo&&userInfo.pictureUrl)||'';
