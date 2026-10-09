@@ -3658,7 +3658,7 @@ async function shareToLine(){
       const _cd=document.getElementById('customDays').value.trim();
       const _months=['','一','二','三','四','五','六','七','八','九','十','十一','十二'];
       const _m=parseInt(_pv,10);
-      const _periodText=_pv&&_m>0&&_m<=12?`\n使用月份：${_months[_m]}個月`:(_cd?`\n預計使用：${_cd}天`:'');
+      const _periodText=_pv&&_m>0&&_m<=12?`\n預估使用：${_months[_m]}個月`:(_cd?`\n預估使用：${_cd}天`:'');
       const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}${getPaymentShareText()}\n${imageUrl}`)}`;
       window.open(lineShareUrl,"_blank");
       showToast("✅ 圖片已上傳");
@@ -3703,13 +3703,13 @@ async function nativeShare(){
 
     let _pt2='';
     if(_pv2&&_m2>0&&_m2<=12){
-      _pt2=`\n使用月份：${_months2[_m2]}個月`;
+      _pt2=`\n預估使用：${_months2[_m2]}個月`;
     }else{
       // 月份未填：優先用自訂天數，再 fallback 到預估天數
       const candidates=selectedProds.filter(p=>{const n=(p.name||'').trim();return /^2/.test(n)&&!n.includes('贈品');});
       const maxQty=candidates.length?Math.max(...candidates.map(p=>p.qty||0)):0;
       const estDays=_cd2?parseInt(_cd2,10):maxQty*15;
-      if(estDays>0) _pt2=`\n預計使用：${daysToMonthText(estDays)}`;
+      if(estDays>0) _pt2=`\n預估使用：${daysToMonthText(estDays)}`;
     }
 
     const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_pt2}${getPaymentShareText()}`;
