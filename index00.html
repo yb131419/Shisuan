@@ -1679,7 +1679,7 @@ body.v-mode #quickAddFab{display:none!important}
 #vBottom.vb-full #vcF{flex:0 0 auto;max-height:none;overflow:visible}
 #vBottom.vb-full #vfList{flex:1 1 0 !important;min-height:0 !important;max-height:none !important}
 #vNpcList{position:absolute;left:auto;right:14px;top:calc(env(safe-area-inset-top,0px) + 156px);z-index:6;width:max-content;min-width:120px;max-width:60%;max-height:50%;overflow-y:auto;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:rgba(20,14,40,.92);border:1px solid rgba(232,196,104,.5)}
-.vnpc-it{text-align:left;min-height:30px;border-radius:8px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 12.5px "Noto Sans TC",sans-serif;padding:0 8px;cursor:pointer}
+.vnpc-it{text-align:left;min-height:26px;border-radius:7px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 10.5px/1.2 "Noto Sans TC",sans-serif;padding:0 6px;white-space:nowrap;cursor:pointer}
 .vnpc-it:active{background:rgba(232,196,104,.3)}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
@@ -4755,6 +4755,7 @@ function refreshAreaBtn(b,kind){
   b.textContent=areaBtnText(kind);
   b.disabled=!ok;
   b.style.opacity=ok?'1':'.55';
+  b.style.display='';
 }
 function buildNpcList(){
   const box=document.getElementById('vNpcList');
@@ -4789,12 +4790,15 @@ try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fi
 (function dailyReady(){
   const today=new Date().toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei'});
   let last=''; try{ last=localStorage.getItem('vz_day')||''; }catch(e){}
-  if(last===today) return;
   const r=Date.now()-GROW_MS;
-  Object.keys(farmSt).forEach(k=>{ farmSt[k]=r; });
-  Object.keys(fishSt).forEach(k=>{ fishSt[k]=r; });
+  if(last!==today){
+    Object.keys(farmSt).forEach(k=>{ farmSt[k]=r; });
+    Object.keys(fishSt).forEach(k=>{ fishSt[k]=r; });
+    try{ localStorage.setItem('vz_day',today); }catch(e){}
+  }
+  FARM.forEach(([x,y])=>{ const k=x+','+y; if(!farmSt[k]) farmSt[k]=r; });
+  FISH.forEach(([x,y])=>{ const k=x+','+y; if(!fishSt[k]) fishSt[k]=r; });
   saveFarm();
-  try{ localStorage.setItem('vz_day',today); }catch(e){}
 })();
 try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
 try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
@@ -4819,15 +4823,14 @@ function checkReady(){
 setInterval(checkReady,1000);
 function fxSpark(tx,ty,color,text){ fxList.push({x:tx*T+8,y:ty*T+8,t:performance.now(),c:color,text:text||''}); }
 function plotAct(store,k,label,plantMsg){
-  const now=Date.now(), t=store[k];
+  const now=Date.now(); let t=store[k]; if(!t){ t=now-GROW_MS; store[k]=t; }
   const [fx,fy]=k.split(',').map(Number);
   const isFish=(store===fishSt);
   delete readyNotified[(isFish?'fish:':'farm:')+k];
-  if(!t){ store[k]=now; saveFarm(); fxSpark(fx,fy,isFish?'#9FE8FF':'#B8FF9A',isFish?'放養 🐟':'種下 🌱'); showToast(plantMsg+'，30 分鐘後可收成'); return; }
   const left=Math.ceil(remainMs(t)/60000);
   if(left>0){ showToast(label+'生長中，還需 '+left+' 分鐘'); return; }
-  delete store[k]; saveFarm(); markDone(); fxSpark(fx,fy,isFish?'#FFE27A':'#FFD1E8','+1 經驗 ✨'); vzFlash();
-  showToast('🎉 '+label+'收成！經驗 +1');
+  store[k]=now; saveFarm(); markDone(); fxSpark(fx,fy,isFish?'#FFE27A':'#FFD1E8','+1 經驗 ✨'); vzFlash();
+  showToast('🎉 '+label+'收成！經驗 +1，30 分鐘後再次可收');
 }
 function actAt(tx,ty,fn){
   if(Math.abs(tx-P.x)+Math.abs(ty-P.y)===1){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
