@@ -4402,7 +4402,7 @@ const MUSH=[[1,6],[4,23]];
 const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
 const CROPS=[[2,19]];
 const FARM=[[1,19],[2,19],[3,19],[4,19],[1,20],[2,20],[3,20],[4,20]];
-const FISH=[[3,4],[5,4],[4,5]];
+const FISH=[[2,5],[3,5],[4,5]];
 const FARM_SET=new Set(FARM.map(([x,y])=>x+','+y));
 const FISH_SET=new Set(FISH.map(([x,y])=>x+','+y));
 const GROW_MS=30*60*1000;
@@ -4734,7 +4734,7 @@ function buildNpcList(){
     actAt(x,y,()=>plotAct(farmSt,x+','+y,'花','🌱 種下花種'));
   }));
   const [ix,iy]=pickTile(fishSt,FISH);
-  box.appendChild(mkBtn('🐟 養魚（'+tileStatus(fishSt,ix,iy,'可撈')+'）', ()=>{
+  box.appendChild(mkBtn('🐟 養魚（'+tileStatus(fishSt,ix,iy)+'）', ()=>{
     const [x,y]=pickTile(fishSt,FISH); setNpcList(false);
     actAt(x,y,()=>plotAct(fishSt,x+','+y,'魚','🐟 放入魚苗'));
   }));
@@ -4751,7 +4751,7 @@ setInterval(()=>{
   const kids=box.children; if(kids.length<2) return;
   const [fx,fy]=pickTile(farmSt,FARM), [ix,iy]=pickTile(fishSt,FISH);
   kids[kids.length-2].textContent='🌸 種花（'+tileStatus(farmSt,fx,fy)+'）';
-  kids[kids.length-1].textContent='🐟 養魚（'+tileStatus(fishSt,ix,iy,'可撈')+'）';
+  kids[kids.length-1].textContent='🐟 養魚（'+tileStatus(fishSt,ix,iy)+'）';
 },1000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 
@@ -4787,7 +4787,7 @@ function checkReady(){
   Object.keys(farmSt).forEach(k=>{ const fk='farm:'+k; if(now-farmSt[k]>=GROW_MS && !readyNotified[fk]){ readyNotified[fk]=1; nf++; } });
   Object.keys(fishSt).forEach(k=>{ const fk='fish:'+k; if(now-fishSt[k]>=GROW_MS && !readyNotified[fk]){ readyNotified[fk]=1; nfish++; } });
   if(nf) showToast('🌸 有 '+nf+' 格花可以收成了！');
-  if(nfish) showToast('🐟 有 '+nfish+' 處魚可以撈了！');
+  if(nfish) showToast('🐟 有 '+nfish+' 處魚可以收成了！');
 }
 setInterval(checkReady,1000);
 function fxSpark(tx,ty,color,text){ fxList.push({x:tx*T+8,y:ty*T+8,t:performance.now(),c:color,text:text||''}); }
@@ -4847,7 +4847,7 @@ function drawFarm(){
     }else{
       g.fillStyle='#F7B6CB'; g.beginPath(); g.arc(cx,cy-2,3,0,Math.PI*2); g.fill();
       g.fillStyle='#FFE9A8'; g.fillRect(cx-1,cy-3,2,2);
-      pill('🌸 可收成',cx,cy-4,'#FFE27A');
+      pill('可收成',cx,cy-4,'#FFE27A');
     }
   });
   FISH.forEach(([x,y])=>{
@@ -4856,7 +4856,7 @@ function drawFarm(){
     const cx=x*T+8+Math.sin(tt/500+x)*2, cy=y*T+8;
     g.fillStyle=ready?'#FFB347':'#FF8C42';
     g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
-    if(ready) pill('🐟 可撈',cx,cy-4,'#9FE8FF'); else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
+    if(ready) pill('可收成',cx,cy-4,'#FFE27A'); else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
   });
   g.textAlign='start';
   drawFx(pn);
