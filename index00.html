@@ -4401,8 +4401,8 @@ const BUSHES=[[1,17],[11,18],[4,24],[12,8]];
 const MUSH=[[1,6],[4,23]];
 const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
 const CROPS=[[2,19]];
-const FARM=[[1,19],[2,19],[3,19],[4,19],[1,20],[2,20],[3,20],[4,20]];
-const FISH=[[2,5],[3,5],[4,5]];
+const FARM=[[1,19],[2,19]];
+const FISH=[[2,5],[3,5]];
 const FARM_SET=new Set(FARM.map(([x,y])=>x+','+y));
 const FISH_SET=new Set(FISH.map(([x,y])=>x+','+y));
 const GROW_MS=30*60*1000;
@@ -4744,7 +4744,7 @@ function areaBtn(kind){
     const st=kind==='flower'?farmSt:fishSt, list=kind==='flower'?FARM:FISH;
     const r=readyTile(st,list); if(!r) return;
     setNpcList(false);
-    actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],kind==='flower'?'花':'魚',''));
+    actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],kind==='flower'?'花':'魚',''),true);
   });
   refreshAreaBtn(b,kind);
   return b;
@@ -4832,16 +4832,21 @@ function plotAct(store,k,label,plantMsg){
   store[k]=now; saveFarm(); markDone(); fxSpark(fx,fy,isFish?'#FFE27A':'#FFD1E8','+1 經驗 ✨'); vzFlash();
   showToast('🎉 '+label+'收成！經驗 +1，30 分鐘後再次可收');
 }
-function actAt(tx,ty,fn){
-  if(Math.abs(tx-P.x)+Math.abs(ty-P.y)===1){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
+function actAt(tx,ty,fn,force){
+  const adj=Math.abs(tx-P.x)+Math.abs(ty-P.y)===1;
+  if(!force && adj){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
   let best=null;
   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
     const ax=tx+dx, ay=ty+dy;
     if(!walkable(ax,ay)) continue;
+    if(force && ax===P.x && ay===P.y) continue; /* 強制走到另一側，不停在同一格 */
     const p=findPath(P.x,P.y,ax,ay);
-    if(p && (!best || p.length<best.length)) best=p;
+    if(p && p.length>0 && (!best || p.length<best.length)) best=p;
   }
-  if(!best){ toast('走不過去，換個位置試試'); return; }
+  if(!best){
+    if(adj){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
+    toast('走不過去，換個位置試試'); return;
+  }
   hideCard(); P.path=best; P.after=()=>{ P.dir=dirOf(tx-P.x,ty-P.y); fn(); };
 }
 function drawFx(pn){
@@ -4890,8 +4895,8 @@ function drawFarm(){
   });
   const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成');
   g.textAlign='center';
-  drawName('靈田',3*T,19*T,false); drawBubble('🌸 '+fS,3*T,19*T-11);
-  drawName('魚池',4*T,3*T,false); drawBubble('🐟 '+fishS,4*T,3*T-11);
+  drawName('靈田',2*T,19*T,false); drawBubble('🌸 '+fS,2*T,19*T-11);
+  drawName('魚池',3*T,3*T,false); drawBubble('🐟 '+fishS,3*T,3*T-11);
   g.textBaseline='alphabetic';
   g.textAlign='start';
   drawFx(pn);
@@ -5157,8 +5162,8 @@ function findPath(sx,sy,tx,ty){
 }
 function tapTile(tx,ty){
   if(tx<0||ty<0||tx>=VW||ty>=VH) return;
-  if(FARM_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(farmSt,tx+','+ty,'花','🌱 種下花種')); return; }
-  if(FISH_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(fishSt,tx+','+ty,'魚','🐟 放入魚苗')); return; }
+  if(FARM_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(farmSt,tx+','+ty,'花','🌱 種下花種'),true); return; }
+  if(FISH_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(fishSt,tx+','+ty,'魚','🐟 放入魚苗'),true); return; }
   const n=npcAt.get(key(tx,ty));
   if(n){ walkNear(n); return; }
   if(!walkable(tx,ty)) return;
