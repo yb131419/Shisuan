@@ -4723,9 +4723,10 @@ function mkBtn(text,fn){ const b=document.createElement('button'); b.type='butto
 function pickTile(store,list){ const now=Date.now(); for(const [x,y] of list){ const t=store[x+','+y]; if(!t || remainMs(t)<=0) return [x,y]; } return list[0]; }
 function tileStatus(store,x,y,rd){ const t=store[x+','+y]; if(!t) return '空地'; const left=Math.ceil(remainMs(t)/60000); return left>0?'剩 '+left+' 分':(rd||'可收成'); }
 function areaSummary(store,list,emptyTxt,readyTxt){
-  let ready=0, grow=null;
-  for(const [x,y] of list){ const t=store[x+','+y]; if(!t) continue; const r=remainMs(t); if(r<=0) ready++; else { const m=Math.ceil(r/60000); if(grow===null||m<grow) grow=m; } }
-  if(ready) return readyTxt+' '+ready+'處';
+  let ready=0, grow=null, realMin=null;
+  for(const [x,y] of list){ const t=store[x+','+y]; if(!t) continue; const r=remainMs(t); if(r<=0) ready++; else { const m=Math.ceil(r/60000); if(grow===null||m<grow) grow=m; }
+    const rr=GROW_MS-(Date.now()-t); if(rr>0){ const m2=Math.ceil(rr/60000); if(realMin===null||m2<realMin) realMin=m2; } }
+  if(ready) return readyTxt+' '+ready+'處'+(realMin!==null?' · 剩 '+realMin+' 分':'');
   if(grow!==null) return '剩 '+grow+' 分';
   return emptyTxt;
 }
@@ -4873,7 +4874,7 @@ function drawFarm(){
     }else{
       g.fillStyle='#F7B6CB'; g.beginPath(); g.arc(cx,cy-2,3,0,Math.PI*2); g.fill();
       g.fillStyle='#FFE9A8'; g.fillRect(cx-1,cy-3,2,2);
-      pill('可收成',cx,cy-4,'#FFE27A');
+      pill('可收成',cx,cy-4,'#FFE27A'); { const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.fillText(rl+'分',cx,cy+6); } }
     }
   });
   FISH.forEach(([x,y])=>{
@@ -4882,7 +4883,7 @@ function drawFarm(){
     const cx=x*T+8+Math.sin(tt/500+x)*2, cy=y*T+8;
     g.fillStyle=ready?'#FFB347':'#FF8C42';
     g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
-    if(ready) pill('可收成',cx,cy-4,'#FFE27A'); else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
+    if(ready){ pill('可收成',cx,cy-4,'#FFE27A'); const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#CFF3FF'; g.fillText(rl+'分',cx,cy+6); } } else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
   });
   const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成');
   g.textAlign='center';
