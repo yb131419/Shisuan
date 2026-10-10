@@ -1692,6 +1692,8 @@ body.v-mode #quickAddFab{display:none!important}
 #vMeta{font-size:12px !important}
 .vgrp{display:flex;gap:6px;align-items:center;margin:0 auto;pointer-events:auto}
 #vNpcHead,#vBgm,#vBgmSw{margin:0 !important;min-height:30px !important;font-size:12px !important;padding:0 10px !important;white-space:nowrap}
+#vBgm{opacity:1 !important;color:#FFE9A8 !important;border:1.5px solid #E8C468 !important;background:rgba(232,196,104,.2) !important;font-weight:700 !important}
+#vBgm.on{background:#E8C468 !important;color:#1B1433 !important}
 #sbVillageBtn{margin-left:auto !important;margin-right:auto !important}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
@@ -4741,9 +4743,9 @@ function flowerBtnText(){
 }
 function readyTile(store,list){ for(const [x,y] of list){ const t=store[x+','+y]; if(t && remainMs(t,store)<=0) return [x,y]; } return null; }
 const AREA={
-  flower:{st:()=>farmSt, list:()=>FARM, label:'花', text:()=>'🌸 '+areaSummary(farmSt,FARM,'','可收成')},
-  fish:{st:()=>fishSt, list:()=>FISH, label:'魚', text:()=>'🐟 '+areaSummary(fishSt,FISH,'','可收成')},
-  skel:{st:()=>skelSt, list:()=>SKEL, label:'骷髏怪', text:()=>'💀 '+areaSummary(skelSt,SKEL,'','可清除')}
+  flower:{st:()=>farmSt, list:()=>FARM, label:'花', text:()=>'🌸 種花 · '+areaSummary(farmSt,FARM,'','可收成')},
+  fish:{st:()=>fishSt, list:()=>FISH, label:'魚', text:()=>'🐟 養魚 · '+areaSummary(fishSt,FISH,'','可收成')},
+  skel:{st:()=>skelSt, list:()=>SKEL, label:'骷髏怪', text:()=>'💀 骷髏怪 · '+areaSummary(skelSt,SKEL,'','可清除')}
 };
 function areaBtn(kind){
   const b=mkBtn(AREA[kind].text(), ()=>{
@@ -4952,7 +4954,7 @@ function bgmSwitch(){
   bgmRefresh();
 }
 function bgmRefresh(){
-  const b=document.getElementById('vBgm'); if(b) b.textContent=bgmOn?'🔊':'🎵';
+  const b=document.getElementById('vBgm'); if(b){ b.textContent=bgmOn?'🔊':'🎵'; b.classList.toggle('on',bgmOn); }
   const sw=document.getElementById('vBgmSw'); if(sw) sw.textContent='⇄ 曲'+(bgmTrack+1);
   try{ localStorage.setItem('vz_bgm',bgmOn?'1':'0'); }catch(e){}
 }
