@@ -1683,20 +1683,15 @@ body.v-mode #quickAddFab{display:none!important}
 .vnpc-it:active{background:rgba(232,196,104,.3)}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
-#vBgm{margin-left:6px !important;min-width:36px;padding:0 8px !important}
-#vHead{flex-wrap:nowrap !important;gap:6px;padding-top:calc(env(safe-area-inset-top,0px) + 8px) !important;padding-bottom:8px !important}
-.vAv{width:40px !important;height:40px !important}
-#vName{font-size:14px !important}
-#vTitle{font-size:11px !important}
-#vLv{font-size:16px !important}
-#vXp{margin-top:4px !important;height:8px !important}
-#vMeta{font-size:11px !important;margin-bottom:6px !important}
-#vBack{min-height:30px !important;font-size:12px !important}
-#vBgm,#vBgmSw,#vNpcHead{min-height:26px !important;font-size:11px !important}
-#vInfo{min-width:0;flex:1 1 auto;overflow:hidden}
-#vInfo #vName,#vInfo #vTitle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#vBack{font-size:13px !important;padding:0 10px !important;margin-left:0 !important}
-#vBgmSw{margin-left:4px !important;padding:0 8px !important;font-size:11.5px !important;white-space:nowrap}
+#vHead{flex-wrap:nowrap !important;gap:6px;padding-top:calc(env(safe-area-inset-top,0px) + 12px) !important}
+.vAv{width:44px !important;height:44px !important}
+#vName{font-size:15px !important}
+#vTitle{font-size:12px !important}
+#vLv{font-size:17px !important}
+#vBack{font-size:13px !important;min-height:36px !important}
+#vMeta{font-size:12px !important}
+.vgrp{display:flex;gap:6px;align-items:center;margin:0 auto;pointer-events:auto}
+#vNpcHead,#vBgm,#vBgmSw{margin:0 !important;min-height:30px !important;font-size:12px !important;padding:0 10px !important;white-space:nowrap}
 #sbVillageBtn{margin-left:auto !important;margin-right:auto !important}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
@@ -2033,13 +2028,11 @@ body.v-mode #quickAddFab{display:none!important}
         <div id="vName">冒險者</div>
         <div id="vTitle">見習冒險者</div>
       </div>
-      <button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button>
-      <button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button>
       <button class="vbtn g sm" id="vBack" type="button">📜 返回列表</button>
       <div id="vLv">Lv.1</div>
     </div>
     <div id="vXp"><div id="vXpFill"></div></div>
-    <div id="vMeta"><span id="vCount">已完成 0 次</span><button class="vbtn g sm" id="vNpcHead" type="button">📋 NPC</button><span id="vNext"></span></div>
+    <div id="vMeta"><span id="vCount">已完成 0 次</span><span class="vgrp"><button class="vbtn g sm" id="vNpcHead" type="button">📋 NPC</button><button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button><button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button></span><span id="vNext"></span></div>
   </div>
   <div id="vMapBox">
     <div id="vWrap">
