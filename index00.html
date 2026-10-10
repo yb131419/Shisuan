@@ -4743,11 +4743,30 @@ function setNpcList(show){
   box.style.display=show?'flex':'none';
   const hd=document.getElementById('vNpcHead'); if(hd) hd.textContent=show?'📋 NPC ▴':'📋 NPC ▾';
 }
-setInterval(()=>{ const box=document.getElementById('vNpcList'); if(box && box.style.display!=='none') buildNpcList(); },30000);
+setInterval(()=>{
+  const box=document.getElementById('vNpcList');
+  if(!box || box.style.display==='none') return;
+  const kids=box.children; if(kids.length<2) return;
+  const [fx,fy]=pickTile(farmSt,FARM), [ix,iy]=pickTile(fishSt,FISH);
+  kids[kids.length-2].textContent='🌸 種花（'+tileStatus(farmSt,fx,fy)+'）';
+  kids[kids.length-1].textContent='🐟 養魚（'+tileStatus(fishSt,ix,iy)+'）';
+},1000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 
 /* ---------- 種花／養魚：每 30 分鐘可收成一次，收成 +1 經驗 ---------- */
 let farmSt={}, fishSt={};
+try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
+try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
+(function dailyReady(){
+  const today=new Date().toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei'});
+  let last=''; try{ last=localStorage.getItem('vz_day')||''; }catch(e){}
+  if(last===today) return;
+  const r=Date.now()-GROW_MS;
+  Object.keys(farmSt).forEach(k=>{ farmSt[k]=r; });
+  Object.keys(fishSt).forEach(k=>{ fishSt[k]=r; });
+  saveFarm();
+  try{ localStorage.setItem('vz_day',today); }catch(e){}
+})();
 try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
 try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
 function saveFarm(){
