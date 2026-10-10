@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>產品價錢</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-900: #0f2440;
+    --navy-700: #1a365d;
+    --navy-500: #2b6cb0;
+    --gold-500: #c9a15a;
+    --gold-300: #e9d3a6;
+    --gold-soft: #f7f0e1;
+    --ivory: #faf8f3;
+    --paper: #ffffff;
+    --ink: #1f2933;
+    --muted: #6b7280;
+    --line: #e7e2d6;
+    --ok: #2f7d5b;
+    --ok-soft: #e7f4ee;
+    --warn: #b5532f;
+    --warn-soft: #fbeee8;
+    --shadow-sm: 0 1px 2px rgba(15,36,64,.06), 0 2px 8px rgba(15,36,64,.04);
+    --shadow-md: 0 4px 16px rgba(15,36,64,.08), 0 1px 3px rgba(15,36,64,.05);
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ivory: #0e1620; --paper: #151f2b; --ink: #e8edf3; --muted: #94a0b0;
+      --line: #263344; --gold-soft: #201b11; --ok-soft: #13271f; --warn-soft: #2a1812;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.4); --shadow-md: 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 500px at 90% -10%, rgba(201,161,90,.12), transparent 60%),
+      radial-gradient(900px 400px at -10% 0%, rgba(43,108,176,.08), transparent 60%),
+      var(--ivory);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 96px; }
+
+  /* ---------- Header ---------- */
+  .hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 55%, var(--navy-500) 120%);
+    color: #fff; border-radius: 22px; padding: 26px 24px 22px;
+    box-shadow: var(--shadow-md);
+  }
+  .hero::after {
+    content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px;
+    border-radius: 50%; background: radial-gradient(circle, rgba(201,161,90,.35), transparent 70%);
+  }
+  .eyebrow { font-size: 12px; letter-spacing: .22em; color: var(--gold-300); text-transform: uppercase; }
+  .title {
+    font-family: "Noto Serif TC", serif; font-weight: 700; font-size: 26px; margin: 6px 0 4px;
+    letter-spacing: .04em;
+  }
+  .subtitle { font-size: 13px; opacity: .75; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; position: relative; z-index: 1;
+  }
+  .stat {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(6px);
+  }
+  .stat-label { font-size: 12px; opacity: .75; }
+  .stat-value { font-family: "Noto Serif TC", serif; font-size: 22px; font-weight: 700; margin-top: 2px; }
+  .stat-value small { font-size: 12px; opacity: .7; margin-left: 2px; font-family: "Noto Sans TC", sans-serif; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    display: flex; flex-direction: column; gap: 12px; margin: 22px 0 14px;
+  }
+  .search {
+    position: relative;
+  }
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+  .search input {
+    width: 100%; height: 46px; border-radius: 14px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); padding: 0 14px 0 42px; font-size: 15px;
+    box-shadow: var(--shadow-sm); outline: none; transition: border-color .2s, box-shadow .2s;
+  }
+  .search input:focus { border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,161,90,.18); }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; border: 1px solid var(--line); background: var(--paper); color: var(--muted);
+    padding: 7px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; transition: all .2s;
+  }
+  .chip.active { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }
+  .chip:focus-visible { outline: 2px solid var(--gold-500); outline-offset: 2px; }
+
+  /* ---------- Cards ---------- */
+  .list { display: grid; gap: 12px; }
+  .card {
+    position: relative; background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 16px 14px; box-shadow: var(--shadow-sm);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s;
+    animation: rise .45s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 16px; bottom: 16px; width: 3px; border-radius: 0 3px 3px 0;
+    background: var(--line); transition: background .2s;
+  }
+  .card.is-set::before { background: var(--gold-500); }
+  .card.dirty { border-color: var(--gold-500); }
+
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .name { font-size: 16px; font-weight: 700; line-height: 1.4; word-break: break-all; }
+  .badge {
+    flex: 0 0 auto; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 4px 9px; border-radius: 999px; background: var(--gold-soft); color: #8a6d2f;
+  }
+  .badge.none { background: var(--warn-soft); color: var(--warn); }
+
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .meta-item {
+    display: inline-flex; align-items: baseline; gap: 6px; font-size: 13px; color: var(--muted);
+    background: var(--ivory); border: 1px solid var(--line); border-radius: 10px; padding: 5px 10px;
+  }
+  .meta-item b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .editor {
+    display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 14px;
+  }
+  .field { position: relative; }
+  .field .cur {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--muted); pointer-events: none; font-weight: 500;
+  }
+  .field input {
+    width: 100%; height: 46px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--ivory); color: var(--ink); font-size: 18px; font-weight: 600;
+    padding: 0 14px 0 34px; font-variant-numeric: tabular-nums; outline: none;
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  .field input::placeholder { color: var(--muted); font-weight: 400; font-size: 15px; }
+  .field input:focus { border-color: var(--gold-500); background: var(--paper); box-shadow: 0 0 0 4px rgba(201,161,90,.18); }
+  .field input::-webkit-outer-spin-button, .field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .field input[type=number] { -moz-appearance: textfield; }
+
+  .btn {
+    height: 46px; padding: 0 20px; border: 0; border-radius: 12px; cursor: pointer;
+    background: linear-gradient(135deg, var(--navy-700), var(--navy-500)); color: #fff;
+    font-size: 15px; font-weight: 600; letter-spacing: .04em;
+    box-shadow: 0 4px 12px rgba(26,54,93,.25);
+    transition: transform .15s, box-shadow .2s, opacity .2s; white-space: nowrap;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,54,93,.3); }
+  .btn:active { transform: translateY(0) scale(.98); }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; box-shadow: none; }
+  .btn:focus-visible { outline: 2px solid var(--gold-500); outline-offset: 2px; }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; min-height: 18px; font-size: 12.5px; color: var(--muted); }
+  .foot .now b { color: var(--gold-500); font-size: 13px; font-weight: 700; }
+  .status { font-weight: 500; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--warn); }
+
+  /* ---------- States ---------- */
+  .skeleton { height: 118px; border-radius: var(--radius); background: linear-gradient(90deg, var(--paper) 0%, var(--ivory) 50%, var(--paper) 100%); background-size: 200% 100%; border: 1px solid var(--line); animation: shimmer 1.4s infinite linear; }
+  .empty { text-align: center; padding: 56px 16px; color: var(--muted); }
+  .empty-icon { width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; background: var(--gold-soft); display: grid; place-items: center; color: var(--gold-500); }
+  .empty-title { font-family: "Noto Serif TC", serif; font-size: 18px; color: var(--ink); margin-bottom: 4px; }
+  .retry { margin-top: 14px; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0;
+    background: var(--navy-900); color: #fff; padding: 12px 18px; border-radius: 999px;
+    font-size: 14px; box-shadow: var(--shadow-md); pointer-events: none;
+    transition: opacity .25s, transform .25s; display: flex; align-items: center; gap: 8px; z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: var(--warn); }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-300); }
+  .toast.err .dot { background: #fff; }
+
+  /* ---------- Modal ---------- */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(8,16,28,.45); backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center; padding: 20px; z-index: 60;
+  }
+  .modal-bg.show { display: flex; animation: fade .2s ease; }
+  .modal {
+    width: 100%; max-width: 360px; background: var(--paper); border-radius: 20px; padding: 24px;
+    box-shadow: var(--shadow-md); animation: pop .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal h3 { font-family: "Noto Serif TC", serif; margin: 0 0 6px; font-size: 19px; }
+  .modal p { margin: 0 0 16px; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+  .modal input {
+    width: 100%; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--ivory);
+    color: var(--ink); padding: 0 14px; font-size: 16px; outline: none;
+  }
+  .modal input:focus { border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,161,90,.18); }
+  .modal .row { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  .btn-ghost {
+    height: 42px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line);
+    background: transparent; color: var(--muted); cursor: pointer; font-size: 14px;
+  }
+
+  /* ---------- Motion ---------- */
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  /* ---------- Responsive ---------- */
+  @media (min-width: 620px) {
+    .toolbar { flex-direction: row; align-items: center; justify-content: space-between; }
+    .search { flex: 0 0 300px; }
+  }
+  @media (max-width: 480px) {
+    .title { font-size: 23px; }
+    .stats { gap: 8px; }
+    .stat { padding: 10px 10px; }
+    .stat-value { font-size: 19px; }
+    .editor { grid-template-columns: 1fr; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Price Registry</div>
+    <h1 class="title">產品價錢</h1>
+    <div class="subtitle">登錄與更新各品項價格，變更即時同步至試算表</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">品項總數</div><div class="stat-value" id="statTotal">—</div></div>
+      <div class="stat"><div class="stat-label">已設定價錢</div><div class="stat-value" id="statSet">—</div></div>
+      <div class="stat"><div class="stat-label">待設定</div><div class="stat-value" id="statPending">—</div></div>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="搜尋品項名稱" autocomplete="off">
+    </label>
+    <div class="chips" role="tablist" aria-label="篩選">
+      <button class="chip active" data-filter="all" role="tab">全部</button>
+      <button class="chip" data-filter="set" role="tab">已設定</button>
+      <button class="chip" data-filter="pending" role="tab">待設定</button>
+    </div>
+  </section>
+
+  <main id="list" class="list" aria-live="polite"></main>
+</div>
+
+<div id="toast" class="toast" role="status"><span class="dot"></span><span id="toastText"></span></div>
+
+<div id="modalBg" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h3 id="modalTitle">輸入編輯密碼</h3>
+    <p>請輸入管理密碼以儲存價錢。密碼只會保存在這台裝置的瀏覽器中。</p>
+    <input id="tokenInput" type="password" placeholder="編輯密碼" autocomplete="current-password">
+    <div class="row">
+      <button class="btn-ghost" id="modalCancel">取消</button>
+      <button class="btn" id="modalOk" style="height:42px;padding:0 20px">確認</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ★ 換成你的 GAS 網址（/exec 結尾）
+  const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+
+  const state = { items: [], filter: "all", query: "" };
+  const $ = (id) => document.getElementById(id);
+  const listEl = $("list");
+
+  /* ---------- 工具 ---------- */
+  const fmt = (n) => (n === null || n === undefined || n === "" || isNaN(Number(n))) ? "—" : Number(n).toLocaleString("zh-TW");
+  const fmtPV = (n) => (n === null || n === undefined || n === "" || isNaN(Number(n))) ? "—" : Number(n).toLocaleString("zh-TW", { maximumFractionDigits: 2 });
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  let toastTimer;
+  function toast(msg, isErr = false) {
+    const t = $("toast");
+    $("toastText").textContent = msg;
+    t.classList.toggle("err", isErr);
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+  }
+
+  /* ---------- JSONP 呼叫（與既有系統相同方式） ---------- */
+  function api(params) {
+    return new Promise((resolve, reject) => {
+      const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
+      const qs = new URLSearchParams({ ...params, callback: cbName });
+      const script = document.createElement("script");
+      const cleanup = () => { delete window[cbName]; script.remove(); clearTimeout(timer); };
+      const timer = setTimeout(() => { cleanup(); reject(new Error("連線逾時，請稍後再試")); }, 15000);
+      window[cbName] = (data) => { cleanup(); resolve(data); };
+      script.onerror = () => { cleanup(); reject(new Error("無法連線到伺服器")); };
+      script.src = API_URL + "?" + qs.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  /* ---------- 載入 ---------- */
+  function showSkeleton() {
+    listEl.innerHTML = Array.from({ length: 4 }, () => '<div class="skeleton"></div>').join("");
+  }
+
+  async function load() {
+    showSkeleton();
+    try {
+      const res = await api({ action: "priceList" });
+      if (res.status !== "success") throw new Error(res.message || "讀取失敗");
+      state.items = res.items || [];
+      updateStats();
+      render();
+    } catch (e) {
+      listEl.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">!</div>
+          <div class="empty-title">無法載入資料</div>
+          <div>${esc(e.message)}</div>
+          <button class="btn retry" onclick="load()" style="width:auto">重新整理</button>
+        </div>`;
+    }
+  }
+
+  /* ---------- 統計 ---------- */
+  function updateStats() {
+    const total = state.items.length;
+    const set = state.items.filter(i => i.price !== null).length;
+    $("statTotal").textContent = total;
+    $("statSet").textContent = set;
+    $("statPending").textContent = total - set;
+  }
+
+  /* ---------- 渲染 ---------- */
+  function filtered() {
+    const q = state.query.trim().toLowerCase();
+    return state.items.filter(it => {
+      if (q && !it.name.toLowerCase().includes(q)) return false;
+      if (state.filter === "set" && it.price === null) return false;
+      if (state.filter === "pending" && it.price !== null) return false;
+      return true;
+    });
+  }
+
+  function render() {
+    const shown = filtered();
+    if (!state.items.length) {
+      listEl.innerHTML = `<div class="empty"><div class="empty-icon">✦</div><div class="empty-title">尚無品項</div><div>請到試算表「產品明細」新增品項</div></div>`;
+      return;
+    }
+    if (!shown.length) {
+      listEl.innerHTML = `<div class="empty"><div class="empty-icon">⌕</div><div class="empty-title">找不到符合的品項</div><div>試試其他關鍵字或切換篩選</div></div>`;
+      return;
+    }
+    listEl.innerHTML = shown.map((it, idx) => {
+      const isSet = it.price !== null;
+      return `
+      <article class="card ${isSet ? "is-set" : ""}" data-row="${it.row}" style="animation-delay:${Math.min(idx, 10) * 40}ms">
+        <div class="card-head">
+          <div class="name">${esc(it.name)}</div>
+          <span class="badge ${isSet ? "" : "none"}">${isSet ? "已設定" : "待設定"}</span>
+        </div>
+        <div class="meta">
+          <span class="meta-item">PV <b>${fmtPV(it.pv)}</b></span>
+          <span class="meta-item">金額 <b>${fmt(it.amount)}</b></span>
+        </div>
+        <div class="editor">
+          <div class="field">
+            <span class="cur">NT$</span>
+            <input type="number" inputmode="decimal" min="0" step="any"
+                   value="${isSet ? it.price : ""}" placeholder="輸入價錢" aria-label="${esc(it.name)} 價錢">
+          </div>
+          <button class="btn" data-save>儲存</button>
+        </div>
+        <div class="foot">
+          <span class="status"></span>
+          <span class="now">目前 <b>${isSet ? fmt(it.price) : "未設定"}</b></span>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  /* ---------- 事件委派 ---------- */
+  listEl.addEventListener("input", (e) => {
+    if (e.target.matches("input")) e.target.closest(".card").classList.add("dirty");
+  });
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-save]");
+    if (btn) save(btn.closest(".card"));
+  });
+  listEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.matches("input")) save(e.target.closest(".card"));
+  });
+
+  $("search").addEventListener("input", (e) => { state.query = e.target.value; render(); });
+  document.querySelector(".chips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === chip));
+    state.filter = chip.dataset.filter;
+    render();
+  });
+
+  /* ---------- 密碼（自訂彈窗，取代 prompt） ---------- */
+  function askToken() {
+    return new Promise((resolve) => {
+      const bg = $("modalBg"), input = $("tokenInput");
+      input.value = "";
+      bg.classList.add("show");
+      setTimeout(() => input.focus(), 50);
+      const done = (val) => {
+        bg.classList.remove("show");
+        $("modalOk").onclick = $("modalCancel").onclick = null;
+        input.onkeydown = null;
+        resolve(val);
+      };
+      $("modalOk").onclick = () => done(input.value.trim() || null);
+      $("modalCancel").onclick = () => done(null);
+      input.onkeydown = (e) => { if (e.key === "Enter") done(input.value.trim() || null); };
+    });
+  }
+
+  async function getToken() {
+    let t = null;
+    try { t = localStorage.getItem("priceToken"); } catch (e) {}
+    if (t) return t;
+    t = await askToken();
+    if (t) { try { localStorage.setItem("priceToken", t); } catch (e) {} }
+    return t;
+  }
+
+  /* ---------- 儲存 ---------- */
+  async function save(card) {
+    const row = Number(card.dataset.row);
+    const input = card.querySelector("input");
+    const btn = card.querySelector("[data-save]");
+    const status = card.querySelector(".status");
+    const value = input.value.trim();
+
+    if (value !== "" && (isNaN(Number(value)) || Number(value) < 0)) {
+      status.textContent = "請輸入非負數字";
+      status.className = "status err";
+      input.focus();
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) return;
+
+    btn.disabled = true;
+    status.textContent = "儲存中…";
+    status.className = "status";
+
+    try {
+      const res = await api({ action: "priceSave", row, price: value, token });
+      if (res.status !== "success") {
+        if ((res.message || "").includes("密碼")) { try { localStorage.removeItem("priceToken"); } catch (e) {} }
+        throw new Error(res.message || "儲存失敗");
+      }
+      const it = state.items.find(x => x.row === row);
+      if (it) it.price = res.price;
+      card.classList.remove("dirty");
+      card.classList.toggle("is-set", res.price !== null);
+      const badge = card.querySelector(".badge");
+      badge.textContent = res.price !== null ? "已設定" : "待設定";
+      badge.classList.toggle("none", res.price === null);
+      card.querySelector(".now b").textContent = res.price === null ? "未設定" : fmt(res.price);
+      status.textContent = "已更新 ✓";
+      status.className = "status ok";
+      updateStats();
+      if (state.filter !== "all") render();
+      toast("價錢已更新");
+    } catch (e) {
+      status.textContent = "失敗：" + e.message;
+      status.className = "status err";
+      toast(e.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
