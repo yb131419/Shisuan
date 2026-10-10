@@ -7,230 +7,276 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --g-25:  #eaf5ee;
-    --g-50:  #dcefe3;
-    --g-100: #c0e4cf;
-    --g-200: #90cfab;
-    --g-300: #5fb585;
-    --g-400: #3a9b6a;
-    --g-500: #2a8759;
-    --g-600: #1d6e47;
-    --g-700: #15593a;
-    --g-800: #0e4529;
-    --g-900: #08301d;
-    --text: #0c2c1e;
-    --muted: #46675a;
-    --card: #ffffff;
-    --border: #d3ecdd;
-    --warn: #b7791f;
-    --err: #c53030;
-    --radius: 18px;
-    --shadow-sm: 0 1px 2px rgba(19,90,62,.06), 0 2px 8px rgba(19,90,62,.05);
-    --shadow-md: 0 8px 24px rgba(19,90,62,.12);
+    /* 翡翠綠主色 */
+    --emerald-950: #05261a;
+    --emerald-900: #0a3324;
+    --emerald-800: #0e4530;
+    --emerald-700: #155a3e;
+    --emerald-600: #1e7150;
+    --emerald-500: #2b8a62;
+    --emerald-300: #7cc3a0;
+    --emerald-100: #d9efe3;
+    --emerald-50:  #eef7f1;
+    /* 香檳金點綴 */
+    --gold-600: #a9864a;
+    --gold-400: #c9a96e;
+    --gold-300: #dcc393;
+    --gold-100: #f6eedb;
+    /* 中性色 */
+    --ivory: #f7f8f5;
+    --paper: #ffffff;
+    --ink: #0d2a1e;
+    --muted: #5d7a6c;
+    --line: rgba(14,69,48,.10);
+    --warn: #9a6b1f;
+    --err: #b42318;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --shadow-soft: 0 1px 2px rgba(5,38,26,.04), 0 10px 30px -12px rgba(5,38,26,.18);
+    --shadow-lift: 0 2px 4px rgba(5,38,26,.05), 0 24px 48px -18px rgba(5,38,26,.28);
+    --serif: "Noto Serif TC", "Cormorant Garamond", "Songti TC", serif;
+    --num: "Cormorant Garamond", "Noto Serif TC", serif;
+    --sans: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
     background:
-      radial-gradient(1200px 500px at 110% -10%, rgba(143,211,173,.35), transparent 60%),
-      radial-gradient(900px 400px at -10% 30%, rgba(179,228,203,.35), transparent 60%),
-      var(--g-25);
-    color: var(--text);
-    font-family: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+      radial-gradient(1100px 520px at 105% -8%, rgba(43,138,98,.10), transparent 60%),
+      radial-gradient(800px 420px at -8% 42%, rgba(201,169,110,.08), transparent 60%),
+      var(--ivory);
+    color: var(--ink);
+    font-family: var(--sans);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
-    font-variant-numeric: tabular-nums;
   }
   button, input { font: inherit; }
-  :focus-visible { outline: 2px solid var(--g-400); outline-offset: 2px; border-radius: 8px; }
+  :focus-visible { outline: 2px solid var(--gold-400); outline-offset: 3px; border-radius: 10px; }
 
-  /* ---------- Header ---------- */
+  /* ================= 頁首 ================= */
   .hero {
-    background: linear-gradient(135deg, #a6dcbd 0%, #5fb487 50%, #2f8a5c 100%);
-    padding: 36px 20px 84px;
-    position: relative;
-    overflow: hidden;
-    color: var(--g-900);
+    position: relative; overflow: hidden; color: #f4f1e8;
+    background:
+      radial-gradient(600px 260px at 88% 0%, rgba(201,169,110,.22), transparent 70%),
+      radial-gradient(500px 300px at 0% 100%, rgba(124,195,160,.18), transparent 70%),
+      linear-gradient(160deg, var(--emerald-950) 0%, var(--emerald-800) 55%, var(--emerald-700) 100%);
+    padding: 56px 24px 110px;
   }
-  .hero::before, .hero::after {
-    content: ""; position: absolute; border-radius: 50%; pointer-events: none;
-  }
+  /* 金色細線裝飾 */
   .hero::before {
-    width: 320px; height: 320px; right: -90px; top: -120px;
-    background: radial-gradient(circle, rgba(255,255,255,.55), transparent 70%);
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+    opacity: .7;
   }
   .hero::after {
-    width: 260px; height: 260px; left: -80px; bottom: -140px;
-    background: radial-gradient(circle, rgba(255,255,255,.4), transparent 70%);
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .06;
+    background-image: repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px);
   }
-  .hero-inner { max-width: 980px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-inner { max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
   .brand {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; letter-spacing: .18em; font-weight: 700;
-    color: var(--g-800); background: rgba(255,255,255,.55);
-    padding: 6px 12px; border-radius: 999px; backdrop-filter: blur(4px);
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 11px; letter-spacing: .32em; color: var(--gold-300); font-weight: 500;
+  }
+  .brand::before, .brand::after {
+    content: ""; display: block; width: 28px; height: 1px; background: var(--gold-400);
   }
   .title {
-    font-family: "Noto Serif TC", "Noto Sans TC", serif;
-    font-size: 34px; font-weight: 700; margin-top: 14px; letter-spacing: .04em;
-    color: var(--g-900);
+    font-family: var(--serif); font-weight: 700;
+    font-size: 46px; letter-spacing: .08em; margin-top: 18px; line-height: 1.15;
+    background: linear-gradient(180deg, #ffffff 0%, #e9dfc4 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .subtitle { margin-top: 6px; font-size: 14px; color: var(--g-800); opacity: .85; }
+  .subtitle {
+    margin-top: 12px; font-size: 14px; color: rgba(244,241,232,.72); letter-spacing: .06em;
+  }
   .sync-row {
-    margin-top: 18px; display: inline-flex; align-items: center; gap: 8px;
-    font-size: 13px; color: var(--g-900);
-    background: rgba(255,255,255,.6); padding: 6px 12px; border-radius: 999px;
+    margin-top: 26px; display: inline-flex; align-items: center; gap: 10px;
+    font-size: 12px; letter-spacing: .08em; color: rgba(244,241,232,.9);
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid rgba(201,169,110,.35);
+    background: rgba(255,255,255,.06); backdrop-filter: blur(6px);
   }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #9bb8a9; display: inline-block; }
-  .dot.ok { background: var(--g-500); box-shadow: 0 0 0 0 rgba(63,174,123,.6); animation: pulse 2s infinite; }
-  .dot.syncing { background: var(--g-300); animation: blink 1s infinite; }
-  .dot.error { background: var(--err); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #5d7a6c; display: inline-block; }
+  .dot.ok { background: #8fe0b5; box-shadow: 0 0 0 0 rgba(143,224,181,.6); animation: pulse 2.2s infinite; }
+  .dot.syncing { background: var(--gold-300); animation: blink 1s infinite; }
+  .dot.error { background: #f29c94; }
   @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(63,174,123,.6); }
-    70% { box-shadow: 0 0 0 9px rgba(63,174,123,0); }
-    100% { box-shadow: 0 0 0 0 rgba(63,174,123,0); }
+    0% { box-shadow: 0 0 0 0 rgba(143,224,181,.55); }
+    70% { box-shadow: 0 0 0 8px rgba(143,224,181,0); }
+    100% { box-shadow: 0 0 0 0 rgba(143,224,181,0); }
   }
   @keyframes blink { 50% { opacity: .3; } }
 
-  /* ---------- Layout ---------- */
-  .container { max-width: 980px; margin: -56px auto 48px; padding: 0 16px; position: relative; z-index: 2; }
+  /* ================= 版面 ================= */
+  .container { max-width: 1000px; margin: -64px auto 56px; padding: 0 20px; position: relative; z-index: 2; }
 
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  /* 統計 */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
   .stat {
-    background: linear-gradient(160deg, #ffffff 0%, var(--g-50) 100%);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 18px 16px; text-align: center; box-shadow: var(--shadow-md);
-    position: relative; overflow: hidden;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 22px 18px 20px; text-align: center;
+    box-shadow: var(--shadow-soft); position: relative;
   }
-  .stat::after {
-    content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-    width: 40px; height: 4px; border-radius: 4px 4px 0 0;
-    background: linear-gradient(90deg, var(--g-300), var(--g-600));
+  .stat::before {
+    content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 56px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
   }
-  .stat-num { font-family: "Noto Serif TC", serif; font-size: 30px; font-weight: 700; color: var(--g-700); line-height: 1.1; }
-  .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; letter-spacing: .04em; }
+  .stat-num {
+    font-family: var(--num); font-size: 44px; font-weight: 600; line-height: 1;
+    color: var(--emerald-700); font-variant-numeric: lining-nums tabular-nums;
+  }
+  .stat-label {
+    font-size: 11px; color: var(--muted); margin-top: 10px; letter-spacing: .24em;
+  }
 
-  /* ---------- Toolbar (sticky) ---------- */
+  /* 工具列 */
   .toolbar-wrap {
-    position: sticky; top: 0; z-index: 10;
-    padding: 10px 0 12px; margin-bottom: 8px;
-    background: linear-gradient(to bottom, var(--g-25) 80%, rgba(245,252,248,0));
+    position: sticky; top: 0; z-index: 10; padding: 12px 0 14px; margin-bottom: 6px;
+    background: linear-gradient(to bottom, var(--ivory) 78%, rgba(247,248,245,0));
   }
   .toolbar {
-    background: rgba(255,255,255,.9); backdrop-filter: blur(10px);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-    box-shadow: var(--shadow-sm);
+    background: rgba(255,255,255,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    box-shadow: var(--shadow-soft);
   }
   .search {
-    flex: 1 1 240px; display: flex; align-items: center; gap: 8px;
-    background: var(--g-25); border: 1px solid var(--border);
-    border-radius: 12px; padding: 0 12px; height: 44px; transition: border-color .2s, box-shadow .2s;
+    flex: 1 1 260px; display: flex; align-items: center; gap: 10px;
+    background: var(--ivory); border: 1px solid var(--line);
+    border-radius: 14px; padding: 0 16px; height: 46px; transition: border-color .25s, box-shadow .25s;
   }
-  .search:focus-within { border-color: var(--g-400); box-shadow: 0 0 0 4px rgba(95,192,146,.18); }
+  .search:focus-within { border-color: var(--gold-400); box-shadow: 0 0 0 4px rgba(201,169,110,.18); }
   .search input {
     flex: 1; border: none; outline: none; background: transparent;
-    font-size: 15px; color: var(--text);
+    font-size: 15px; color: var(--ink); letter-spacing: .02em;
   }
-  .search svg { width: 18px; height: 18px; color: var(--g-600); flex-shrink: 0; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .search input::placeholder { color: #8aa398; }
+  .search svg { width: 18px; height: 18px; color: var(--gold-600); flex-shrink: 0; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .chip {
-    border: 1px solid var(--border); background: #fff; color: var(--muted);
-    padding: 9px 16px; border-radius: 999px; font-size: 13px; cursor: pointer;
-    transition: all .2s; font-weight: 500;
+    border: 1px solid var(--line); background: var(--paper); color: var(--muted);
+    padding: 9px 18px; border-radius: 999px; font-size: 13px; cursor: pointer;
+    letter-spacing: .04em; transition: all .25s;
   }
-  .chip:hover { border-color: var(--g-300); color: var(--g-700); transform: translateY(-1px); }
+  .chip:hover { border-color: var(--emerald-300); color: var(--emerald-700); }
   .chip.active {
-    background: linear-gradient(135deg, var(--g-600), var(--g-400));
-    color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(43,148,102,.3);
+    background: linear-gradient(135deg, var(--emerald-800), var(--emerald-600));
+    color: var(--gold-100); border-color: transparent;
+    box-shadow: 0 6px 16px -6px rgba(14,69,48,.55);
   }
 
-  .count-line { font-size: 13px; color: var(--muted); margin: 6px 4px 14px; }
+  .count-line {
+    font-size: 12px; color: var(--muted); margin: 10px 6px 16px; letter-spacing: .12em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .count-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
-  /* ---------- Product grid ---------- */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 14px; }
+  /* ================= 品項卡片 ================= */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 16px; }
   .item {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px 18px 16px 20px;
-    position: relative; overflow: hidden; box-shadow: var(--shadow-sm);
-    transition: transform .25s ease, box-shadow .25s ease, border-color .25s;
-    animation: fadeUp .4s ease both;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 20px 20px 18px;
+    position: relative; overflow: hidden; box-shadow: var(--shadow-soft);
+    transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s, border-color .35s;
+    animation: rise .6s cubic-bezier(.2,.7,.2,1) both;
   }
   .item::before {
-    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-    background: linear-gradient(180deg, var(--g-200), var(--g-600));
+    content: ""; position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-400), transparent); opacity: 0;
+    transition: opacity .35s;
   }
-  .item:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--g-200); }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: rgba(201,169,110,.45); }
+  .item:hover::before { opacity: 1; }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
-  .item-name { font-weight: 700; font-size: 15px; line-height: 1.45; word-break: break-all; color: var(--text); }
-  .item-meta { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .meta-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; color: var(--muted);
-    background: var(--g-50); border: 1px solid var(--g-100);
-    padding: 4px 10px; border-radius: 999px;
+  .item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .item-name {
+    font-family: var(--serif); font-weight: 700; font-size: 16px; line-height: 1.5;
+    color: var(--ink); word-break: break-all; letter-spacing: .02em;
   }
-  .meta-pill b { color: var(--g-800); font-weight: 700; font-size: 13px; }
-
-  .price-box {
-    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
-    background: linear-gradient(135deg, var(--g-50), #ffffff);
-    border: 1px solid var(--g-100);
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  }
-  .price-label { font-size: 12px; color: var(--g-700); font-weight: 500; letter-spacing: .06em; }
-  .price-val { font-family: "Noto Serif TC", serif; font-size: 22px; font-weight: 700; color: var(--g-800); }
-  .price-val.pending { font-family: inherit; font-size: 14px; color: var(--warn); font-weight: 500; }
-
   .badge {
-    display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 999px;
-    background: var(--g-100); color: var(--g-800); margin-left: 6px; vertical-align: middle;
-    border: 1px solid var(--g-200); font-weight: 500;
+    flex-shrink: 0; font-size: 10px; letter-spacing: .14em; padding: 3px 9px; border-radius: 999px;
+    color: var(--gold-600); background: var(--gold-100); border: 1px solid var(--gold-300);
+    font-weight: 500;
   }
 
-  .item.flash { animation: mintFlash 1.6s ease; }
-  @keyframes mintFlash {
-    0%, 100% { background: var(--card); }
-    20% { background: var(--g-100); }
+  .item-meta {
+    display: grid; grid-template-columns: 1fr 1fr; margin-top: 14px;
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .meta-cell { padding: 10px 4px; text-align: center; }
+  .meta-cell + .meta-cell { border-left: 1px solid var(--line); }
+  .meta-key { font-size: 10px; letter-spacing: .26em; color: var(--muted); }
+  .meta-val {
+    font-family: var(--num); font-size: 19px; font-weight: 600; color: var(--emerald-800);
+    margin-top: 2px; font-variant-numeric: lining-nums tabular-nums;
   }
 
-  /* ---------- Skeleton / empty / error ---------- */
+  /* 價錢區：翡翠底＋金字 */
+  .price-box {
+    margin-top: 14px; padding: 14px 16px; border-radius: 16px;
+    background: linear-gradient(135deg, var(--emerald-900), var(--emerald-700));
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .price-label { font-size: 11px; letter-spacing: .26em; color: rgba(246,238,219,.7); }
+  .price-val {
+    font-family: var(--num); font-size: 26px; font-weight: 600; color: var(--gold-300);
+    font-variant-numeric: lining-nums tabular-nums; letter-spacing: .01em;
+  }
+  .price-val.pending {
+    font-family: var(--sans); font-size: 13px; font-weight: 500; color: #f3d9a4; letter-spacing: .08em;
+  }
+
+  .item.flash { animation: goldFlash 1.8s ease; }
+  @keyframes goldFlash {
+    0%, 100% { background: var(--paper); }
+    20% { background: var(--gold-100); }
+  }
+
+  /* ================= 狀態 ================= */
   .skeleton {
-    height: 150px; border-radius: var(--radius);
-    background: linear-gradient(90deg, #fff, var(--g-100), #fff);
-    background-size: 200% 100%; animation: shimmer 1.4s infinite;
-    border: 1px solid var(--border);
+    height: 220px; border-radius: var(--radius-lg);
+    background: linear-gradient(90deg, #fff, var(--emerald-50), #fff);
+    background-size: 200% 100%; animation: shimmer 1.6s infinite;
+    border: 1px solid var(--line);
   }
   @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
   .empty {
     grid-column: 1 / -1; text-align: center; color: var(--muted);
-    padding: 48px 10px; font-size: 14px;
-    background: #fff; border: 1px dashed var(--g-200); border-radius: var(--radius);
+    padding: 60px 12px; font-size: 14px; letter-spacing: .08em;
+    background: var(--paper); border: 1px dashed var(--gold-300); border-radius: var(--radius-lg);
   }
   .error-banner {
-    display: none; margin-bottom: 14px; padding: 12px 14px; border-radius: 14px;
-    background: #fdf2f2; color: var(--err); border: 1px solid #f5c6c6;
-    font-size: 14px; align-items: center; justify-content: space-between; gap: 10px;
+    display: none; margin-bottom: 16px; padding: 14px 18px; border-radius: 16px;
+    background: #fdf3f2; color: var(--err); border: 1px solid #f1c6c2;
+    font-size: 14px; align-items: center; justify-content: space-between; gap: 12px;
   }
   .error-banner.show { display: flex; }
   .error-banner button {
-    border: none; background: var(--err); color: #fff; padding: 7px 14px;
-    border-radius: 8px; cursor: pointer; font-size: 13px;
+    border: none; background: var(--err); color: #fff; padding: 8px 16px;
+    border-radius: 10px; cursor: pointer; font-size: 13px; letter-spacing: .04em;
   }
 
-  .footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 32px; letter-spacing: .03em; }
+  .footer {
+    text-align: center; font-size: 11px; color: var(--muted); margin-top: 44px;
+    letter-spacing: .2em; display: flex; align-items: center; justify-content: center; gap: 14px;
+  }
+  .footer::before, .footer::after { content: ""; width: 40px; height: 1px; background: var(--gold-400); opacity: .6; }
 
-  @media (max-width: 560px) {
-    .title { font-size: 28px; }
-    .stats { gap: 8px; }
-    .stat { padding: 14px 8px; }
-    .stat-num { font-size: 22px; }
-    .container { margin-top: -44px; }
+  /* ================= 響應式 ================= */
+  @media (max-width: 600px) {
+    .hero { padding: 44px 20px 96px; }
+    .title { font-size: 36px; }
+    .container { margin-top: -54px; padding: 0 14px; }
+    .stats { gap: 10px; }
+    .stat { padding: 16px 8px; border-radius: 18px; }
+    .stat-num { font-size: 34px; }
+    .stat-label { letter-spacing: .12em; font-size: 10px; }
     .grid { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -242,9 +288,9 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <span class="brand">🌿 康園 ・ 大地之粹</span>
+    <span class="brand">KANGYUAN · 大地之粹</span>
     <h1 class="title">產品價錢</h1>
-    <div class="subtitle">即時同步・價錢依金額與數量自動計算</div>
+    <div class="subtitle">即時同步・價錢依金額與數量精準換算</div>
     <div class="sync-row">
       <span class="dot" id="statusDot"></span>
       <span id="statusText">連線中…</span>
@@ -267,8 +313,8 @@
   <div class="toolbar-wrap">
     <section class="toolbar">
       <label class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" id="searchInput" placeholder="搜尋品項名稱…" autocomplete="off" aria-label="搜尋品項">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="searchInput" placeholder="搜尋品項名稱" autocomplete="off" aria-label="搜尋品項">
       </label>
       <div class="chips" id="chips">
         <button class="chip active" data-filter="all">全部</button>
@@ -286,7 +332,7 @@
     <div class="skeleton"></div>
   </section>
 
-  <div class="footer">資料每 30 秒自動同步・切回此頁面會立即更新</div>
+  <div class="footer">每 30 秒自動同步・切回此頁即時更新</div>
 </main>
 
 <script>
@@ -395,11 +441,11 @@
     return el;
   }
 
-  function pill(label, value) {
-    const p = makeEl("span", "meta-pill");
-    p.append(label + " ");
-    p.appendChild(makeEl("b", "", value));
-    return p;
+  function metaCell(key, value) {
+    const c = makeEl("div", "meta-cell");
+    c.appendChild(makeEl("div", "meta-key", key));
+    c.appendChild(makeEl("div", "meta-val", value));
+    return c;
   }
 
   function render() {
@@ -410,7 +456,7 @@
     $("statPending").textContent = total - priced;
 
     const list = filtered();
-    $("countLine").textContent = `顯示 ${list.length} / ${total} 項`;
+    $("countLine").textContent = `顯示 ${list.length} ／ ${total} 項`;
 
     grid.innerHTML = "";
     if (list.length === 0) {
@@ -422,19 +468,19 @@
     const frag = document.createDocumentFragment();
     list.forEach((it, idx) => {
       const card = makeEl("div", "item");
-      card.style.animationDelay = Math.min(idx * 18, 320) + "ms";
+      card.style.animationDelay = Math.min(idx * 22, 360) + "ms";
 
       if (!firstRender && prevPrices.has(it.name) && prevPrices.get(it.name) !== it.price) {
         card.classList.add("flash");
       }
 
-      const nameRow = makeEl("div", "item-name");
-      nameRow.textContent = it.name;
-      if (it.amount === 0) nameRow.appendChild(makeEl("span", "badge", "贈品"));
-      card.appendChild(nameRow);
+      const head = makeEl("div", "item-head");
+      head.appendChild(makeEl("div", "item-name", it.name));
+      if (it.amount === 0) head.appendChild(makeEl("span", "badge", "贈品"));
+      card.appendChild(head);
 
       const meta = makeEl("div", "item-meta");
-      meta.append(pill("PV", fmtNum(it.pv)), pill("金額", fmtNum(it.amount)));
+      meta.append(metaCell("PV", fmtNum(it.pv)), metaCell("金額", fmtNum(it.amount)));
       card.appendChild(meta);
 
       const box = makeEl("div", "price-box");
