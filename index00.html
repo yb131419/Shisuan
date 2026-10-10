@@ -4745,7 +4745,6 @@ function setNpcList(show){
 }
 setInterval(()=>{ const box=document.getElementById('vNpcList'); if(box && box.style.display!=='none') buildNpcList(); },30000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
-setNpcList(true);
 
 /* ---------- 種花／養魚：每 30 分鐘可收成一次，收成 +1 經驗 ---------- */
 let farmSt={}, fishSt={};
@@ -4818,6 +4817,8 @@ function drawFarm(){
   g.textAlign='start';
   drawFx(pn);
 }
+setNpcList(true);
+
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
 const BGM_TRACKS=['Q6ibybw_ZYE','kj9Xc_mqcdU'];
