@@ -4923,6 +4923,7 @@ function drawFarm(){
     const left=Math.ceil(remainMs(st,skelSt)/60000), ready=left<=0;
     const bob=Math.sin(tt/380)*0.8;
     drawSkel(x,y,ready,bob);
+    if(ready){ pill('可清除',x*T+8,(y+1)*T-2+12,'#FFE27A'); }
     if(!ready){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.textAlign='center'; g.fillText('剩'+left+'分',x*T+8,(y+1)*T+8); }
   });
   const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成'), kS=areaSummary(skelSt,SKEL,'','可清除');
