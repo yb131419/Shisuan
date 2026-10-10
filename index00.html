@@ -1679,7 +1679,7 @@ body.v-mode #quickAddFab{display:none!important}
 #vBottom.vb-full #vcF{flex:0 0 auto;max-height:none;overflow:visible}
 #vBottom.vb-full #vfList{flex:1 1 0 !important;min-height:0 !important;max-height:none !important}
 #vNpcList{position:absolute;left:auto;right:14px;top:calc(env(safe-area-inset-top,0px) + 156px);z-index:6;width:max-content;min-width:120px;max-width:60%;max-height:50%;overflow-y:auto;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:rgba(20,14,40,.92);border:1px solid rgba(232,196,104,.5)}
-.vnpc-it{text-align:left;min-height:26px;border-radius:7px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 10.5px/1.2 "Noto Sans TC",sans-serif;padding:0 6px;white-space:nowrap;cursor:pointer}
+.vnpc-it{text-align:center;display:block;width:100%;min-height:26px;border-radius:7px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 10.5px/1.2 "Noto Sans TC",sans-serif;padding:0 6px;white-space:nowrap;cursor:pointer}
 .vnpc-it:active{background:rgba(232,196,104,.3)}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
@@ -4401,8 +4401,10 @@ const BUSHES=[[1,17],[11,18],[4,24],[12,8]];
 const MUSH=[[1,6],[4,23]];
 const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
 const CROPS=[[2,19]];
-const FARM=[[1,19],[2,19]];
-const FISH=[[2,5],[3,5]];
+const FARM=[[1,19]];
+const FISH=[[2,5]];
+const SKEL=[[11,16]];
+const SKEL_SET=new Set(SKEL.map(([x,y])=>x+','+y));
 const FARM_SET=new Set(FARM.map(([x,y])=>x+','+y));
 const FISH_SET=new Set(FISH.map(([x,y])=>x+','+y));
 const GROW_MS=30*60*1000;
@@ -4420,6 +4422,7 @@ for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){ if(!isBridge
 for(let y=LOTUS.y0;y<=LOTUS.y1;y++)for(let x=LOTUS.x0;x<=LOTUS.x1;x++) BLK.add(key(x,y));
 TREES.concat(CHERRY,ROCKS,BUSHES).forEach(([x,y])=>BLK.add(key(x,y)));
 FARM.forEach(([x,y])=>BLK.add(key(x,y)));
+SKEL.forEach(([x,y])=>BLK.add(key(x,y)));
 BLK.add(key(PAVILION.x,PAVILION.y)); BLK.add(key(PAVILION.x+1,PAVILION.y));
 
 /* ---------- 角色外觀 ---------- */
@@ -4726,8 +4729,8 @@ function areaSummary(store,list,emptyTxt,readyTxt){
   let ready=0, grow=null, realMin=null;
   for(const [x,y] of list){ const t=store[x+','+y]; if(!t) continue; const r=remainMs(t); if(r<=0) ready++; else { const m=Math.ceil(r/60000); if(grow===null||m<grow) grow=m; }
     const rr=GROW_MS-(Date.now()-t); if(rr>0){ const m2=Math.ceil(rr/60000); if(realMin===null||m2<realMin) realMin=m2; } }
-  if(ready) return readyTxt+' '+ready+'處'+(realMin!==null?' · 剩 '+realMin+' 分':'');
-  if(grow!==null) return '剩 '+grow+' 分';
+  if(ready) return readyTxt+(realMin!==null?' · 剩'+realMin+'分':'');
+  if(grow!==null) return '剩'+grow+'分';
   return emptyTxt;
 }
 function flowerBtnText(){
@@ -4735,24 +4738,24 @@ function flowerBtnText(){
   return s.indexOf('可收成')===0 ? '🌸 '+s : '🌸 種花（'+s+'）';
 }
 function readyTile(store,list){ for(const [x,y] of list){ const t=store[x+','+y]; if(t && remainMs(t)<=0) return [x,y]; } return null; }
-function areaBtnText(kind){
-  if(kind==='flower') return flowerBtnText();
-  return '🐟 養魚（'+areaSummary(fishSt,FISH,'空池','可收成')+'）';
-}
+const AREA={
+  flower:{st:()=>farmSt, list:()=>FARM, label:'花', text:()=>'🌸 '+areaSummary(farmSt,FARM,'','可收成')},
+  fish:{st:()=>fishSt, list:()=>FISH, label:'魚', text:()=>'🐟 '+areaSummary(fishSt,FISH,'','可收成')},
+  skel:{st:()=>skelSt, list:()=>SKEL, label:'骷髏怪', text:()=>'💀 '+areaSummary(skelSt,SKEL,'','可清除')}
+};
 function areaBtn(kind){
-  const b=mkBtn(areaBtnText(kind), ()=>{
-    const st=kind==='flower'?farmSt:fishSt, list=kind==='flower'?FARM:FISH;
+  const b=mkBtn(AREA[kind].text(), ()=>{
+    const st=AREA[kind].st(), list=AREA[kind].list();
     const r=readyTile(st,list); if(!r) return;
     setNpcList(false);
-    actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],kind==='flower'?'花':'魚',''),true);
+    actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],AREA[kind].label,''),true);
   });
   refreshAreaBtn(b,kind);
   return b;
 }
 function refreshAreaBtn(b,kind){
-  const st=kind==='flower'?farmSt:fishSt, list=kind==='flower'?FARM:FISH;
-  const ok=!!readyTile(st,list);
-  b.textContent=areaBtnText(kind);
+  const ok=!!readyTile(AREA[kind].st(),AREA[kind].list());
+  b.textContent=AREA[kind].text();
   b.disabled=!ok;
   b.style.opacity=ok?'1':'.55';
   b.style.display='';
@@ -4767,6 +4770,7 @@ function buildNpcList(){
   });
   box.appendChild(areaBtn('flower'));
   box.appendChild(areaBtn('fish'));
+  box.appendChild(areaBtn('skel'));
 }
 function setNpcList(show){
   const box=document.getElementById('vNpcList'); if(!box) return;
@@ -4778,32 +4782,36 @@ setInterval(()=>{
   const box=document.getElementById('vNpcList');
   if(!box || box.style.display==='none') return;
   const kids=box.children; if(kids.length<2) return;
-  refreshAreaBtn(kids[kids.length-2],'flower');
-  refreshAreaBtn(kids[kids.length-1],'fish');
+  refreshAreaBtn(kids[kids.length-3],'flower');
+  refreshAreaBtn(kids[kids.length-2],'fish');
+  refreshAreaBtn(kids[kids.length-1],'skel');
 },1000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 
 /* ---------- 種花／養魚：每 30 分鐘可收成一次，收成 +1 經驗 ---------- */
-let farmSt={}, fishSt={};
+let farmSt={}, fishSt={}, skelSt={};
 try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
 try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
 (function dailyReady(){
   const today=new Date().toLocaleDateString('zh-TW',{timeZone:'Asia/Taipei'});
   let last=''; try{ last=localStorage.getItem('vz_day')||''; }catch(e){}
+  try{ skelSt=JSON.parse(localStorage.getItem('vz_skel')||'{}')||{}; }catch(e){ skelSt={}; }
   const r=Date.now()-GROW_MS;
   if(last!==today){
     Object.keys(farmSt).forEach(k=>{ farmSt[k]=r; });
     Object.keys(fishSt).forEach(k=>{ fishSt[k]=r; });
+    Object.keys(skelSt).forEach(k=>{ skelSt[k]=r; });
     try{ localStorage.setItem('vz_day',today); }catch(e){}
   }
   FARM.forEach(([x,y])=>{ const k=x+','+y; if(!farmSt[k]) farmSt[k]=r; });
   FISH.forEach(([x,y])=>{ const k=x+','+y; if(!fishSt[k]) fishSt[k]=r; });
+  SKEL.forEach(([x,y])=>{ const k=x+','+y; if(!skelSt[k]) skelSt[k]=r; });
   saveFarm();
 })();
 try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
 try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
 function saveFarm(){
-  try{ localStorage.setItem('vz_farm',JSON.stringify(farmSt)); localStorage.setItem('vz_fish',JSON.stringify(fishSt)); }catch(e){}
+  try{ localStorage.setItem('vz_farm',JSON.stringify(farmSt)); localStorage.setItem('vz_fish',JSON.stringify(fishSt)); localStorage.setItem('vz_skel',JSON.stringify(skelSt)); }catch(e){}
 }
 let fxList=[];
 let readyNotified={};
@@ -4870,6 +4878,17 @@ function drawFx(pn){
     g.globalAlpha=1;
   });
 }
+function drawSkel(cx,cy,ready){
+  g.globalAlpha=ready?1:.5;
+  g.fillStyle='#EFE9D6';
+  g.beginPath(); g.arc(cx,cy-5,3.2,0,Math.PI*2); g.fill();
+  g.fillRect(cx-2,cy-3,4,1.6);
+  g.fillStyle='#2A2238'; g.fillRect(cx-2,cy-6,1.4,1.6); g.fillRect(cx+0.8,cy-6,1.4,1.6);
+  g.fillStyle='#EFE9D6';
+  g.fillRect(cx-0.5,cy-1,1,4); g.fillRect(cx-3,cy+1,6,1); g.fillRect(cx-3,cy+3,6,1);
+  g.fillRect(cx-1.2,cy+4,1,3); g.fillRect(cx+0.2,cy+4,1,3);
+  g.globalAlpha=1;
+}
 function drawFarm(){
   const now=Date.now(), pn=performance.now(), tt=pn;
   g.font='bold 7px "Noto Sans TC",sans-serif'; g.textAlign='center';
@@ -4878,11 +4897,11 @@ function drawFarm(){
     const cx=x*T+8, cy=y*T+9, left=Math.ceil(remainMs(st)/60000);
     if(left>0){
       g.fillStyle='#6FBF6A'; g.fillRect(cx-1,cy-3,2,4); g.fillRect(cx-3,cy-2,2,1); g.fillRect(cx+1,cy-2,2,1);
-      g.fillStyle='#FFF3C4'; g.fillText(left+'分',cx,cy-7);
+      g.fillStyle='#FFF3C4'; g.fillText('剩'+left+'分',cx,cy-7);
     }else{
       g.fillStyle='#F7B6CB'; g.beginPath(); g.arc(cx,cy-2,3,0,Math.PI*2); g.fill();
       g.fillStyle='#FFE9A8'; g.fillRect(cx-1,cy-3,2,2);
-      pill('可收成',cx,cy-4,'#FFE27A'); { const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.fillText(rl+'分',cx,cy+6); } }
+      pill('可收成',cx,cy-4,'#FFE27A'); { const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.fillText('剩'+rl+'分',cx,cy+6); } }
     }
   });
   FISH.forEach(([x,y])=>{
@@ -4891,12 +4910,20 @@ function drawFarm(){
     const cx=x*T+8+Math.sin(tt/500+x)*2, cy=y*T+8;
     g.fillStyle=ready?'#FFB347':'#FF8C42';
     g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
-    if(ready){ pill('可收成',cx,cy-4,'#FFE27A'); const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#CFF3FF'; g.fillText(rl+'分',cx,cy+6); } } else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
+    if(ready){ pill('可收成',cx,cy-4,'#FFE27A'); const rl=Math.ceil((GROW_MS-(now-st))/60000); if(rl>0){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#CFF3FF'; g.fillText('剩'+rl+'分',cx,cy+6); } } else { g.fillStyle='#CFF3FF'; g.fillText('剩'+left+'分',cx,cy-6); }
   });
-  const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成');
+  SKEL.forEach(([x,y])=>{
+    const st=skelSt[x+','+y]; if(!st) return;
+    const left=Math.ceil(remainMs(st)/60000), ready=left<=0;
+    const cx=x*T+8, cy=y*T+9+Math.sin(tt/380)*0.8;
+    drawSkel(cx,cy,ready);
+    if(!ready){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.textAlign='center'; g.fillText('剩'+left+'分',cx,cy+10); }
+  });
+  const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成'), kS=areaSummary(skelSt,SKEL,'','可清除');
   g.textAlign='center';
-  drawName('靈田',2*T,19*T,false); drawBubble('🌸 '+fS,2*T,19*T-11);
-  drawName('魚池',3*T,3*T,false); drawBubble('🐟 '+fishS,3*T,3*T-11);
+  drawName('靈田',1*T+8,19*T,false); drawBubble('🌸 '+fS,1*T+8,19*T-11);
+  drawName('魚池',2*T+8,3*T,false); drawBubble('🐟 '+fishS,2*T+8,3*T-11);
+  drawName('骷髏怪',11*T+8,16*T-2,false); drawBubble('💀 '+kS,11*T+8,16*T-13);
   g.textBaseline='alphabetic';
   g.textAlign='start';
   drawFx(pn);
@@ -5164,6 +5191,7 @@ function tapTile(tx,ty){
   if(tx<0||ty<0||tx>=VW||ty>=VH) return;
   if(FARM_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(farmSt,tx+','+ty,'花','🌱 種下花種'),true); return; }
   if(FISH_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(fishSt,tx+','+ty,'魚','🐟 放入魚苗'),true); return; }
+  if(SKEL_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(skelSt,tx+','+ty,'骷髏怪',''),true); return; }
   const n=npcAt.get(key(tx,ty));
   if(n){ walkNear(n); return; }
   if(!walkable(tx,ty)) return;
