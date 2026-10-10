@@ -1683,6 +1683,7 @@ body.v-mode #quickAddFab{display:none!important}
 .vnpc-it:active{background:rgba(232,196,104,.3)}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
+#vBgm{margin-left:6px !important;min-width:36px;padding:0 8px !important}
 #sbVillageBtn{margin-left:auto !important;margin-right:auto !important}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
@@ -2018,6 +2019,7 @@ body.v-mode #quickAddFab{display:none!important}
         <div id="vName">冒險者</div>
         <div id="vTitle">見習冒險者</div>
       </div>
+      <button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button>
       <button class="vbtn g sm" id="vBack" type="button">📜 返回列表</button>
       <div id="vLv">Lv.1</div>
     </div>
@@ -4723,6 +4725,61 @@ function setNpcList(show){
 }
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 setNpcList(true);
+
+/* ---------- 背景音樂：以 Web Audio 合成五聲音階的輕柔旋律（點 🎵 開關） ---------- */
+let bgmCtx=null, bgmMaster=null, bgmTimer=null, bgmOn=false;
+const BGM_SCALE=[261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25];
+const BGM_PATTERN=[0,2,4,2,5,4,2,1, 0,2,3,2,4,2,1,0, 4,5,4,2,3,2,1,0, 0,1,2,4,2,1,0,-1];
+function bgmNote(f,t,dur,vol){
+  const o=bgmCtx.createOscillator(), g=bgmCtx.createGain();
+  o.type='sine'; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(vol,t+0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(bgmMaster);
+  o.start(t); o.stop(t+dur+0.1);
+}
+function bgmStart(){
+  try{
+    if(!bgmCtx) bgmCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(bgmCtx.state==='suspended') bgmCtx.resume();
+    bgmMaster=bgmCtx.createGain();
+    bgmMaster.gain.setValueAtTime(0.0001,bgmCtx.currentTime);
+    bgmMaster.gain.linearRampToValueAtTime(0.16,bgmCtx.currentTime+1.5);
+    bgmMaster.connect(bgmCtx.destination);
+    let step=0;
+    const tick=()=>{
+      const t=bgmCtx.currentTime+0.05;
+      const deg=BGM_PATTERN[step%BGM_PATTERN.length];
+      if(deg>=-1) bgmNote(BGM_SCALE[Math.max(0,deg)]*(deg<0?0.5:1), t, 2.4, 0.5);
+      if(step%8===0) bgmNote(BGM_SCALE[0]/2, t, 4.6, 0.55);
+      step++;
+    };
+    tick();
+    bgmTimer=setInterval(tick,700);
+    bgmOn=true;
+  }catch(e){ bgmOn=false; }
+}
+function bgmStop(){
+  bgmOn=false;
+  if(bgmTimer){ clearInterval(bgmTimer); bgmTimer=null; }
+  if(bgmMaster&&bgmCtx){
+    const m=bgmMaster; bgmMaster=null;
+    m.gain.cancelScheduledValues(bgmCtx.currentTime);
+    m.gain.setValueAtTime(m.gain.value,bgmCtx.currentTime);
+    m.gain.linearRampToValueAtTime(0.0001,bgmCtx.currentTime+0.8);
+    setTimeout(()=>{ try{ m.disconnect(); }catch(e){} },1000);
+  }
+}
+function bgmRefresh(){
+  const b=document.getElementById('vBgm'); if(b) b.textContent=bgmOn?'🔊':'🎵';
+  try{ localStorage.setItem('vz_bgm',bgmOn?'1':'0'); }catch(e){}
+}
+function bgmToggle(){
+  if(bgmOn) bgmStop(); else bgmStart();
+  bgmRefresh();
+}
+document.getElementById('vBgm').addEventListener('click',bgmToggle);
 /* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
 function flower(X,Y,R){
   const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
