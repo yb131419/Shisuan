@@ -4928,8 +4928,8 @@ function drawFarm(){
   const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成'), kS=areaSummary(skelSt,SKEL,'','可清除');
   g.textAlign='center';
   drawName('靈田',3*T+8,8*T,false); drawBubble('🌸 '+fS,3*T+8,8*T-6);
-  drawName('魚池',2*T+8,7*T-4,false); drawBubble('🐟 '+fishS,2*T+8,7*T-10);
-  drawName('骷髏怪',8*T+8,7*T-4,false); drawBubble('💀 '+kS,8*T+8,7*T-10);
+  drawName('魚池',2*T+8,5*T-6,false); drawBubble('🐟 '+fishS,2*T+8,5*T-12);
+  drawName('骷髏怪',6*T+8,7*T-22,false); drawBubble('💀 '+kS,6*T+8,7*T-28);
   g.textBaseline='alphabetic';
   g.textAlign='start';
   drawFx(pn);
