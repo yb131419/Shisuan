@@ -4974,8 +4974,8 @@ function syncCalcLv(){
     const cap=document.getElementById('captureArea');
     if(!chip && cap){ chip=document.createElement('div'); chip.id='vzLvChip'; cap.parentNode.insertBefore(chip,cap); }
     if(chip){
-      const txt='🌿 試算仙界 Lv.'+L2.lv+' '+title+'　·　距 Lv.'+(L2.lv+1)+' 還需完成 '+(L2.need-L2.cur)+' 次';
-      if(chip.textContent!==txt) chip.textContent=txt;
+      const txt='🌿 試算仙界 Lv.'+L2.lv+' '+title+'<br>距 Lv.'+(L2.lv+1)+' 還需完成 '+(L2.need-L2.cur)+' 次';
+      if(chip.innerHTML!==txt) chip.innerHTML=txt;
     }
   }catch(e){}
 }
