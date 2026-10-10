@@ -372,7 +372,7 @@
       const timer = setTimeout(() => { cleanup(); reject(new Error("連線逾時")); }, TIMEOUT_MS);
       function cleanup() { clearTimeout(timer); delete window[cb]; s.remove(); }
       window[cb] = (data) => { cleanup(); resolve(data); };
-      s.onerror = () => { cleanup(); reject(new Error("無法連線到伺服器")); };
+      s.onerror = () => { cleanup(); reject(new Error("無法連線到 GAS，請確認部署網址有效且「誰可以存取」為任何人")); };
       s.src = `${API_URL}?${qs.toString()}`;
       document.body.appendChild(s);
     });
@@ -477,7 +477,7 @@
     $("statTotal").textContent = items.length;
 
     const list = filtered();
-    $("countLine").textContent = `顯示 ${list.length} ／ ${total} 項`;
+    $("countLine").textContent = `顯示 ${list.length} ／ ${items.length} 項`;
 
     grid.innerHTML = "";
     if (list.length === 0) {
