@@ -4768,7 +4768,7 @@ function buildNpcList(){
   box.innerHTML='';
   STEPS.forEach((n,i)=>{
     const nb=mkBtn((i+1)+'. '+n.name, ()=>{ setNpcList(false); walkNear(n); });
-    if(i===STEPS.length-1){ nb.style.marginBottom='12px'; nb.style.borderBottom='1px dashed rgba(232,196,104,.45)'; nb.style.paddingBottom='10px'; }
+    if(i===STEPS.length-1){ nb.style.marginBottom='12px'; nb.style.borderBottom='1px dashed rgba(232,196,104,.45)'; }
     box.appendChild(nb);
   });
   box.appendChild(areaBtn('flower'));
