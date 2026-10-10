@@ -4473,8 +4473,8 @@ function renderVillage(){
   document.getElementById('vTitle').textContent=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
   document.getElementById('vName').textContent=(userInfo&&userInfo.displayName)||'冒險者';
   document.getElementById('vXpFill').style.width=(L2.cur/L2.need*100).toFixed(1)+'%';
-  document.getElementById('vCount').textContent='已完成 '+pts+' 次';
-  document.getElementById('vNext').textContent='距 Lv.'+(L2.lv+1)+' 還需 '+(L2.need-L2.cur)+' 次';
+  document.getElementById('vCount').innerHTML='已完成<br>'+pts+' 次';
+  document.getElementById('vNext').innerHTML='距 Lv.'+(L2.lv+1)+'<br>還需 '+(L2.need-L2.cur)+' 次';
   const av=document.getElementById('vAv');
   const pic=(userInfo&&userInfo.pictureUrl)||'';
   if(pic && av.dataset.pic!==pic){ av.dataset.pic=pic; av.innerHTML='<img src="'+pic+'" alt="">'; }
