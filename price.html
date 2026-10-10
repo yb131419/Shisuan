@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>產品價錢｜康園・大地之粹</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --g-25:  #eaf5ee;
+    --g-50:  #dcefe3;
+    --g-100: #c0e4cf;
+    --g-200: #90cfab;
+    --g-300: #5fb585;
+    --g-400: #3a9b6a;
+    --g-500: #2a8759;
+    --g-600: #1d6e47;
+    --g-700: #15593a;
+    --g-800: #0e4529;
+    --g-900: #08301d;
+    --text: #0c2c1e;
+    --muted: #46675a;
+    --card: #ffffff;
+    --border: #d3ecdd;
+    --warn: #b7791f;
+    --err: #c53030;
+    --radius: 18px;
+    --shadow-sm: 0 1px 2px rgba(19,90,62,.06), 0 2px 8px rgba(19,90,62,.05);
+    --shadow-md: 0 8px 24px rgba(19,90,62,.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(1200px 500px at 110% -10%, rgba(143,211,173,.35), transparent 60%),
+      radial-gradient(900px 400px at -10% 30%, rgba(179,228,203,.35), transparent 60%),
+      var(--g-25);
+    color: var(--text);
+    font-family: "Noto Sans TC", -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  button, input { font: inherit; }
+  :focus-visible { outline: 2px solid var(--g-400); outline-offset: 2px; border-radius: 8px; }
+
+  /* ---------- Header ---------- */
+  .hero {
+    background: linear-gradient(135deg, #a6dcbd 0%, #5fb487 50%, #2f8a5c 100%);
+    padding: 36px 20px 84px;
+    position: relative;
+    overflow: hidden;
+    color: var(--g-900);
+  }
+  .hero::before, .hero::after {
+    content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+  }
+  .hero::before {
+    width: 320px; height: 320px; right: -90px; top: -120px;
+    background: radial-gradient(circle, rgba(255,255,255,.55), transparent 70%);
+  }
+  .hero::after {
+    width: 260px; height: 260px; left: -80px; bottom: -140px;
+    background: radial-gradient(circle, rgba(255,255,255,.4), transparent 70%);
+  }
+  .hero-inner { max-width: 980px; margin: 0 auto; position: relative; z-index: 1; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .18em; font-weight: 700;
+    color: var(--g-800); background: rgba(255,255,255,.55);
+    padding: 6px 12px; border-radius: 999px; backdrop-filter: blur(4px);
+  }
+  .title {
+    font-family: "Noto Serif TC", "Noto Sans TC", serif;
+    font-size: 34px; font-weight: 700; margin-top: 14px; letter-spacing: .04em;
+    color: var(--g-900);
+  }
+  .subtitle { margin-top: 6px; font-size: 14px; color: var(--g-800); opacity: .85; }
+  .sync-row {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--g-900);
+    background: rgba(255,255,255,.6); padding: 6px 12px; border-radius: 999px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #9bb8a9; display: inline-block; }
+  .dot.ok { background: var(--g-500); box-shadow: 0 0 0 0 rgba(63,174,123,.6); animation: pulse 2s infinite; }
+  .dot.syncing { background: var(--g-300); animation: blink 1s infinite; }
+  .dot.error { background: var(--err); }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(63,174,123,.6); }
+    70% { box-shadow: 0 0 0 9px rgba(63,174,123,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,174,123,0); }
+  }
+  @keyframes blink { 50% { opacity: .3; } }
+
+  /* ---------- Layout ---------- */
+  .container { max-width: 980px; margin: -56px auto 48px; padding: 0 16px; position: relative; z-index: 2; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat {
+    background: linear-gradient(160deg, #ffffff 0%, var(--g-50) 100%);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 16px; text-align: center; box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+  }
+  .stat::after {
+    content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+    width: 40px; height: 4px; border-radius: 4px 4px 0 0;
+    background: linear-gradient(90deg, var(--g-300), var(--g-600));
+  }
+  .stat-num { font-family: "Noto Serif TC", serif; font-size: 30px; font-weight: 700; color: var(--g-700); line-height: 1.1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; letter-spacing: .04em; }
+
+  /* ---------- Toolbar (sticky) ---------- */
+  .toolbar-wrap {
+    position: sticky; top: 0; z-index: 10;
+    padding: 10px 0 12px; margin-bottom: 8px;
+    background: linear-gradient(to bottom, var(--g-25) 80%, rgba(245,252,248,0));
+  }
+  .toolbar {
+    background: rgba(255,255,255,.9); backdrop-filter: blur(10px);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .search {
+    flex: 1 1 240px; display: flex; align-items: center; gap: 8px;
+    background: var(--g-25); border: 1px solid var(--border);
+    border-radius: 12px; padding: 0 12px; height: 44px; transition: border-color .2s, box-shadow .2s;
+  }
+  .search:focus-within { border-color: var(--g-400); box-shadow: 0 0 0 4px rgba(95,192,146,.18); }
+  .search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 15px; color: var(--text);
+  }
+  .search svg { width: 18px; height: 18px; color: var(--g-600); flex-shrink: 0; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid var(--border); background: #fff; color: var(--muted);
+    padding: 9px 16px; border-radius: 999px; font-size: 13px; cursor: pointer;
+    transition: all .2s; font-weight: 500;
+  }
+  .chip:hover { border-color: var(--g-300); color: var(--g-700); transform: translateY(-1px); }
+  .chip.active {
+    background: linear-gradient(135deg, var(--g-600), var(--g-400));
+    color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(43,148,102,.3);
+  }
+
+  .count-line { font-size: 13px; color: var(--muted); margin: 6px 4px 14px; }
+
+  /* ---------- Product grid ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 14px; }
+  .item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 18px 16px 20px;
+    position: relative; overflow: hidden; box-shadow: var(--shadow-sm);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s;
+    animation: fadeUp .4s ease both;
+  }
+  .item::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--g-200), var(--g-600));
+  }
+  .item:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--g-200); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .item-name { font-weight: 700; font-size: 15px; line-height: 1.45; word-break: break-all; color: var(--text); }
+  .item-meta { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .meta-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+    background: var(--g-50); border: 1px solid var(--g-100);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .meta-pill b { color: var(--g-800); font-weight: 700; font-size: 13px; }
+
+  .price-box {
+    margin-top: 14px; padding: 12px 14px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--g-50), #ffffff);
+    border: 1px solid var(--g-100);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .price-label { font-size: 12px; color: var(--g-700); font-weight: 500; letter-spacing: .06em; }
+  .price-val { font-family: "Noto Serif TC", serif; font-size: 22px; font-weight: 700; color: var(--g-800); }
+  .price-val.pending { font-family: inherit; font-size: 14px; color: var(--warn); font-weight: 500; }
+
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 999px;
+    background: var(--g-100); color: var(--g-800); margin-left: 6px; vertical-align: middle;
+    border: 1px solid var(--g-200); font-weight: 500;
+  }
+
+  .item.flash { animation: mintFlash 1.6s ease; }
+  @keyframes mintFlash {
+    0%, 100% { background: var(--card); }
+    20% { background: var(--g-100); }
+  }
+
+  /* ---------- Skeleton / empty / error ---------- */
+  .skeleton {
+    height: 150px; border-radius: var(--radius);
+    background: linear-gradient(90deg, #fff, var(--g-100), #fff);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite;
+    border: 1px solid var(--border);
+  }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .empty {
+    grid-column: 1 / -1; text-align: center; color: var(--muted);
+    padding: 48px 10px; font-size: 14px;
+    background: #fff; border: 1px dashed var(--g-200); border-radius: var(--radius);
+  }
+  .error-banner {
+    display: none; margin-bottom: 14px; padding: 12px 14px; border-radius: 14px;
+    background: #fdf2f2; color: var(--err); border: 1px solid #f5c6c6;
+    font-size: 14px; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .error-banner.show { display: flex; }
+  .error-banner button {
+    border: none; background: var(--err); color: #fff; padding: 7px 14px;
+    border-radius: 8px; cursor: pointer; font-size: 13px;
+  }
+
+  .footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 32px; letter-spacing: .03em; }
+
+  @media (max-width: 560px) {
+    .title { font-size: 28px; }
+    .stats { gap: 8px; }
+    .stat { padding: 14px 8px; }
+    .stat-num { font-size: 22px; }
+    .container { margin-top: -44px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="brand">🌿 康園 ・ 大地之粹</span>
+    <h1 class="title">產品價錢</h1>
+    <div class="subtitle">即時同步・價錢依金額與數量自動計算</div>
+    <div class="sync-row">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">連線中…</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="error-banner" id="errorBanner" role="alert">
+    <span id="errorText">讀取失敗</span>
+    <button id="retryBtn">重試</button>
+  </div>
+
+  <section class="stats">
+    <div class="stat"><div class="stat-num" id="statTotal">–</div><div class="stat-label">品項總數</div></div>
+    <div class="stat"><div class="stat-num" id="statPriced">–</div><div class="stat-label">已有價錢</div></div>
+    <div class="stat"><div class="stat-num" id="statPending">–</div><div class="stat-label">待補價錢</div></div>
+  </section>
+
+  <div class="toolbar-wrap">
+    <section class="toolbar">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="searchInput" placeholder="搜尋品項名稱…" autocomplete="off" aria-label="搜尋品項">
+      </label>
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">全部</button>
+        <button class="chip" data-filter="priced">已有價錢</button>
+        <button class="chip" data-filter="pending">待補價錢</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="count-line" id="countLine"></div>
+
+  <section class="grid" id="grid">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </section>
+
+  <div class="footer">資料每 30 秒自動同步・切回此頁面會立即更新</div>
+</main>
+
+<script>
+  // ============================================================
+  // 設定
+  // ============================================================
+  const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+  const REFRESH_MS = 30000;
+  const TIMEOUT_MS = 10000;
+  // 隱藏的品項（下拉選單提示列等，不是真正產品）
+  const HIDDEN_NAMES = ["下拉點選新增"];
+
+  // ============================================================
+  // JSONP（與系統既有呼叫方式相同，可跨網域使用）
+  // ============================================================
+  function jsonp(params) {
+    return new Promise((resolve, reject) => {
+      const cb = "__pc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+      const qs = new URLSearchParams({ ...params, callback: cb });
+      const s = document.createElement("script");
+      const timer = setTimeout(() => { cleanup(); reject(new Error("連線逾時")); }, TIMEOUT_MS);
+      function cleanup() { clearTimeout(timer); delete window[cb]; s.remove(); }
+      window[cb] = (data) => { cleanup(); resolve(data); };
+      s.onerror = () => { cleanup(); reject(new Error("無法連線到伺服器")); };
+      s.src = `${API_URL}?${qs.toString()}`;
+      document.body.appendChild(s);
+    });
+  }
+
+  // ============================================================
+  // 狀態
+  // ============================================================
+  let items = [];
+  let prevPrices = new Map();
+  let filterMode = "all";
+  let keyword = "";
+  let loading = false;
+  let lastLoadAt = 0;
+  let firstRender = true;
+
+  const $ = (id) => document.getElementById(id);
+  const grid = $("grid");
+
+  // ============================================================
+  // 格式化
+  // ============================================================
+  const nf = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 });
+  const fmtNum = (n) => (n === null || n === undefined || isNaN(n)) ? "–" : nf.format(n);
+  const fmtMoney = (n) => (n === null || n === undefined || isNaN(n)) ? "–" : "NT$ " + nf.format(n);
+  const fmtTime = (d) => d.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+  const hasPrice = (it) => it.price !== null && !isNaN(it.price);
+
+  // ============================================================
+  // 同步狀態
+  // ============================================================
+  function setStatus(type, text) {
+    $("statusDot").className = "dot " + type;
+    $("statusText").textContent = text;
+  }
+  function showError(msg) {
+    $("errorText").textContent = "讀取失敗：" + msg;
+    $("errorBanner").classList.add("show");
+  }
+  function hideError() { $("errorBanner").classList.remove("show"); }
+
+  // ============================================================
+  // 讀取資料
+  // ============================================================
+  async function load() {
+    if (loading) return;
+    loading = true;
+    setStatus("syncing", "同步中…");
+    try {
+      const res = await jsonp({ action: "priceList" });
+      if (!res || res.status !== "success") throw new Error((res && res.message) || "資料格式錯誤");
+      items = (res.items || []).filter(it => !HIDDEN_NAMES.includes(it.name));
+      hideError();
+      render();
+      lastLoadAt = Date.now();
+      setStatus("ok", "已同步　" + fmtTime(new Date()));
+    } catch (err) {
+      setStatus("error", "同步失敗");
+      showError(err.message);
+    } finally {
+      loading = false;
+    }
+  }
+
+  // ============================================================
+  // 篩選 + 渲染
+  // ============================================================
+  function filtered() {
+    const kw = keyword.trim().toLowerCase();
+    return items.filter(it => {
+      if (kw && !it.name.toLowerCase().includes(kw)) return false;
+      if (filterMode === "priced" && !hasPrice(it)) return false;
+      if (filterMode === "pending" && hasPrice(it)) return false;
+      return true;
+    });
+  }
+
+  function makeEl(tag, cls, text) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function pill(label, value) {
+    const p = makeEl("span", "meta-pill");
+    p.append(label + " ");
+    p.appendChild(makeEl("b", "", value));
+    return p;
+  }
+
+  function render() {
+    const total = items.length;
+    const priced = items.filter(hasPrice).length;
+    $("statTotal").textContent = total;
+    $("statPriced").textContent = priced;
+    $("statPending").textContent = total - priced;
+
+    const list = filtered();
+    $("countLine").textContent = `顯示 ${list.length} / ${total} 項`;
+
+    grid.innerHTML = "";
+    if (list.length === 0) {
+      grid.appendChild(makeEl("div", "empty", items.length ? "找不到符合的品項" : "目前沒有品項資料"));
+      prevPrices = new Map(items.map(it => [it.name, it.price]));
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    list.forEach((it, idx) => {
+      const card = makeEl("div", "item");
+      card.style.animationDelay = Math.min(idx * 18, 320) + "ms";
+
+      if (!firstRender && prevPrices.has(it.name) && prevPrices.get(it.name) !== it.price) {
+        card.classList.add("flash");
+      }
+
+      const nameRow = makeEl("div", "item-name");
+      nameRow.textContent = it.name;
+      if (it.amount === 0) nameRow.appendChild(makeEl("span", "badge", "贈品"));
+      card.appendChild(nameRow);
+
+      const meta = makeEl("div", "item-meta");
+      meta.append(pill("PV", fmtNum(it.pv)), pill("金額", fmtNum(it.amount)));
+      card.appendChild(meta);
+
+      const box = makeEl("div", "price-box");
+      box.appendChild(makeEl("span", "price-label", "價錢"));
+      if (hasPrice(it)) {
+        box.appendChild(makeEl("span", "price-val", fmtMoney(it.price)));
+      } else {
+        box.appendChild(makeEl("span", "price-val pending", "待補"));
+      }
+      card.appendChild(box);
+
+      frag.appendChild(card);
+    });
+    grid.appendChild(frag);
+
+    prevPrices = new Map(items.map(it => [it.name, it.price]));
+    firstRender = false;
+  }
+
+  // ============================================================
+  // 互動
+  // ============================================================
+  $("searchInput").addEventListener("input", (e) => { keyword = e.target.value; render(); });
+
+  $("chips").addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    filterMode = btn.dataset.filter;
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === btn));
+    render();
+  });
+
+  $("retryBtn").addEventListener("click", load);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && Date.now() - lastLoadAt > 3000) load();
+  });
+  window.addEventListener("online", load);
+  window.addEventListener("offline", () => setStatus("error", "目前離線"));
+
+  // ============================================================
+  // 啟動
+  // ============================================================
+  load();
+  setInterval(load, REFRESH_MS);
+</script>
+</body>
+</html>
