@@ -4964,14 +4964,14 @@ function syncCalcLv(){
       if(!row){ row=document.createElement('div'); row.className='sb-stat-row '+cls; box.appendChild(row); }
       if(row.innerHTML!==html) row.innerHTML=html;
     };
-    put('vz-lv-row','<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">仙界等級</span><span class="sb-stat-val">Lv.'+L2.lv+' '+title+'</span>');
+    put('vz-lv-row','<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">試算仙界等級</span><span class="sb-stat-val">Lv.'+L2.lv+' '+title+'</span>');
     put('vz-lv-row2','<span class="sb-stat-ic">⏳</span><span class="sb-stat-label">距 Lv.'+(L2.lv+1)+' 還需</span><span class="sb-stat-val">'+(L2.need-L2.cur)+' 次</span>');
     // 試算介面主畫面顯示等級列（放在報表截圖區之外，不會被截進圖片）
     let chip=document.getElementById('vzLvChip');
     const cap=document.getElementById('captureArea');
     if(!chip && cap){ chip=document.createElement('div'); chip.id='vzLvChip'; cap.parentNode.insertBefore(chip,cap); }
     if(chip){
-      const txt='🌿 仙界 Lv.'+L2.lv+' '+title+'　·　距 Lv.'+(L2.lv+1)+' 還需 '+(L2.need-L2.cur)+' 次';
+      const txt='🌿 試算仙界 Lv.'+L2.lv+' '+title+'　·　距 Lv.'+(L2.lv+1)+' 還需完成 '+(L2.need-L2.cur)+' 次';
       if(chip.textContent!==txt) chip.textContent=txt;
     }
   }catch(e){}
