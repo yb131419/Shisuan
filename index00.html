@@ -4939,7 +4939,7 @@ setNpcList(true);
 
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
-const BGM_TRACKS=['kj9Xc_mqcdU','Q6ibybw_ZYE','fN6bK9WF0PM'];
+const BGM_TRACKS=['Q6ibybw_ZYE','kj9Xc_mqcdU','ev-AEWeXE_o','fN6bK9WF0PM'];
 function bgmEmbed(id){ return 'https://www.youtube.com/embed/'+id+'?autoplay=1&loop=1&playlist='+id+'&playsinline=1'; }
 function bgmStart(){
   const f=document.getElementById('vBgmFrame'); if(!f) return;
@@ -4976,7 +4976,33 @@ function bgmToggle(){
   bgmRefresh();
 }
 document.getElementById('vBgm').addEventListener('click',bgmToggle);
-document.getElementById('vBgmSw').addEventListener('click',bgmSwitch);
+const BGM_NAMES=['千年的祈禱','古梵音心經','八十八佛懺悔文','準提法門靜坐版'];
+let bgmListEl=null;
+function bgmListRender(){
+  if(!bgmListEl) return;
+  bgmListEl.innerHTML='';
+  BGM_NAMES.forEach((nm,i)=>{
+    const it=document.createElement('button');
+    it.type='button';
+    it.className='vbgm-item'+(i===bgmTrack?' cur':'');
+    it.textContent=(i===bgmTrack?'▶ ':'　')+'曲'+(i+1)+'　'+nm;
+    it.addEventListener('click',()=>{ bgmTrack=i; bgmListEl.hidden=true; bgmStart(); bgmRefresh(); });
+    bgmListEl.appendChild(it);
+  });
+}
+function bgmListToggle(){
+  if(!bgmListEl){
+    const st=document.createElement('style');
+    st.textContent='#vBgmList{position:fixed;top:96px;right:8px;z-index:9999;display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:12px;background:rgba(20,16,10,.94);border:1px solid rgba(255,210,122,.45);box-shadow:0 6px 18px rgba(0,0,0,.5);min-width:190px}#vBgmList[hidden]{display:none}.vbgm-item{background:transparent;border:0;color:#F4EAD0;text-align:left;font-size:13px;padding:7px 9px;border-radius:8px;cursor:pointer;white-space:nowrap}.vbgm-item.cur{background:rgba(255,210,122,.18);color:#FFE27A}';
+    document.head.appendChild(st);
+    bgmListEl=document.createElement('div');
+    bgmListEl.id='vBgmList'; bgmListEl.hidden=true;
+    document.body.appendChild(bgmListEl);
+  }
+  bgmListEl.hidden=!bgmListEl.hidden;
+  bgmListRender();
+}
+document.getElementById('vBgmSw').addEventListener('click',bgmListToggle);
 /* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
 function flower(X,Y,R){
   const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
