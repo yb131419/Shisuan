@@ -4939,7 +4939,7 @@ setNpcList(true);
 
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
-const BGM_TRACKS=['kj9Xc_mqcdU','Q6ibybw_ZYE'];
+const BGM_TRACKS=['kj9Xc_mqcdU','Q6ibybw_ZYE','fN6bK9WF0PM'];
 function bgmEmbed(id){ return 'https://www.youtube.com/embed/'+id+'?autoplay=1&loop=1&playlist='+id+'&playsinline=1'; }
 function bgmStart(){
   const f=document.getElementById('vBgmFrame'); if(!f) return;
@@ -5410,7 +5410,20 @@ function drawChar(id,look,X,Y,dir,step,bob,alert,name,hot,say){
   const feet=Y+14, cx=X+8;
   if(im && im.complete && im.naturalWidth){
     g.imageSmoothingEnabled=true;
+    const _now=performance.now(), _ph=id.length*1.7+X*0.37;
+    const _br=Math.sin(_now/620+_ph)*0.014;
+    const _sw=step?0:Math.sin(_now/980+_ph)*0.02;
+    if(id==='guanyin'){
+      const _a=0.2+0.12*Math.sin(_now/700);
+      const _gy=feet-SPR_H*0.55+bob;
+      const _gr=g.createRadialGradient(cx,_gy,2,cx,_gy,SPR_H*0.75);
+      _gr.addColorStop(0,'rgba(255,240,180,'+_a+')');
+      _gr.addColorStop(1,'rgba(255,226,122,0)');
+      g.fillStyle=_gr; g.fillRect(cx-SPR_H*0.8,_gy-SPR_H*0.8,SPR_H*1.6,SPR_H*1.6);
+    }
+    g.save(); g.translate(cx,feet); g.rotate(_sw); g.scale(1-_br,1+_br*1.4); g.translate(-cx,-feet);
     g.drawImage(im, cx-SPR_W/2, feet-SPR_H*0.952+bob, SPR_W, SPR_H);
+    g.restore();
     g.imageSmoothingEnabled=false;
   }else{
     human(X,Y,look,dir,step,bob,false);
