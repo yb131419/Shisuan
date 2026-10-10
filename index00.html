@@ -4390,12 +4390,9 @@ function fillOn(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h);}
 /* ---------- 版面資料 ---------- */
 const BLDS=[
   {x:2, y:1, w:3,h:2, roof:'#2E6FB0', wall:'#E9E0C8', win:1},  // 資料收集的小屋
-  {x:9, y:6, w:3,h:2, roof:'#7A3E2A', wall:'#EADCB8', win:2},  // 大長老殿
-  {x:9, y:15,w:3,h:2, roof:'#5A4A8A', wall:'#E9E0C8', win:2},  // 成品館
-  {x:2, y:15,w:3,h:2, roof:'#2A67A6', wall:'#E9E0C8', win:1},  // 市場店
 ];
 const POND={x0:1,y0:11,x1:12,y1:12};
-const LOTUS={x0:2,y0:3,x1:5,y1:4};              // 河流（中間留出小橋）
+const LOTUS={x0:2,y0:3,x1:5,y1:5};              // 河流（中間留出小橋）
 const isBridge=(x,y)=>(x===6||x===7)&&y>=11&&y<=12;
 const TREES=[[5,1],[12,1],[1,8],[12,24],[4,13],[11,13]];
 const CHERRY=[[11,3],[1,21]];                    // 櫻花樹
@@ -4403,7 +4400,12 @@ const ROCKS=[[4,9],[12,18],[1,13]];
 const BUSHES=[[1,17],[11,18],[4,24],[12,8]];
 const MUSH=[[1,6],[4,23]];
 const REEDS=[[2,10],[5,10],[9,10],[12,10],[3,13],[10,13]];
-const CROPS=[[2,19]];                            // 小菜園（3×2）
+const CROPS=[[2,19]];
+const FARM=[[1,19],[2,19],[3,19],[4,19],[1,20],[2,20],[3,20],[4,20]];
+const FISH=[[3,4],[5,4],[4,5]];
+const FARM_SET=new Set(FARM.map(([x,y])=>x+','+y));
+const FISH_SET=new Set(FISH.map(([x,y])=>x+','+y));
+const GROW_MS=30*60*1000;                            // 小菜園（3×2）
 const LANTERNS=[[5,9],[8,13],[5,22]];
 const PAVILION={x:9,y:21};                       // 涼亭（暖身）
 const isPath=(x,y)=>((x===6||x===7)&&y>=1&&y<=24)||(y===13&&x>=1&&x<=12);
@@ -4415,6 +4417,7 @@ BLDS.forEach(d=>{for(let yy=0;yy<d.h;yy++)for(let xx=0;xx<d.w;xx++)BLK.add(key(d
 for(let y=POND.y0;y<=POND.y1;y++)for(let x=POND.x0;x<=POND.x1;x++){ if(!isBridge(x,y)) BLK.add(key(x,y)); }
 for(let y=LOTUS.y0;y<=LOTUS.y1;y++)for(let x=LOTUS.x0;x<=LOTUS.x1;x++) BLK.add(key(x,y));
 TREES.concat(CHERRY,ROCKS,BUSHES).forEach(([x,y])=>BLK.add(key(x,y)));
+FARM.forEach(([x,y])=>BLK.add(key(x,y)));
 BLK.add(key(PAVILION.x,PAVILION.y)); BLK.add(key(PAVILION.x+1,PAVILION.y));
 
 /* ---------- 角色外觀 ---------- */
@@ -4734,6 +4737,54 @@ function setNpcList(show){
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 setNpcList(true);
 
+/* ---------- 種花／養魚：每 30 分鐘可收成一次，收成 +1 經驗 ---------- */
+let farmSt={}, fishSt={};
+try{ farmSt=JSON.parse(localStorage.getItem('vz_farm')||'{}')||{}; }catch(e){ farmSt={}; }
+try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fishSt={}; }
+function saveFarm(){
+  try{ localStorage.setItem('vz_farm',JSON.stringify(farmSt)); localStorage.setItem('vz_fish',JSON.stringify(fishSt)); }catch(e){}
+}
+function plotAct(store,k,label,plantMsg){
+  const now=Date.now(), t=store[k];
+  if(!t){ store[k]=now; saveFarm(); showToast(plantMsg+'，30 分鐘後可收成'); return; }
+  const left=Math.ceil((GROW_MS-(now-t))/60000);
+  if(left>0){ showToast(label+'生長中，還需 '+left+' 分鐘'); return; }
+  delete store[k]; saveFarm(); markDone(); showToast('🎉 '+label+'收成！經驗 +1');
+}
+function actAt(tx,ty,fn){
+  if(Math.abs(tx-P.x)+Math.abs(ty-P.y)===1){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
+  let best=null;
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const ax=tx+dx, ay=ty+dy;
+    if(!walkable(ax,ay)) continue;
+    const p=findPath(P.x,P.y,ax,ay);
+    if(p && (!best || p.length<best.length)) best=p;
+  }
+  if(!best){ toast('走不過去，換個位置試試'); return; }
+  hideCard(); P.path=best; P.after=()=>{ P.dir=dirOf(tx-P.x,ty-P.y); fn(); };
+}
+function drawFarm(){
+  const now=Date.now(), tt=performance.now();
+  FARM.forEach(([x,y])=>{
+    const st=farmSt[x+','+y]; if(!st) return;
+    const cx=x*T+8, cy=y*T+9;
+    if(now-st<GROW_MS){
+      g.fillStyle='#6FBF6A'; g.fillRect(cx-1,cy-3,2,4); g.fillRect(cx-3,cy-2,2,1); g.fillRect(cx+1,cy-2,2,1);
+    }else{
+      g.fillStyle='#F7B6CB'; g.beginPath(); g.arc(cx,cy-2,3,0,Math.PI*2); g.fill();
+      g.fillStyle='#FFE9A8'; g.fillRect(cx-1,cy-3,2,2);
+    }
+  });
+  FISH.forEach(([x,y])=>{
+    const st=fishSt[x+','+y]; if(!st) return;
+    const ready=(now-st>=GROW_MS);
+    const cx=x*T+8+Math.sin(tt/500+x)*2, cy=y*T+8;
+    g.fillStyle=ready?'#FFB347':'#FF8C42';
+    g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
+    if(ready){ g.fillStyle='#FFFFFF'; g.fillRect(cx-6,cy-6,2,2); }
+  });
+}
+
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
 const BGM_TRACKS=['Q6ibybw_ZYE','kj9Xc_mqcdU'];
@@ -4993,6 +5044,8 @@ function findPath(sx,sy,tx,ty){
 }
 function tapTile(tx,ty){
   if(tx<0||ty<0||tx>=VW||ty>=VH) return;
+  if(FARM_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(farmSt,tx+','+ty,'花','🌱 種下花種')); return; }
+  if(FISH_SET.has(tx+','+ty)){ actAt(tx,ty,()=>plotAct(fishSt,tx+','+ty,'魚','🐟 放入魚苗')); return; }
   const n=npcAt.get(key(tx,ty));
   if(n){ walkNear(n); return; }
   if(!walkable(tx,ty)) return;
@@ -5128,13 +5181,13 @@ function makeCelestialBG(){
     lotus.push(rc(x*T,y*T,T,T,(x+y)%2?'#2A8EA0':'#23798C',1));
     lotus.push(rc(x*T+4,y*T+6,7,1.2,'#9EEBF2',.5));
   }
-  [[40,56],[70,60],[56,68],[86,72],[50,74]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy,4.5,2.6,'#3E9A6A',.95)); lotus.push(el(cx-1.5,cy-.5,1.2,.8,'#5CB884',.9)); });
+  [[40,56],[70,60],[56,68],[86,72],[50,74],[44,90],[80,88]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy,4.5,2.6,'#3E9A6A',.95)); lotus.push(el(cx-1.5,cy-.5,1.2,.8,'#5CB884',.9)); });
   [[42,52],[72,56]].forEach(([cx,cy])=>{ lotus.push(el(cx,cy+2,4,1.6,'#F4A6C0',.95)); lotus.push(el(cx,cy-1,2.2,3,'#F8C4D6',.95)); lotus.push(el(cx,cy-2,1,1.4,'#FFF1F6',.95)); });
   P.push(lotus.join(''));
   const bridge=[];
   for(let y=POND.y0;y<=POND.y1;y++)for(const x of [6,7]){ bridge.push(rc(x*T,y*T,T,T,'#F2EEDF',1)); bridge.push(rc(x*T,y*T+7,T,1,'#E8C468',.9)); }
   P.push(bridge.join(''));
-  CROPS.forEach(([x,y])=>{ for(let r=0;r<2;r++){ for(let i=0;i<3;i++){ P.push(el(x*T+i*T+8,y*T+r*T+8,4,3.2,'#F7B6CB',.95)); P.push(el(x*T+i*T+8,y*T+r*T+7,2,1.4,'#FFE9A8',.95)); } } });
+  FARM.forEach(([x,y])=>{ P.push(rc(x*T+1,y*T+2,T-2,T-4,'#8A6A44',.9,2)); P.push(rc(x*T+3,y*T+10,T-6,1.4,'#6A4A2E',.6)); });
   REEDS.forEach(([x,y])=>{ [3,6,10,13].forEach(dx=>{ P.push(rc(x*T+dx,y*T+2,1.2,13,'#5FA37A',1)); P.push(rc(x*T+dx-.2,y*T+5,1.6,.8,'#2F6B4C',.9)); }); });
   MUSH.forEach(([x,y])=>{ P.push(el(x*T+8,y*T+8,4,3,'#B48CF0',.95)); P.push(el(x*T+6,y*T+7,.9,.9,'#FFFFFF',1)); P.push(rc(x*T+7,y*T+9,2,4,'#F3E6CC',1)); });
   ROCKS.forEach(([x,y])=>{ P.push(el(x*T+8,y*T+9,5.5,3.8,'#C9D8D0',1)); P.push(el(x*T+6,y*T+7,2,1.2,'#EAF4EF',.9)); });
@@ -5285,6 +5338,7 @@ function loop(t){
   if(Math.abs(P.x-P.vx)<0.01) P.vx=P.x;
   if(Math.abs(P.y-P.vy)<0.01) P.vy=P.y;
   ambient(t);
+  drawFarm();
   render(t);
 }
 
