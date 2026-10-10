@@ -4993,7 +4993,7 @@ function bgmListRender(){
 function bgmListToggle(){
   if(!bgmListEl){
     const st=document.createElement('style');
-    st.textContent='#vBgmList{position:fixed;top:96px;right:8px;z-index:9999;display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:12px;background:rgba(20,16,10,.94);border:1px solid rgba(255,210,122,.45);box-shadow:0 6px 18px rgba(0,0,0,.5);min-width:190px}#vBgmList[hidden]{display:none}.vbgm-item{background:transparent;border:0;color:#F4EAD0;text-align:left;font-size:13px;padding:7px 9px;border-radius:8px;cursor:pointer;white-space:nowrap}.vbgm-item.cur{background:rgba(255,210,122,.18);color:#FFE27A}';
+    st.textContent='#vBgmList{position:fixed;top:60px;right:8px;z-index:9999;display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:12px;background:rgba(20,16,10,.82);border:1px solid rgba(255,210,122,.45);box-shadow:0 6px 18px rgba(0,0,0,.5);min-width:170px;max-width:170px}#vBgmList[hidden]{display:none}.vbgm-item{background:transparent;border:0;color:#F4EAD0;text-align:left;font-size:13px;padding:7px 9px;border-radius:8px;cursor:pointer;white-space:nowrap}.vbgm-item.cur{background:rgba(255,210,122,.18);color:#FFE27A}';
     document.head.appendChild(st);
     bgmListEl=document.createElement('div');
     bgmListEl.id='vBgmList'; bgmListEl.hidden=true;
@@ -5001,7 +5001,14 @@ function bgmListToggle(){
   }
   bgmListEl.hidden=!bgmListEl.hidden;
   bgmListRender();
+  clearTimeout(bgmListEl._t);
+  if(!bgmListEl.hidden) bgmListEl._t=setTimeout(()=>{ bgmListEl.hidden=true; },4000);
 }
+document.addEventListener('pointerdown',e=>{
+  if(!bgmListEl || bgmListEl.hidden) return;
+  if(bgmListEl.contains(e.target) || e.target.id==='vBgmSw') return;
+  bgmListEl.hidden=true; clearTimeout(bgmListEl._t);
+});
 document.getElementById('vBgmSw').addEventListener('click',bgmListToggle);
 /* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
 function flower(X,Y,R){
