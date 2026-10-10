@@ -4450,7 +4450,7 @@ const NPC=[
   {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
    lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
   {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:6,y:4,look:L('#F7F7F2','#E8C468','hat'),
-   lines:['嗡嘛呢叭咪吽','嗡嘛呢叭咪吽 🙏','嗡嘛呢叭咪吽']}
+   lines:['嗡嘛呢叭咪吽','嗡嘛呢叭咪吽 🙏','嗡嘛呢叭咪吽','業績強強滾！🔥','訂單一張一張來，業績越滾越大','團隊同心，業績強強滾 ✨','今天也要業績爆發喔 💪','加油，業績再衝一波！','善緣結好，業績自然來 🙏']}
 ];
 const STEPS=NPC.filter(n=>!n.decor);
 const npcAt=new Map();
@@ -4923,7 +4923,7 @@ function drawFarm(){
     const left=Math.ceil(remainMs(st,skelSt)/60000), ready=left<=0;
     const bob=Math.sin(tt/380)*0.8;
     drawSkel(x,y,ready,bob);
-    if(ready){ pill('可清除',x*T+8,(y+1)*T-2+12,'#FFE27A'); }
+    if(ready){ pill('可清除',x*T+8,(y+1)*T-2+4,'#FFE27A'); }
     if(!ready){ g.font='bold 7px "Noto Sans TC",sans-serif'; g.fillStyle='#FFF3C4'; g.textAlign='center'; g.fillText('剩'+left+'分',x*T+8,(y+1)*T+8); }
   });
   const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成'), kS=areaSummary(skelSt,SKEL,'','可清除');
@@ -4954,6 +4954,18 @@ function bgmSwitch(){
   if(bgmOn) bgmStart();
   bgmRefresh();
 }
+function syncCalcLv(){
+  try{
+    const box=document.getElementById('mcRows'); if(!box) return;
+    const L2=levelOf(parseInt(localStorage.getItem('vz_total'),10)||0);
+    const title=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
+    let row=box.querySelector('.vz-lv-row');
+    if(!row){ row=document.createElement('div'); row.className='sb-stat-row vz-lv-row'; box.appendChild(row); }
+    const html='<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">仙界等級</span><span class="sb-stat-val">Lv.'+L2.lv+' '+title+'</span>';
+    if(row.innerHTML!==html) row.innerHTML=html;
+  }catch(e){}
+}
+setInterval(syncCalcLv,1000); syncCalcLv();
 function bgmRefresh(){
   const b=document.getElementById('vBgm'); if(b){ b.textContent=bgmOn?'🔊':'🎵'; b.classList.toggle('on',bgmOn); }
   const sw=document.getElementById('vBgmSw'); if(sw) sw.textContent='⇄ 曲'+(bgmTrack+1);
@@ -5283,7 +5295,6 @@ function drawBubble(txt,cx,bottomY){
 }
 let nextSay=0;
 function ambient(t){
-  NPC.forEach(n=>{ if(n.decor) n._say={text:'嗡嘛呢叭咪吽', until:Infinity}; });
   if(t<nextSay) return;
   nextSay=t+2600+Math.random()*2200;
   const cands=NPC.filter(n=>Math.abs(n.x-P.x)+Math.abs(n.y-P.y)<=9 && !(n._say&&t<n._say.until));
@@ -5438,7 +5449,7 @@ function render(t){
   const list=NPC.map((n,i)=>({y:n.y,draw:()=>{
     const near=Math.abs(n.x-P.x)+Math.abs(n.y-P.y);
     const d=near<=2 ? dirOf(P.x-n.x,P.y-n.y) : 0;
-    drawChar(n.sprite,n.look,n.x*T,n.y*T,d,0,bobOf(i,t)*0.6,near===1,n.name,near===1,(n._say&&t<n._say.until)?n._say.text:'');
+    drawChar(n.sprite,n.look,n.x*T,n.y*T,d,0,bobOf(i,t)*0.6,near===1,n.name,near===1,(n._say&&t<n._say.until)?n._say.text:(n.decor?'嗡嘛呢叭咪吽':''));
   }}));
   const walking=P.path.length>0;
   const pStep=walking ? (Math.floor(t/130)%2===0?1:2) : 0;
