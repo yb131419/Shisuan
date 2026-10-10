@@ -4751,7 +4751,6 @@ function areaBtn(kind){
   const b=mkBtn(AREA[kind].text(), ()=>{
     const st=AREA[kind].st(), list=AREA[kind].list();
     const r=readyTile(st,list); if(!r) return;
-    setNpcList(false);
     actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],AREA[kind].label,''),true);
   });
   refreshAreaBtn(b,kind);
