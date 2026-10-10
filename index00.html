@@ -4440,7 +4440,7 @@ const NPC=[
    lines:['圖片做好了，最後一步，分享出去。']},
   {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
    lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
-  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:3,y:6,look:L('#F7F7F2','#E8C468','hat'),
+  {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,x:6,y:4,look:L('#F7F7F2','#E8C468','hat'),
    lines:['嗡嘛呢叭咪吽','嗡嘛呢叭咪吽 🙏','嗡嘛呢叭咪吽']}
 ];
 const STEPS=NPC.filter(n=>!n.decor);
@@ -4717,23 +4717,33 @@ async function runNPC(n,which){
 }
 
 /* ---------- NPC 快速列表：可隱藏，點名字即前往 ---------- */
+function mkBtn(text,fn){ const b=document.createElement('button'); b.type='button'; b.className='vnpc-it'; b.textContent=text; b.onclick=fn; return b; }
+function pickTile(store,list){ const now=Date.now(); for(const [x,y] of list){ const t=store[x+','+y]; if(!t || now-t>=GROW_MS) return [x,y]; } return list[0]; }
+function tileStatus(store,x,y){ const t=store[x+','+y]; if(!t) return '空地'; const left=Math.ceil((GROW_MS-(Date.now()-t))/60000); return left>0?'剩 '+left+' 分':'可收成'; }
 function buildNpcList(){
   const box=document.getElementById('vNpcList');
   box.innerHTML='';
-  STEPS.forEach(n=>{
-    const idx=STEPS.indexOf(n);
-    const b=document.createElement('button'); b.type='button'; b.className='vnpc-it';
-    b.textContent=(idx>=0?(idx+1)+'. ':'')+n.name;
-    b.onclick=()=>{ setNpcList(false); walkNear(n); };
-    box.appendChild(b);
+  STEPS.forEach((n,i)=>{
+    box.appendChild(mkBtn((i+1)+'. '+n.name, ()=>{ setNpcList(false); walkNear(n); }));
   });
+  const [fx,fy]=pickTile(farmSt,FARM);
+  box.appendChild(mkBtn('🌸 種花（'+tileStatus(farmSt,fx,fy)+'）', ()=>{
+    const [x,y]=pickTile(farmSt,FARM); setNpcList(false);
+    actAt(x,y,()=>plotAct(farmSt,x+','+y,'花','🌱 種下花種'));
+  }));
+  const [ix,iy]=pickTile(fishSt,FISH);
+  box.appendChild(mkBtn('🐟 養魚（'+tileStatus(fishSt,ix,iy)+'）', ()=>{
+    const [x,y]=pickTile(fishSt,FISH); setNpcList(false);
+    actAt(x,y,()=>plotAct(fishSt,x+','+y,'魚','🐟 放入魚苗'));
+  }));
 }
 function setNpcList(show){
-  const box=document.getElementById('vNpcList');
-  if(show && !box.childElementCount) buildNpcList();
+  const box=document.getElementById('vNpcList'); if(!box) return;
+  if(show) buildNpcList();
   box.style.display=show?'flex':'none';
   const hd=document.getElementById('vNpcHead'); if(hd) hd.textContent=show?'📋 NPC ▴':'📋 NPC ▾';
 }
+setInterval(()=>{ const box=document.getElementById('vNpcList'); if(box && box.style.display!=='none') buildNpcList(); },30000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 setNpcList(true);
 
@@ -4744,12 +4754,17 @@ try{ fishSt=JSON.parse(localStorage.getItem('vz_fish')||'{}')||{}; }catch(e){ fi
 function saveFarm(){
   try{ localStorage.setItem('vz_farm',JSON.stringify(farmSt)); localStorage.setItem('vz_fish',JSON.stringify(fishSt)); }catch(e){}
 }
+let fxList=[];
+function fxSpark(tx,ty,color){ fxList.push({x:tx*T+8,y:ty*T+8,t:performance.now(),c:color}); }
 function plotAct(store,k,label,plantMsg){
   const now=Date.now(), t=store[k];
-  if(!t){ store[k]=now; saveFarm(); showToast(plantMsg+'，30 分鐘後可收成'); return; }
+  const [fx,fy]=k.split(',').map(Number);
+  const isFish=(store===fishSt);
+  if(!t){ store[k]=now; saveFarm(); fxSpark(fx,fy,isFish?'#9FE8FF':'#B8FF9A'); showToast(plantMsg+'，30 分鐘後可收成'); return; }
   const left=Math.ceil((GROW_MS-(now-t))/60000);
   if(left>0){ showToast(label+'生長中，還需 '+left+' 分鐘'); return; }
-  delete store[k]; saveFarm(); markDone(); showToast('🎉 '+label+'收成！經驗 +1');
+  delete store[k]; saveFarm(); markDone(); fxSpark(fx,fy,isFish?'#FFE27A':'#FFD1E8'); vzFlash();
+  showToast('🎉 '+label+'收成！經驗 +1');
 }
 function actAt(tx,ty,fn){
   if(Math.abs(tx-P.x)+Math.abs(ty-P.y)===1){ P.dir=dirOf(tx-P.x,ty-P.y); fn(); return; }
@@ -4763,28 +4778,46 @@ function actAt(tx,ty,fn){
   if(!best){ toast('走不過去，換個位置試試'); return; }
   hideCard(); P.path=best; P.after=()=>{ P.dir=dirOf(tx-P.x,ty-P.y); fn(); };
 }
+function drawFx(pn){
+  fxList=fxList.filter(f=>pn-f.t<900);
+  fxList.forEach(f=>{
+    const p=(pn-f.t)/900;
+    g.fillStyle=f.c;
+    for(let k=0;k<6;k++){
+      const ang=k*Math.PI/3, r=4+14*p;
+      g.globalAlpha=1-p;
+      g.beginPath(); g.arc(f.x+Math.cos(ang)*r, f.y+Math.sin(ang)*r, 2*(1-p)+0.6, 0, Math.PI*2); g.fill();
+    }
+    g.globalAlpha=1;
+  });
+}
 function drawFarm(){
-  const now=Date.now(), tt=performance.now();
+  const now=Date.now(), pn=performance.now(), tt=pn;
+  g.font='bold 7px "Noto Sans TC",sans-serif'; g.textAlign='center';
   FARM.forEach(([x,y])=>{
     const st=farmSt[x+','+y]; if(!st) return;
-    const cx=x*T+8, cy=y*T+9;
-    if(now-st<GROW_MS){
+    const cx=x*T+8, cy=y*T+9, left=Math.ceil((GROW_MS-(now-st))/60000);
+    if(left>0){
       g.fillStyle='#6FBF6A'; g.fillRect(cx-1,cy-3,2,4); g.fillRect(cx-3,cy-2,2,1); g.fillRect(cx+1,cy-2,2,1);
+      g.fillStyle='#FFF3C4'; g.fillText(left+'分',cx,cy-7);
     }else{
       g.fillStyle='#F7B6CB'; g.beginPath(); g.arc(cx,cy-2,3,0,Math.PI*2); g.fill();
       g.fillStyle='#FFE9A8'; g.fillRect(cx-1,cy-3,2,2);
+      g.fillStyle='#FFD1E8'; g.fillText('可收',cx,cy-7);
     }
   });
   FISH.forEach(([x,y])=>{
     const st=fishSt[x+','+y]; if(!st) return;
-    const ready=(now-st>=GROW_MS);
+    const left=Math.ceil((GROW_MS-(now-st))/60000), ready=left<=0;
     const cx=x*T+8+Math.sin(tt/500+x)*2, cy=y*T+8;
     g.fillStyle=ready?'#FFB347':'#FF8C42';
     g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
-    if(ready){ g.fillStyle='#FFFFFF'; g.fillRect(cx-6,cy-6,2,2); }
+    g.fillStyle=ready?'#FFD1E8':'#CFF3FF';
+    g.fillText(ready?'可收':left+'分',cx,cy-6);
   });
+  g.textAlign='start';
+  drawFx(pn);
 }
-
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
 const BGM_TRACKS=['Q6ibybw_ZYE','kj9Xc_mqcdU'];
