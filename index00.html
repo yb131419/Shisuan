@@ -1684,6 +1684,7 @@ body.v-mode #quickAddFab{display:none!important}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
 #vBgm{margin-left:6px !important;min-width:36px;padding:0 8px !important}
+#vBgmSw{margin-left:4px !important;padding:0 8px !important;font-size:11.5px !important;white-space:nowrap}
 #sbVillageBtn{margin-left:auto !important;margin-right:auto !important}
 #sbHeaderMid{display:none !important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
@@ -2021,6 +2022,7 @@ body.v-mode #quickAddFab{display:none!important}
         <div id="vTitle">見習冒險者</div>
       </div>
       <button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button>
+      <button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button>
       <button class="vbtn g sm" id="vBack" type="button">📜 返回列表</button>
       <div id="vLv">Lv.1</div>
     </div>
@@ -4727,19 +4729,26 @@ function setNpcList(show){
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 setNpcList(true);
 
-/* ---------- 背景音樂：以 YouTube 內嵌播放器播放（點 🎵 開關，不顯示影片畫面） ---------- */
-let bgmOn=false;
-const BGM_EMBED='https://www.youtube.com/embed/kj9Xc_mqcdU?autoplay=1&loop=1&playlist=kj9Xc_mqcdU&playsinline=1';
+/* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
+let bgmOn=false, bgmTrack=0;
+const BGM_TRACKS=['Q6ibybw_ZYE','kj9Xc_mqcdU'];
+function bgmEmbed(id){ return 'https://www.youtube.com/embed/'+id+'?autoplay=1&loop=1&playlist='+id+'&playsinline=1'; }
 function bgmStart(){
   const f=document.getElementById('vBgmFrame'); if(!f) return;
-  f.src=BGM_EMBED; bgmOn=true;
+  f.src=bgmEmbed(BGM_TRACKS[bgmTrack]); bgmOn=true;
 }
 function bgmStop(){
   const f=document.getElementById('vBgmFrame'); if(f) f.src='about:blank';
   bgmOn=false;
 }
+function bgmSwitch(){
+  bgmTrack=(bgmTrack+1)%BGM_TRACKS.length;
+  if(bgmOn) bgmStart();
+  bgmRefresh();
+}
 function bgmRefresh(){
   const b=document.getElementById('vBgm'); if(b) b.textContent=bgmOn?'🔊':'🎵';
+  const sw=document.getElementById('vBgmSw'); if(sw) sw.textContent='⇄ 曲'+(bgmTrack+1);
   try{ localStorage.setItem('vz_bgm',bgmOn?'1':'0'); }catch(e){}
 }
 function bgmToggle(){
@@ -4747,6 +4756,7 @@ function bgmToggle(){
   bgmRefresh();
 }
 document.getElementById('vBgm').addEventListener('click',bgmToggle);
+document.getElementById('vBgmSw').addEventListener('click',bgmSwitch);
 /* ---------- 地圖背景（一次繪製，之後重複使用） ---------- */
 function flower(X,Y,R){
   const cols=['#F4A7B9','#F7E07A','#FFFFFF','#C7A4F0'];
