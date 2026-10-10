@@ -4725,26 +4725,46 @@ function tileStatus(store,x,y,rd){ const t=store[x+','+y]; if(!t) return '空地
 function areaSummary(store,list,emptyTxt,readyTxt){
   let ready=0, grow=null;
   for(const [x,y] of list){ const t=store[x+','+y]; if(!t) continue; const r=remainMs(t); if(r<=0) ready++; else { const m=Math.ceil(r/60000); if(grow===null||m<grow) grow=m; } }
-  if(ready) return readyTxt+' '+ready+' 處';
+  if(ready) return readyTxt+' '+ready+'處';
   if(grow!==null) return '剩 '+grow+' 分';
   return emptyTxt;
+}
+function flowerBtnText(){
+  const s=areaSummary(farmSt,FARM,'空地','可收成');
+  return s.indexOf('可收成')===0 ? '🌸 '+s : '🌸 種花（'+s+'）';
+}
+function readyTile(store,list){ for(const [x,y] of list){ const t=store[x+','+y]; if(t && remainMs(t)<=0) return [x,y]; } return null; }
+function areaBtnText(kind){
+  if(kind==='flower') return flowerBtnText();
+  return '🐟 養魚（'+areaSummary(fishSt,FISH,'空池','可收成')+'）';
+}
+function areaBtn(kind){
+  const b=mkBtn(areaBtnText(kind), ()=>{
+    const st=kind==='flower'?farmSt:fishSt, list=kind==='flower'?FARM:FISH;
+    const r=readyTile(st,list); if(!r) return;
+    setNpcList(false);
+    actAt(r[0],r[1],()=>plotAct(st,r[0]+','+r[1],kind==='flower'?'花':'魚',''));
+  });
+  refreshAreaBtn(b,kind);
+  return b;
+}
+function refreshAreaBtn(b,kind){
+  const st=kind==='flower'?farmSt:fishSt, list=kind==='flower'?FARM:FISH;
+  const ok=!!readyTile(st,list);
+  b.textContent=areaBtnText(kind);
+  b.disabled=!ok;
+  b.style.opacity=ok?'1':'.55';
 }
 function buildNpcList(){
   const box=document.getElementById('vNpcList');
   box.innerHTML='';
   STEPS.forEach((n,i)=>{
-    box.appendChild(mkBtn((i+1)+'. '+n.name, ()=>{ setNpcList(false); walkNear(n); }));
+    const nb=mkBtn((i+1)+'. '+n.name, ()=>{ setNpcList(false); walkNear(n); });
+    if(i===STEPS.length-1){ nb.style.marginBottom='12px'; nb.style.borderBottom='1px dashed rgba(232,196,104,.45)'; nb.style.paddingBottom='10px'; }
+    box.appendChild(nb);
   });
-  const [fx,fy]=pickTile(farmSt,FARM);
-  box.appendChild(mkBtn('🌸 種花（'+areaSummary(farmSt,FARM,'點擊種花','可收成')+'）', ()=>{
-    const [x,y]=pickTile(farmSt,FARM); setNpcList(false);
-    actAt(x,y,()=>plotAct(farmSt,x+','+y,'花','🌱 種下花種'));
-  }));
-  const [ix,iy]=pickTile(fishSt,FISH);
-  box.appendChild(mkBtn('🐟 養魚（'+areaSummary(fishSt,FISH,'點擊放魚','可收成')+'）', ()=>{
-    const [x,y]=pickTile(fishSt,FISH); setNpcList(false);
-    actAt(x,y,()=>plotAct(fishSt,x+','+y,'魚','🐟 放入魚苗'));
-  }));
+  box.appendChild(areaBtn('flower'));
+  box.appendChild(areaBtn('fish'));
 }
 function setNpcList(show){
   const box=document.getElementById('vNpcList'); if(!box) return;
@@ -4756,9 +4776,8 @@ setInterval(()=>{
   const box=document.getElementById('vNpcList');
   if(!box || box.style.display==='none') return;
   const kids=box.children; if(kids.length<2) return;
-  const [fx,fy]=pickTile(farmSt,FARM), [ix,iy]=pickTile(fishSt,FISH);
-  kids[kids.length-2].textContent='🌸 種花（'+areaSummary(farmSt,FARM,'點擊種花','可收成')+'）';
-  kids[kids.length-1].textContent='🐟 養魚（'+areaSummary(fishSt,FISH,'點擊放魚','可收成')+'）';
+  refreshAreaBtn(kids[kids.length-2],'flower');
+  refreshAreaBtn(kids[kids.length-1],'fish');
 },1000);
 document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
 
@@ -4865,7 +4884,7 @@ function drawFarm(){
     g.beginPath(); g.ellipse(cx,cy,4,2.2,0,0,Math.PI*2); g.fill();
     if(ready) pill('可收成',cx,cy-4,'#FFE27A'); else { g.fillStyle='#CFF3FF'; g.fillText(left+'分',cx,cy-6); }
   });
-  const fS=areaSummary(farmSt,FARM,'點擊種花','可收成'), fishS=areaSummary(fishSt,FISH,'點擊放魚','可收成');
+  const fS=areaSummary(farmSt,FARM,'空地','可收成'), fishS=areaSummary(fishSt,FISH,'空池','可收成');
   g.textAlign='center';
   drawName('靈田',3*T,19*T,false); drawBubble('🌸 '+fS,3*T,19*T-11);
   drawName('魚池',4*T,3*T,false); drawBubble('🐟 '+fishS,4*T,3*T-11);
