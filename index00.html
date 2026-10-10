@@ -1630,6 +1630,7 @@ body.v-mode #quickAddFab{display:none!important}
 .vAv{background:#1B1433;border-color:#E8C468;box-shadow:0 0 0 3px rgba(232,196,104,.2),0 0 14px rgba(232,196,104,.35)}
 #vXp{background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px rgba(232,196,104,.45)}
 #vXpFill{background:linear-gradient(90deg,#8E6B2C,#E8C468,#FFF3CC);box-shadow:0 0 12px rgba(232,196,104,.7)}
+#vXp{position:relative}#vXpPct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 11px/1 "Noto Sans TC",sans-serif;color:#FFF6DC;text-shadow:0 1px 2px #000,0 0 4px #000;letter-spacing:.5px;pointer-events:none;z-index:2}
 #vMeta{color:rgba(246,227,180,.8)}
 #vWrap{box-shadow:0 0 0 2px #E8C468,0 0 26px rgba(232,196,104,.35)}
 #vCard{background:linear-gradient(170deg,#2A2052,#130E2B);border-color:#E8C468;color:#F6E3B4;box-shadow:0 14px 34px rgba(0,0,0,.55),0 0 18px rgba(232,196,104,.2)}
@@ -4485,6 +4486,7 @@ function renderVillage(){
   document.getElementById('vTitle').textContent=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
   document.getElementById('vName').textContent=(userInfo&&userInfo.displayName)||'冒險者';
   document.getElementById('vXpFill').style.width=(L2.cur/L2.need*100).toFixed(1)+'%';
+  { let _pc=document.getElementById('vXpPct'); if(!_pc){ _pc=document.createElement('span'); _pc.id='vXpPct'; document.getElementById('vXp').appendChild(_pc); } _pc.textContent=Math.floor(L2.cur/L2.need*100)+'%'; }
   document.getElementById('vCount').innerHTML='已完成<br>'+pts+' 次';
   document.getElementById('vNext').innerHTML='距 Lv.'+(L2.lv+1)+'<br>還需 '+(L2.need-L2.cur)+' 次';
   const av=document.getElementById('vAv');
