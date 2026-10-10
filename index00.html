@@ -4959,10 +4959,13 @@ function syncCalcLv(){
     const box=document.getElementById('mcRows'); if(!box) return;
     const L2=levelOf(parseInt(localStorage.getItem('vz_total'),10)||0);
     const title=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
-    let row=box.querySelector('.vz-lv-row');
-    if(!row){ row=document.createElement('div'); row.className='sb-stat-row vz-lv-row'; box.appendChild(row); }
-    const html='<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">仙界等級</span><span class="sb-stat-val">Lv.'+L2.lv+' '+title+'</span>';
-    if(row.innerHTML!==html) row.innerHTML=html;
+    const put=(cls,html)=>{
+      let row=box.querySelector('.'+cls);
+      if(!row){ row=document.createElement('div'); row.className='sb-stat-row '+cls; box.appendChild(row); }
+      if(row.innerHTML!==html) row.innerHTML=html;
+    };
+    put('vz-lv-row','<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">仙界等級</span><span class="sb-stat-val">Lv.'+L2.lv+' '+title+'</span>');
+    put('vz-lv-row2','<span class="sb-stat-ic">⏳</span><span class="sb-stat-label">距 Lv.'+(L2.lv+1)+' 還需</span><span class="sb-stat-val">'+(L2.need-L2.cur)+' 次</span>');
   }catch(e){}
 }
 setInterval(syncCalcLv,1000); syncCalcLv();
