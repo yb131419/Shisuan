@@ -4743,9 +4743,9 @@ function flowerBtnText(){
 }
 function readyTile(store,list){ for(const [x,y] of list){ const t=store[x+','+y]; if(t && remainMs(t,store)<=0) return [x,y]; } return null; }
 const AREA={
-  flower:{st:()=>farmSt, list:()=>FARM, label:'花', text:()=>'🌸 種花 · '+areaSummary(farmSt,FARM,'','可收成')},
-  fish:{st:()=>fishSt, list:()=>FISH, label:'魚', text:()=>'🐟 養魚 · '+areaSummary(fishSt,FISH,'','可收成')},
-  skel:{st:()=>skelSt, list:()=>SKEL, label:'骷髏怪', text:()=>'💀 骷髏怪 · '+areaSummary(skelSt,SKEL,'','可清除')}
+  flower:{st:()=>farmSt, list:()=>FARM, label:'花', text:()=>'🌸 '+areaSummary(farmSt,FARM,'','可收成')},
+  fish:{st:()=>fishSt, list:()=>FISH, label:'魚', text:()=>'🐟 '+areaSummary(fishSt,FISH,'','可收成')},
+  skel:{st:()=>skelSt, list:()=>SKEL, label:'骷髏怪', text:()=>'💀 '+areaSummary(skelSt,SKEL,'','可清除')}
 };
 function areaBtn(kind){
   const b=mkBtn(AREA[kind].text(), ()=>{
