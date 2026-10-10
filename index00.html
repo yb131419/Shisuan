@@ -4991,6 +4991,8 @@ function bgmToggle(){
   bgmRefresh();
 }
 document.getElementById('vBgm').addEventListener('click',bgmToggle);
+// 回到頁面（切回分頁／解除縮小）時，若音樂原本是開的就自動續播
+document.addEventListener('visibilitychange',function(){ if(!document.hidden && bgmOn) bgmStart(); });
 const BGM_NAMES=['千年的祈禱','古梵音心經','八十八佛懺悔文','準提法門靜坐版'];
 let bgmListEl=null;
 function bgmListRender(){
