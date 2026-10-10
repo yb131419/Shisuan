@@ -4496,17 +4496,17 @@ function openCard(n){
     '<div class="vc-t">'+n.lines[Math.floor(Math.random()*n.lines.length)]+'</div>'+
     '<div id="vcF"></div>'+
     (ui.list===false?'':'<div class="vf-lb vf-lb-big">目前報表品項</div><div id="vfList"></div>')+
-    '<div class="vc-btns" id="vcB">'+
+    (n.decor?'':'<div class="vc-btns" id="vcB">'+
       (ui.extra?'<button class="vbtn g" id="vcEx" type="button">'+ui.extra.label+'</button>':'')+
       '<button class="vbtn" id="vcGo" type="button">'+ui.go+'</button>'+
-    '</div>';
+    '</div>');
   c.hidden=false;
   document.getElementById('vBottom').classList.toggle('vb-full', !!ui.full);
   document.getElementById('vGridBox').hidden=true;
   document.getElementById('vcX').onclick=hideCard;
   ui.render(document.getElementById('vcF'));
   renderItemList();
-  document.getElementById('vcGo').onclick=()=>runNPC(n,'main');
+  if(!n.decor) document.getElementById('vcGo').onclick=()=>runNPC(n,'main');
   if(ui.extra) document.getElementById('vcEx').onclick=()=>runNPC(n,'extra');
 }
 function hideCard(){
@@ -4707,7 +4707,7 @@ async function runNPC(n,which){
 function buildNpcList(){
   const box=document.getElementById('vNpcList');
   box.innerHTML='';
-  STEPS.concat(NPC.filter(n=>n.decor)).forEach(n=>{
+  STEPS.forEach(n=>{
     const idx=STEPS.indexOf(n);
     const b=document.createElement('button'); b.type='button'; b.className='vnpc-it';
     b.textContent=(idx>=0?(idx+1)+'. ':'')+n.name;
@@ -5038,6 +5038,7 @@ function drawBubble(txt,cx,bottomY){
 }
 let nextSay=0;
 function ambient(t){
+  NPC.forEach(n=>{ if(n.decor) n._say={text:'嗡嘛呢叭咪吽', until:Infinity}; });
   if(t<nextSay) return;
   nextSay=t+2600+Math.random()*2200;
   const cands=NPC.filter(n=>Math.abs(n.x-P.x)+Math.abs(n.y-P.y)<=9 && !(n._say&&t<n._say.until));
