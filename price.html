@@ -115,7 +115,7 @@
   .container { max-width: 1000px; margin: -64px auto 56px; padding: 0 20px; position: relative; z-index: 2; }
 
   /* 統計 */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+  .stats { display: grid; grid-template-columns: minmax(0, 280px); justify-content: center; gap: 14px; margin-bottom: 22px; }
   .stat {
     background: var(--paper); border: 1px solid var(--line);
     border-radius: var(--radius-lg); padding: 22px 18px 20px; text-align: center;
@@ -168,6 +168,17 @@
     color: var(--gold-100); border-color: transparent;
     box-shadow: 0 6px 16px -6px rgba(14,69,48,.55);
   }
+
+  .sort {
+    height: 40px; padding: 0 36px 0 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--paper); color: var(--emerald-800);
+    font-size: 13px; letter-spacing: .04em; cursor: pointer; appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--gold-600) 50%),
+                      linear-gradient(135deg, var(--gold-600) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+    background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  .sort:focus-visible { outline: 2px solid var(--gold-400); outline-offset: 3px; }
 
   .count-line {
     font-size: 12px; color: var(--muted); margin: 10px 6px 16px; letter-spacing: .12em;
@@ -306,8 +317,6 @@
 
   <section class="stats">
     <div class="stat"><div class="stat-num" id="statTotal">–</div><div class="stat-label">品項總數</div></div>
-    <div class="stat"><div class="stat-num" id="statPriced">–</div><div class="stat-label">已有價錢</div></div>
-    <div class="stat"><div class="stat-num" id="statPending">–</div><div class="stat-label">待補價錢</div></div>
   </section>
 
   <div class="toolbar-wrap">
@@ -318,9 +327,16 @@
       </label>
       <div class="chips" id="chips">
         <button class="chip active" data-filter="all">全部</button>
-        <button class="chip" data-filter="priced">已有價錢</button>
-        <button class="chip" data-filter="pending">待補價錢</button>
+        <button class="chip" data-filter="normal">一般品項</button>
+        <button class="chip" data-filter="gift">贈品</button>
       </div>
+      <select class="sort" id="sortSelect" aria-label="排序方式">
+        <option value="default">預設排序</option>
+        <option value="priceAsc">價錢：低到高</option>
+        <option value="priceDesc">價錢：高到低</option>
+        <option value="pvDesc">PV：高到低</option>
+        <option value="nameAsc">品項名稱</option>
+      </select>
     </section>
   </div>
 
@@ -368,6 +384,7 @@
   let items = [];
   let prevPrices = new Map();
   let filterMode = "all";
+  let sortMode = "default";
   let keyword = "";
   let loading = false;
   let lastLoadAt = 0;
@@ -426,12 +443,20 @@
   // ============================================================
   function filtered() {
     const kw = keyword.trim().toLowerCase();
-    return items.filter(it => {
+    const list = items.filter(it => {
       if (kw && !it.name.toLowerCase().includes(kw)) return false;
-      if (filterMode === "priced" && !hasPrice(it)) return false;
-      if (filterMode === "pending" && hasPrice(it)) return false;
+      if (filterMode === "normal" && it.amount === 0) return false;
+      if (filterMode === "gift" && it.amount !== 0) return false;
       return true;
     });
+    const priceOf = (it) => hasPrice(it) ? it.price : -Infinity;
+    switch (sortMode) {
+      case "priceAsc":  list.sort((a, b) => priceOf(a) - priceOf(b)); break;
+      case "priceDesc": list.sort((a, b) => priceOf(b) - priceOf(a)); break;
+      case "pvDesc":    list.sort((a, b) => (b.pv || 0) - (a.pv || 0)); break;
+      case "nameAsc":   list.sort((a, b) => a.name.localeCompare(b.name, "zh-Hant")); break;
+    }
+    return list;
   }
 
   function makeEl(tag, cls, text) {
@@ -449,11 +474,7 @@
   }
 
   function render() {
-    const total = items.length;
-    const priced = items.filter(hasPrice).length;
-    $("statTotal").textContent = total;
-    $("statPriced").textContent = priced;
-    $("statPending").textContent = total - priced;
+    $("statTotal").textContent = items.length;
 
     const list = filtered();
     $("countLine").textContent = `顯示 ${list.length} ／ ${total} 項`;
@@ -512,6 +533,8 @@
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === btn));
     render();
   });
+
+  $("sortSelect").addEventListener("change", (e) => { sortMode = e.target.value; render(); });
 
   $("retryBtn").addEventListener("click", load);
 
