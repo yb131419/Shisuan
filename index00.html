@@ -5123,11 +5123,13 @@ function vzStepInit(){
     if(cur===1){
       const n=cap.querySelectorAll('tbody tr').length;
       if(n===0){ go(1); return; }
+      go(1);   // 先跳轉到新增品項區塊
       if(isFree()){ setFlag('s2',true); return; }
       askConfirm('新增品項','請確認所有品項都已添加完成（目前 '+n+' 列）。確認後才會進入下一步。','已全部添加完成，下一步',()=>setFlag('s2',true));
       return;
     }
     if(cur===2){
+      go(2);   // 先跳轉到付款方式區塊
       if(isFree()){ setFlag('s3',true); return; }
       askConfirm('付款方式','請勾選現金或刷卡；如果還不確定，也可以先略過，直接進入下一步。','不確定，略過並進入下一步',()=>setFlag('s3',true));
       return;
