@@ -4995,7 +4995,7 @@ function vzStepInit(){
   cap.parentNode.insertBefore(bar,cap);
   const css=document.createElement('style');
   css.textContent=[
-    '#vzStepBar{position:sticky;top:6px;z-index:60;margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(24,30,28,.96),rgba(12,16,15,.96));border:1px solid rgba(200,230,215,.22);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.06)}',
+    '#vzStepBar{position:sticky;top:6px;z-index:60;margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(24,30,28,.96),rgba(12,16,15,.96));border:1.5px solid #D9B873;box-shadow:0 0 0 1px rgba(255,210,122,.25),0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.06)}',
     '#vzStepHead{position:relative;width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px 12px;background:none;border:0;color:#EEF3EF;font:700 13px/1.2 "Noto Sans TC",sans-serif;text-align:left;cursor:pointer}',
     '.vzsh-txt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.vzsh-chev{font-size:12px;color:#9FD8B5;transition:transform .25s}',
@@ -5025,6 +5025,7 @@ function vzStepInit(){
     '#vzConfirm{position:fixed;inset:0;z-index:99999;background:rgba(6,10,9,.6);display:flex;align-items:center;justify-content:center;padding:16px}',
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
+    '.vz-under{visibility:hidden !important;pointer-events:none !important}',
     '#quickAddFab{left:18px !important;right:auto !important;width:auto !important;height:auto !important;min-width:58px;padding:8px 12px !important;border-radius:16px !important;font-size:13px !important;font-weight:900;line-height:1.25;letter-spacing:.5px}',
     'body.v-mode #vzFab{display:none !important}',
     'body.v-mode #vzStepBar{display:none}'
@@ -5109,6 +5110,21 @@ function vzStepInit(){
   }
   fab.addEventListener('click',nextAction);
   $('vzStepNext').addEventListener('click',nextAction);
+  // 「增加品項」按鈕不被浮動按鈕／步驟列蓋住：重疊時把那些浮層暫時隱藏（不可點）
+  const ADD_OVL=['vzStepBar','vzFab','quickAddFab'];
+  function clearAddBtn(){
+    const a=$('addBtn'); if(!a) return;
+    const r=a.getBoundingClientRect();
+    ADD_OVL.forEach(id=>{
+      const el=$(id); if(!el) return;
+      const q=el.getBoundingClientRect();
+      const hit=!el.hidden && q.width>0 && q.height>0 && q.left<r.right && q.right>r.left && q.top<r.bottom && q.bottom>r.top;
+      el.classList.toggle('vz-under', !!hit);
+    });
+  }
+  window.addEventListener('scroll',clearAddBtn,{passive:true,capture:true});
+  window.addEventListener('resize',clearAddBtn);
+  setInterval(clearAddBtn,250);
   setInterval(render,600); render();
 }
 vzStepInit();
