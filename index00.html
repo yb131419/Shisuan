@@ -4975,7 +4975,7 @@ function syncCalcLv(){
 setInterval(syncCalcLv,1000); syncCalcLv();
 function vzStepInit(){
   const cap=document.getElementById('captureArea'); if(!cap||document.getElementById('vzStepBar')) return;
-  const qa=document.getElementById('quickAddFab'); if(qa){ qa.innerHTML='增添<br>品項'; qa.title='快速跳到增添品項'; }
+  const qa=document.getElementById('quickAddFab'); if(qa) qa.remove();   // 左下角「增添品項」已移除
   const $=id=>document.getElementById(id);
   const getF=()=>{ try{ return JSON.parse(sessionStorage.getItem('vz_step_flags')||'{}'); }catch(e){ return {}; } };
   const setF=f=>{ try{ sessionStorage.setItem('vz_step_flags',JSON.stringify(f)); }catch(e){} };
@@ -5026,6 +5026,8 @@ function vzStepInit(){
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
     '.vz-under{visibility:hidden !important;pointer-events:none !important}',
+    '.vzg-more{flex:1 1 100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(200,230,215,.3);background:rgba(255,255,255,.06);color:#EEF3EF;font-weight:800;font-size:14px;cursor:pointer}',
+    '.vzg-more[hidden]{display:none}',
     '#currencyBar .currency-btn{padding:9px 6px !important;border-radius:999px !important;font-size:13px !important;font-weight:900 !important;letter-spacing:.3px;color:#F4FBF7 !important;background:linear-gradient(180deg,#3B5750 0%,#243A34 100%) !important;border:1px solid rgba(200,230,215,.3) !important;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12) !important;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}',
     '#currencyBar .currency-btn:active{transform:scale(.94)}',
     '#currencyBar .currency-btn.active{background:linear-gradient(180deg,#E9F5EE,#BFDCCD) !important;color:#0F1F1A !important;border-color:rgba(230,247,238,.9) !important;box-shadow:0 0 0 2px rgba(200,230,215,.35),0 8px 22px rgba(0,0,0,.4) !important}',
@@ -5084,13 +5086,14 @@ function vzStepInit(){
   const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span><span class="vzf-l2" id="vzFabSub"></span>';
   document.body.appendChild(fab);
   const conf=document.createElement('div'); conf.id='vzConfirm'; conf.hidden=true;
-  conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
+  conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-more" id="vzcMore" hidden>➕ 繼續增添品項</button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
   document.body.appendChild(conf);
   let confOk=null;
-  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
+  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcMore').hidden=(title!=='新增品項'); $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
   const hideConf=()=>{ conf.hidden=true; confOk=null; };
   $('vzcClose').addEventListener('click',hideConf);
   $('vzcNo').addEventListener('click',hideConf);
+  $('vzcMore').addEventListener('click',()=>{ hideConf(); const n=$('nameInput'); const t=n||$('addBtn'); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'center'}); });
   $('vzcOk').addEventListener('click',()=>{ const f=confOk; hideConf(); if(f) f(); });
   conf.addEventListener('click',e=>{ if(e.target===conf) hideConf(); });
   const setFlag=(k,v)=>{ const f=getF(); f[k]=v; setF(f); render(); };
