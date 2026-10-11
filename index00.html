@@ -4986,6 +4986,8 @@ function vzStepInit(){
   const $=id=>document.getElementById(id);
   const getF=()=>{ try{ return JSON.parse(sessionStorage.getItem('vz_step_flags')||'{}'); }catch(e){ return {}; } };
   const setF=f=>{ try{ sessionStorage.setItem('vz_step_flags',JSON.stringify(f)); }catch(e){} };
+  const getOpen=()=>{ try{ return localStorage.getItem('vz_step_open')==='1'; }catch(e){ return false; } };
+  const setOpen=v=>{ try{ localStorage.setItem('vz_step_open',v?'1':'0'); }catch(e){} };
   const DEFS=[
     {n:'購買者',  t:()=>$('buyerInput'),  d:()=>!!($('buyerInput')&&$('buyerInput').value.trim())},
     {n:'新增品項',t:()=>$('addBtn'),      d:()=>cap.querySelectorAll('tbody tr').length>0},
@@ -4995,21 +4997,42 @@ function vzStepInit(){
     {n:'重置報表',t:()=>$('resetReportBtn'), d:()=>!!getF().s6}
   ];
   const bar=document.createElement('div'); bar.id='vzStepBar';
-  bar.innerHTML='<div id="vzStepChips"></div><button type="button" id="vzStepNext"></button>';
+  bar.innerHTML='<button type="button" id="vzStepHead"><span class="vzsh-ic">🧭</span><span class="vzsh-txt" id="vzStepTitle"></span><span class="vzsh-chev" id="vzStepChev">▾</span><span class="vzsh-prog"><i id="vzStepFill"></i></span></button>'
+    +'<div id="vzStepBody"><div id="vzStepChips"></div><button type="button" id="vzStepNext"></button></div>';
   cap.parentNode.insertBefore(bar,cap);
   const css=document.createElement('style');
-  css.textContent='#vzStepBar{display:flex;align-items:center;gap:8px;margin:6px 10px;padding:6px 8px;border-radius:12px;background:rgba(20,16,10,.85);border:1px solid rgba(255,210,122,.4)}#vzStepChips{display:flex;gap:4px;flex:1;flex-wrap:wrap}.vzs{font-size:11px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.08);color:#cfc6b0;white-space:nowrap}.vzs.done{background:rgba(120,200,140,.25);color:#BFF0CC}.vzs.cur{background:#E8C468;color:#2A1A00;font-weight:800}#vzStepNext{font-size:12px;padding:6px 10px;border-radius:10px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873);color:#2A1A00;font-weight:800;white-space:nowrap;cursor:pointer}body.v-mode #vzStepBar{display:none}';
+  css.textContent=[
+    '#vzStepBar{margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(38,30,18,.96),rgba(18,14,9,.96));border:1px solid rgba(232,196,104,.45);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,240,200,.08)}',
+    '#vzStepHead{position:relative;width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px 12px;background:none;border:0;color:#F6E3B4;font:800 13px/1.2 "Noto Sans TC",sans-serif;text-align:left;cursor:pointer}',
+    '.vzsh-txt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.vzsh-chev{font-size:12px;color:#E8C468;transition:transform .25s}',
+    '#vzStepBar.open .vzsh-chev{transform:rotate(180deg)}',
+    '.vzsh-prog{position:absolute;left:12px;right:12px;bottom:5px;height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}',
+    '#vzStepFill{display:block;height:100%;width:0;background:linear-gradient(90deg,#8E6B2C,#E8C468,#FFF3CC);transition:width .4s ease}',
+    '#vzStepBody{display:none;padding:2px 10px 10px}',
+    '#vzStepBar.open #vzStepBody{display:block}',
+    '#vzStepChips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}',
+    '.vzs{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#CFC6B0;white-space:nowrap}',
+    '.vzs.done{background:linear-gradient(135deg,rgba(120,200,140,.28),rgba(120,200,140,.12));border-color:rgba(160,230,180,.35);color:#D4F5DE}',
+    '.vzs.cur{background:linear-gradient(135deg,#FFE7A3,#D9B873);border-color:#FFF0B0;color:#2A1A00;font-weight:900;box-shadow:0 0 10px rgba(255,210,122,.45)}',
+    '#vzStepNext{width:100%;font-size:13px;font-weight:900;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873 60%,#B98A3E);color:#2A1A00;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}',
+    'body.v-mode #vzStepBar{display:none}'
+  ].join('');
   document.head.appendChild(css);
-  let lastCur=-1, lastBuyer='';
+  let lastCur=-1;
   const curIdx=()=>{ for(let i=0;i<DEFS.length;i++){ if(!DEFS[i].d()) return i; } return DEFS.length-1; };
   const go=i=>{ const el=DEFS[i].t(); if(el&&el.scrollIntoView){ el.scrollIntoView({behavior:'smooth',block:'center'}); } };
   function render(){
-    const cur=curIdx();
+    const cur=curIdx(), doneN=DEFS.filter(x=>x.d()).length;
     $('vzStepChips').innerHTML=DEFS.map((x,i)=>'<span class="vzs'+(x.d()?' done':'')+(i===cur?' cur':'')+'">'+(x.d()?'✔ ':(i+1)+'. ')+x.n+'</span>').join('');
     $('vzStepNext').textContent='下一步 ▸ '+DEFS[cur].n;
+    $('vzStepTitle').textContent='試算步驟 '+doneN+'/'+DEFS.length+' · 下一步：'+DEFS[cur].n;
+    $('vzStepFill').style.width=(doneN/DEFS.length*100)+'%';
     if(lastCur!==-1 && cur!==lastCur){ go(cur); }
     lastCur=cur;
   }
+  bar.classList.toggle('open',getOpen());
+  $('vzStepHead').addEventListener('click',()=>{ const v=!bar.classList.contains('open'); bar.classList.toggle('open',v); setOpen(v); });
   $('vzStepNext').addEventListener('click',()=>go(curIdx()));
   document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
   document.addEventListener('click',e=>{
