@@ -5048,10 +5048,11 @@ function vzStepInit(){
     $('vzFabSub').textContent=(doneN===DEFS.length)?'試算步驟已完成':DEFS[cur].n;
     $('vzStepTitle').textContent='試算步驟 '+doneN+'/'+DEFS.length+' · 下一步：'+DEFS[cur].n;
     $('vzStepFill').style.width=(doneN/DEFS.length*100)+'%';
-    if(lastCur!==-1 && cur!==lastCur){ go(cur); }
+    // 進度變動時自動捲到下一步；但填寫／清除購買者（步驟 1）時不捲動
+    if(lastCur!==-1 && cur!==lastCur && cur!==0 && lastCur!==0){ go(cur); }
     lastCur=cur;
   }
-  bar.classList.toggle('open',getOpen());
+  bar.classList.remove('open'); setOpen(false);   // 預設收起來，每次載入都從收合開始
   $('vzStepHead').addEventListener('click',()=>{ const v=!bar.classList.contains('open'); bar.classList.toggle('open',v); setOpen(v); });
   document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
   const GATE={addBtn:[0],exportBtn:[0,1,2],nativeShareBtn:[0,1,2,3],shareToLineBtn:[0,1,2,3],resetReportBtn:[0,1,2,3,4]};
