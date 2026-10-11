@@ -5038,6 +5038,8 @@ function vzStepInit(){
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
     '.vz-under{visibility:hidden !important;pointer-events:none !important}',
+    '#vzStepNext{background:linear-gradient(180deg,#FBF6E6,#EADFC2) !important;color:#23301F !important;border:1px solid rgba(160,118,48,.55) !important;border-top:1px solid rgba(255,236,176,.9) !important;box-shadow:0 6px 16px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.7) !important}',
+    '#vzStepNext:active{filter:brightness(.96)}',
     '.toast:not(.error):not(.warning){background:linear-gradient(180deg,#FBF6E6,#EADFC2) !important;color:#23301F !important;border:1px solid rgba(160,118,48,.55) !important;border-top:1px solid rgba(255,236,176,.9) !important;border-radius:999px !important;padding:11px 22px !important;font-size:14px !important;font-weight:800 !important;letter-spacing:.3px;box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.7) !important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);bottom:96px !important;max-width:80vw;white-space:nowrap}',
     '#sbBody .sb-profile{position:relative}',
     'body.vz-free #vzFab{display:none !important}',
@@ -5151,7 +5153,7 @@ function vzStepInit(){
       askConfirm('付款方式','請勾選現金或刷卡；如果還不確定，也可以先略過，直接進入下一步。','不確定，略過並進入下一步',()=>setFlag('s3',true));
       return;
     }
-    if(cur===3){ const b=$('exportBtn'); if(b){ go(3); b.click(); } return; }
+    if(cur===3){ const b=$('exportBtn'); if(b){ go(3); setTimeout(function(){ b.click(); },650); } return; }   // 先捲到「報表轉圖片」按鈕，等捲動完成再執行
     if(cur===4){ const b=$('nativeShareBtn'); if(b){ go(4); b.click(); } return; }
     if(cur===5){ const b=$('resetReportBtn'); if(b){ go(5); b.click(); } return; }
     go(cur);
