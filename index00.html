@@ -1630,7 +1630,7 @@ body.v-mode #quickAddFab{display:none!important}
 .vAv{background:#1B1433;border-color:#E8C468;box-shadow:0 0 0 3px rgba(232,196,104,.2),0 0 14px rgba(232,196,104,.35)}
 #vXp{background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px rgba(232,196,104,.45)}
 #vXpFill{background:linear-gradient(90deg,#6E0F12,#C42A2A,#FF6B6B);box-shadow:0 0 12px rgba(255,80,80,.7)}
-#vCount{display:none !important}#vXp{position:relative}#vXpPct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 11px/1 "Noto Sans TC",sans-serif;color:#FFF6DC;text-shadow:0 1px 2px #000,0 0 4px #000;letter-spacing:.5px;pointer-events:none;z-index:2}
+#vNpcList .vnpc-it{text-align:left !important;justify-content:flex-start !important}#vCount{display:none !important}#vXp{position:relative}#vXpPct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 11px/1 "Noto Sans TC",sans-serif;color:#FFF6DC;text-shadow:0 1px 2px #000,0 0 4px #000;letter-spacing:.5px;pointer-events:none;z-index:2}
 #vMeta{color:rgba(246,227,180,.8)}
 #vWrap{box-shadow:0 0 0 2px #E8C468,0 0 26px rgba(232,196,104,.35)}
 #vCard{background:linear-gradient(170deg,#2A2052,#130E2B);border-color:#E8C468;color:#F6E3B4;box-shadow:0 14px 34px rgba(0,0,0,.55),0 0 18px rgba(232,196,104,.2)}
@@ -4981,6 +4981,47 @@ function syncCalcLv(){
 }
 (function(){ const st=document.createElement('style'); st.textContent='#vzLvChip{display:block;width:fit-content;margin:8px auto 4px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:.3px;color:#2A1A00;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E);box-shadow:0 0 10px rgba(255,210,122,.45);text-align:center}'; document.head.appendChild(st); })();
 setInterval(syncCalcLv,1000); syncCalcLv();
+function vzStepInit(){
+  const cap=document.getElementById('captureArea'); if(!cap||document.getElementById('vzStepBar')) return;
+  const $=id=>document.getElementById(id);
+  const getF=()=>{ try{ return JSON.parse(sessionStorage.getItem('vz_step_flags')||'{}'); }catch(e){ return {}; } };
+  const setF=f=>{ try{ sessionStorage.setItem('vz_step_flags',JSON.stringify(f)); }catch(e){} };
+  const DEFS=[
+    {n:'購買者',  t:()=>$('buyerInput'),  d:()=>!!($('buyerInput')&&$('buyerInput').value.trim())},
+    {n:'新增品項',t:()=>$('addBtn'),      d:()=>cap.querySelectorAll('tbody tr').length>0},
+    {n:'付款方式',t:()=>$('cashOption'),  d:()=>!!(($('cashOption')&&$('cashOption').checked)||($('cardOption')&&$('cardOption').checked))},
+    {n:'報表轉圖片',t:()=>$('exportBtn'), d:()=>!!getF().s4},
+    {n:'分享圖片',t:()=>$('nativeShareBtn'), d:()=>!!getF().s5},
+    {n:'重置報表',t:()=>$('resetReportBtn'), d:()=>!!getF().s6}
+  ];
+  const bar=document.createElement('div'); bar.id='vzStepBar';
+  bar.innerHTML='<div id="vzStepChips"></div><button type="button" id="vzStepNext"></button>';
+  cap.parentNode.insertBefore(bar,cap);
+  const css=document.createElement('style');
+  css.textContent='#vzStepBar{display:flex;align-items:center;gap:8px;margin:6px 10px;padding:6px 8px;border-radius:12px;background:rgba(20,16,10,.85);border:1px solid rgba(255,210,122,.4)}#vzStepChips{display:flex;gap:4px;flex:1;flex-wrap:wrap}.vzs{font-size:11px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.08);color:#cfc6b0;white-space:nowrap}.vzs.done{background:rgba(120,200,140,.25);color:#BFF0CC}.vzs.cur{background:#E8C468;color:#2A1A00;font-weight:800}#vzStepNext{font-size:12px;padding:6px 10px;border-radius:10px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873);color:#2A1A00;font-weight:800;white-space:nowrap;cursor:pointer}body.v-mode #vzStepBar{display:none}';
+  document.head.appendChild(css);
+  let lastCur=-1, lastBuyer='';
+  const curIdx=()=>{ for(let i=0;i<DEFS.length;i++){ if(!DEFS[i].d()) return i; } return DEFS.length-1; };
+  const go=i=>{ const el=DEFS[i].t(); if(el&&el.scrollIntoView){ el.scrollIntoView({behavior:'smooth',block:'center'}); } };
+  function render(){
+    const cur=curIdx();
+    $('vzStepChips').innerHTML=DEFS.map((x,i)=>'<span class="vzs'+(x.d()?' done':'')+(i===cur?' cur':'')+'">'+(x.d()?'✔ ':(i+1)+'. ')+x.n+'</span>').join('');
+    $('vzStepNext').textContent='下一步 ▸ '+DEFS[cur].n;
+    if(lastCur!==-1 && cur!==lastCur){ go(cur); }
+    lastCur=cur;
+  }
+  $('vzStepNext').addEventListener('click',()=>go(curIdx()));
+  document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
+  document.addEventListener('click',e=>{
+    const b=e.target&&e.target.closest&&e.target.closest('button,a'); if(!b) return;
+    const f=getF();
+    if(b.id==='exportBtn'){ f.s4=true; setF(f); }
+    else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
+    else if(b.id==='resetReportBtn'){ setF({s6:true}); }
+  },true);
+  setInterval(render,600); render();
+}
+vzStepInit();
 function bgmRefresh(){
   const b=document.getElementById('vBgm'); if(b){ b.textContent=bgmOn?'🔊':'🎵'; b.classList.toggle('on',bgmOn); }
   const sw=document.getElementById('vBgmSw'); if(sw) sw.textContent='⇄ 曲'+(bgmTrack+1);
