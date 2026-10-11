@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
   :root {
-    /* 翡翠綠主色 */
     --emerald-950: #05261a;
     --emerald-900: #0a3324;
     --emerald-800: #0e4530;
@@ -20,12 +20,10 @@
     --emerald-300: #7cc3a0;
     --emerald-100: #d9efe3;
     --emerald-50:  #eef7f1;
-    /* 香檳金點綴 */
     --gold-600: #a9864a;
     --gold-400: #c9a96e;
     --gold-300: #dcc393;
     --gold-100: #f6eedb;
-    /* 中性色 */
     --ivory: #f7f8f5;
     --paper: #ffffff;
     --ink: #0d2a1e;
@@ -54,7 +52,8 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-  button, input { font: inherit; }
+  button, input, select { font: inherit; }
+  [hidden] { display: none !important; }
   :focus-visible { outline: 2px solid var(--gold-400); outline-offset: 3px; border-radius: 10px; }
 
   /* ================= 頁首 ================= */
@@ -66,7 +65,6 @@
       linear-gradient(160deg, var(--emerald-950) 0%, var(--emerald-800) 55%, var(--emerald-700) 100%);
     padding: 56px 24px 110px;
   }
-  /* 金色細線裝飾 */
   .hero::before {
     content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
@@ -90,9 +88,7 @@
     background: linear-gradient(180deg, #ffffff 0%, #e9dfc4 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .subtitle {
-    margin-top: 12px; font-size: 14px; color: rgba(244,241,232,.72); letter-spacing: .06em;
-  }
+  .subtitle { margin-top: 12px; font-size: 14px; color: rgba(244,241,232,.72); letter-spacing: .06em; }
   .sync-row {
     margin-top: 26px; display: inline-flex; align-items: center; gap: 10px;
     font-size: 12px; letter-spacing: .08em; color: rgba(244,241,232,.9);
@@ -114,7 +110,6 @@
   /* ================= 版面 ================= */
   .container { max-width: 1000px; margin: -64px auto 56px; padding: 0 20px; position: relative; z-index: 2; }
 
-  /* 統計 */
   .stats { display: grid; grid-template-columns: minmax(0, 280px); justify-content: center; gap: 14px; margin-bottom: 22px; }
   .stat {
     background: var(--paper); border: 1px solid var(--line);
@@ -129,11 +124,9 @@
     font-family: var(--num); font-size: 44px; font-weight: 600; line-height: 1;
     color: var(--emerald-700); font-variant-numeric: lining-nums tabular-nums;
   }
-  .stat-label {
-    font-size: 11px; color: var(--muted); margin-top: 10px; letter-spacing: .24em;
-  }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 10px; letter-spacing: .24em; }
 
-  /* 工具列 */
+  /* ================= 工具列 ================= */
   .toolbar-wrap {
     position: sticky; top: 0; z-index: 10; padding: 12px 0 14px; margin-bottom: 6px;
     background: linear-gradient(to bottom, var(--ivory) 78%, rgba(247,248,245,0));
@@ -156,10 +149,12 @@
   }
   .search input::placeholder { color: #8aa398; }
   .search svg { width: 18px; height: 18px; color: var(--gold-600); flex-shrink: 0; }
+
   .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; flex: 1 1 100%; order: 3; }
   .chip {
     border: 1px solid var(--line); background: var(--paper); color: var(--muted);
-    padding: 6px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: auto;
+    padding: 6px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; width: auto;
     letter-spacing: .04em; transition: all .25s; line-height: 1.35; text-align: center;
   }
   .chip:hover { border-color: var(--emerald-300); color: var(--emerald-700); }
@@ -170,8 +165,7 @@
   }
 
   .sort {
-    order: 2;
-    height: 40px; padding: 0 36px 0 14px; border-radius: 999px;
+    order: 2; height: 40px; padding: 0 36px 0 14px; border-radius: 999px;
     border: 1px solid var(--line); background: var(--paper); color: var(--emerald-800);
     font-size: 13px; letter-spacing: .04em; cursor: pointer; appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, var(--gold-600) 50%),
@@ -180,6 +174,20 @@
     background-size: 5px 5px; background-repeat: no-repeat;
   }
   .sort:focus-visible { outline: 2px solid var(--gold-400); outline-offset: 3px; }
+
+  .btn {
+    border: none; border-radius: 12px; padding: 10px 18px; cursor: pointer;
+    font-size: 14px; letter-spacing: .04em; transition: transform .2s, box-shadow .2s, background .2s;
+  }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--emerald-800), var(--emerald-600));
+    color: var(--gold-100); box-shadow: 0 6px 16px -6px rgba(14,69,48,.55);
+  }
+  .btn.primary:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--emerald-700); border: 1px solid var(--line); }
+  .btn.ghost:hover:not(:disabled) { background: var(--emerald-50); }
+  .btn.small { padding: 8px 14px; font-size: 13px; order: 2; white-space: nowrap; }
 
   .count-line {
     font-size: 12px; color: var(--muted); margin: 10px 6px 16px; letter-spacing: .12em;
@@ -215,6 +223,11 @@
     color: var(--gold-600); background: var(--gold-100); border: 1px solid var(--gold-300);
     font-weight: 500;
   }
+  .edit-btn {
+    flex-shrink: 0; border: 1px solid var(--line); background: var(--emerald-50); color: var(--emerald-700);
+    font-size: 12px; padding: 4px 10px; border-radius: 999px; cursor: pointer; letter-spacing: .04em;
+  }
+  .edit-btn:hover { border-color: var(--emerald-300); background: var(--emerald-100); }
 
   .item-meta {
     display: grid; grid-template-columns: 1fr 1fr; margin-top: 14px;
@@ -228,7 +241,6 @@
     margin-top: 2px; font-variant-numeric: lining-nums tabular-nums;
   }
 
-  /* 價錢區：翡翠底＋金字 */
   .price-box {
     margin-top: 14px; padding: 14px 16px; border-radius: 16px;
     background: linear-gradient(135deg, var(--emerald-900), var(--emerald-700));
@@ -274,6 +286,34 @@
     border-radius: 10px; cursor: pointer; font-size: 13px; letter-spacing: .04em;
   }
 
+  /* ================= 編輯視窗 ================= */
+  .modal {
+    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: 20px; background: rgba(5,38,26,.45); backdrop-filter: blur(4px);
+    animation: fadeIn .2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-card {
+    width: 100%; max-width: 440px; background: var(--paper); border-radius: 24px;
+    padding: 26px 24px 22px; box-shadow: 0 30px 60px -20px rgba(5,38,26,.5);
+    border: 1px solid rgba(201,169,110,.35); animation: rise .3s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .modal-title {
+    font-family: var(--serif); font-size: 22px; color: var(--emerald-800); letter-spacing: .04em;
+  }
+  .modal-sub { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: .06em; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; flex: 1; min-width: 0; }
+  .field span { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+  .field input {
+    height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--ivory); color: var(--ink); font-size: 15px; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field input:focus { border-color: var(--gold-400); box-shadow: 0 0 0 4px rgba(201,169,110,.18); }
+  .field-row { display: flex; gap: 10px; }
+  .form-error { min-height: 20px; margin-top: 12px; font-size: 13px; color: var(--err); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+
   .footer {
     text-align: center; font-size: 11px; color: var(--muted); margin-top: 44px;
     letter-spacing: .2em; display: flex; align-items: center; justify-content: center; gap: 14px;
@@ -290,6 +330,7 @@
     .stat-num { font-size: 34px; }
     .stat-label { letter-spacing: .12em; font-size: 10px; }
     .grid { grid-template-columns: 1fr; }
+    .field-row { flex-direction: column; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -326,13 +367,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input type="search" id="searchInput" placeholder="搜尋品項名稱" autocomplete="off" aria-label="搜尋品項">
       </label>
-      <div class="chips" id="chips">
-        <button class="chip active" data-filter="all">全部</button>
-        <button class="chip" data-filter="normal">一般<br>品項</button>
-        <button class="chip" data-filter="gift">贈品</button>
-        <button class="chip" data-filter="herbal">草本</button>
-        <button class="chip" data-filter="cosmetic">化妝<br>品</button>
-      </div>
+      <button class="btn primary small" id="adminBtn" hidden>＋ 新增品項</button>
       <select class="sort" id="sortSelect" aria-label="排序方式">
         <option value="default">預設排序</option>
         <option value="priceAsc">價錢：低到高</option>
@@ -340,6 +375,13 @@
         <option value="pvDesc">PV：高到低</option>
         <option value="nameAsc">品項名稱</option>
       </select>
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">全部</button>
+        <button class="chip" data-filter="normal">一般<br>品項</button>
+        <button class="chip" data-filter="gift">贈品</button>
+        <button class="chip" data-filter="herbal">草本</button>
+        <button class="chip" data-filter="cosmetic">化妝<br>品</button>
+      </div>
     </section>
   </div>
 
@@ -354,14 +396,35 @@
   <div class="footer">每 30 秒自動同步・切回此頁即時更新</div>
 </main>
 
+<!-- 新增／編輯品項視窗（僅超級管理員使用） -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 class="modal-title" id="modalTitle">新增品項</h2>
+    <div class="modal-sub">儲存後會同步更新到試算表</div>
+    <form id="itemForm" autocomplete="off">
+      <label class="field"><span>品項名稱</span><input id="fName" type="text" maxlength="60" required></label>
+      <div class="field-row">
+        <label class="field"><span>數量</span><input id="fQty" type="number" min="1" step="1" value="1"></label>
+        <label class="field"><span>PV</span><input id="fPv" type="number" min="0" step="any" required></label>
+        <label class="field"><span>金額</span><input id="fAmount" type="number" min="0" step="any" required></label>
+      </div>
+      <div class="form-error" id="formError"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="cancelBtn">取消</button>
+        <button type="submit" class="btn primary" id="saveBtn">儲存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
   // ============================================================
   // 設定
   // ============================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbxMK8aSmldCGKmXffbL5XU6IGuLbaKS1VABe9LuWXSF6hg2NtGLGZxS8fT-jqiFKy8_/exec";
+  const LIFF_ID = "2007434020-Ovz5apjn";   // 產品價錢 LIFF（Endpoint 需指向本網頁）
   const REFRESH_MS = 30000;
   const TIMEOUT_MS = 10000;
-  // 隱藏的品項（下拉選單提示列等，不是真正產品）
   const HIDDEN_NAMES = ["下拉點選新增"];
 
   // ============================================================
@@ -392,6 +455,9 @@
   let loading = false;
   let lastLoadAt = 0;
   let firstRender = true;
+  let operatorId = "";     // LINE userId（來自 LIFF）
+  let isAdmin = false;     // 是否為超級管理員
+  let editing = null;      // null = 新增；否則為被編輯的品項
 
   const $ = (id) => document.getElementById(id);
   const grid = $("grid");
@@ -417,6 +483,33 @@
     $("errorBanner").classList.add("show");
   }
   function hideError() { $("errorBanner").classList.remove("show"); }
+
+  // ============================================================
+  // 使用者身分（LIFF）與管理權限
+  // ============================================================
+  async function initUser() {
+    try {
+      if (typeof liff !== "undefined") {
+        await liff.init({ liffId: LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          operatorId = profile.userId || "";
+        }
+      }
+    } catch (err) {
+      console.warn("LIFF 初始化失敗：", err);
+    }
+    if (operatorId) {
+      try {
+        const res = await jsonp({ action: "priceAdminCheck", operatorId });
+        isAdmin = !!(res && res.isAdmin);
+      } catch (err) {
+        isAdmin = false;
+      }
+    }
+    $("adminBtn").hidden = !isAdmin;
+    render();
+  }
 
   // ============================================================
   // 讀取資料
@@ -502,8 +595,14 @@
 
       const head = makeEl("div", "item-head");
       head.appendChild(makeEl("div", "item-name", it.name));
-      if (it.category === "草本" || it.category === "化妝品") head.appendChild(makeEl("span", "badge", it.category));
-      if (it.amount === 0) head.appendChild(makeEl("span", "badge", "贈品"));
+      const tags = makeEl("div");
+      tags.style.display = "flex";
+      tags.style.gap = "6px";
+      tags.style.flexWrap = "wrap";
+      tags.style.justifyContent = "flex-end";
+      if (it.category === "草本" || it.category === "化妝品") tags.appendChild(makeEl("span", "badge", it.category));
+      if (it.amount === 0) tags.appendChild(makeEl("span", "badge", "贈品"));
+      if (tags.childNodes.length) head.appendChild(tags);
       card.appendChild(head);
 
       const meta = makeEl("div", "item-meta");
@@ -519,6 +618,14 @@
       }
       card.appendChild(box);
 
+      if (isAdmin) {
+        const edit = makeEl("button", "edit-btn", "✎ 編輯");
+        edit.type = "button";
+        edit.style.marginTop = "12px";
+        edit.addEventListener("click", () => openModal(it));
+        card.appendChild(edit);
+      }
+
       frag.appendChild(card);
     });
     grid.appendChild(frag);
@@ -526,6 +633,60 @@
     prevPrices = new Map(items.map(it => [it.name, it.price]));
     firstRender = false;
   }
+
+  // ============================================================
+  // 新增／編輯視窗
+  // ============================================================
+  function openModal(item) {
+    editing = item || null;
+    $("modalTitle").textContent = item ? "編輯品項" : "新增品項";
+    $("fName").value = item ? item.name : "";
+    $("fQty").value = item ? (item.qty || 1) : 1;
+    $("fPv").value = item ? item.pv : "";
+    $("fAmount").value = item && item.amount !== null ? item.amount : "";
+    $("formError").textContent = "";
+    $("modal").hidden = false;
+    setTimeout(() => $("fName").focus(), 50);
+  }
+
+  function closeModal() {
+    $("modal").hidden = true;
+    editing = null;
+  }
+
+  $("adminBtn").addEventListener("click", () => openModal(null));
+  $("cancelBtn").addEventListener("click", closeModal);
+  $("modal").addEventListener("click", (e) => { if (e.target.id === "modal") closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("modal").hidden) closeModal(); });
+
+  $("itemForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const params = {
+      action: "priceSave",
+      operatorId: operatorId,
+      mode: editing ? "update" : "add",
+      name: $("fName").value.trim(),
+      qty: $("fQty").value,
+      pv: $("fPv").value,
+      amount: $("fAmount").value
+    };
+    if (editing) params.oldName = editing.name;
+
+    $("formError").textContent = "";
+    $("saveBtn").disabled = true;
+    $("saveBtn").textContent = "儲存中…";
+    try {
+      const res = await jsonp(params);
+      if (!res || res.status !== "success") throw new Error((res && res.message) || "儲存失敗");
+      closeModal();
+      await load();
+    } catch (err) {
+      $("formError").textContent = err.message;
+    } finally {
+      $("saveBtn").disabled = false;
+      $("saveBtn").textContent = "儲存";
+    }
+  });
 
   // ============================================================
   // 互動
@@ -553,6 +714,7 @@
   // ============================================================
   // 啟動
   // ============================================================
+  initUser();
   load();
   setInterval(load, REFRESH_MS);
 </script>
