@@ -156,7 +156,7 @@
   }
   .search input::placeholder { color: #8aa398; }
   .search svg { width: 18px; height: 18px; color: var(--gold-600); flex-shrink: 0; }
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; flex: 1 1 100%; order: 3; }
   .chip {
     border: 1px solid var(--line); background: var(--paper); color: var(--muted);
     padding: 6px 12px; border-radius: 999px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: auto;
@@ -170,6 +170,7 @@
   }
 
   .sort {
+    order: 2;
     height: 40px; padding: 0 36px 0 14px; border-radius: 999px;
     border: 1px solid var(--line); background: var(--paper); color: var(--emerald-800);
     font-size: 13px; letter-spacing: .04em; cursor: pointer; appearance: none;
