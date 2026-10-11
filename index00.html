@@ -4969,7 +4969,7 @@ function syncCalcLv(){
     let fw=document.getElementById('vzFreeWrap');
     const freeOn=(()=>{ try{ return localStorage.getItem('vz_free_mode')==='1'; }catch(e){ return false; } })();
     if(pr){
-      if(!fw){ fw=document.createElement('label'); fw.id='vzFreeWrap'; fw.innerHTML='<input type="checkbox" id="vzFreeCb"><span>新人<br>模式</span>';
+      if(!fw){ fw=document.createElement('label'); fw.id='vzFreeWrap'; fw.innerHTML='<input type="checkbox" id="vzFreeCb"><span>取消<br>引導提醒</span>';
         fw.querySelector('input').addEventListener('change',function(){ try{ localStorage.setItem('vz_free_mode',this.checked?'1':'0'); }catch(e){} }); }
       if(fw.parentNode!==pr) pr.appendChild(fw);
       const cb=fw.querySelector('input'); if(cb.checked!==freeOn) cb.checked=freeOn;
