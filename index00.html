@@ -4969,7 +4969,7 @@ function syncCalcLv(){
     let fw=document.getElementById('vzFreeWrap');
     const freeOn=(()=>{ try{ return localStorage.getItem('vz_free_mode')==='1'; }catch(e){ return false; } })();
     if(pr){
-      if(!fw){ fw=document.createElement('label'); fw.id='vzFreeWrap'; fw.innerHTML='<input type="checkbox" id="vzFreeCb"><span>自由模式</span>';
+      if(!fw){ fw=document.createElement('label'); fw.id='vzFreeWrap'; fw.innerHTML='<input type="checkbox" id="vzFreeCb"><span>新人<br>模式</span>';
         fw.querySelector('input').addEventListener('change',function(){ try{ localStorage.setItem('vz_free_mode',this.checked?'1':'0'); }catch(e){} }); }
       if(fw.parentNode!==pr) pr.appendChild(fw);
       const cb=fw.querySelector('input'); if(cb.checked!==freeOn) cb.checked=freeOn;
@@ -5040,7 +5040,7 @@ function vzStepInit(){
     '.vz-under{visibility:hidden !important;pointer-events:none !important}',
     '#sbBody .sb-profile{position:relative}',
     'body.vz-free #vzFab{display:none !important}',
-    '#vzFreeWrap{position:absolute;right:0;top:4px;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#F4FBF7;background:rgba(36,58,52,.92);border:1px solid rgba(200,230,215,.3);border-radius:999px;padding:4px 10px;cursor:pointer;z-index:4;white-space:nowrap}',
+    '#vzFreeWrap{position:absolute;right:0;top:4px;display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.2;text-align:left;font-weight:800;color:#F4FBF7;background:rgba(36,58,52,.92);border:1px solid rgba(200,230,215,.3);border-radius:999px;padding:4px 10px;cursor:pointer;z-index:4;white-space:nowrap}',
     '#vzFreeWrap input{width:15px;height:15px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
     '.vzg-more{flex:1 1 100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(200,230,215,.3);background:rgba(255,255,255,.06);color:#EEF3EF;font-weight:800;font-size:14px;cursor:pointer}',
     '.vzg-more[hidden]{display:none}',
