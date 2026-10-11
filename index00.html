@@ -4994,7 +4994,7 @@ function vzStepInit(){
   cap.parentNode.insertBefore(bar,cap);
   const css=document.createElement('style');
   css.textContent=[
-    '#vzStepBar{margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(24,30,28,.96),rgba(12,16,15,.96));border:1px solid rgba(200,230,215,.22);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.06)}',
+    '#vzStepBar{position:sticky;top:6px;z-index:60;margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(24,30,28,.96),rgba(12,16,15,.96));border:1px solid rgba(200,230,215,.22);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.06)}',
     '#vzStepHead{position:relative;width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px 12px;background:none;border:0;color:#EEF3EF;font:700 13px/1.2 "Noto Sans TC",sans-serif;text-align:left;cursor:pointer}',
     '.vzsh-txt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.vzsh-chev{font-size:12px;color:#9FD8B5;transition:transform .25s}',
@@ -5019,11 +5019,12 @@ function vzStepInit(){
     '.vzg-btns{display:flex;flex-direction:column;gap:8px}',
     '.vzg-go{width:100%;font-size:14px;font-weight:800;padding:10px;border-radius:12px;border:1px solid rgba(200,230,215,.28);background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;cursor:pointer;box-shadow:inset 0 1px 0 rgba(230,247,238,.12)}',
     '.vzg-run{width:100%;font-size:13px;font-weight:600;padding:9px;border-radius:12px;border:1px solid rgba(200,230,215,.2);background:transparent;color:#C9D6CF;cursor:pointer}',
-    '#vzFab{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:9998;display:flex;align-items:center;gap:6px;max-width:72vw;font-size:13px;font-weight:900;padding:11px 16px;border-radius:999px;border:1px solid rgba(200,230,215,.3);background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12);cursor:pointer;letter-spacing:.3px}',
-    '#vzFab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '#vzFab{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;max-width:40vw;font-size:13px;font-weight:900;line-height:1.25;text-align:center;padding:10px 16px;border-radius:999px;border:1px solid rgba(200,230,215,.3);background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12);cursor:pointer;letter-spacing:.3px}',
+    '#vzFab span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}','#vzFab .vzf-l2{font-size:12px;font-weight:800;opacity:.9}',
     '#vzConfirm{position:fixed;inset:0;z-index:99999;background:rgba(6,10,9,.6);display:flex;align-items:center;justify-content:center;padding:16px}',
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
+    '#quickAddFab{left:18px !important;right:auto !important}',
     'body.v-mode #vzFab{display:none !important}',
     'body.v-mode #vzStepBar{display:none}'
   ].join('');
@@ -5035,7 +5036,8 @@ function vzStepInit(){
     const cur=curIdx(), doneN=DEFS.filter(x=>x.d()).length;
     $('vzStepChips').innerHTML=DEFS.map((x,i)=>'<span class="vzs'+(x.d()?' done':'')+(i===cur?' cur':'')+'">'+(x.d()?'✔ ':(i+1)+'. ')+x.n+'</span>').join('');
     $('vzStepNext').textContent='下一步 ▸ '+DEFS[cur].n;
-    $('vzFabTxt').textContent=(doneN===DEFS.length)?'全部完成 ✔':'執行下一步 ▸ '+DEFS[cur].n;
+    $('vzFabTxt').textContent=(doneN===DEFS.length)?'全部完成 ✔':'執行下一步 ▸';
+    $('vzFabSub').textContent=(doneN===DEFS.length)?'試算步驟已完成':DEFS[cur].n;
     $('vzStepTitle').textContent='試算步驟 '+doneN+'/'+DEFS.length+' · 下一步：'+DEFS[cur].n;
     $('vzStepFill').style.width=(doneN/DEFS.length*100)+'%';
     if(lastCur!==-1 && cur!==lastCur){ go(cur); }
@@ -5073,7 +5075,7 @@ function vzStepInit(){
     else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
     else if(b.id==='resetReportBtn'){ setF({s6:true}); }
   },true);
-  const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span>';
+  const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span><span class="vzf-l2" id="vzFabSub"></span>';
   document.body.appendChild(fab);
   const conf=document.createElement('div'); conf.id='vzConfirm'; conf.hidden=true;
   conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
@@ -5100,6 +5102,8 @@ function vzStepInit(){
       return;
     }
     if(cur===3){ const b=$('exportBtn'); if(b) b.click(); return; }
+    if(cur===4){ const b=$('nativeShareBtn'); if(b){ go(4); b.click(); } return; }
+    if(cur===5){ const b=$('resetReportBtn'); if(b){ go(5); b.click(); } return; }
     go(cur);
   }
   fab.addEventListener('click',nextAction);
