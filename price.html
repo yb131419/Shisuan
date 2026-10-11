@@ -89,14 +89,22 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .subtitle { margin-top: 12px; font-size: 14px; color: rgba(244,241,232,.72); letter-spacing: .06em; }
-  .sync-row {
-    margin-top: 26px; display: inline-flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 100%;
-    font-size: 12px; letter-spacing: .08em; color: rgba(244,241,232,.9);
-    padding: 7px 14px; border-radius: 999px;
-    border: 1px solid rgba(201,169,110,.35);
-    background: rgba(255,255,255,.06); backdrop-filter: blur(6px);
+  .status-card {
+    margin-top: 26px; display: inline-flex; flex-direction: column; gap: 8px;
+    min-width: 280px; max-width: 100%; padding: 16px 20px; border-radius: 18px;
+    background: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+    border: 1px solid rgba(201,169,110,.38);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 16px 32px -20px rgba(0,0,0,.55);
   }
-  .sync-line { display: flex; align-items: center; gap: 10px; word-break: break-all; text-align: left; white-space: pre-line; }
+  .status-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; letter-spacing: .06em; color: rgba(244,241,232,.95);
+  }
+  .status-row.sub {
+    font-size: 12px; line-height: 1.75; color: rgba(244,241,232,.72);
+    padding-left: 17px; word-break: break-all; white-space: pre-line;
+  }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: #5d7a6c; display: inline-block; }
   .dot.ok { background: #8fe0b5; box-shadow: 0 0 0 0 rgba(143,224,181,.6); animation: pulse 2.2s infinite; }
   .dot.syncing { background: var(--gold-300); animation: blink 1s infinite; }
@@ -348,10 +356,9 @@
     <span class="brand">KANGYUAN · 大地之粹</span>
     <h1 class="title">產品價錢</h1>
     <div class="subtitle">即時同步・價錢依金額與數量精準換算</div>
-    <div class="sync-row">
-      <span class="dot" id="statusDot"></span>
-      <div class="sync-line"><span class="dot" id="statusDot"></span><span id="statusText">連線中…</span></div>
-      <div class="sync-line" id="roleText"></div>
+    <div class="status-card">
+      <div class="status-row"><span class="dot" id="statusDot"></span><span id="statusText">連線中…</span></div>
+      <div class="status-row sub" id="roleText"></div>
     </div>
   </div>
 </header>
