@@ -1,5 +1,4 @@
-<!DOCTYPE html> 
-
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -330,6 +329,8 @@
         <button class="chip active" data-filter="all">全部</button>
         <button class="chip" data-filter="normal">一般品項</button>
         <button class="chip" data-filter="gift">贈品</button>
+        <button class="chip" data-filter="herbal">草本</button>
+        <button class="chip" data-filter="cosmetic">化妝品</button>
       </div>
       <select class="sort" id="sortSelect" aria-label="排序方式">
         <option value="default">預設排序</option>
@@ -448,6 +449,8 @@
       if (kw && !it.name.toLowerCase().includes(kw)) return false;
       if (filterMode === "normal" && it.amount === 0) return false;
       if (filterMode === "gift" && it.amount !== 0) return false;
+      if (filterMode === "herbal" && it.category !== "草本") return false;
+      if (filterMode === "cosmetic" && it.category !== "化妝品") return false;
       return true;
     });
     const priceOf = (it) => hasPrice(it) ? it.price : -Infinity;
@@ -498,6 +501,7 @@
 
       const head = makeEl("div", "item-head");
       head.appendChild(makeEl("div", "item-name", it.name));
+      if (it.category === "草本" || it.category === "化妝品") head.appendChild(makeEl("span", "badge", it.category));
       if (it.amount === 0) head.appendChild(makeEl("span", "badge", "贈品"));
       card.appendChild(head);
 
