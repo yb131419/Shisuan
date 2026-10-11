@@ -5008,6 +5008,17 @@ function vzStepInit(){
     '.vzs.done{background:linear-gradient(135deg,rgba(120,200,140,.28),rgba(120,200,140,.12));border-color:rgba(160,230,180,.35);color:#D4F5DE}',
     '.vzs.cur{background:linear-gradient(135deg,#FFE7A3,#D9B873);border-color:#FFF0B0;color:#2A1A00;font-weight:900;box-shadow:0 0 10px rgba(255,210,122,.45)}',
     '#vzStepNext{width:100%;font-size:13px;font-weight:900;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873 60%,#B98A3E);color:#2A1A00;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}',
+    '#vzGate{position:fixed;inset:0;z-index:99999;background:rgba(6,4,2,.66);display:flex;align-items:center;justify-content:center;padding:16px}',
+    '#vzGate[hidden]{display:none}',
+    '.vzg-card{width:min(92vw,340px);border-radius:18px;padding:18px 18px 16px;background:linear-gradient(160deg,rgba(44,34,20,.98),rgba(18,14,9,.98));border:1px solid rgba(232,196,104,.6);box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,200,.08);color:#F6E3B4;font-family:"Noto Sans TC",sans-serif}',
+    '.vzg-head{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:900;margin-bottom:8px}',
+    '.vzg-x{margin-left:auto;background:none;border:0;color:#E8C468;font-size:16px;cursor:pointer}',
+    '.vzg-msg{font-size:13px;line-height:1.6;color:#E9DDBF;margin:0 0 10px}',
+    '.vzg-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}',
+    '.vzgc{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:rgba(232,196,104,.14);border:1px solid rgba(232,196,104,.45);color:#FFE7A3}',
+    '.vzg-btns{display:flex;flex-direction:column;gap:8px}',
+    '.vzg-go{width:100%;font-size:14px;font-weight:900;padding:10px;border-radius:12px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873 60%,#B98A3E);color:#2A1A00;cursor:pointer}',
+    '.vzg-run{width:100%;font-size:13px;font-weight:700;padding:9px;border-radius:12px;border:1px solid rgba(232,196,104,.45);background:transparent;color:#E8C468;cursor:pointer}',
     'body.v-mode #vzStepBar{display:none}'
   ].join('');
   document.head.appendChild(css);
@@ -5027,6 +5038,28 @@ function vzStepInit(){
   $('vzStepHead').addEventListener('click',()=>{ const v=!bar.classList.contains('open'); bar.classList.toggle('open',v); setOpen(v); });
   $('vzStepNext').addEventListener('click',()=>go(curIdx()));
   document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
+  const GATE={addBtn:[0],exportBtn:[0,1,2],nativeShareBtn:[0,1,2,3],shareToLineBtn:[0,1,2,3],resetReportBtn:[0,1,2,3,4]};
+  const gate=document.createElement('div'); gate.id='vzGate'; gate.hidden=true;
+  gate.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>⚠️</span><span>試算步驟尚未完成</span><button type="button" class="vzg-x" id="vzgClose">✕</button></div><p class="vzg-msg" id="vzgMsg"></p><div class="vzg-chips" id="vzgChips"></div><div class="vzg-btns"><button type="button" class="vzg-go" id="vzgGo">前往未完成步驟</button><button type="button" class="vzg-run" id="vzgRun">確認略過並執行</button></div></div>';
+  document.body.appendChild(gate);
+  let pendingBtn=null, pendingMiss=[];
+  const hideGate=()=>{ gate.hidden=true; pendingBtn=null; };
+  $('vzgClose').addEventListener('click',hideGate);
+  gate.addEventListener('click',e=>{ if(e.target===gate) hideGate(); });
+  $('vzgGo').addEventListener('click',()=>{ const first=pendingMiss[0]; hideGate(); bar.classList.add('open'); setOpen(true); if(first!==undefined) go(first); });
+  $('vzgRun').addEventListener('click',()=>{ const b=pendingBtn; hideGate(); if(!b) return; window.__vzBypass=true; try{ b.click(); } finally { window.__vzBypass=false; } });
+  document.addEventListener('click',e=>{
+    if(window.__vzBypass) return;
+    const b=e.target&&e.target.closest&&e.target.closest('button'); if(!b) return;
+    const req=GATE[b.id]; if(!req) return;
+    const miss=req.filter(j=>!DEFS[j].d());
+    if(!miss.length) return;
+    e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();
+    pendingBtn=b; pendingMiss=miss;
+    const _ti=DEFS.findIndex(x=>x.t()===b); $('vzgMsg').textContent='要執行「'+(_ti>=0?DEFS[_ti].n:b.textContent.trim())+'」之前，還有下列步驟沒有完成，請先完成或確認略過：';
+    $('vzgChips').innerHTML=miss.map(j=>'<span class="vzgc">'+(j+1)+'. '+DEFS[j].n+'</span>').join('');
+    gate.hidden=false;
+  },true);
   document.addEventListener('click',e=>{
     const b=e.target&&e.target.closest&&e.target.closest('button,a'); if(!b) return;
     const f=getF();
