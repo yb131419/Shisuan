@@ -4963,13 +4963,13 @@ function syncCalcLv(){
     const title=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
     const html='<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">試算仙界<br>Lv.'+L2.lv+' '+title+'</span><span class="sb-stat-val">距 Lv.'+(L2.lv+1)+'<br>還需 '+(L2.need-L2.cur)+' 次</span>';
     document.querySelectorAll('#mcRows .vz-lv-row,#mcRows .vz-lv-row2').forEach(e=>e.remove());
-    const cta=document.getElementById('mcCtaRow'); const box=document.getElementById('mcRows');
-    let chip=document.getElementById('vzLvChip');
-    if(!chip){ chip=document.createElement('div'); chip.id='vzLvChip'; chip.className='sb-stat-row'; }
-    if(cta && cta.parentNode){ if(chip.parentNode!==cta.parentNode || chip.nextSibling!==cta) cta.parentNode.insertBefore(chip,cta); }
-    else if(box && box.parentNode){ if(chip.parentNode!==box.parentNode || chip.previousSibling!==box) box.parentNode.insertBefore(chip,box.nextSibling); }
-    else { const cap=document.getElementById('captureArea'); if(cap && chip.parentNode!==cap.parentNode) cap.parentNode.insertBefore(chip,cap); }
-    if(chip.innerHTML!==html) chip.innerHTML=html;
+    const oldChip=document.getElementById('vzLvChip'); if(oldChip) oldChip.remove();
+    // 側邊欄「展開／收合」區塊內的統計列（與會員資料同一組，贊助列之上）
+    const sbs=document.querySelector('#sbBody .sb-stats');
+    let c2=document.getElementById('vzLvSb');
+    if(!c2){ c2=document.createElement('div'); c2.id='vzLvSb'; c2.className='sb-stat-row'; }
+    if(sbs){ if(c2.parentNode!==sbs) sbs.appendChild(c2); if(c2.innerHTML!==html) c2.innerHTML=html; }
+    else if(c2.parentNode){ c2.parentNode.removeChild(c2); }
   }catch(e){}
 }
 setInterval(syncCalcLv,1000); syncCalcLv();
