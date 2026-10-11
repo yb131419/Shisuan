@@ -4964,6 +4964,17 @@ function syncCalcLv(){
     const html='<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">試算仙界<br>Lv.'+L2.lv+' '+title+'</span><span class="sb-stat-val">距 Lv.'+(L2.lv+1)+'<br>還需 '+(L2.need-L2.cur)+' 次</span>';
     document.querySelectorAll('#mcRows .vz-lv-row,#mcRows .vz-lv-row2').forEach(e=>e.remove());
     const oldChip=document.getElementById('vzLvChip'); if(oldChip) oldChip.remove();
+    // 側邊欄右上：「自由模式」勾選（勾選後不綁定六步驟的提醒，所有功能直接可用）
+    const pr=document.querySelector('#sbBody .sb-profile');
+    let fw=document.getElementById('vzFreeWrap');
+    const freeOn=(()=>{ try{ return localStorage.getItem('vz_free_mode')==='1'; }catch(e){ return false; } })();
+    if(pr){
+      if(!fw){ fw=document.createElement('label'); fw.id='vzFreeWrap'; fw.innerHTML='<input type="checkbox" id="vzFreeCb"><span>自由模式</span>';
+        fw.querySelector('input').addEventListener('change',function(){ try{ localStorage.setItem('vz_free_mode',this.checked?'1':'0'); }catch(e){} }); }
+      if(fw.parentNode!==pr) pr.appendChild(fw);
+      const cb=fw.querySelector('input'); if(cb.checked!==freeOn) cb.checked=freeOn;
+    } else if(fw && fw.parentNode){ fw.parentNode.removeChild(fw); }
+    document.body.classList.toggle('vz-free', freeOn);   // 自由模式：隱藏右下角浮窗
     // 側邊欄「展開／收合」區塊內的統計列（與會員資料同一組，贊助列之上）
     const sbs=document.querySelector('#sbBody .sb-stats');
     let c2=document.getElementById('vzLvSb');
@@ -4979,6 +4990,7 @@ function vzStepInit(){
   const $=id=>document.getElementById(id);
   const getF=()=>{ try{ return JSON.parse(sessionStorage.getItem('vz_step_flags')||'{}'); }catch(e){ return {}; } };
   const setF=f=>{ try{ sessionStorage.setItem('vz_step_flags',JSON.stringify(f)); }catch(e){} };
+  const isFree=()=>{ try{ return localStorage.getItem('vz_free_mode')==='1'; }catch(e){ return false; } };
   const getOpen=()=>{ try{ return localStorage.getItem('vz_step_open')==='1'; }catch(e){ return false; } };
   const setOpen=v=>{ try{ localStorage.setItem('vz_step_open',v?'1':'0'); }catch(e){} };
   const DEFS=[
@@ -5026,6 +5038,10 @@ function vzStepInit(){
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
     '.vz-under{visibility:hidden !important;pointer-events:none !important}',
+    '#sbBody .sb-profile{position:relative}',
+    'body.vz-free #vzFab{display:none !important}',
+    '#vzFreeWrap{position:absolute;right:0;top:4px;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#F4FBF7;background:rgba(36,58,52,.92);border:1px solid rgba(200,230,215,.3);border-radius:999px;padding:4px 10px;cursor:pointer;z-index:4;white-space:nowrap}',
+    '#vzFreeWrap input{width:15px;height:15px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
     '.vzg-more{flex:1 1 100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(200,230,215,.3);background:rgba(255,255,255,.06);color:#EEF3EF;font-weight:800;font-size:14px;cursor:pointer}',
     '.vzg-more[hidden]{display:none}',
     '#currencyBar .currency-btn{padding:9px 6px !important;border-radius:999px !important;font-size:13px !important;font-weight:900 !important;letter-spacing:.3px;color:#F4FBF7 !important;background:linear-gradient(180deg,#3B5750 0%,#243A34 100%) !important;border:1px solid rgba(200,230,215,.3) !important;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12) !important;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}',
@@ -5068,6 +5084,7 @@ function vzStepInit(){
     if(window.__vzBypass) return;
     const b=e.target&&e.target.closest&&e.target.closest('button'); if(!b) return;
     const req=GATE[b.id]; if(!req) return;
+    if(isFree()) return;
     const miss=req.filter(j=>!DEFS[j].d());
     if(!miss.length) return;
     e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();
@@ -5106,10 +5123,12 @@ function vzStepInit(){
     if(cur===1){
       const n=cap.querySelectorAll('tbody tr').length;
       if(n===0){ go(1); return; }
+      if(isFree()){ setFlag('s2',true); return; }
       askConfirm('新增品項','請確認所有品項都已添加完成（目前 '+n+' 列）。確認後才會進入下一步。','已全部添加完成，下一步',()=>setFlag('s2',true));
       return;
     }
     if(cur===2){
+      if(isFree()){ setFlag('s3',true); return; }
       askConfirm('付款方式','請勾選現金或刷卡；如果還不確定，也可以先略過，直接進入下一步。','不確定，略過並進入下一步',()=>setFlag('s3',true));
       return;
     }
