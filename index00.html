@@ -5103,7 +5103,11 @@ function vzStepInit(){
   document.addEventListener('click',e=>{
     const b=e.target&&e.target.closest&&e.target.closest('button,a'); if(!b) return;
     const f=getF();
-    if(b.id==='exportBtn'){ f.s4=true; setF(f); }
+    if(b.id==='exportBtn'){ f.s4=true; setF(f);
+      // 報表轉圖片成功（預覽圖產生）後，捲動到「分享圖片」按鈕
+      const pv=$('previewImage'); const prevSrc=pv?pv.src:''; let tries=0;
+      const wait=setInterval(function(){ tries++; const cur2=pv?pv.src:''; if(cur2&&cur2!==prevSrc){ clearInterval(wait); setTimeout(function(){ go(4); },150); } else if(tries>75){ clearInterval(wait); } },200);
+    }
     else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
     else if(b.id==='resetReportBtn'){ setF({s6:true});
       // 重置完成後（報表清空）把試算步驟列收起來
