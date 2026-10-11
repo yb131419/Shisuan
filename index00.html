@@ -4982,8 +4982,8 @@ function vzStepInit(){
   const setOpen=v=>{ try{ localStorage.setItem('vz_step_open',v?'1':'0'); }catch(e){} };
   const DEFS=[
     {n:'購買者',  t:()=>$('buyerInput'),  d:()=>!!($('buyerInput')&&$('buyerInput').value.trim())},
-    {n:'新增品項',t:()=>$('addBtn'),      d:()=>cap.querySelectorAll('tbody tr').length>0},
-    {n:'付款方式',t:()=>$('cashOption'),  d:()=>!!(($('cashOption')&&$('cashOption').checked)||($('cardOption')&&$('cardOption').checked))},
+    {n:'新增品項',t:()=>$('addBtn'),      d:()=>!!getF().s2 && cap.querySelectorAll('tbody tr').length>0},
+    {n:'付款方式',t:()=>$('cashOption'),  d:()=>!!getF().s3 || !!(($('cashOption')&&$('cashOption').checked)||($('cardOption')&&$('cardOption').checked))},
     {n:'報表轉圖片',t:()=>$('exportBtn'), d:()=>!!getF().s4},
     {n:'分享圖片',t:()=>$('nativeShareBtn'), d:()=>!!getF().s5},
     {n:'重置報表',t:()=>$('resetReportBtn'), d:()=>!!getF().s6}
@@ -4994,31 +4994,37 @@ function vzStepInit(){
   cap.parentNode.insertBefore(bar,cap);
   const css=document.createElement('style');
   css.textContent=[
-    '#vzStepBar{margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(38,30,18,.96),rgba(18,14,9,.96));border:1px solid rgba(232,196,104,.45);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,240,200,.08)}',
-    '#vzStepHead{position:relative;width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px 12px;background:none;border:0;color:#F6E3B4;font:800 13px/1.2 "Noto Sans TC",sans-serif;text-align:left;cursor:pointer}',
+    '#vzStepBar{margin:8px 10px 4px;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,rgba(24,30,28,.96),rgba(12,16,15,.96));border:1px solid rgba(200,230,215,.22);box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.06)}',
+    '#vzStepHead{position:relative;width:100%;display:flex;align-items:center;gap:8px;padding:10px 12px 12px;background:none;border:0;color:#EEF3EF;font:700 13px/1.2 "Noto Sans TC",sans-serif;text-align:left;cursor:pointer}',
     '.vzsh-txt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.vzsh-chev{font-size:12px;color:#E8C468;transition:transform .25s}',
+    '.vzsh-chev{font-size:12px;color:#9FD8B5;transition:transform .25s}',
     '#vzStepBar.open .vzsh-chev{transform:rotate(180deg)}',
     '.vzsh-prog{position:absolute;left:12px;right:12px;bottom:5px;height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}',
-    '#vzStepFill{display:block;height:100%;width:0;background:linear-gradient(90deg,#8E6B2C,#E8C468,#FFF3CC);transition:width .4s ease}',
+    '#vzStepFill{display:block;height:100%;width:0;background:linear-gradient(90deg,#4E7A66,#9FD8B5,#E6F7EE);transition:width .4s ease}',
     '#vzStepBody{display:none;padding:2px 10px 10px}',
     '#vzStepBar.open #vzStepBody{display:block}',
     '#vzStepChips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}',
     '.vzs{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#CFC6B0;white-space:nowrap}',
-    '.vzs.done{background:linear-gradient(135deg,rgba(120,200,140,.28),rgba(120,200,140,.12));border-color:rgba(160,230,180,.35);color:#D4F5DE}',
-    '.vzs.cur{background:linear-gradient(135deg,#FFE7A3,#D9B873);border-color:#FFF0B0;color:#2A1A00;font-weight:900;box-shadow:0 0 10px rgba(255,210,122,.45)}',
-    '#vzStepNext{width:100%;font-size:13px;font-weight:900;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873 60%,#B98A3E);color:#2A1A00;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}',
-    '#vzGate{position:fixed;inset:0;z-index:99999;background:rgba(6,4,2,.66);display:flex;align-items:center;justify-content:center;padding:16px}',
+    '.vzs.done{background:rgba(159,216,181,.12);border-color:rgba(159,216,181,.35);color:#BFEBD0}',
+    '.vzs.cur{background:linear-gradient(180deg,#E9F5EE,#BFDCCD);border-color:#FFF0B0;color:#0F1F1A;font-weight:900;box-shadow:0 0 10px rgba(160,220,190,.25)}',
+    '#vzStepNext{width:100%;font-size:13px;font-weight:900;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;cursor:pointer;border:1px solid rgba(200,230,215,.28);box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(230,247,238,.12)}',
+    '#vzGate{position:fixed;inset:0;z-index:99999;background:rgba(6,10,9,.6);display:flex;align-items:center;justify-content:center;padding:16px}',
     '#vzGate[hidden]{display:none}',
-    '.vzg-card{width:min(92vw,340px);border-radius:18px;padding:18px 18px 16px;background:linear-gradient(160deg,rgba(44,34,20,.98),rgba(18,14,9,.98));border:1px solid rgba(232,196,104,.6);box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,240,200,.08);color:#F6E3B4;font-family:"Noto Sans TC",sans-serif}',
+    '.vzg-card{width:min(92vw,340px);border-radius:18px;padding:18px 18px 16px;background:linear-gradient(160deg,rgba(26,33,31,.98),rgba(12,16,15,.98));border:1px solid rgba(200,230,215,.28);box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(230,247,238,.06);color:#EEF3EF;font-family:"Noto Sans TC",sans-serif}',
     '.vzg-head{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:900;margin-bottom:8px}',
-    '.vzg-x{margin-left:auto;background:none;border:0;color:#E8C468;font-size:16px;cursor:pointer}',
-    '.vzg-msg{font-size:13px;line-height:1.6;color:#E9DDBF;margin:0 0 10px}',
+    '.vzg-x{margin-left:auto;background:none;border:0;color:#9FB3AB;font-size:16px;cursor:pointer}',
+    '.vzg-msg{font-size:13px;line-height:1.6;color:#C9D6CF;margin:0 0 10px}',
     '.vzg-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}',
-    '.vzgc{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:rgba(232,196,104,.14);border:1px solid rgba(232,196,104,.45);color:#FFE7A3}',
+    '.vzgc{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:rgba(200,230,215,.1);border:1px solid rgba(200,230,215,.28);color:#DDEFE5}',
     '.vzg-btns{display:flex;flex-direction:column;gap:8px}',
-    '.vzg-go{width:100%;font-size:14px;font-weight:900;padding:10px;border-radius:12px;border:0;background:linear-gradient(135deg,#FFE7A3,#D9B873 60%,#B98A3E);color:#2A1A00;cursor:pointer}',
-    '.vzg-run{width:100%;font-size:13px;font-weight:700;padding:9px;border-radius:12px;border:1px solid rgba(232,196,104,.45);background:transparent;color:#E8C468;cursor:pointer}',
+    '.vzg-go{width:100%;font-size:14px;font-weight:800;padding:10px;border-radius:12px;border:1px solid rgba(200,230,215,.28);background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;cursor:pointer;box-shadow:inset 0 1px 0 rgba(230,247,238,.12)}',
+    '.vzg-run{width:100%;font-size:13px;font-weight:600;padding:9px;border-radius:12px;border:1px solid rgba(200,230,215,.2);background:transparent;color:#C9D6CF;cursor:pointer}',
+    '#vzFab{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:9998;display:flex;align-items:center;gap:6px;max-width:72vw;font-size:13px;font-weight:900;padding:11px 16px;border-radius:999px;border:1px solid rgba(200,230,215,.3);background:linear-gradient(180deg,#3B5750 0%,#243A34 100%);color:#F4FBF7;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12);cursor:pointer;letter-spacing:.3px}',
+    '#vzFab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '#vzConfirm{position:fixed;inset:0;z-index:99999;background:rgba(6,10,9,.6);display:flex;align-items:center;justify-content:center;padding:16px}',
+    '#vzConfirm[hidden]{display:none}',
+    '#vzFab[hidden]{display:none}',
+    'body.v-mode #vzFab{display:none !important}',
     'body.v-mode #vzStepBar{display:none}'
   ].join('');
   document.head.appendChild(css);
@@ -5029,6 +5035,7 @@ function vzStepInit(){
     const cur=curIdx(), doneN=DEFS.filter(x=>x.d()).length;
     $('vzStepChips').innerHTML=DEFS.map((x,i)=>'<span class="vzs'+(x.d()?' done':'')+(i===cur?' cur':'')+'">'+(x.d()?'✔ ':(i+1)+'. ')+x.n+'</span>').join('');
     $('vzStepNext').textContent='下一步 ▸ '+DEFS[cur].n;
+    $('vzFabTxt').textContent=(doneN===DEFS.length)?'全部完成 ✔':'執行下一步 ▸ '+DEFS[cur].n;
     $('vzStepTitle').textContent='試算步驟 '+doneN+'/'+DEFS.length+' · 下一步：'+DEFS[cur].n;
     $('vzStepFill').style.width=(doneN/DEFS.length*100)+'%';
     if(lastCur!==-1 && cur!==lastCur){ go(cur); }
@@ -5036,7 +5043,6 @@ function vzStepInit(){
   }
   bar.classList.toggle('open',getOpen());
   $('vzStepHead').addEventListener('click',()=>{ const v=!bar.classList.contains('open'); bar.classList.toggle('open',v); setOpen(v); });
-  $('vzStepNext').addEventListener('click',()=>go(curIdx()));
   document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
   const GATE={addBtn:[0],exportBtn:[0,1,2],nativeShareBtn:[0,1,2,3],shareToLineBtn:[0,1,2,3],resetReportBtn:[0,1,2,3,4]};
   const gate=document.createElement('div'); gate.id='vzGate'; gate.hidden=true;
@@ -5067,6 +5073,37 @@ function vzStepInit(){
     else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
     else if(b.id==='resetReportBtn'){ setF({s6:true}); }
   },true);
+  const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span>';
+  document.body.appendChild(fab);
+  const conf=document.createElement('div'); conf.id='vzConfirm'; conf.hidden=true;
+  conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
+  document.body.appendChild(conf);
+  let confOk=null;
+  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
+  const hideConf=()=>{ conf.hidden=true; confOk=null; };
+  $('vzcClose').addEventListener('click',hideConf);
+  $('vzcNo').addEventListener('click',hideConf);
+  $('vzcOk').addEventListener('click',()=>{ const f=confOk; hideConf(); if(f) f(); });
+  conf.addEventListener('click',e=>{ if(e.target===conf) hideConf(); });
+  const setFlag=(k,v)=>{ const f=getF(); f[k]=v; setF(f); render(); };
+  function nextAction(){
+    const cur=curIdx();
+    if(cur===0){ const el=$('buyerInput'); go(0); if(el) setTimeout(()=>el.focus({preventScroll:true}),350); return; }
+    if(cur===1){
+      const n=cap.querySelectorAll('tbody tr').length;
+      if(n===0){ go(1); return; }
+      askConfirm('新增品項','請確認所有品項都已添加完成（目前 '+n+' 列）。確認後才會進入下一步。','已全部添加完成，下一步',()=>setFlag('s2',true));
+      return;
+    }
+    if(cur===2){
+      askConfirm('付款方式','請勾選現金或刷卡；如果還不確定，也可以先略過，直接進入下一步。','不確定，略過並進入下一步',()=>setFlag('s3',true));
+      return;
+    }
+    if(cur===3){ const b=$('exportBtn'); if(b) b.click(); return; }
+    go(cur);
+  }
+  fab.addEventListener('click',nextAction);
+  $('vzStepNext').addEventListener('click',nextAction);
   setInterval(render,600); render();
 }
 vzStepInit();
