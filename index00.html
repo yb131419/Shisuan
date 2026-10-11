@@ -4975,6 +4975,7 @@ function syncCalcLv(){
 setInterval(syncCalcLv,1000); syncCalcLv();
 function vzStepInit(){
   const cap=document.getElementById('captureArea'); if(!cap||document.getElementById('vzStepBar')) return;
+  const qa=document.getElementById('quickAddFab'); if(qa){ qa.innerHTML='增添<br>品項'; qa.title='快速跳到增添品項'; }
   const $=id=>document.getElementById(id);
   const getF=()=>{ try{ return JSON.parse(sessionStorage.getItem('vz_step_flags')||'{}'); }catch(e){ return {}; } };
   const setF=f=>{ try{ sessionStorage.setItem('vz_step_flags',JSON.stringify(f)); }catch(e){} };
@@ -5024,7 +5025,7 @@ function vzStepInit(){
     '#vzConfirm{position:fixed;inset:0;z-index:99999;background:rgba(6,10,9,.6);display:flex;align-items:center;justify-content:center;padding:16px}',
     '#vzConfirm[hidden]{display:none}',
     '#vzFab[hidden]{display:none}',
-    '#quickAddFab{left:18px !important;right:auto !important}',
+    '#quickAddFab{left:18px !important;right:auto !important;width:auto !important;height:auto !important;min-width:58px;padding:8px 12px !important;border-radius:16px !important;font-size:13px !important;font-weight:900;line-height:1.25;letter-spacing:.5px}',
     'body.v-mode #vzFab{display:none !important}',
     'body.v-mode #vzStepBar{display:none}'
   ].join('');
