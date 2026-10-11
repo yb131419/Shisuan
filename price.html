@@ -468,6 +468,7 @@
   let lastLoadAt = 0;
   let firstRender = true;
   let operatorId = "";     // LINE userId（來自 LIFF）
+  let displayName = "";    // LINE 暱稱（來自 LIFF）
   let isAdmin = false;     // 是否為超級管理員
   let editing = null;      // null = 新增；否則為被編輯的品項
 
@@ -506,6 +507,7 @@
         if (liff.isLoggedIn()) {
           const profile = await liff.getProfile();
           operatorId = profile.userId || "";
+          displayName = profile.displayName || "";
         }
       }
     } catch (err) {
@@ -522,7 +524,7 @@
     $("adminBtn").hidden = !isAdmin;
     $("roleText").textContent = !operatorId
       ? "未取得 LINE 身分（請從 LINE 開啟）"
-      : (isAdmin ? "管理員" : "一般用戶") + "\nID：" + operatorId;
+      : (isAdmin ? "管理員" : (displayName || "一般用戶")) + "\nID：" + operatorId;
     render();
   }
 
