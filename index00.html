@@ -5082,7 +5082,10 @@ function vzStepInit(){
     const f=getF();
     if(b.id==='exportBtn'){ f.s4=true; setF(f); }
     else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
-    else if(b.id==='resetReportBtn'){ setF({s6:true}); }
+    else if(b.id==='resetReportBtn'){ setF({s6:true});
+      // 重置完成後（報表清空）把試算步驟列收起來
+      setTimeout(function(){ let empty=false; try{ empty=localStorage.getItem('selectedProducts')==='[]'; }catch(e){} if(empty){ bar.classList.remove('open'); setOpen(false); } },700);
+    }
   },true);
   const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span><span class="vzf-l2" id="vzFabSub"></span>';
   document.body.appendChild(fab);
