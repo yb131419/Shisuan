@@ -347,6 +347,7 @@
     <div class="sync-row">
       <span class="dot" id="statusDot"></span>
       <span id="statusText">連線中…</span>
+      <span id="roleText" style="opacity:.85"></span>
     </div>
   </div>
 </header>
@@ -508,6 +509,9 @@
       }
     }
     $("adminBtn").hidden = !isAdmin;
+    $("roleText").textContent = !operatorId
+      ? "· 未取得 LINE 身分（請從 LINE 開啟）"
+      : (isAdmin ? "· 超級管理員" : "· 一般檢視") + "（ID …" + operatorId.slice(-6) + "）";
     render();
   }
 
