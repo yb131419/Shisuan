@@ -5044,6 +5044,10 @@ function vzStepInit(){
     '#vzFreeWrap input{width:15px;height:15px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
     '.vzg-more{flex:1 1 100%;padding:11px 14px;border-radius:12px;border:1px solid rgba(200,230,215,.3);background:rgba(255,255,255,.06);color:#EEF3EF;font-weight:800;font-size:14px;cursor:pointer}',
     '.vzg-more[hidden]{display:none}',
+    '#vzcPay{display:flex;gap:8px;margin:0 0 12px}',
+    '#vzcPay[hidden]{display:none}',
+    '.vzcp{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-radius:12px;border:1px solid rgba(200,230,215,.3);background:rgba(255,255,255,.06);color:#EEF3EF;font-weight:800;font-size:14px;cursor:pointer}',
+    '.vzcp input{width:16px;height:16px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
     '#currencyBar .currency-btn{padding:9px 6px !important;border-radius:999px !important;font-size:13px !important;font-weight:900 !important;letter-spacing:.3px;color:#F4FBF7 !important;background:linear-gradient(180deg,#3B5750 0%,#243A34 100%) !important;border:1px solid rgba(200,230,215,.3) !important;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12) !important;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}',
     '#currencyBar .currency-btn:active{transform:scale(.94)}',
     '#currencyBar .currency-btn.active{background:linear-gradient(180deg,#E9F5EE,#BFDCCD) !important;color:#0F1F1A !important;border-color:rgba(230,247,238,.9) !important;box-shadow:0 0 0 2px rgba(200,230,215,.35),0 8px 22px rgba(0,0,0,.4) !important}',
@@ -5106,13 +5110,24 @@ function vzStepInit(){
   const fab=document.createElement('button'); fab.type='button'; fab.id='vzFab'; fab.innerHTML='<span id="vzFabTxt"></span><span class="vzf-l2" id="vzFabSub"></span>';
   document.body.appendChild(fab);
   const conf=document.createElement('div'); conf.id='vzConfirm'; conf.hidden=true;
-  conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-more" id="vzcMore" hidden>➕ 繼續增添品項</button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
+  conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div id="vzcPay" hidden><label class="vzcp"><input type="checkbox" id="vzcCash"><span>💵 現金</span></label><label class="vzcp"><input type="checkbox" id="vzcCard"><span>💳 刷卡</span></label></div><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-more" id="vzcMore" hidden>➕ 繼續增添品項</button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
   document.body.appendChild(conf);
   let confOk=null;
-  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcMore').hidden=(title!=='新增品項'); $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
+  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcMore').hidden=(title!=='新增品項'); $('vzcPay').hidden=(title!=='付款方式'); if(title==='付款方式'){ const cc=$('cashOption'), dc=$('cardOption'); $('vzcCash').checked=!!(cc&&cc.checked); $('vzcCard').checked=!!(dc&&dc.checked); } $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
   const hideConf=()=>{ conf.hidden=true; confOk=null; };
   $('vzcClose').addEventListener('click',hideConf);
   $('vzcNo').addEventListener('click',hideConf);
+  // 付款方式視窗：現金／刷卡勾選與頁面上的勾選同步
+  const syncPayBoxes=(dir)=>{
+    const pairs=[['vzcCash','cashOption'],['vzcCard','cardOption']];
+    pairs.forEach(([dId,oId])=>{
+      const d=$(dId), o=$(oId); if(!d||!o) return;
+      if(dir==='toDialog'){ d.checked=!!o.checked; }
+      else if(o.checked!==d.checked){ o.click(); if(o.checked!==d.checked) o.checked=d.checked; }
+    });
+  };
+  $('vzcCash').addEventListener('change',()=>syncPayBoxes('toPage'));
+  $('vzcCard').addEventListener('change',()=>syncPayBoxes('toPage'));
   $('vzcMore').addEventListener('click',()=>{ hideConf(); const n=$('nameInput'); const t=n||$('addBtn'); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'center'}); });
   $('vzcOk').addEventListener('click',()=>{ const f=confOk; hideConf(); if(f) f(); });
   conf.addEventListener('click',e=>{ if(e.target===conf) hideConf(); });
