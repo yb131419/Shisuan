@@ -96,7 +96,7 @@
     border: 1px solid rgba(201,169,110,.35);
     background: rgba(255,255,255,.06); backdrop-filter: blur(6px);
   }
-  .sync-line { display: flex; align-items: center; gap: 10px; word-break: break-all; text-align: left; }
+  .sync-line { display: flex; align-items: center; gap: 10px; word-break: break-all; text-align: left; white-space: pre-line; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: #5d7a6c; display: inline-block; }
   .dot.ok { background: #8fe0b5; box-shadow: 0 0 0 0 rgba(143,224,181,.6); animation: pulse 2.2s infinite; }
   .dot.syncing { background: var(--gold-300); animation: blink 1s infinite; }
@@ -515,7 +515,7 @@
     $("adminBtn").hidden = !isAdmin;
     $("roleText").textContent = !operatorId
       ? "未取得 LINE 身分（請從 LINE 開啟）"
-      : (isAdmin ? "管理員" : "一般用戶") + "　ID：" + operatorId;
+      : (isAdmin ? "管理員" : "一般用戶") + "\nID：" + operatorId;
     render();
   }
 
