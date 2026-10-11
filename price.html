@@ -160,7 +160,7 @@
   .chip {
     border: 1px solid var(--line); background: var(--paper); color: var(--muted);
     padding: 9px 18px; border-radius: 999px; font-size: 13px; cursor: pointer;
-    letter-spacing: .04em; transition: all .25s;
+    letter-spacing: .04em; transition: all .25s; line-height: 1.35; text-align: center;
   }
   .chip:hover { border-color: var(--emerald-300); color: var(--emerald-700); }
   .chip.active {
@@ -327,10 +327,10 @@
       </label>
       <div class="chips" id="chips">
         <button class="chip active" data-filter="all">全部</button>
-        <button class="chip" data-filter="normal">一般品項</button>
+        <button class="chip" data-filter="normal">一般<br>品項</button>
         <button class="chip" data-filter="gift">贈品</button>
         <button class="chip" data-filter="herbal">草本</button>
-        <button class="chip" data-filter="cosmetic">化妝品</button>
+        <button class="chip" data-filter="cosmetic">化妝<br>品</button>
       </div>
       <select class="sort" id="sortSelect" aria-label="排序方式">
         <option value="default">預設排序</option>
