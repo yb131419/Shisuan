@@ -524,7 +524,7 @@
     $("adminBtn").hidden = !isAdmin;
     $("roleText").textContent = !operatorId
       ? "未取得 LINE 身分（請從 LINE 開啟）"
-      : (isAdmin ? "管理員" : (displayName || "一般用戶")) + "\nID：" + operatorId;
+      : (isAdmin ? "管理員" + (displayName ? "　" + displayName : "") : (displayName || "一般用戶")) + "\nID：" + operatorId;
     render();
   }
 
