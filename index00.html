@@ -5113,7 +5113,7 @@ function vzStepInit(){
   conf.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>📝</span><span id="vzcTitle"></span><button type="button" class="vzg-x" id="vzcClose">✕</button></div><p class="vzg-msg" id="vzcMsg"></p><div id="vzcPay" hidden><label class="vzcp"><input type="checkbox" id="vzcCash"><span>💵 現金</span></label><label class="vzcp"><input type="checkbox" id="vzcCard"><span>💳 刷卡</span></label></div><div class="vzg-btns"><button type="button" class="vzg-go" id="vzcOk"></button><button type="button" class="vzg-more" id="vzcMore" hidden>➕ 繼續增添品項</button><button type="button" class="vzg-run" id="vzcNo">取消</button></div></div>';
   document.body.appendChild(conf);
   let confOk=null;
-  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcMore').hidden=(title!=='新增品項'); $('vzcPay').hidden=(title!=='付款方式'); if(title==='付款方式'){ const cc=$('cashOption'), dc=$('cardOption'); $('vzcCash').checked=!!(cc&&cc.checked); $('vzcCard').checked=!!(dc&&dc.checked); } $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
+  const askConfirm=(title,msg,okTxt,fn)=>{ $('vzcMore').hidden=(title!=='新增品項'); $('vzcPay').hidden=(title!=='付款方式'); if(title==='付款方式'){ const cc=$('cashOption'), dc=$('cardOption'); $('vzcCash').checked=!!(cc&&cc.checked); $('vzcCard').checked=!!(dc&&dc.checked); $('vzcOk').textContent=($('vzcCash').checked||$('vzcCard').checked)?'已選擇付款方式，下一步':'不確定，略過並進入下一步'; } $('vzcTitle').textContent=title; $('vzcMsg').textContent=msg; $('vzcOk').textContent=okTxt; confOk=fn; conf.hidden=false; };
   const hideConf=()=>{ conf.hidden=true; confOk=null; };
   $('vzcClose').addEventListener('click',hideConf);
   $('vzcNo').addEventListener('click',hideConf);
@@ -5126,8 +5126,9 @@ function vzStepInit(){
       else if(o.checked!==d.checked){ o.click(); if(o.checked!==d.checked) o.checked=d.checked; }
     });
   };
-  $('vzcCash').addEventListener('change',()=>syncPayBoxes('toPage'));
-  $('vzcCard').addEventListener('change',()=>syncPayBoxes('toPage'));
+  const payOkText=()=>{ const any=$('vzcCash').checked||$('vzcCard').checked; $('vzcOk').textContent=any?'已選擇付款方式，下一步':'不確定，略過並進入下一步'; };
+  $('vzcCash').addEventListener('change',()=>{ syncPayBoxes('toPage'); payOkText(); });
+  $('vzcCard').addEventListener('change',()=>{ syncPayBoxes('toPage'); payOkText(); });
   $('vzcMore').addEventListener('click',()=>{ hideConf(); const n=$('nameInput'); const t=n||$('addBtn'); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'center'}); });
   $('vzcOk').addEventListener('click',()=>{ const f=confOk; hideConf(); if(f) f(); });
   conf.addEventListener('click',e=>{ if(e.target===conf) hideConf(); });
