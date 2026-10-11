@@ -4983,7 +4983,7 @@ function vzStepInit(){
   const setOpen=v=>{ try{ localStorage.setItem('vz_step_open',v?'1':'0'); }catch(e){} };
   const DEFS=[
     {n:'購買者',  t:()=>$('buyerInput'),  d:()=>!!($('buyerInput')&&$('buyerInput').value.trim())},
-    {n:'新增品項',t:()=>$('addBtn'),      d:()=>!!getF().s2 && cap.querySelectorAll('tbody tr').length>0},
+    {n:'新增品項',t:()=>$('addBtn'),      d:()=>cap.querySelectorAll('tbody tr').length>0},
     {n:'付款方式',t:()=>$('cashOption'),  d:()=>!!getF().s3 || !!(($('cashOption')&&$('cashOption').checked)||($('cardOption')&&$('cardOption').checked))},
     {n:'報表轉圖片',t:()=>$('exportBtn'), d:()=>!!getF().s4},
     {n:'分享圖片',t:()=>$('nativeShareBtn'), d:()=>!!getF().s5},
@@ -5048,8 +5048,7 @@ function vzStepInit(){
     $('vzFabSub').textContent=(doneN===DEFS.length)?'試算步驟已完成':DEFS[cur].n;
     $('vzStepTitle').textContent='試算步驟 '+doneN+'/'+DEFS.length+' · 下一步：'+DEFS[cur].n;
     $('vzStepFill').style.width=(doneN/DEFS.length*100)+'%';
-    // 進度變動時自動捲到下一步；但填寫／清除購買者（步驟 1）時不捲動
-    if(lastCur!==-1 && cur!==lastCur && cur!==0 && lastCur!==0){ go(cur); }
+    // 進度變動只更新標記，不自動捲動或執行下一步；要前往下一步請按「執行下一步」
     lastCur=cur;
   }
   bar.classList.remove('open'); setOpen(false);   // 預設收起來，每次載入都從收合開始
@@ -5080,12 +5079,6 @@ function vzStepInit(){
   document.addEventListener('click',e=>{
     const b=e.target&&e.target.closest&&e.target.closest('button,a'); if(!b) return;
     const f=getF();
-    // 按下「增加品項」後，主動跳出步驟 2 的確認視窗（可選「繼續增添品項」或「已全部添加完成，下一步」）
-    if(b.id==='addBtn'){
-      setTimeout(function(){
-        if(curIdx()===1 && cap.querySelectorAll('tbody tr').length>0 && conf.hidden) nextAction();
-      },900);
-    }
     if(b.id==='exportBtn'){ f.s4=true; setF(f); }
     else if(b.id==='nativeShareBtn'||b.id==='shareToLineBtn'){ f.s5=true; setF(f); }
     else if(b.id==='resetReportBtn'){ setF({s6:true});
