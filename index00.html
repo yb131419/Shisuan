@@ -4961,17 +4961,17 @@ function syncCalcLv(){
   try{
     const L2=levelOf(parseInt(localStorage.getItem('vz_total'),10)||0);
     const title=TITLES[Math.min(L2.lv-1,TITLES.length-1)];
-    const html='🌿 試算仙界 Lv.'+L2.lv+' '+title+'<br>距 Lv.'+(L2.lv+1)+' 還需完成 '+(L2.need-L2.cur)+' 次';
+    const html='<span class="sb-stat-ic">🌿</span><span class="sb-stat-label">Lv.'+L2.lv+' '+title+'</span><span class="sb-stat-val">距 Lv.'+(L2.lv+1)+' 還需 '+(L2.need-L2.cur)+' 次</span>';
     document.querySelectorAll('#mcRows .vz-lv-row,#mcRows .vz-lv-row2').forEach(e=>e.remove());
-    const box=document.getElementById('mcRows');
+    const cta=document.getElementById('mcCtaRow'); const box=document.getElementById('mcRows');
     let chip=document.getElementById('vzLvChip');
-    if(!chip){ chip=document.createElement('div'); chip.id='vzLvChip'; }
-    if(box && box.parentNode){ if(chip.parentNode!==box.parentNode || chip.nextSibling!==box) box.parentNode.insertBefore(chip,box); }
+    if(!chip){ chip=document.createElement('div'); chip.id='vzLvChip'; chip.className='sb-stat-row'; }
+    if(cta && cta.parentNode){ if(chip.parentNode!==cta.parentNode || chip.nextSibling!==cta) cta.parentNode.insertBefore(chip,cta); }
+    else if(box && box.parentNode){ if(chip.parentNode!==box.parentNode || chip.previousSibling!==box) box.parentNode.insertBefore(chip,box.nextSibling); }
     else { const cap=document.getElementById('captureArea'); if(cap && chip.parentNode!==cap.parentNode) cap.parentNode.insertBefore(chip,cap); }
     if(chip.innerHTML!==html) chip.innerHTML=html;
   }catch(e){}
 }
-(function(){ const st=document.createElement('style'); st.textContent='#vzLvChip{display:block;width:fit-content;margin:6px auto 12px;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:.3px;color:#2A1A00;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E);box-shadow:0 0 10px rgba(255,210,122,.45);text-align:center}'; document.head.appendChild(st); })();
 setInterval(syncCalcLv,1000); syncCalcLv();
 function vzStepInit(){
   const cap=document.getElementById('captureArea'); if(!cap||document.getElementById('vzStepBar')) return;
