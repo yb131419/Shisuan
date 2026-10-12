@@ -1689,6 +1689,9 @@ body.v-mode #quickAddFab{display:none!important}
 #vName{font-size:15px !important}
 #vTitle{font-size:12px !important}
 #vLv{font-size:17px !important}
+#vInfo{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0}
+#vInfo #vTitle{font-size:11px !important;margin-top:0 !important}
+#vInfo #vLv{font-size:14px !important;margin:2px 0 1px !important;margin-left:0 !important;text-shadow:none}
 #vBack{font-size:13px !important;min-height:36px !important}
 #vMeta{font-size:12px !important}
 .vgrp{display:flex;gap:6px;align-items:center;margin:0 auto;pointer-events:auto}
@@ -2028,11 +2031,11 @@ body.v-mode #quickAddFab{display:none!important}
     <div id="vHead">
       <div class="vAv" id="vAv"><span>👤</span></div>
       <div id="vInfo">
-        <div id="vName">冒險者</div>
         <div id="vTitle">見習冒險者</div>
+        <div id="vLv">Lv.1</div>
+        <div id="vName">冒險者</div>
       </div>
       <button class="vbtn g sm" id="vBack" type="button">📜 返回試算介面</button>
-      <div id="vLv">Lv.1</div>
     </div>
     <div id="vXp"><div id="vXpFill"></div></div>
     <div id="vMeta"><span id="vCount">已完成 0 次</span><span class="vgrp"><button class="vbtn g sm" id="vNpcHead" type="button">📋 NPC</button><button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button><button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button></span><span id="vNext"></span></div>
@@ -4450,7 +4453,7 @@ const NPC=[
    lines:['圖片做好了，最後一步，分享出去。']},
   {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
    lines:['想重新來過嗎？報表清空後，一切從頭開始。']},
-  {id:'cat',name:'太極',role:'一隻愛吃雞腿的貓',ic:'🐱',sprite:'cat',decor:true,x:11,y:9,look:L('#8A8F9A','#E7C27A','bag'),
+  {id:'cat',name:'太極',role:'一隻愛吃雞腿的貓',ic:'🐱',sprite:'cat',decor:true,x:2,y:9,look:L('#8A8F9A','#E7C27A','bag'),
    lines:['我要吃雞腿','我要吃雞腿']},
   {id:'guanyin',name:'觀世音菩薩',role:'慈悲護佑，仙界守護',ic:'🪷',sprite:'guanyin',decor:true,mantra:true,x:6,y:4,look:L('#F7F7F2','#E8C468','hat'),
    lines:['嗡嘛呢叭咪吽','嗡嘛呢叭咪吽 🙏','嗡嘛呢叭咪吽','業績強強滾！🔥','訂單一張一張來，業績越滾越大','團隊同心，業績強強滾 ✨','今天也要業績爆發喔 💪','加油，業績再衝一波！','善緣結好，業績自然來 🙏']}
