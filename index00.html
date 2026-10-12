@@ -1691,9 +1691,6 @@ body.v-mode #quickAddFab{display:none!important}
 #vName{font-size:15px !important}
 #vTitle{font-size:12px !important}
 #vLv{font-size:17px !important}
-#vInfo{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0}
-#vInfo #vTitle{font-size:11px !important;margin-top:0 !important}
-#vInfo #vLv{font-size:14px !important;margin:2px 0 1px !important;margin-left:0 !important;text-shadow:none}
 #vBack{font-size:13px !important;min-height:36px !important}
 #vMeta{font-size:12px !important}
 .vgrp{display:flex;gap:6px;align-items:center;margin:0 auto;pointer-events:auto}
@@ -2033,11 +2030,11 @@ body.v-mode #quickAddFab{display:none!important}
     <div id="vHead">
       <div class="vAv" id="vAv"><span>👤</span></div>
       <div id="vInfo">
-        <div id="vTitle">見習冒險者</div>
-        <div id="vLv">Lv.1</div>
         <div id="vName">冒險者</div>
+        <div id="vTitle">見習冒險者</div>
       </div>
       <button class="vbtn g sm" id="vBack" type="button">📜 返回試算介面</button>
+      <div id="vLv">Lv.1</div>
     </div>
     <div id="vXp"><div id="vXpFill"></div></div>
     <div id="vMeta"><span id="vCount">已完成 0 次</span><span class="vgrp"><button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button><button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button></span><span id="vNext"></span></div>
@@ -5704,6 +5701,7 @@ function drawChar(id,look,X,Y,dir,step,bob,alert,name,hot,say){
     human(X,Y,look,dir,step,bob,false);
   }
   if(name) drawName(name,cx,feet-SPR_H+bob-1,hot);
+  if(id==='girl'){ const _L2=levelOf(parseInt(localStorage.getItem('vz_total'),10)||0); let _ty=feet-SPR_H+bob-11; ['Lv.'+_L2.lv, TITLES[Math.min(_L2.lv-1,TITLES.length-1)]].forEach(function(_t){ drawName(_t,cx,_ty,false); _ty-=10; }); }
   if(say) drawBubble(say,cx,feet-SPR_H+bob-12);
   if(alert && Math.floor(performance.now()/380)%2===0){
     g.fillStyle='#FFD27A';
