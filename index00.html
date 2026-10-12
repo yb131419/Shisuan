@@ -1682,6 +1682,8 @@ body.v-mode #quickAddFab{display:none!important}
 #vNpcList{position:absolute;left:auto;right:14px;top:calc(env(safe-area-inset-top,0px) + 156px);z-index:6;width:max-content;min-width:120px;max-width:60%;max-height:50%;overflow-y:auto;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:rgba(20,14,40,.92);border:1px solid rgba(232,196,104,.5)}
 .vnpc-it{text-align:center;display:block;width:100%;min-height:26px;border-radius:7px;border:1px solid rgba(232,196,104,.35);background:rgba(232,196,104,.08);color:#F6E3B4;font:700 10.5px/1.2 "Noto Sans TC",sans-serif;padding:0 6px;white-space:nowrap;cursor:pointer}
 .vnpc-it:active{background:rgba(232,196,104,.3)}
+#vNpcItems{flex-direction:column;gap:4px}
+#vNpcList .vnpc-head{font-weight:800 !important;background:rgba(232,196,104,.16) !important}
 #vNpcHead{pointer-events:auto;margin-left:auto !important;margin-right:auto !important;min-height:26px !important;padding:0 10px !important;font-size:11.5px !important;white-space:nowrap}
 #vBack{margin-left:6px !important}
 #vHead{flex-wrap:nowrap !important;gap:6px;padding-top:calc(env(safe-area-inset-top,0px) + 12px) !important}
@@ -2038,13 +2040,13 @@ body.v-mode #quickAddFab{display:none!important}
       <button class="vbtn g sm" id="vBack" type="button">📜 返回試算介面</button>
     </div>
     <div id="vXp"><div id="vXpFill"></div></div>
-    <div id="vMeta"><span id="vCount">已完成 0 次</span><span class="vgrp"><button class="vbtn g sm" id="vNpcHead" type="button">📋 NPC</button><button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button><button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button></span><span id="vNext"></span></div>
+    <div id="vMeta"><span id="vCount">已完成 0 次</span><span class="vgrp"><button class="vbtn g sm" id="vBgm" type="button" aria-label="背景音樂">🎵</button><button class="vbtn g sm" id="vBgmSw" type="button" aria-label="切換音樂">⇄ 曲1</button></span><span id="vNext"></span></div>
   </div>
   <div id="vMapBox">
     <div id="vWrap">
       <canvas id="vCv" width="384" height="256"></canvas>
       <div id="vLbls"></div>
-      <div id="vNpcList"></div>
+      <div id="vNpcList"><button class="vnpc-it vnpc-head" id="vNpcHead" type="button">📋 NPC ▾</button><div id="vNpcItems" style="display:none"></div></div>
     </div>
   </div>
   <div id="vBottom">
@@ -4478,6 +4480,7 @@ function closeVillage(){
   const _sb=document.getElementById('sbVillageBtn'); if(_sb) _sb.style.display='';
 }
 document.getElementById('vBack').addEventListener('click',closeVillage);
+window.vzCloseVillage=closeVillage;
 
 /* ---------- 等級（以完成的步驟次數計算） ---------- */
 function needOf(lv){ return lv<=3?50:100; } // 前三級每級50次，之後每100次增加一級
@@ -4771,7 +4774,7 @@ function refreshAreaBtn(b,kind){
   b.style.display='';
 }
 function buildNpcList(){
-  const box=document.getElementById('vNpcList');
+  const box=document.getElementById('vNpcItems');
   box.innerHTML='';
   STEPS.forEach((n,i)=>{
     const nb=mkBtn((i+1)+'. '+n.name, ()=>{ setNpcList(false); walkNear(n); });
@@ -4783,20 +4786,21 @@ function buildNpcList(){
   box.appendChild(areaBtn('skel'));
 }
 function setNpcList(show){
-  const box=document.getElementById('vNpcList'); if(!box) return;
+  const box=document.getElementById('vNpcItems'); if(!box) return;
   if(show) buildNpcList();
   box.style.display=show?'flex':'none';
   const hd=document.getElementById('vNpcHead'); if(hd) hd.textContent=show?'📋 NPC ▴':'📋 NPC ▾';
 }
 setInterval(()=>{
-  const box=document.getElementById('vNpcList');
+  const box=document.getElementById('vNpcItems');
   if(!box || box.style.display==='none') return;
   const kids=box.children; if(kids.length<2) return;
   refreshAreaBtn(kids[kids.length-3],'flower');
   refreshAreaBtn(kids[kids.length-2],'fish');
   refreshAreaBtn(kids[kids.length-1],'skel');
 },1000);
-document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcList').style.display==='none'));
+document.getElementById('vNpcHead').addEventListener('click',()=>setNpcList(document.getElementById('vNpcItems').style.display==='none'));
+setNpcList(false);   // 預設收合
 
 /* ---------- 種花／養魚：每 30 分鐘可收成一次，收成 +1 經驗 ---------- */
 let farmSt={}, fishSt={}, skelSt={};
@@ -4941,7 +4945,6 @@ function drawFarm(){
   g.textAlign='start';
   drawFx(pn);
 }
-setNpcList(true);
 
 /* ---------- 背景音樂：YouTube 內嵌播放器，兩首可切換（🎵 開關、⇄ 切換曲目） ---------- */
 let bgmOn=false, bgmTrack=0;
@@ -5059,7 +5062,6 @@ function vzStepInit(){
     '#currencyBar .currency-btn.active{background:linear-gradient(180deg,#E9F5EE,#BFDCCD) !important;color:#0F1F1A !important;border-color:rgba(230,247,238,.9) !important;box-shadow:0 0 0 2px rgba(200,230,215,.35),0 8px 22px rgba(0,0,0,.4) !important}',
     '.support-btn{height:32px !important;line-height:1 !important;padding:0 14px !important;border-radius:11px !important;font-size:13px !important;font-weight:900 !important;letter-spacing:.3px;display:inline-flex !important;align-items:center !important;justify-content:center !important;white-space:nowrap;color:#1E2A24 !important;background:linear-gradient(180deg,#FFFFFF 0%,#EEF1EE 100%) !important;border:1px solid rgba(255,255,255,.9) !important;border-top:1px solid #FFFFFF !important;box-shadow:0 8px 22px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.9) !important;transform:none !important;text-decoration:none;-webkit-tap-highlight-color:transparent}',
     '#quickAddFab{left:12px !important;right:auto !important;bottom:calc(env(safe-area-inset-bottom,0px) + 14px) !important;top:auto !important;width:auto !important;height:auto !important;min-width:0;max-width:40vw;display:flex !important;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px !important;font-weight:900 !important;line-height:1.25;text-align:center;padding:10px 16px !important;border-radius:999px !important;border:1px solid rgba(200,230,215,.3) !important;background:linear-gradient(180deg,#3B5750 0%,#243A34 100%) !important;color:#F4FBF7 !important;box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(230,247,238,.12) !important;letter-spacing:.3px;cursor:pointer;z-index:9998 !important;transform:none !important;transition:none;margin:0;',
-    'body.v-mode #vzFab{display:none !important}',
     'body.v-mode #vzStepBar{display:none}'
   ].join('');
   document.head.appendChild(css);
@@ -5165,7 +5167,7 @@ function vzStepInit(){
     if(cur===5){ const b=$('resetReportBtn'); if(b){ go(5); b.click(); } return; }
     go(cur);
   }
-  fab.addEventListener('click',nextAction);
+  fab.addEventListener('click',function(){ if(document.body.classList.contains('v-mode')&&window.vzCloseVillage){ window.vzCloseVillage(); setTimeout(nextAction,250); } else { nextAction(); } });
   $('vzStepNext').addEventListener('click',nextAction);
   // 「增加品項」按鈕不被浮動按鈕／步驟列蓋住：重疊時把那些浮層暫時隱藏（不可點）
   const ADD_OVL=['vzStepBar','vzFab','quickAddFab'];
@@ -5830,6 +5832,5 @@ requestAnimationFrame(loop);
 setInterval(()=>{ if(document.body.classList.contains('v-mode')) renderVillage(); },3000);
 })();
 </script>
-
 </body>
 </html>
