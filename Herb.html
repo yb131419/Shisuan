@@ -319,7 +319,7 @@ body{
       <h4>小提醒</h4>
       <ul>
         <li>220 飯後服用；705 月經期間停用</li>
-        <li>已加入的產品再次點選會閃爍提示，不會重複加入</li>
+        <li>已加入的產品再點一次即可取消</li>
         <li>保養月為長期階段，可依需求增減產品</li>
       </ul>
     </div>
@@ -501,7 +501,11 @@ document.addEventListener('click', e => {
     case 'add': {
       const p = el.dataset.p;
       const idx = state[m].findIndex(r => r.p === p);
-      if(idx >= 0){ flash(m, idx); break; }
+      if(idx >= 0){
+        state[m].splice(idx, 1);
+        renderMonth(m); renderChips(m);
+        break;
+      }
       state[m].push(mk(p));
       renderMonth(m); renderChips(m);
       flash(m, state[m].length - 1);
