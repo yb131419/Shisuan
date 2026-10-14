@@ -173,11 +173,47 @@ body{
 .tips li::before{content:'✦';position:absolute;left:0;color:var(--gold);font-size:12px;top:5px}
 .sheet .close{width:100%;height:56px;margin-top:20px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--ink),var(--jade));color:#fff;font:inherit;font-size:18px;cursor:pointer}
 
+.mono.mono-pill{width:auto;height:auto;padding:8px 20px;border-radius:999px;font-family:'Noto Sans TC',sans-serif;font-size:18px;font-weight:500;letter-spacing:.08em;color:var(--gold-l);margin-bottom:12px}
+.field.wide{grid-column:1/-1}
+.pv-choice{display:flex;gap:10px;margin-top:6px}
+.pv-btn{flex:1;height:52px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:20px;font-weight:500;cursor:pointer;transition:all .18s}
+.pv-btn.on{background:linear-gradient(135deg,var(--ink),var(--jade));border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(31,59,43,.22)}
+
 @media (max-width:480px){
   body{font-size:17px}
-  .brand{font-size:34px}
+  .wrap{padding:0 10px}
+  .hero{margin:8px 0 12px;padding:20px 16px 18px;border-radius:20px}
+  .hero::before{inset:6px;border-radius:14px}
+  .brand{font-size:30px}
+  .sub{font-size:16px;margin-top:6px}
+  .rule{margin-top:10px}
+  .mono.mono-pill{font-size:15px;padding:6px 14px;margin-bottom:8px}
+  .tabs{padding:8px 10px;margin:0 -10px;gap:6px}
+  .tab{height:50px;font-size:15px;border-radius:12px}
+  .tab small{font-size:12px}
+  .panel{padding:16px 14px;margin-top:12px;border-radius:18px}
+  .ptitle{margin-bottom:12px;gap:10px}
+  .badge{width:42px;height:42px;font-size:18px}
+  .ptitle h2{font-size:20px}
+  .grid{grid-template-columns:1fr 1fr;gap:12px 12px}
+  .field label{font-size:13px}
+  .field input,.field select{font-size:17px;padding:6px 0}
+  .field input::placeholder{font-size:15px}
+  .sel::after{bottom:9px;font-size:15px}
+  .notes{margin-top:14px;padding-top:12px}
+  .notes-h{font-size:14px;margin-bottom:8px}
+  .notes-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .note{padding:8px 10px;border-radius:12px}
+  .note span{font-size:14px;margin-bottom:2px}
+  .note input{width:52px;font-size:20px}
+  .pv-btn{height:44px;font-size:17px;border-radius:12px}
   .times{min-width:0;width:100%}
   .row-ctrl{gap:8px}
+  .row{padding:12px 0}
+  .pname{font-size:19px}
+  .tm{height:48px;font-size:18px}
+  .stepper{height:48px}
+  .stepper button{width:46px}
 }
 </style>
 </head>
@@ -185,7 +221,7 @@ body{
 <div class="wrap">
 
   <header class="hero">
-    <div class="mono">康</div>
+    <div class="mono mono-pill">彥彬｜試算系統</div>
     <div class="brand">康 園</div>
     <div class="sub">草本產品購買明細表</div>
     <div class="rule"></div>
@@ -203,7 +239,7 @@ body{
   <section class="panel" id="secInfo">
     <div class="ptitle"><div class="badge">客</div><h2>客戶資料</h2></div>
     <div class="grid">
-      <div class="field"><label>日期</label><input id="date" readonly></div>
+      <div class="field wide"><label>日期</label><input id="date" readonly></div>
       <div class="field"><label>姓名</label><input id="name" placeholder="請輸入姓名"></div>
       <div class="field"><label>介紹人</label><input id="introducer" placeholder="請輸入介紹人"></div>
       <div class="field"><label>地點</label><input id="location" placeholder="請輸入地點"></div>
@@ -220,7 +256,14 @@ body{
           <option value="">請選擇</option><option>現金</option><option>刷卡</option>
         </select></div></div>
       <div class="field"><label>金額</label><input id="amount" inputmode="numeric" placeholder="請輸入金額"></div>
-      <div class="field"><label>PV</label><input id="pv" inputmode="numeric" placeholder="請輸入 PV"></div>
+      <div class="field wide"><label>PV</label>
+        <div class="pv-choice">
+          <button type="button" class="pv-btn" data-v="22萬" onclick="setPV(this)">22萬</button>
+          <button type="button" class="pv-btn" data-v="30萬" onclick="setPV(this)">30萬</button>
+          <button type="button" class="pv-btn" data-v="其他" onclick="setPV(this)">其他</button>
+        </div>
+        <input id="pvOther" inputmode="numeric" placeholder="請輸入 PV" style="display:none;margin-top:12px">
+      </div>
     </div>
     <div class="notes">
       <div class="notes-h">每日 / 定期服用</div>
@@ -377,6 +420,20 @@ function copyMonth(from){
   document.getElementById('mc'+to).scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+let pvChoice = '';
+function setPV(btn){
+  const v = btn.dataset.v;
+  pvChoice = (pvChoice === v) ? '' : v;
+  document.querySelectorAll('.pv-btn').forEach(b => b.classList.toggle('on', b.dataset.v === pvChoice));
+  const other = document.getElementById('pvOther');
+  other.style.display = pvChoice === '其他' ? 'block' : 'none';
+  if(pvChoice !== '其他') other.value = '';
+}
+function pvValue(){
+  if(pvChoice === '其他') return document.getElementById('pvOther').value.trim();
+  return pvChoice;
+}
+
 function openTut(){ document.getElementById('tut').classList.add('show'); }
 function closeTut(){ document.getElementById('tut').classList.remove('show'); localStorage.setItem(KEY,'1'); }
 
@@ -474,7 +531,7 @@ async function shareImage(){
   const fields = [
     ['日期', v('date')], ['姓名', v('name')], ['介紹人', v('introducer')], ['地點', v('location')],
     ['入會', v('memberType')], ['火山甘露', v('volcanoTea') ? v('volcanoTea') + ' 包 / 餐' : ''],
-    ['付款方式', v('payType')], ['金額', v('amount')], ['PV', v('pv')]
+    ['付款方式', v('payType')], ['金額', v('amount')], ['PV', pvValue()]
   ].filter(f => f[1]);
 
   const fieldsHTML = fields.map(([k,val]) =>
@@ -509,7 +566,7 @@ async function shareImage(){
   const html = `
   <div class="rep">
     <div class="rh">
-      <div class="m">康</div>
+      <div class="m" style="width:auto;height:34px;line-height:34px;padding:0 16px;border-radius:999px;font-size:16px;font-family:'Noto Sans TC',sans-serif;margin:0 auto 12px">彥彬｜試算系統</div>
       <div class="b">康 園</div>
       <div class="s">草本產品購買明細表</div>
     </div>
