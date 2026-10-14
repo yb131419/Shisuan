@@ -154,6 +154,7 @@ body{
   font-family:'Noto Serif TC',serif;font-size:20px;font-weight:600;letter-spacing:.12em;
   box-shadow:0 10px 28px rgba(20,38,27,.3);
 }
+.reset{height:62px;padding:0 18px;border-radius:999px;border:1px solid rgba(181,81,106,.35);background:#fff;color:var(--rose);font:inherit;font-size:17px;cursor:pointer;white-space:nowrap}
 .help{width:62px;height:62px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:22px;cursor:pointer}
 
 /* TUTORIAL */
@@ -298,6 +299,7 @@ body{
 <div class="dock">
   <div class="dock-inner">
     <button class="share" data-act="share">分享報表圖片</button>
+    <button class="reset" data-act="reset">重置報表</button>
     <button class="help" data-act="tut" aria-label="使用說明">?</button>
   </div>
 </div>
@@ -434,6 +436,49 @@ function pvValue(){
   return pvChoice;
 }
 
+// ─── 資料保存（存於此瀏覽器，關閉報表或登出後仍保留，直到按「重置報表」）───
+const FORM_KEY = 'kg_form_v1';
+const FORM_IDS = ['name','introducer','location','memberType','volcanoTea','payType','amount','pvOther','n0','n1','n2','n3','n4'];
+
+function saveForm(){
+  try{
+    const fields = {};
+    FORM_IDS.forEach(id => fields[id] = document.getElementById(id).value);
+    localStorage.setItem(FORM_KEY, JSON.stringify({fields, pvChoice, state}));
+  }catch(e){}
+}
+
+function loadForm(){
+  let data = null;
+  try{ data = JSON.parse(localStorage.getItem(FORM_KEY) || 'null'); }catch(e){}
+  if(!data){
+    MONTHS.forEach(M => { state[M.n] = (defaults[M.n] || []).map(mk); });
+    return;
+  }
+  Object.entries(data.fields || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id); if(el) el.value = val;
+  });
+  pvChoice = data.pvChoice || '';
+  document.querySelectorAll('.pv-btn').forEach(b => b.classList.toggle('on', b.dataset.v === pvChoice));
+  document.getElementById('pvOther').style.display = pvChoice === '其他' ? 'block' : 'none';
+  MONTHS.forEach(M => { state[M.n] = (data.state && data.state[M.n]) || []; });
+}
+
+function resetForm(){
+  if(!confirm('確定重置報表？所有已填寫的資料將被清除。')) return;
+  localStorage.removeItem(FORM_KEY);
+  document.querySelectorAll('input:not([readonly])').forEach(i => i.value = '');
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  document.getElementById('volcanoTea').value = '3';
+  pvChoice = '';
+  document.querySelectorAll('.pv-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('pvOther').style.display = 'none';
+  MONTHS.forEach(M => { state[M.n] = (defaults[M.n] || []).map(mk); });
+  renderAll();
+  saveForm();
+  document.getElementById('secInfo').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 function openTut(){ document.getElementById('tut').classList.add('show'); }
 function closeTut(){ document.getElementById('tut').classList.remove('show'); localStorage.setItem(KEY,'1'); }
 
@@ -487,6 +532,7 @@ document.addEventListener('click', e => {
       break;
     }
     case 'share': shareImage(); break;
+    case 'reset': resetForm(); break;
     case 'tut': openTut(); break;
     case 'tutclose': closeTut(); break;
     case 'tutbg': if(e.target.id === 'tut') closeTut(); break;
@@ -621,7 +667,7 @@ function init(){
   $('#date').value = `${d.getFullYear()-1911}.${d.getMonth()+1}.${d.getDate()}(${'日一二三四五六'[d.getDay()]})`;
 
   $('#months').innerHTML = MONTHS.map(monthPanelHTML).join('');
-  MONTHS.forEach(M => { state[M.n] = (defaults[M.n] || []).map(mk); });
+  loadForm();
   renderAll();
 
   const io = new IntersectionObserver(entries => {
@@ -635,6 +681,11 @@ function init(){
 
   if(!localStorage.getItem(KEY)) setTimeout(openTut, 700);
 }
+
+// 自動保存：任何輸入、選擇或點擊後都會寫入此瀏覽器
+document.addEventListener('input', saveForm);
+document.addEventListener('change', saveForm);
+document.addEventListener('click', () => setTimeout(saveForm, 0));
 
 init();
 </script>
