@@ -4979,6 +4979,12 @@ function syncCalcLv(){
       if(fw.parentNode!==pr) pr.appendChild(fw);
       const cb=fw.querySelector('input'); if(cb.checked!==freeOn) cb.checked=freeOn;
     } else if(fw && fw.parentNode){ fw.parentNode.removeChild(fw); }
+    document.querySelectorAll('#sbBody .sb-cta-row').forEach(function(row){
+      if(row.querySelector('.vz-sharelog-btn')) return;
+      var sb=document.createElement('button'); sb.type='button'; sb.className='vz-sharelog-btn'; sb.textContent='🧾 分享記錄';
+      sb.addEventListener('click',function(){ if(window.vzShowShareLog) window.vzShowShareLog(); });
+      row.insertBefore(sb, row.querySelector('.support-btn')||null);
+    });
     document.body.classList.toggle('vz-free', freeOn);   // 自由模式：隱藏右下角浮窗
     // 側邊欄「展開／收合」區塊內的統計列（與會員資料同一組，贊助列之上）
     const sbs=document.querySelector('#sbBody .sb-stats');
@@ -5047,6 +5053,9 @@ function vzStepInit(){
     '#vzStepNext:active{filter:brightness(.96)}',
     '.toast:not(.error):not(.warning){background:linear-gradient(180deg,#FBF6E6,#EADFC2) !important;color:#23301F !important;border:1px solid rgba(160,118,48,.55) !important;border-top:1px solid rgba(255,236,176,.9) !important;border-radius:999px !important;padding:11px 22px !important;font-size:14px !important;font-weight:800 !important;letter-spacing:.3px;box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.7) !important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);bottom:96px !important;max-width:80vw;white-space:nowrap}',
     '#sbBody .sb-profile{position:relative}',
+    '.vz-sharelog-btn{height:32px;line-height:1;padding:0 12px;border-radius:11px;border:1px solid rgba(217,184,115,.6);background:linear-gradient(180deg,rgba(66,53,28,.94),rgba(26,22,15,.97));color:#F3D9A3;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.3px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,236,176,.22),0 4px 12px rgba(0,0,0,.35);transition:transform .15s ease,filter .15s ease;flex:0 0 auto}',
+    '.vz-sharelog-btn:hover{filter:brightness(1.12)}',
+    '.vz-sharelog-btn:active{transform:scale(.97)}',
     'body.vz-free #vzFab{display:none !important}',
     '#vzFreeWrap{position:absolute;right:0;top:4px;display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.2;text-align:left;font-weight:800;color:#F4FBF7;background:rgba(36,58,52,.92);border:1px solid rgba(200,230,215,.3);border-radius:999px;padding:4px 10px;cursor:pointer;z-index:4;white-space:nowrap}',
     '#vzFreeWrap input{width:15px;height:15px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
