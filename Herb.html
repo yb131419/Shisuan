@@ -176,6 +176,10 @@ body{
 
 .mono.mono-pill{width:auto;height:auto;padding:8px 20px;border-radius:999px;font-family:'Noto Sans TC',sans-serif;font-size:18px;font-weight:500;letter-spacing:.08em;color:var(--gold-l);margin-bottom:12px}
 .field.wide{grid-column:1/-1}
+.qv{cursor:pointer;border-bottom:1.5px dashed var(--gold-l);padding:0 2px}
+.qgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:6px}
+.qbtn{height:60px;border-radius:14px;border:1.5px solid var(--line);background:#fff;font:inherit;font-size:22px;color:var(--ink);cursor:pointer}
+.qbtn.on{background:linear-gradient(135deg,var(--ink),var(--jade));color:#fff;border-color:transparent}
 .times{display:none!important}
 .tm-btn{flex:1;height:52px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:20px;font-weight:500;cursor:pointer;transition:all .18s}
 .tm-btn.on{background:linear-gradient(135deg,var(--ink),var(--jade));border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(31,59,43,.22)}
@@ -330,6 +334,17 @@ body{
   </div>
 </div>
 
+<!-- 顆數選擇 -->
+<div class="overlay" id="qpick" data-act="qclose">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>選擇顆數</h3>
+    <div class="lead">點選數字即可設定</div>
+    <div class="qgrid" id="qgrid"></div>
+    <button class="close" data-act="qclose">取消</button>
+  </div>
+</div>
+
 <!-- 使用說明 -->
 <div class="overlay" id="tut" data-act="tutbg">
   <div class="sheet">
@@ -365,7 +380,7 @@ const products = [
   "大女王","極樂鳥","101","111","168","金色果(2）","海神泥","復甦精華露",
   "潔面乳","玫瑰化妝水","植萃粉底乳","彼拉提斯精油","隱形面膜","命運1號","命運9號（2)"
 ];
-const QTYS = [2,3,4,5,10];
+const QTYS = [1,2,3,4,5,6,7,8,9,10];
 const TIMES = [['am','早'],['noon','中'],['night','晚']];
 const MONTHS = [
   {n:1,label:'第一個月',badge:'一'},
@@ -379,7 +394,8 @@ const defaults = {1:["211","300","299A","211A"],2:["211","300","299A"],3:["211",
 const KEY = 'kgTutorialSeen_v2';
 
 const state = {1:[],2:[],3:[],4:[]};
-const mk = p => ({p, qty:3, am:true, noon:false, night:true});
+const DEFAULT_QTY = {'101':2, '168':2, '111':2, '777Q':2};
+const mk = p => ({p, qty: DEFAULT_QTY[p] || 3, am:true, noon:false, night:true});
 const has = (n,p) => state[n].some(r => r.p === p);
 
 function monthPanelHTML(M){
@@ -411,7 +427,7 @@ function renderMonth(n){
       <div class="row-ctrl">
         <div class="stepper">
           <button data-act="qty" data-m="${n}" data-i="${i}" data-d="-1">−</button>
-          <span class="qv">${r.qty}</span>
+          <span class="qv" data-act="qpick" data-m="${n}" data-i="${i}">${r.qty}</span>
           <button data-act="qty" data-m="${n}" data-i="${i}" data-d="1">+</button>
         </div>
         <div class="times">
@@ -571,6 +587,16 @@ function deleteRecord(i){
   renderRecords();
 }
 
+// 點擊數量直接選擇 1–10
+function openQty(m, i){
+  const cur = state[m][i].qty;
+  document.getElementById('qgrid').innerHTML = QTYS.map(v =>
+    `<button class="qbtn ${v === cur ? 'on' : ''}" data-act="qset" data-m="${m}" data-i="${i}" data-v="${v}">${v}</button>`
+  ).join('');
+  document.getElementById('qpick').classList.add('show');
+}
+function closeQty(){ document.getElementById('qpick').classList.remove('show'); }
+
 function openTut(){ document.getElementById('tut').classList.add('show'); }
 function closeTut(){ document.getElementById('tut').classList.remove('show'); localStorage.setItem(KEY,'1'); }
 
@@ -629,6 +655,9 @@ document.addEventListener('click', e => {
     }
     case 'share': shareImage(); break;
     case 'reset': resetForm(); break;
+    case 'qpick': openQty(m, i); break;
+    case 'qset': state[m][i].qty = Number(el.dataset.v); renderMonth(m); closeQty(); break;
+    case 'qclose': if(e.target === el || el.tagName === 'BUTTON') closeQty(); break;
     case 'tut': openTut(); break;
     case 'tutclose': closeTut(); break;
     case 'tutbg': if(e.target.id === 'tut') closeTut(); break;
