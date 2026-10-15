@@ -648,10 +648,21 @@ const REPORT_CSS = `
 .tm-h{font-size:15px;font-weight:700;color:#3F6B5C}
 .tm-row{font-size:13px;line-height:1.5}
 .tm-row em{font-style:normal;display:inline-block;width:20px;color:#B8923A;font-weight:700}
+.lcol>*{flex-shrink:0}
 .lcol .rr{flex:1}
+.lcol .card{padding:18px 18px 16px}
+.lcol .fg>div:first-child .rv{font-size:20px;letter-spacing:.02em}
 .fg>div:first-child{grid-column:1/-1}
 .fg>div:first-child .rv{white-space:nowrap;font-size:19px;padding:6px 0 8px;position:relative;z-index:1;overflow:visible}
-.rcol .rm{margin:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.rcol .rm{margin:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #E6DECB;border-radius:18px;box-shadow:0 8px 22px rgba(20,38,27,.07)}
+.rcol .rm-h{padding:14px 16px 12px;border-bottom:1px solid #EEE8DA;background:linear-gradient(180deg,#FBF8F1,#fff)}
+.rcol .rb{width:36px;height:36px;font-family:'Noto Serif TC',serif}
+.rcol .rt{font-family:'Noto Serif TC',serif;font-size:20px;font-weight:600;color:#14261B}
+.rcol .rc{font-size:13px;color:#3F6B5C;background:#F1EDE2;padding:3px 10px;border-radius:999px}
+.rcol .pgrid{flex:1;align-content:start;padding:12px 14px}
+.rcol .pt{background:#FBF8F1;border:1px solid #E6DECB;border-top:2px solid #B8923A;border-radius:12px;padding:9px 6px 8px}
+.rcol .pn{font-family:'Noto Serif TC',serif;font-size:15px;min-height:38px;display:flex;align-items:center;justify-content:center;color:#14261B}
+.rcol .pq{display:inline-block;margin-top:4px;font-size:13px;color:#fff;background:#3F6B5C;border-radius:999px;padding:1px 10px;font-weight:600}
 .rcol td{font-size:16px;padding:7px 4px}
 .rcol th{font-size:14px}
 .rcol td.tp{font-size:17px}
