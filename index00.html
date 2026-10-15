@@ -3953,7 +3953,7 @@ async function shareToLine(){
       const _m=parseInt(_pv,10);
       const _periodText=_pv&&_m>0&&_m<=12?`\n預估使用：${_months[_m]}個月`:(_cd?`\n預估使用：${_cd}天`:'');
       const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}${getPaymentShareText()}\n${imageUrl}`)}`;
-      window.open(lineShareUrl,"_blank");if(window.vzRecordShare)window.vzRecordShare(buyerName,calculatorName);
+      window.open(lineShareUrl,"_blank");if(window.vzRecordShare)window.vzRecordShare(buyerName,calculatorName,'data:image/png;base64,'+base64Data,'',lineShareUrl);
       showToast("✅ 圖片已上傳");
     }else{
       showToast("圖片上傳失敗，請稍後再試", 'error');
@@ -4006,7 +4006,7 @@ async function nativeShare(){
     }
 
     const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_pt2}${getPaymentShareText()}`;
-    await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});if(window.vzRecordShare)window.vzRecordShare(buyer,calculator);
+    await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});if(window.vzRecordShare)window.vzRecordShare(buyer,calculator,blob,shareText,'');
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
   }
@@ -5168,27 +5168,101 @@ function vzStepInit(){
   }
   fab.addEventListener('click',function(){ if(document.body.classList.contains('v-mode')&&window.vzCloseVillage){ window.vzCloseVillage(); setTimeout(nextAction,250); } else { nextAction(); } });
   $('vzStepNext').addEventListener('click',nextAction);
-  window.vzRecordShare=function(buyer,calc){
+  window.vzRecordShare=function(buyer,calc,img,text,lineUrl){
+    var cnt=0; try{ cnt=(JSON.parse(localStorage.getItem('selectedProducts')||'[]')||[]).length; }catch(e){}
+    var rec={t:Date.now(),buyer:(buyer||'未填'),calc:(calc||''),n:cnt,text:(text||''),lineUrl:(lineUrl||''),img:''};
     try{
-      var cnt=(JSON.parse(localStorage.getItem('selectedProducts')||'[]')||[]).length;
-      var log=[]; try{ log=JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ log=[]; }
-      log.unshift({t:Date.now(),buyer:(buyer||'未填'),calc:(calc||''),n:cnt});
-      localStorage.setItem('vz_share_log',JSON.stringify(log.slice(0,5)));
+      var prods=JSON.parse(localStorage.getItem('selectedProducts')||'[]')||[];
+      var pi=document.getElementById('periodInput'), cd=document.getElementById('customDays'), co=document.getElementById('cashOption'), dc=document.getElementById('cardOption');
+      rec.order={products:prods,buyer:(buyer||''),form:{period:(pi?pi.value:''),customDays:(cd?cd.value:''),cash:!!(co&&co.checked),card:!!(dc&&dc.checked)}};
     }catch(e){}
+    var save=function(){
+      var log=[]; try{ log=JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ log=[]; }
+      log.unshift(rec); log=log.slice(0,5);
+      try{ localStorage.setItem('vz_share_log',JSON.stringify(log)); }
+      catch(e){ log.forEach(function(r){ r.img=''; }); try{ localStorage.setItem('vz_share_log',JSON.stringify(log)); }catch(e2){} }
+    };
+    if(typeof img==='string'){ rec.img=img; save(); }
+    else if(typeof Blob!=='undefined' && img instanceof Blob){
+      var fr=new FileReader(); fr.onload=function(){ rec.img=fr.result; save(); }; fr.onerror=function(){ save(); }; fr.readAsDataURL(img);
+    } else { save(); }
+  };
+  window.vzReshare=function(r){
+    if(!r) return;
+    if(r.lineUrl){ window.open(r.lineUrl,'_blank'); return; }
+    if(!r.img){ return; }
+    var dl=function(){ var a=document.createElement('a'); a.href=r.img; a.download='康園試算報表.png'; document.body.appendChild(a); a.click(); a.remove(); };
+    if(!navigator.share){ dl(); return; }
+    fetch(r.img).then(function(res){ return res.blob(); }).then(function(bl){
+      var f=new File([bl],'康園試算報表.png',{type:(bl.type||'image/png')});
+      return navigator.share({files:[f],title:'康園試算報表',text:(r.text||'')});
+    }).catch(function(){});
+  };
+  window.vzRestoreOrder=function(r){
+    if(!r||!r.order) return;
+    var cur=[]; try{ cur=JSON.parse(localStorage.getItem('selectedProducts')||'[]')||[]; }catch(e){}
+    if(cur.length && !confirm('目前報表有 '+cur.length+' 筆品項，載入這筆訂單會覆蓋目前內容，確定嗎？')) return;
+    try{
+      localStorage.setItem('selectedProducts',JSON.stringify(r.order.products||[]));
+      localStorage.setItem('vipBuyerName',r.order.buyer||'');
+      localStorage.setItem('vz_restore_form',JSON.stringify({buyer:(r.order.buyer||''),form:(r.order.form||{})}));
+    }catch(e){ return; }
+    location.reload();
   };
   window.vzShowShareLog=function(){
-    var log=[]; try{ log=JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ log=[]; }
-    var esc=function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    var esc=function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+    var readLog=function(){ try{ return JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ return []; } };
+    var btnCss='margin-top:8px;padding:8px 12px;border-radius:9px;border:0;font-weight:800;font-size:13px;cursor:pointer;background:linear-gradient(180deg,#FBF6E6,#EADFC2);color:#23301F';
     var ov=document.getElementById('vzShareLogOv');
     if(ov) ov.remove();
     ov=document.createElement('div'); ov.id='vzShareLogOv';
     ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
     ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
-    var rows=log.length? log.map(function(r,i){ return '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12)"><b>'+(i+1)+'. '+esc(r.buyer)+'</b><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div></div>'; }).join('') : '<div style="opacity:.8;padding:8px 0">尚無分享紀錄</div>';
-    ov.innerHTML='<div style="background:#1E2623;color:#F4FBF7;border-radius:14px;padding:16px;max-width:360px;width:100%;max-height:80vh;overflow:auto"><div style="font-weight:900;margin-bottom:6px">🧾 分享紀錄（最近 5 筆）</div>'+rows+'<button type="button" id="vzShareLogClose" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button></div>';
+    var box=document.createElement('div');
+    box.style.cssText='background:#1E2623;color:#F4FBF7;border-radius:14px;padding:16px;max-width:380px;width:100%;max-height:82vh;overflow:auto';
+    ov.appendChild(box);
+    var showList=function(){
+      var log=readLog();
+      var rows=log.length? log.map(function(r,i){
+        var thumb=r.img? '<button type="button" data-vz-pv="'+i+'" style="padding:0;border:0;background:none;cursor:pointer;flex:0 0 auto"><img src="'+esc(r.img)+'" alt="預覽" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.2);display:block"/></button>' : '<div style="width:64px;height:64px;border-radius:8px;flex:0 0 auto;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.6">無圖</div>';
+        var acts='<div>'+(r.img? '<button type="button" data-vz-pv="'+i+'" style="'+btnCss+'">👁 預覽</button> ' : '')+((r.lineUrl||r.img)? '<button type="button" data-vz-re="'+i+'" style="'+btnCss+'">📤 再次分享</button> ' : '')+(r.order? '<button type="button" data-vz-ord="'+i+'" style="'+btnCss+'">✏️ 修改訂單</button>' : '')+'</div>';
+        return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">'+thumb+'<div style="flex:1;min-width:0"><b>'+(i+1)+'. '+esc(r.buyer)+'</b><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div>'+acts+'</div></div>';
+      }).join('') : '<div style="opacity:.8;padding:8px 0">尚無分享紀錄</div>';
+      box.innerHTML='<div style="font-weight:900;margin-bottom:6px">🧾 分享紀錄（最近 5 筆）</div>'+rows+'<button type="button" data-vz-close="1" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button>';
+    };
+    var showPreview=function(i){
+      var log=readLog(); var r=log[i];
+      if(!r){ showList(); return; }
+      var img=r.img? '<img src="'+esc(r.img)+'" alt="分享圖片" style="width:100%;height:auto;border-radius:10px;background:#fff;display:block"/>' : '<div style="padding:24px 0;text-align:center;opacity:.7">此筆沒有保存圖片</div>';
+      var txt=r.text? '<div style="white-space:pre-wrap;font-size:13px;line-height:1.6;margin-top:10px;opacity:.9">'+esc(r.text)+'</div>' : '';
+      var can=!!(r.lineUrl||r.img);
+      box.innerHTML='<div style="font-weight:900;margin-bottom:4px">'+esc(r.buyer)+'</div><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div><div style="margin-top:10px">'+img+'</div>'+txt
+        +'<div style="display:flex;gap:8px;margin-top:12px"><button type="button" data-vz-back="1" style="flex:1;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer;background:rgba(255,255,255,.12);color:#F4FBF7">← 返回列表</button>'
+        +(can? '<button type="button" data-vz-re="'+i+'" style="flex:1;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer;background:linear-gradient(180deg,#FBF6E6,#EADFC2);color:#23301F">📤 再次分享</button>' : '')+(r.order? '<button type="button" data-vz-ord="'+i+'" style="flex:1;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer;background:rgba(255,255,255,.12);color:#F4FBF7">✏️ 修改訂單</button>' : '')+'</div>';
+    };
+    box.addEventListener('click',function(e){
+      var t=e.target;
+      var pv=t.closest?t.closest('[data-vz-pv]'):null; if(pv){ showPreview(+pv.getAttribute('data-vz-pv')); return; }
+      var re=t.closest?t.closest('[data-vz-re]'):null; if(re){ window.vzReshare(readLog()[+re.getAttribute('data-vz-re')]); return; }
+      var od=t.closest?t.closest('[data-vz-ord]'):null; if(od){ window.vzRestoreOrder(readLog()[+od.getAttribute('data-vz-ord')]); return; }
+      if(t.closest && t.closest('[data-vz-back]')){ showList(); return; }
+      if(t.closest && t.closest('[data-vz-close]')){ ov.remove(); }
+    });
     document.body.appendChild(ov);
-    document.getElementById('vzShareLogClose').addEventListener('click',function(){ ov.remove(); });
+    showList();
   };
+  setTimeout(function(){
+    var raw=null; try{ raw=localStorage.getItem('vz_restore_form'); localStorage.removeItem('vz_restore_form'); }catch(e){}
+    if(!raw) return;
+    var d={}; try{ d=JSON.parse(raw)||{}; }catch(e){}
+    var f=d.form||{};
+    var pi=document.getElementById('periodInput'); if(pi && f.period!=null){ pi.value=f.period; pi.dispatchEvent(new Event('input')); pi.dispatchEvent(new Event('change')); }
+    var cd=document.getElementById('customDays'); if(cd && f.customDays!=null){ cd.value=f.customDays; cd.dispatchEvent(new Event('input')); }
+    var bi=document.getElementById('buyerInput'); if(bi && d.buyer){ bi.value=d.buyer; bi.dispatchEvent(new Event('input')); }
+    var co=document.getElementById('cashOption'), dc=document.getElementById('cardOption');
+    if(co && !!f.cash!==co.checked) co.click();
+    if(dc && !!f.card!==dc.checked) dc.click();
+  },1500);
   var _slBtn=document.getElementById('menuShareLog');
   if(_slBtn) _slBtn.addEventListener('click',function(){ try{ if(typeof toggleMenu==='function') toggleMenu(false); }catch(e){} setTimeout(window.vzShowShareLog,150); });
   // 「增加品項」按鈕不被浮動按鈕／步驟列蓋住：重疊時把那些浮層暫時隱藏（不可點）
@@ -5854,4 +5928,3 @@ setInterval(()=>{ if(document.body.classList.contains('v-mode')) renderVillage()
 </script>
 </body>
 </html>
-
