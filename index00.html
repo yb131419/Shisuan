@@ -2069,7 +2069,7 @@ const FREE_DELETE_LIMIT=3;
 const GUIDE_SEEN_KEY="guideSeen";
 
 // 新增：狀態欄是否被使用者手動隱藏（用於重繪時尊重隱藏狀態）
-let statusBarHidden=false;
+let statusBarHidden=true;
 
 // ============================================================
 // 新增：獎金費率設定
@@ -3257,7 +3257,7 @@ async function resetReport(){
   toggleMenu(false);
   closeGuide();
   closeMemberCenter();
-  statusBarHidden=false;
+  statusBarHidden=true;
 
   document.getElementById('authContainer').style.display='flex';
   els.loginWrapper.style.display='flex';
@@ -4267,7 +4267,7 @@ function enterCalculator(){
       loadBuyerName();
     }
     checkUserRemainingTimes();
-    statusBarHidden=false;
+    statusBarHidden=true;
     updateAuthStatusBar();
     // 首次使用自動彈出一次導覽（之後不再自動跳出，可從 ☰ 選單重看）
     if(!localStorage.getItem(GUIDE_SEEN_KEY)){
