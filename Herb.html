@@ -176,6 +176,13 @@ body{
 
 .mono.mono-pill{width:auto;height:auto;padding:8px 20px;border-radius:999px;font-family:'Noto Sans TC',sans-serif;font-size:18px;font-weight:500;letter-spacing:.08em;color:var(--gold-l);margin-bottom:12px}
 .field.wide{grid-column:1/-1}
+.rec{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:0}
+.rec-info{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.rec-info b{font-size:17px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-info span{font-size:14px;color:var(--muted)}
+.rec-btn{height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--jade-l);background:#fff;color:var(--jade);font:inherit;font-size:15px;cursor:pointer}
+.rec-btn.del{border-color:rgba(181,81,106,.4);color:var(--rose)}
 .pv-choice{display:flex;gap:10px;margin-top:6px}
 .pv-btn{flex:1;height:52px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font:inherit;font-size:20px;font-weight:500;cursor:pointer;transition:all .18s}
 .pv-btn.on{background:linear-gradient(135deg,var(--ink),var(--jade));border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(31,59,43,.22)}
@@ -280,6 +287,12 @@ body{
 
   <!-- 月份區塊由 JS 產生 -->
   <div id="months"></div>
+
+  <!-- 最近記錄 -->
+  <section class="panel">
+    <div class="ptitle"><div class="badge">記</div><h2>最近記錄</h2><span class="count">最多保存 3 筆</span></div>
+    <div id="recList"></div>
+  </section>
 
   <!-- 注意事項 -->
   <section class="panel remarks">
@@ -478,6 +491,55 @@ function resetForm(){
   document.getElementById('secInfo').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+// ─── 最近記錄（本機保存最多 3 筆，分享報表時自動記錄）───
+const REC_KEY = 'kg_records_v1';
+function getRecords(){
+  try{ return JSON.parse(localStorage.getItem(REC_KEY) || '[]'); }catch(e){ return []; }
+}
+function saveRecord(){
+  const fields = {};
+  FORM_IDS.forEach(id => fields[id] = document.getElementById(id).value);
+  const rec = {
+    at: new Date().toLocaleString('zh-TW', {hour12:false}),
+    label: document.getElementById('name').value.trim() || '未填姓名',
+    data: {fields, pvChoice, state}
+  };
+  const list = [rec, ...getRecords()].slice(0, 3);
+  try{ localStorage.setItem(REC_KEY, JSON.stringify(list)); }catch(e){}
+  renderRecords();
+}
+function renderRecords(){
+  const list = getRecords();
+  document.getElementById('recList').innerHTML = list.length ? list.map((r,i) => `
+    <div class="rec">
+      <div class="rec-info"><b>${esc(r.label)}</b><span>${esc(r.at)}</span></div>
+      <button class="rec-btn" onclick="loadRecord(${i})">載入</button>
+      <button class="rec-btn del" onclick="deleteRecord(${i})">刪除</button>
+    </div>`).join('') : '<div class="empty">尚無記錄，分享報表後會自動保存</div>';
+}
+function loadRecord(i){
+  const r = getRecords()[i];
+  if(!r) return;
+  if(!confirm('載入此記錄會取代目前填寫的內容，確定載入？')) return;
+  Object.entries(r.data.fields || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id); if(el) el.value = val;
+  });
+  pvChoice = r.data.pvChoice || '';
+  document.querySelectorAll('.pv-btn').forEach(b => b.classList.toggle('on', b.dataset.v === pvChoice));
+  document.getElementById('pvOther').style.display = pvChoice === '其他' ? 'block' : 'none';
+  MONTHS.forEach(M => { state[M.n] = (r.data.state && r.data.state[M.n]) || []; });
+  renderAll();
+  saveForm();
+  document.getElementById('secInfo').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function deleteRecord(i){
+  if(!confirm('確定刪除此記錄？')) return;
+  const list = getRecords();
+  list.splice(i, 1);
+  localStorage.setItem(REC_KEY, JSON.stringify(list));
+  renderRecords();
+}
+
 function openTut(){ document.getElementById('tut').classList.add('show'); }
 function closeTut(){ document.getElementById('tut').classList.remove('show'); localStorage.setItem(KEY,'1'); }
 
@@ -549,6 +611,7 @@ const REPORT_CSS = `
 .rcol{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1.3fr 1fr;gap:14px;min-height:0}
 .lcol .rr{flex:1}
 .fg>div:first-child{grid-column:1/-1}
+.fg>div:first-child .rv{white-space:nowrap;font-size:19px;padding:6px 0 8px;position:relative;z-index:1;overflow:visible}
 .rcol .rm{margin:0;min-height:0;height:100%}
 .rcol td{font-size:16px;padding:7px 4px}
 .rcol th{font-size:14px}
@@ -585,6 +648,7 @@ td.tp{text-align:left;padding-left:14px;font-size:17px;font-weight:600}
 `;
 
 async function shareImage(){
+  saveRecord();
   const v = id => document.getElementById(id).value.trim();
   const fields = [
     ['日期', v('date')], ['姓名', v('name')], ['介紹人', v('introducer')], ['地點', v('location')],
@@ -683,10 +747,11 @@ async function shareImage(){
 
 function init(){
   const d = new Date();
-  $('#date').value = `${d.getFullYear()-1911}.${d.getMonth()+1}.${d.getDate()}(${'日一二三四五六'[d.getDay()]})`;
+  $('#date').value = `${d.getFullYear()-1911}年${d.getMonth()+1}月${d.getDate()}日（${'日一二三四五六'[d.getDay()]}）`;
 
   $('#months').innerHTML = MONTHS.map(monthPanelHTML).join('');
   loadForm();
+  renderRecords();
   renderAll();
 
   const io = new IntersectionObserver(entries => {
