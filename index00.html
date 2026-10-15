@@ -5819,12 +5819,9 @@ window.addEventListener('resize',fit);
 window.addEventListener('orientationchange',fit);
 window.openVillage=openVillage;
 document.getElementById('sbVillageBtn').addEventListener('click',openVillage);
-/* 登入後的預設畫面：首次登入的使用者進「試算仙界」，之後預設進「試算介面」 */
+/* 登入後的預設畫面：所有使用者都進「列表登錄」（試算介面），不自動開啟試算仙界 */
 window.vzAfterLogin=function(){
-  var first=false;
-  try{ var k='vz_entered_'+((typeof userInfo!=='undefined'&&userInfo&&userInfo.userId)||'u'); first=!localStorage.getItem(k); localStorage.setItem(k,'1'); }catch(e){}
-  if(first){ openVillage(); }
-  else { var _sb=document.getElementById('sbVillageBtn'); if(_sb) _sb.style.display=''; }
+  var _sb=document.getElementById('sbVillageBtn'); if(_sb) _sb.style.display='';
 };
 document.getElementById('menuVillage').addEventListener('click',function(){ toggleMenu(false); setTimeout(openVillage,150); });
 requestAnimationFrame(loop);
