@@ -544,7 +544,14 @@ document.addEventListener('click', e => {
 
 // 報表圖片
 const REPORT_CSS = `
-.rep{width:420px;background:#F7F3EA;padding:18px;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#1A2E1F}
+.rep{width:1200px;height:900px;display:grid;grid-template-columns:360px 1fr;gap:18px;padding:24px;overflow:hidden;background:#F7F3EA;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#1A2E1F}
+.lcol{display:flex;flex-direction:column;gap:14px;min-height:0}
+.rcol{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;min-height:0}
+.rcol .rm{margin:0;min-height:0;height:100%}
+.rcol td{font-size:16px;padding:7px 4px}
+.rcol th{font-size:14px}
+.rcol td.tp{font-size:17px}
+.rcol .rt{font-size:20px}
 .rh{background:linear-gradient(150deg,#0F1E15,#1F3B2B 55%,#3A6B58);color:#fff;border-radius:18px;padding:26px 16px;text-align:center;margin-bottom:14px}
 .rh .m{width:58px;height:58px;margin:0 auto 10px;border-radius:50%;border:1.5px solid #E7CF8C;color:#E7CF8C;font-size:26px;line-height:55px;font-family:serif}
 .rh .b{font-size:28px;letter-spacing:.2em;font-weight:700;color:#E7CF8C}
@@ -635,13 +642,20 @@ async function shareImage(){
   </div>`;
 
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:420px;height:200px;border:0;';
+  iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:1200px;height:900px;border:0;';
   document.body.appendChild(iframe);
   const doc = iframe.contentDocument;
   doc.open();
   doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${REPORT_CSS}</style></head><body style="margin:0">${html}</body></html>`);
   doc.close();
   await new Promise(r => setTimeout(r, 300));
+
+  // 橫式 4:3 排版：左欄放客戶資料與注意事項，右欄 2x2 放四個月份
+  const rep = doc.querySelector('.rep');
+  const lc = doc.createElement('div'); lc.className = 'lcol';
+  const rc = doc.createElement('div'); rc.className = 'rcol';
+  [...rep.children].forEach(c => (c.classList.contains('rm') ? rc : lc).appendChild(c));
+  rep.append(lc, rc);
 
   try{
     const target = doc.querySelector('.rep');
