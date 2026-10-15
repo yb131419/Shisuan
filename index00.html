@@ -1781,7 +1781,7 @@ body.v-mode #quickAddFab{display:none!important}
     <span class="ic gold">💰</span>產品價錢
   </a>
   <a class="dr-item" href="https://liff.line.me/2007434020-o7eQYBl6" target="_blank" rel="noopener"><span class="ic gold">📘</span>試算指南</a>
-  <button class="dr-item" id="menuShareLog" type="button"><span class="ic gold">🧾</span>分享紀錄</button>
+  <button class="dr-item" id="menuShareLog" type="button"><span class="ic gold">🧾</span>最近紀錄</button>
   <div class="dr-sep"></div>
   <div class="dr-foot">彥彬🌿試算系統</div>
 </aside>
@@ -5230,8 +5230,8 @@ function vzStepInit(){
         var thumb=r.img? '<button type="button" data-vz-pv="'+i+'" style="padding:0;border:0;background:none;cursor:pointer;flex:0 0 auto"><img src="'+esc(r.img)+'" alt="預覽" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.2);display:block"/></button>' : '<div style="width:64px;height:64px;border-radius:8px;flex:0 0 auto;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.6">無圖</div>';
         var acts='<div>'+(r.img? '<button type="button" data-vz-pv="'+i+'" style="'+btnCss+'">👁 預覽</button> ' : '')+((r.lineUrl||r.img)? '<button type="button" data-vz-re="'+i+'" style="'+btnCss+'">📤 再次分享</button> ' : '')+(r.order? '<button type="button" data-vz-ord="'+i+'" style="'+btnCss+'">✏️ 修改訂單</button>' : '')+'</div>';
         return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">'+thumb+'<div style="flex:1;min-width:0"><b>'+(i+1)+'. '+esc(r.buyer)+'</b><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div>'+acts+'</div></div>';
-      }).join('') : '<div style="opacity:.8;padding:8px 0">尚無分享紀錄</div>';
-      box.innerHTML='<div style="font-weight:900;margin-bottom:6px">🧾 分享紀錄（最近 5 筆）</div>'+rows+'<button type="button" data-vz-close="1" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button>';
+      }).join('') : '<div style="opacity:.8;padding:8px 0">尚無最近紀錄</div>';
+      box.innerHTML='<div style="font-weight:900;margin-bottom:6px">🧾 最近紀錄（最近 5 筆）</div>'+rows+'<button type="button" data-vz-close="1" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button>';
     };
     var showPreview=function(i){
       var log=readLog(); var r=log[i];
@@ -5269,7 +5269,7 @@ function vzStepInit(){
   var _ab=$('addBtn');
   if(_ab && !document.getElementById('vzShareLogMain')){
     var _sb2=document.createElement('button'); _sb2.id='vzShareLogMain'; _sb2.type='button'; _sb2.className='btn btn-primary btn-lg vz-sharelog-btn';
-    _sb2.innerHTML='🧾<br>分享記錄';
+    _sb2.innerHTML='🧾<br>最近紀錄';
     _sb2.addEventListener('click',function(){ if(window.vzShowShareLog) window.vzShowShareLog(); });
     _ab.parentNode.insertBefore(_sb2,_ab.nextSibling);
   }
