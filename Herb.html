@@ -820,6 +820,12 @@ async function shareImage(){
     if(!table) return;
     const grid = doc.createElement('div');
     grid.className = 'pgrid';
+    const nItems = table.querySelectorAll('tbody tr').length;
+    const rowsN = Math.max(1, Math.ceil(nItems / 4));
+    const colsN = Math.max(1, Math.ceil(nItems / rowsN));
+    grid.style.gridAutoFlow = 'column';
+    grid.style.gridTemplateRows = `repeat(${rowsN}, auto)`;
+    grid.style.gridTemplateColumns = `repeat(${colsN}, 1fr)`;
     table.querySelectorAll('tbody tr').forEach(tr => {
       const tds = tr.querySelectorAll('td');
       const t = doc.createElement('div'); t.className = 'pt';
