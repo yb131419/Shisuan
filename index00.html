@@ -5047,6 +5047,9 @@ function vzStepInit(){
     '#vzStepNext:active{filter:brightness(.96)}',
     '.toast:not(.error):not(.warning){background:linear-gradient(180deg,#FBF6E6,#EADFC2) !important;color:#23301F !important;border:1px solid rgba(160,118,48,.55) !important;border-top:1px solid rgba(255,236,176,.9) !important;border-radius:999px !important;padding:11px 22px !important;font-size:14px !important;font-weight:800 !important;letter-spacing:.3px;box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.7) !important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);bottom:96px !important;max-width:80vw;white-space:nowrap}',
     '#sbBody .sb-profile{position:relative}',
+    '#vzShareLogMain.vz-sharelog-btn{background:linear-gradient(180deg,rgba(66,53,28,.94),rgba(26,22,15,.97)) !important;color:#F3D9A3 !important;border:1px solid rgba(217,184,115,.6) !important;box-shadow:inset 0 1px 0 rgba(255,236,176,.22),0 6px 16px rgba(0,0,0,.4) !important;text-shadow:0 1px 0 rgba(0,0,0,.5);letter-spacing:.3px;transition:transform .15s ease,filter .15s ease}',
+    '#vzShareLogMain.vz-sharelog-btn:hover{filter:brightness(1.12)}',
+    '#vzShareLogMain.vz-sharelog-btn:active{transform:scale(.97)}',
     'body.vz-free #vzFab{display:none !important}',
     '#vzFreeWrap{position:absolute;right:0;top:4px;display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.2;text-align:left;font-weight:800;color:#F4FBF7;background:rgba(36,58,52,.92);border:1px solid rgba(200,230,215,.3);border-radius:999px;padding:4px 10px;cursor:pointer;z-index:4;white-space:nowrap}',
     '#vzFreeWrap input{width:15px;height:15px;margin:0;accent-color:#9FD8B5;cursor:pointer}',
@@ -5265,7 +5268,7 @@ function vzStepInit(){
   },1500);
   var _ab=$('addBtn');
   if(_ab && !document.getElementById('vzShareLogMain')){
-    var _sb2=document.createElement('button'); _sb2.id='vzShareLogMain'; _sb2.type='button'; _sb2.className='btn btn-primary btn-lg';
+    var _sb2=document.createElement('button'); _sb2.id='vzShareLogMain'; _sb2.type='button'; _sb2.className='btn btn-primary btn-lg vz-sharelog-btn';
     _sb2.innerHTML='🧾<br>分享記錄';
     _sb2.addEventListener('click',function(){ if(window.vzShowShareLog) window.vzShowShareLog(); });
     _ab.parentNode.insertBefore(_sb2,_ab.nextSibling);
