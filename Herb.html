@@ -616,6 +616,12 @@ const REPORT_CSS = `
 .rcol th{font-size:14px}
 .rcol td.tp{font-size:17px}
 .rcol .rt{font-size:20px}
+.rcol.compact td{padding:4px;font-size:14px}
+.rcol.compact td.tp{font-size:15px}
+.rcol.compact th{font-size:12px;padding:5px 4px}
+.rcol.compact .rm-h{padding:8px 12px}
+.rcol.compact .rb{width:28px;height:28px;font-size:14px}
+.rcol.compact .rck{width:20px;height:20px;font-size:12px}
 .rh{background:linear-gradient(150deg,#0F1E15,#1F3B2B 55%,#3A6B58);color:#fff;border-radius:18px;padding:26px 16px;text-align:center;margin-bottom:14px}
 .rh .m{width:58px;height:58px;margin:0 auto 10px;border-radius:50%;border:1.5px solid #E7CF8C;color:#E7CF8C;font-size:26px;line-height:55px;font-family:serif}
 .rh .b{font-size:28px;letter-spacing:.2em;font-weight:700;color:#E7CF8C}
@@ -720,6 +726,20 @@ async function shareImage(){
   const rc = doc.createElement('div'); rc.className = 'rcol';
   [...rep.children].forEach(c => (c.classList.contains('rm') ? rc : lc).appendChild(c));
   rep.append(lc, rc);
+
+  // 依各月產品數量自動分配高度：一、二月較高，三、四月較矮；內容多時自動緊湊排版，避免被截掉
+  const AVAIL = 900 - 48 - 14;
+  const counts = [...rc.children].map(m => m.querySelectorAll('tbody tr').length);
+  const needH = (k, rowH, head) => head + Math.max(1, k) * rowH;
+  const plan = (rowH, head) => ({
+    top: Math.max(needH(counts[0], rowH, head), needH(counts[1], rowH, head)),
+    bottom: Math.max(needH(counts[2], rowH, head), needH(counts[3], rowH, head))
+  });
+  let p = plan(38, 96);
+  if(p.top + p.bottom > AVAIL){ rc.classList.add('compact'); p = plan(30, 74); }
+  const topH = Math.max(p.top, Math.round(AVAIL * 0.56));
+  const bottomH = AVAIL - topH;
+  rc.style.gridTemplateRows = `${topH}px ${bottomH}px`;
 
   try{
     const target = doc.querySelector('.rep');
