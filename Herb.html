@@ -607,11 +607,21 @@ document.addEventListener('click', e => {
 const REPORT_CSS = `
 .rep{width:1200px;height:900px;display:grid;grid-template-columns:360px 1fr;gap:18px;padding:24px;overflow:hidden;background:#F7F3EA;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#1A2E1F}
 .lcol{display:flex;flex-direction:column;gap:14px;min-height:0}
-.rcol{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1.3fr 1fr;gap:14px;min-height:0}
+.rcol{display:flex;flex-direction:column;gap:14px;min-height:0}
+.rcol .rm:nth-child(-n+2){flex:1.3 1 0}
+.rcol .rm:nth-child(n+3){flex:1 1 0}
+.pgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:12px}
+.pt{background:#F7F3EA;border:1px solid #E6DECB;border-radius:10px;padding:8px 6px;text-align:center;min-width:0}
+.pn{display:block;font-size:14px;font-weight:600;line-height:1.3;word-break:break-all;min-height:36px}
+.pq{display:block;font-size:18px;color:#3F6B5C;font-weight:700;margin-top:2px}
+.rtimes{margin-top:12px;padding-top:10px;border-top:1px solid #E6DECB;display:grid;gap:8px}
+.tm-h{font-size:15px;font-weight:700;color:#3F6B5C}
+.tm-row{font-size:13px;line-height:1.5}
+.tm-row em{font-style:normal;display:inline-block;width:20px;color:#B8923A;font-weight:700}
 .lcol .rr{flex:1}
 .fg>div:first-child{grid-column:1/-1}
 .fg>div:first-child .rv{white-space:nowrap;font-size:19px;padding:6px 0 8px;position:relative;z-index:1;overflow:visible}
-.rcol .rm{margin:0;min-height:0;height:100%}
+.rcol .rm{margin:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .rcol td{font-size:16px;padding:7px 4px}
 .rcol th{font-size:14px}
 .rcol td.tp{font-size:17px}
@@ -727,19 +737,38 @@ async function shareImage(){
   [...rep.children].forEach(c => (c.classList.contains('rm') ? rc : lc).appendChild(c));
   rep.append(lc, rc);
 
-  // 依各月產品數量自動分配高度：一、二月較高，三、四月較矮；內容多時自動緊湊排版，避免被截掉
-  const AVAIL = 900 - 48 - 14;
-  const counts = [...rc.children].map(m => m.querySelectorAll('tbody tr').length);
-  const needH = (k, rowH, head) => head + Math.max(1, k) * rowH;
-  const plan = (rowH, head) => ({
-    top: Math.max(needH(counts[0], rowH, head), needH(counts[1], rowH, head)),
-    bottom: Math.max(needH(counts[2], rowH, head), needH(counts[3], rowH, head))
+  // 產品改為方格排列，每列 7 個，超過就換到下一列；早中晚不逐項顯示，改列在客戶資料中
+  rc.querySelectorAll('.rm').forEach(m => {
+    const table = m.querySelector('table');
+    if(!table) return;
+    const grid = doc.createElement('div');
+    grid.className = 'pgrid';
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      const tds = tr.querySelectorAll('td');
+      const t = doc.createElement('div'); t.className = 'pt';
+      const pn = doc.createElement('span'); pn.className = 'pn'; pn.textContent = tds[0].textContent;
+      const pq = doc.createElement('span'); pq.className = 'pq'; pq.textContent = tds[1].textContent;
+      t.append(pn, pq);
+      grid.appendChild(t);
+    });
+    table.replaceWith(grid);
   });
-  let p = plan(38, 96);
-  if(p.top + p.bottom > AVAIL){ rc.classList.add('compact'); p = plan(30, 74); }
-  const topH = Math.max(p.top, Math.round(AVAIL * 0.56));
-  const bottomH = AVAIL - topH;
-  rc.style.gridTemplateRows = `${topH}px ${bottomH}px`;
+
+  const slots = [['am','早'], ['noon','中'], ['night','晚']];
+  const timeBlocks = slots.map(([k, lab]) => {
+    const rowsHTML = MONTHS.map(M => {
+      const names = state[M.n].filter(r => r[k]).map(r => esc(r.p));
+      return names.length ? `<div class="tm-row"><em>${M.badge}</em>${names.join('、')}</div>` : '';
+    }).join('');
+    return rowsHTML ? `<div><div class="tm-h">${lab}</div>${rowsHTML}</div>` : '';
+  }).join('');
+  if(timeBlocks){
+    const card = lc.querySelector('.card');
+    const box = doc.createElement('div');
+    box.className = 'rtimes';
+    box.innerHTML = timeBlocks;
+    if(card) card.appendChild(box);
+  }
 
   try{
     const target = doc.querySelector('.rep');
