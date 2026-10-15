@@ -1781,6 +1781,7 @@ body.v-mode #quickAddFab{display:none!important}
     <span class="ic gold">💰</span>產品價錢
   </a>
   <a class="dr-item" href="https://liff.line.me/2007434020-o7eQYBl6" target="_blank" rel="noopener"><span class="ic gold">📘</span>試算指南</a>
+  <button class="dr-item" id="menuShareLog" type="button"><span class="ic gold">🧾</span>分享紀錄</button>
   <div class="dr-sep"></div>
   <div class="dr-foot">彥彬🌿試算系統</div>
 </aside>
@@ -3952,7 +3953,7 @@ async function shareToLine(){
       const _m=parseInt(_pv,10);
       const _periodText=_pv&&_m>0&&_m<=12?`\n預估使用：${_months[_m]}個月`:(_cd?`\n預估使用：${_cd}天`:'');
       const lineShareUrl=`https://line.me/R/msg/text/?${encodeURIComponent(`康園試算報表\n\n購買者：${buyerName}\n試算者：${calculatorName}${_periodText}${getPaymentShareText()}\n${imageUrl}`)}`;
-      window.open(lineShareUrl,"_blank");
+      window.open(lineShareUrl,"_blank");if(window.vzRecordShare)window.vzRecordShare(buyerName,calculatorName);
       showToast("✅ 圖片已上傳");
     }else{
       showToast("圖片上傳失敗，請稍後再試", 'error');
@@ -4005,7 +4006,7 @@ async function nativeShare(){
     }
 
     const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_pt2}${getPaymentShareText()}`;
-    await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
+    await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});if(window.vzRecordShare)window.vzRecordShare(buyer,calculator);
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
   }
@@ -5167,6 +5168,29 @@ function vzStepInit(){
   }
   fab.addEventListener('click',function(){ if(document.body.classList.contains('v-mode')&&window.vzCloseVillage){ window.vzCloseVillage(); setTimeout(nextAction,250); } else { nextAction(); } });
   $('vzStepNext').addEventListener('click',nextAction);
+  window.vzRecordShare=function(buyer,calc){
+    try{
+      var cnt=(JSON.parse(localStorage.getItem('selectedProducts')||'[]')||[]).length;
+      var log=[]; try{ log=JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ log=[]; }
+      log.unshift({t:Date.now(),buyer:(buyer||'未填'),calc:(calc||''),n:cnt});
+      localStorage.setItem('vz_share_log',JSON.stringify(log.slice(0,5)));
+    }catch(e){}
+  };
+  window.vzShowShareLog=function(){
+    var log=[]; try{ log=JSON.parse(localStorage.getItem('vz_share_log')||'[]')||[]; }catch(e){ log=[]; }
+    var esc=function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    var ov=document.getElementById('vzShareLogOv');
+    if(ov) ov.remove();
+    ov=document.createElement('div'); ov.id='vzShareLogOv';
+    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
+    var rows=log.length? log.map(function(r,i){ return '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.12)"><b>'+(i+1)+'. '+esc(r.buyer)+'</b><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div></div>'; }).join('') : '<div style="opacity:.8;padding:8px 0">尚無分享紀錄</div>';
+    ov.innerHTML='<div style="background:#1E2623;color:#F4FBF7;border-radius:14px;padding:16px;max-width:360px;width:100%;max-height:80vh;overflow:auto"><div style="font-weight:900;margin-bottom:6px">🧾 分享紀錄（最近 5 筆）</div>'+rows+'<button type="button" id="vzShareLogClose" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button></div>';
+    document.body.appendChild(ov);
+    document.getElementById('vzShareLogClose').addEventListener('click',function(){ ov.remove(); });
+  };
+  var _slBtn=document.getElementById('menuShareLog');
+  if(_slBtn) _slBtn.addEventListener('click',function(){ try{ if(typeof toggleMenu==='function') toggleMenu(false); }catch(e){} setTimeout(window.vzShowShareLog,150); });
   // 「增加品項」按鈕不被浮動按鈕／步驟列蓋住：重疊時把那些浮層暫時隱藏（不可點）
   const ADD_OVL=['vzStepBar','vzFab','quickAddFab'];
   function clearAddBtn(){
