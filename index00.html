@@ -1814,6 +1814,36 @@ input::placeholder,textarea::placeholder{color:#9a8a6c !important;}
 #captureArea.capture-mode #reportTable thead th{background-color:#5b4a35 !important;color:#f7efdc !important;}
 #captureArea.capture-mode{background-color:#faf6ec !important;}
 </style>
+<style id="cream-buttons">
+/* 按鈕統一米白配色（畫面與分享圖共用） */
+button.btn, .btn, .btn-primary, .btn-warning, .btn-grey, .btn-success, .btn-danger, .btn-info,
+.login-cta, .support-btn, .period-box, .custom-select-btn, .custom-select-list button,
+#reportTable button, .qtyBtn, .copy-order-btn, #resetBuyerBtn, #resetCalculatorBtn {
+  background:linear-gradient(145deg,#fffdf7,#efe5cf) !important;
+  color:#3a2e21 !important;
+  border:1px solid #c9ab6e !important;
+  box-shadow:0 4px 10px rgba(120,95,50,.14) !important;
+  text-shadow:none !important;
+}
+.btn-success{color:#2f6b4f !important;border-color:#8fb89f !important;}
+.btn-danger,#reportTable button.btn-danger{color:#a33a2e !important;border-color:#d9a79f !important;}
+.btn:hover,.btn-primary:hover,.btn-warning:hover,.btn-grey:hover,.period-box:hover,.login-cta:hover{
+  background:linear-gradient(145deg,#fffaf0,#e8dcc0) !important;
+}
+.period-box.active,.period-box.selected,.custom-select-btn.active{
+  background:linear-gradient(145deg,#f3e6c4,#e3cf9c) !important;
+  border-color:#b8924a !important;color:#2e2318 !important;font-weight:800;
+}
+.login-cta .cta-sub{color:#8a6a33 !important;}
+.login-cta::before{display:none !important;}
+/* 購買者／試算者：標題與內容置中 */
+#captureArea .userInputs label{
+  flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;gap:4px;
+}
+#captureArea .userInputs label > span{text-align:center !important;width:100%;}
+#captureArea .buyer-container,#captureArea .calculator-container{width:100%;justify-content:center;}
+#captureArea .userInputs input{text-align:center !important;width:100%;}
+</style>
 </head>
 <body>
 <div id="authContainer">
