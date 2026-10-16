@@ -1867,6 +1867,12 @@ button.btn, .btn, .btn-primary, .btn-warning, .btn-grey, .btn-success, .btn-dang
 #sbVillageBtn{font-weight:800;letter-spacing:1px;}
 .sb-toggle-btn:hover,#sbVillageBtn:hover{background:linear-gradient(145deg,#fffaf0,#e8dcc0) !important;}
 </style>
+<style id="cream-dateRow">
+/* 日期與浮水印同一列，浮水印在日期右邊 */
+.rpt-dateRow{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;}
+.rpt-dateRow .rpt-date{margin-top:0;}
+.rpt-wm{color:#8a7a5c;font-size:12px;letter-spacing:.5px;opacity:.8;white-space:nowrap;}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -1975,13 +1981,13 @@ button.btn, .btn, .btn-primary, .btn-warning, .btn-grey, .btn-success, .btn-dang
     <div class="admin-pagination" id="adminPagination"></div>
   </div>
 </div>
-<div id="captureArea">  <div id="watermark">『彥彬🌿試算系統』</div>
+<div id="captureArea">  
 
 <h2><br>🌿 康園試算報表</h2>
 <div class="rpt-head">
   <span class="rpt-badge">YB</span>
   <div class="rpt-title">康園試算報表</div>
-  <div class="rpt-date" id="rptDate"></div>
+  <div class="rpt-dateRow"><div class="rpt-date" id="rptDate"></div><span class="rpt-wm">『彥彬🌿試算系統』</span></div>
 </div>
 <script>
 (function(){var d=new Date();var el=document.getElementById('rptDate');if(el)el.textContent=d.getFullYear()+' · '+String(d.getMonth()+1).padStart(2,'0')+' · '+String(d.getDate()).padStart(2,'0');})();
@@ -2430,7 +2436,9 @@ function refreshCurrencyDisplay(){
     setRateSourceText(`⚠️ 尚未取得${c.label}匯率，金額暫以新台幣顯示`);
   }
   const lbl=document.getElementById('totalPriceLabel');
-  if(lbl) lbl.textContent = currentCurrency==='TWD' ? '總金額' : `總金額（${c.label}）`;
+  // 總金額標籤使用簡稱，避免字體換行（新加坡幣 → 新幣）
+  const SHORT_CUR_LABEL={SGD:'新幣',CNY:'人民幣',HKD:'港幣',USD:'美金'};
+  if(lbl) lbl.textContent = currentCurrency==='TWD' ? '總金額' : `總金額（${SHORT_CUR_LABEL[currentCurrency]||c.label}）`;
   setTotalPriceDisplay(Number(els.totalPriceCellDup.dataset.twd)||0);
   syncRateInput();
   document.querySelectorAll('#currencyBar .currency-btn').forEach(b=>{
