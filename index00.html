@@ -1897,6 +1897,20 @@ button[data-vz-close]{font-size:15px !important;padding:12px !important;}
   color:#7a5a22 !important;-webkit-text-fill-color:#7a5a22 !important;text-shadow:none !important;
 }
 </style>
+<style id="cream-currency">
+/* 幣別切換鈕：米白萬元質感，選取態為金色 */
+.currency-btn{
+  background:linear-gradient(180deg,#fffaf0 0%,#f3e7c9 55%,#e4cf9e 100%) !important;
+  color:#3a2e21 !important;border:1px solid #b8924a !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 10px rgba(120,95,50,.2) !important;
+  font-weight:800 !important;text-shadow:none !important;
+}
+.currency-btn.active,.currency-btn[aria-checked="true"]{
+  background:linear-gradient(180deg,#fff6df 0%,#eed8a2 55%,#d9b873 100%) !important;
+  border-color:#8a6a33 !important;color:#2e2318 !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 0 0 2px rgba(184,146,74,.35),0 4px 10px rgba(120,95,50,.25) !important;
+}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -2106,7 +2120,7 @@ button[data-vz-close]{font-size:15px !important;padding:12px !important;}
     </div>
     <div class="currency-bar" id="currencyBar" role="radiogroup" aria-label="選擇幣別">
       <button type="button" class="currency-btn active" data-cur="TWD" role="radio" aria-checked="true">新台幣</button>
-      <button type="button" class="currency-btn" data-cur="SGD" role="radio" aria-checked="false">新加坡幣</button>
+      <button type="button" class="currency-btn" data-cur="SGD" role="radio" aria-checked="false">新幣</button>
       <button type="button" class="currency-btn" data-cur="CNY" role="radio" aria-checked="false">人民幣</button>
       <button type="button" class="currency-btn" data-cur="HKD" role="radio" aria-checked="false">港幣</button>
       <button type="button" class="currency-btn" data-cur="USD" role="radio" aria-checked="false">美金</button>
@@ -2305,7 +2319,7 @@ function calcBonus(totalPv, type) {
 // 幣別換算：TWD_PER_UNIT = 1 單位外幣等於多少新台幣（近似匯率，可依實際調整）
 const CURRENCY_TABLE = {
   TWD:{label:'新台幣',symbol:'NT$',twdPerUnit:1},
-  SGD:{label:'新加坡幣',symbol:'S$',twdPerUnit:24.0},
+  SGD:{label:'新幣',symbol:'S$',twdPerUnit:24.0},
   CNY:{label:'人民幣',symbol:'¥',twdPerUnit:4.4},
   HKD:{label:'港幣',symbol:'HK$',twdPerUnit:4.0},
   USD:{label:'美金',symbol:'US$',twdPerUnit:31.0}
