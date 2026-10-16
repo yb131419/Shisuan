@@ -1702,6 +1702,57 @@ body.v-mode #quickAddFab{display:none!important}
 #sbVillageBtn,#vBack{font-weight:900 !important;font-size:15px !important;letter-spacing:.5px !important;color:#2A1A00 !important;background:linear-gradient(135deg,#FFE7A3,#D9B873 55%,#B98A3E) !important;border:2px solid #FFF3C4 !important;box-shadow:0 0 14px rgba(255,214,120,.85),inset 0 1px 0 #FFF8DC !important;text-shadow:0 1px 0 rgba(255,255,255,.5) !important;opacity:1 !important}
 #vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
 </style>
+<style id="report-paper-skin">
+/* 報表版面：米白紙張、深咖啡表頭、金色細框（依參考圖樣式） */
+#captureArea{
+  background:#f5f0e6 !important;border-radius:22px;padding:22px 16px 18px;
+  box-shadow:0 0 0 1px #c9a86a;color:#2b2118;
+}
+#captureArea #watermark{color:#8a7a5c !important;opacity:.7;}
+.rpt-head{text-align:center;margin:6px 0 4px;}
+.rpt-badge{
+  display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;
+  border:1.5px solid #b8924a;color:#b8924a;font-family:Georgia,serif;font-size:18px;letter-spacing:1px;
+}
+.rpt-head h2{
+  margin:6px 0 0 !important;font-size:30px !important;font-weight:800 !important;color:#1f1812 !important;
+  letter-spacing:2px;background:none !important;-webkit-text-fill-color:#1f1812;
+}
+.rpt-date{color:#b8924a;font-size:13px;letter-spacing:2px;margin-top:4px;padding-bottom:8px;border-bottom:1px solid #b8924a;display:inline-block;min-width:140px;}
+.payment-period-card{background:#fbf8f1 !important;border:1px solid #d9b873 !important;border-radius:14px !important;box-shadow:none !important;color:#2b2118;}
+.estimated-days-row,.estimated-days-label,.estimated-days-val{color:#9a7434 !important;}
+.userInputs .row{display:grid !important;grid-template-columns:1fr 1fr;gap:10px;}
+.userInputs label{background:#fbf8f1;border:1px solid #d9b873;border-radius:12px;padding:10px 14px;display:flex !important;align-items:center;justify-content:space-between;}
+.userInputs label > span{color:#4a3c28;font-weight:700;font-size:15px;}
+.userInputs input{background:transparent !important;border:none !important;color:#1f1812 !important;font-weight:700;text-align:right;box-shadow:none !important;}
+.buyer-container,.calculator-container{background:transparent !important;}
+.buyer-container button,.calculator-container button{display:none !important;}
+#reportTable{background:#fbf8f1 !important;border-radius:12px;overflow:hidden;border:1px solid #d9b873;}
+#reportTable thead th{background:#2e2318 !important;color:#f5ecd6 !important;font-weight:700;}
+#reportTable tbody tr:nth-child(odd){background:#fbf8f1 !important;}
+#reportTable tbody tr:nth-child(even){background:#f3ede0 !important;}
+#reportTable td{color:#2b2118 !important;border-color:#e6dcc6 !important;}
+#reportTable tfoot td,#reportTable tr.total-row td{background:#e9e0cc !important;font-weight:800;}
+.summaryBox .sum-totals{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.summaryBox .sum-total-divider{display:none;}
+.summaryBox .sum-total-item{background:#2e2318;border-radius:16px;padding:16px 10px;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.summaryBox .sum-total-item:last-child{background:#fbf8f1;border:1px solid #d9b873;}
+.summaryBox .sum-total-item .sum-total-ic-wrap{display:none;}
+.summaryBox .sum-total-label{color:#d9b873;font-size:14px;}
+.summaryBox .sum-total-item:last-child .sum-total-label{color:#2e6a55;}
+.summaryBox .sum-total-val{color:#f0dfb4;font-family:Georgia,serif;font-size:30px;font-weight:700;}
+.summaryBox .sum-total-item:last-child .sum-total-val{color:#2e6a55;}
+.summaryBox .currency-bar,.summaryBox .rate-setting{margin-top:10px;}
+.sum-progress-group{background:#fbf8f1;border:1px solid #d9b873;border-radius:14px;padding:12px;margin-top:12px;display:grid !important;grid-template-columns:1fr 1fr;gap:12px;}
+.sum-progress-divider{display:none !important;}
+.sum-progress-label{color:#9a7434;font-size:14px;font-weight:700;}
+.sum-progress-value{color:#2b2118;font-weight:700;}
+.sum-progress-track{background:#e6dcc6 !important;}
+.sum-progress-fill{background:#b8924a !important;}
+#pvProgressRow3 .sum-progress-fill{background:#2e6a55 !important;}
+.bonus-section{background:#fbf8f1;border:1px solid #d9b873;border-radius:14px;padding:12px 14px;margin-top:12px;}
+.bonus-result-box{color:#2b2118;}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -1812,7 +1863,14 @@ body.v-mode #quickAddFab{display:none!important}
 </div>
 <div id="captureArea">  <div id="watermark">『彥彬🌿試算系統』</div>
 
-<h2><br>🌿 康園試算報表</h2>
+<div class="rpt-head">
+  <span class="rpt-badge">YB</span>
+  <h2>康園試算報表</h2>
+  <div class="rpt-date" id="rptDate"></div>
+</div>
+<script>
+(function(){var d=new Date();var el=document.getElementById('rptDate');if(el)el.textContent=d.getFullYear()+' · '+String(d.getMonth()+1).padStart(2,'0')+' · '+String(d.getDate()).padStart(2,'0');})();
+</script>
 <div class="payment-period-card">
   <div class="payment-options">
     <label style="white-space:nowrap;"><input type="checkbox" id="cashOption" /> 💵 現金</label>
@@ -5237,7 +5295,7 @@ function vzStepInit(){
       var log=readLog();
       var rows=log.length? log.map(function(r,i){
         var thumb=r.img? '<button type="button" data-vz-pv="'+i+'" style="padding:0;border:0;background:none;cursor:pointer;flex:0 0 auto"><img src="'+esc(r.img)+'" alt="預覽" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.2);display:block"/></button>' : (r.order? '<button type="button" data-vz-ord="'+i+'" style="width:64px;height:64px;border-radius:8px;flex:0 0 auto;border:1px solid rgba(233,200,130,.5);background:linear-gradient(180deg,#FBF6E6,#EADFC2);color:#23301F;font-size:12px;font-weight:800;line-height:1.3;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center">複製<br>訂單</button>' : '<div style="width:64px;height:64px;border-radius:8px;flex:0 0 auto;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:11px;opacity:.6">無圖</div>');
-        var acts='<div>'+(r.img? '<button type="button" data-vz-pv="'+i+'" style="'+btnCss+'">👁 預覽</button> ' : '')+((r.lineUrl||r.img)? '<button type="button" data-vz-re="'+i+'" style="'+btnCss+'">📤 再次分享</button> ' : '')+((r.order && r.img)? '<button type="button" data-vz-ord="'+i+'" style="'+btnCss+'">複製訂單</button>' : '')+'</div>';
+        var acts='<div>'+(r.img? '<button type="button" data-vz-pv="'+i+'" style="'+btnCss+'">👁 預覽</button> ' : '')+((r.lineUrl||r.img)? '<button type="button" data-vz-re="'+i+'" style="'+btnCss+'">📤 再次分享</button> ' : '')+((r.order && r.img)? '<button type="button" data-vz-ord="'+i+'" style="'+btnCss+'">✏️ 修改訂單</button>' : '')+'</div>';
         return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.12)">'+thumb+'<div style="flex:1;min-width:0"><b>'+(i+1)+'. '+esc(r.buyer)+'</b><div style="font-size:12px;opacity:.8">'+esc(new Date(r.t).toLocaleString('zh-TW'))+'　試算者：'+esc(r.calc)+'　品項 '+r.n+' 項</div>'+acts+'</div></div>';
       }).join('') : '<div style="opacity:.8;padding:8px 0">尚無最近紀錄</div>';
       box.innerHTML='<div style="font-weight:900;margin-bottom:6px">🧾 最近紀錄（最近 5 筆）</div>'+rows+'<button type="button" data-vz-close="1" style="margin-top:12px;width:100%;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer">關閉</button>';
