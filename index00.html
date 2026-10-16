@@ -1898,17 +1898,20 @@ button[data-vz-close]{font-size:15px !important;padding:12px !important;}
 }
 </style>
 <style id="cream-currency">
-/* 幣別切換鈕：米白萬元質感，選取態為金色 */
-.currency-btn{
-  background:linear-gradient(180deg,#fffaf0 0%,#f3e7c9 55%,#e4cf9e 100%) !important;
-  color:#3a2e21 !important;border:1px solid #b8924a !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 10px rgba(120,95,50,.2) !important;
-  font-weight:800 !important;text-shadow:none !important;
+/* 幣別切換鈕：白色底，文字維持原樣（深咖啡），選取態加金框 */
+html body #currencyBar button.currency-btn,
+html body #currencyBar button.currency-btn:hover,
+html body #currencyBar button.currency-btn:focus{
+  background:#ffffff !important;background-image:none !important;
+  color:#3a2e21 !important;border:1px solid #cdb585 !important;
+  box-shadow:0 3px 8px rgba(120,95,50,.14) !important;text-shadow:none !important;
+  font-weight:800 !important;
 }
-.currency-btn.active,.currency-btn[aria-checked="true"]{
-  background:linear-gradient(180deg,#fff6df 0%,#eed8a2 55%,#d9b873 100%) !important;
-  border-color:#8a6a33 !important;color:#2e2318 !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 0 0 2px rgba(184,146,74,.35),0 4px 10px rgba(120,95,50,.25) !important;
+html body #currencyBar button.currency-btn.active,
+html body #currencyBar button.currency-btn[aria-checked="true"]{
+  background:#ffffff !important;background-image:none !important;
+  border:2px solid #b8924a !important;color:#3a2e21 !important;
+  box-shadow:0 0 0 2px rgba(184,146,74,.25),0 4px 10px rgba(120,95,50,.2) !important;
 }
 </style>
 </head>
