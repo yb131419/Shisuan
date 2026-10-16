@@ -3277,8 +3277,17 @@ async function resetReport(){
 // 加載商品列表
 async function loadProducts(){
   try{
-    const res=await fetch(`${API_URL}?action=all&t=${new Date().getTime()}`,{cache:'no-cache'});
-    const data=await res.json();
+    // 改用 JSONP 讀取（與其他 API 相同），避免跨網域 fetch 被瀏覽器擋下
+    const data=await new Promise((resolve,reject)=>{
+      $.ajax({
+        url:API_URL,dataType:'jsonp',jsonp:'callback',cache:false,timeout:15000,
+        data:{action:'all',t:Date.now()},
+        success:resolve,
+        error:(xhr,status)=>reject(new Error(status==='timeout'?'連線逾時，請重試':'連線失敗'))
+      });
+    });
+    if(!Array.isArray(data)) throw new Error('商品資料格式錯誤');
+    if(!data.length) throw new Error('商品清單是空的，請確認試算表工作表名稱（產品價目表）');
     products=data;
     els.nameInput.innerHTML="";
     data.forEach(item=>{
