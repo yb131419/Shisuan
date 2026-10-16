@@ -1703,52 +1703,53 @@ body.v-mode #quickAddFab{display:none!important}
 #vBack{font-size:14px !important;min-height:40px !important;padding:0 14px !important}
 </style>
 <style id="report-paper-skin">
-/* 只在「報表轉圖片」截圖時套用（capture-mode），畫面維持原本樣式 */
-.rpt-head{display:none;}
-.rpt-title{display:none;}
-#captureArea.capture-mode .rpt-head{display:block;text-align:center;margin:0 0 6px;}
-#captureArea.capture-mode > h2{display:none !important;}
-#captureArea.capture-mode .rpt-title{display:block;margin:4px 0 0;font-size:28px;font-weight:800;color:#1f1812;letter-spacing:2px;}
-#captureArea.capture-mode .rpt-badge{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;border:1.5px solid #b8924a;color:#b8924a;font-family:Georgia,serif;font-size:16px;letter-spacing:1px;}
-#captureArea.capture-mode .rpt-date{display:inline-block;color:#b8924a;font-size:12px;letter-spacing:2px;margin-top:2px;padding-bottom:4px;border-bottom:1px solid #b8924a;min-width:120px;}
-#captureArea.capture-mode{background:#f5f0e6 !important;border-radius:22px;padding:18px 16px 14px !important;box-shadow:0 0 0 1px #c9a86a;color:#2b2118;}
-#captureArea.capture-mode #watermark{color:#8a7a5c !important;opacity:.7;}
+/* 報表版面：畫面與分享圖共用（參考圖樣式） */
+#captureArea{background:#faf6ec !important;border:1px solid #d8c29a;border-radius:22px;padding:18px 16px 14px !important;box-shadow:0 10px 30px rgba(120,95,50,.12);color:#3a2e21;}
+#captureArea > h2{display:none !important;}
+.rpt-head{display:block;text-align:center;margin:4px 0 8px;}
+.rpt-badge{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;border:1.5px solid #b8924a;color:#b8924a;font-family:Georgia,serif;font-size:17px;letter-spacing:1px;}
+.rpt-title{margin:6px 0 0;font-size:30px;font-weight:800;color:#2e2318;letter-spacing:3px;}
+.rpt-date{display:inline-block;color:#b8924a;font-size:13px;letter-spacing:3px;margin-top:4px;padding-bottom:6px;border-bottom:1px solid #b8924a;min-width:140px;}
+#captureArea #watermark{color:#8a7a5c !important;opacity:.7;}
+#captureArea .payment-period-card{background:#fffdf7 !important;border:1px solid #dcc79c !important;border-radius:16px !important;box-shadow:none !important;color:#3a2e21;}
+#captureArea .userInputs .row{display:grid !important;grid-template-columns:1fr 1fr;gap:10px;}
+#captureArea .userInputs label{background:#fffdf7;border:1px solid #dcc79c;border-radius:14px;padding:10px 14px;display:flex !important;align-items:center;justify-content:space-between;}
+#captureArea .userInputs label > span{color:#3a2e21;font-weight:700;font-size:15px;}
+#captureArea .userInputs input{background:transparent !important;border:none !important;color:#2e2318 !important;font-weight:700;text-align:right;box-shadow:none !important;}
+#captureArea .buyer-container,#captureArea .calculator-container{background:transparent !important;}
+#captureArea #reportTable{background:#fffdf7 !important;border-radius:14px;overflow:hidden;border:1px solid #dcc79c;}
+#captureArea #reportTable thead th{background:#5b4a35 !important;color:#f7efdc !important;font-weight:700;}
+#captureArea #reportTable tbody tr:nth-child(odd){background:#fffdf7 !important;}
+#captureArea #reportTable tbody tr:nth-child(even){background:#f5eedd !important;}
+#captureArea #reportTable td{color:#2e2318 !important;border-color:#e6dcc6 !important;}
+#captureArea #reportTable tfoot td,#captureArea #reportTable tr.total-row td{background:#ebe1cb !important;color:#2e2318 !important;font-weight:800;}
+#captureArea .summaryBox .sum-totals{display:grid !important;grid-template-columns:1fr 1fr;gap:10px;}
+#captureArea .summaryBox .sum-total-divider{display:none !important;}
+#captureArea .summaryBox .sum-total-item{background:#5b4a35 !important;border-radius:18px;padding:14px 8px;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:none !important;}
+#captureArea .summaryBox .sum-total-item:last-child{background:#fffdf7 !important;border:1px solid #dcc79c !important;}
+#captureArea .summaryBox .sum-total-ic-wrap{display:none !important;}
+#captureArea .summaryBox .sum-total-label{color:#e6d3a3 !important;font-size:15px;}
+#captureArea .summaryBox .sum-total-val{color:#f0e2bd !important;font-family:Georgia,serif;font-size:30px;font-weight:700;}
+#captureArea .summaryBox .sum-total-item:last-child .sum-total-label{color:#3f6b57 !important;}
+#captureArea .summaryBox .sum-total-item:last-child .sum-total-val{color:#3f6b57 !important;}
+#captureArea .sum-progress-group{background:#fffdf7;border:1px solid #dcc79c;border-radius:16px;padding:12px;margin-top:12px;display:grid !important;grid-template-columns:1fr 1fr;gap:12px;}
+#captureArea .sum-progress-divider{display:none !important;}
+#captureArea .sum-progress-label{color:#9a7434;font-size:14px;font-weight:700;}
+#captureArea .sum-progress-value{color:#2e2318;font-weight:700;}
+#captureArea .sum-progress-track{background:#e6dcc6 !important;}
+#captureArea .sum-progress-fill{background:#b8924a !important;}
+#captureArea #pvProgressRow3 .sum-progress-fill{background:#3f6b57 !important;}
+#captureArea .bonus-section{background:#fffdf7;border:1px solid #dcc79c;border-radius:16px;padding:12px 14px;margin-top:12px;color:#3a2e21;}
+/* 以下僅在報表轉圖片時生效 */
 #captureArea.capture-mode .currency-bar,#captureArea.capture-mode .rate-setting{display:none !important;}
-#captureArea.capture-mode .payment-period-card{background:#fbf8f1 !important;border:1px solid #d9b873 !important;border-radius:14px !important;box-shadow:none !important;color:#2b2118;padding:10px 12px !important;}
-#captureArea.capture-mode .estimated-days-row,#captureArea.capture-mode .estimated-days-label,#captureArea.capture-mode .estimated-days-val{color:#9a7434 !important;}
-#captureArea.capture-mode .userInputs .row{display:grid !important;grid-template-columns:1fr 1fr;gap:8px;}
-#captureArea.capture-mode .userInputs label{background:#fbf8f1;border:1px solid #d9b873;border-radius:12px;padding:8px 12px;display:flex !important;align-items:center;justify-content:space-between;}
-#captureArea.capture-mode .userInputs label > span{color:#4a3c28;font-weight:700;font-size:15px;}
-#captureArea.capture-mode .userInputs input{background:transparent !important;border:none !important;color:#1f1812 !important;font-weight:700;text-align:right;box-shadow:none !important;}
-#captureArea.capture-mode .buyer-container,#captureArea.capture-mode .calculator-container{background:transparent !important;}
-#captureArea.capture-mode .buyer-container button,#captureArea.capture-mode .calculator-container button{display:none !important;}
-#captureArea.capture-mode #reportTable{background:#fbf8f1 !important;border-radius:12px;overflow:hidden;border:1px solid #d9b873;}
-#captureArea.capture-mode #reportTable thead th{background:#2e2318 !important;color:#f5ecd6 !important;font-weight:700;padding:8px !important;}
-#captureArea.capture-mode #reportTable tbody tr:nth-child(odd){background:#fbf8f1 !important;}
-#captureArea.capture-mode #reportTable tbody tr:nth-child(even){background:#f3ede0 !important;}
-#captureArea.capture-mode #reportTable td{color:#2b2118 !important;border-color:#e6dcc6 !important;padding:6px 8px !important;font-size:14px !important;}
-#captureArea.capture-mode #reportTable tfoot td,#captureArea.capture-mode #reportTable tr.total-row td{background:#e9e0cc !important;font-weight:800;}
-#captureArea.capture-mode .summaryBox .sum-totals{display:grid !important;grid-template-columns:1fr 1fr;gap:8px;}
-#captureArea.capture-mode .summaryBox .sum-total-divider{display:none !important;}
-#captureArea.capture-mode .summaryBox .sum-total-item{background:#2e2318 !important;border-radius:16px;padding:12px 8px;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-#captureArea.capture-mode .summaryBox .sum-total-item:last-child{background:#fbf8f1 !important;border:1px solid #d9b873;}
-#captureArea.capture-mode .summaryBox .sum-total-ic-wrap{display:none !important;}
-#captureArea.capture-mode .summaryBox .sum-total-label{color:#d9b873 !important;font-size:14px;}
-#captureArea.capture-mode .summaryBox .sum-total-item:last-child .sum-total-label{color:#2e6a55 !important;}
-#captureArea.capture-mode .summaryBox .sum-total-val{color:#f0dfb4 !important;font-family:Georgia,serif;font-size:26px;font-weight:700;}
-#captureArea.capture-mode .summaryBox .sum-total-item:last-child .sum-total-val{color:#2e6a55 !important;}
-#captureArea.capture-mode .sum-progress-group{background:#fbf8f1;border:1px solid #d9b873;border-radius:14px;padding:10px;margin-top:10px;display:grid !important;grid-template-columns:1fr 1fr;gap:10px;}
-#captureArea.capture-mode .sum-progress-divider{display:none !important;}
-#captureArea.capture-mode .sum-progress-label{color:#9a7434;font-size:13px;font-weight:700;}
-#captureArea.capture-mode .sum-progress-value{color:#2b2118;font-weight:700;}
-#captureArea.capture-mode .sum-progress-track{background:#e6dcc6 !important;}
-#captureArea.capture-mode .sum-progress-fill{background:#b8924a !important;}
-#captureArea.capture-mode #pvProgressRow3 .sum-progress-fill{background:#2e6a55 !important;}
-#captureArea.capture-mode .bonus-section{background:#fbf8f1;border:1px solid #d9b873;border-radius:14px;padding:10px 12px;margin-top:10px;}
 #captureArea.capture-mode .bonus-toggle-row{display:none !important;}
+#captureArea.capture-mode .buyer-container button,#captureArea.capture-mode .calculator-container button{display:none !important;}
+#captureArea.capture-mode{padding:12px 12px 10px !important;}
+#captureArea.capture-mode #reportTable td{padding:6px 8px !important;font-size:14px !important;}
+#captureArea.capture-mode #reportTable thead th{padding:8px !important;}
 </style>
 <style id="cream-theme">
-/* 米白與淺米色配色（登入畫面與報表截圖） */
+/* 米白與淺米色配色（登入畫面） */
 #authContainer{background:rgba(239,232,218,0.94) !important;}
 #loginScreen{background:#faf6ec !important;border:1px solid #d8c29a !important;box-shadow:0 0 0 1px #d8c29a,0 20px 50px rgba(120,95,50,.18) !important;}
 #loginScreen .login-title{background:none !important;-webkit-text-fill-color:#2e2318;color:#2e2318 !important;text-shadow:none !important;}
@@ -1766,9 +1767,45 @@ body.v-mode #quickAddFab{display:none!important}
 .login-loading-desc{color:#6b5a40 !important;}
 .login-cta{background:#5b4a35 !important;color:#f7efdc !important;border-color:#5b4a35 !important;box-shadow:0 6px 16px rgba(91,74,53,.28) !important;}
 .login-cta .cta-sub{color:rgba(247,239,220,.8) !important;}
-#captureArea.capture-mode #reportTable thead th{background:#eadcbc !important;color:#3a2e21 !important;border-bottom:1px solid #cdb585;}
-#captureArea.capture-mode .summaryBox .sum-total-item{background:#5b4a35 !important;}
-#captureArea.capture-mode .summaryBox .sum-total-val{color:#f0e2bd !important;}
+</style>
+<style id="cream-app">
+/* 試算介面整體改為米白與淺米色（只覆寫配色，不改版面與功能） */
+:root{
+  --bg:#efe8da;--panel-bg:#faf6ec;--text:#3a2e21;--accent:#3f6b57;
+  --highlight:#5b4a35;--error:#b03a2e;--btn-grey:#e6dcc6;--warning:#b8740f;
+  --super:#8a6a33;--vip:#3f6b57;--yellow:#8a6a33;--loader:#3f6b57;
+  --grad-secondary:linear-gradient(145deg,#fffdf7,#f3ecdc);
+  --gold:#b8924a;--gold-light:#8a6a33;
+  --shadow:0 8px 24px rgba(120,95,50,.14);
+  --btn-shadow:0 4px 12px rgba(120,95,50,.14);--btn-hover-shadow:0 6px 16px rgba(120,95,50,.18);
+  --period-active:linear-gradient(145deg,#fffdf7,#f3ecdc);--period-hover:linear-gradient(145deg,#fffdf7,#eadfc8);
+  --period-border:#b8924a;--period-shadow:0 0 12px rgba(184,146,74,.25);--period-text:#3a2e21;
+}
+body{background:#efe8da !important;color:#3a2e21 !important;}
+#watermark{color:#8a7a5c !important;}
+h1,h2,h3,h4,h5,.title{color:#2e2318;}
+input,select,textarea{background:#fffdf7 !important;color:#2e2318 !important;border-color:#cdb585 !important;}
+input::placeholder,textarea::placeholder{color:#9a8a6c !important;}
+.payment-period-card,.userInputs label,.summaryBox,.sum-progress-group,.bonus-section,.custom-select-list,.custom-select-btn,.custom-days-input,.buyer-container,.calculator-container{background:#fffdf7 !important;border-color:#dcc79c !important;color:#3a2e21 !important;}
+.summaryBox .sum-total-item{background:#5b4a35 !important;}
+.summaryBox .sum-total-item:last-child{background:#fffdf7 !important;}
+.summaryBox .sum-total-label{color:#e6d3a3 !important;}
+.summaryBox .sum-total-item:last-child .sum-total-label{color:#3f6b57 !important;}
+.summaryBox .sum-total-val{color:#f0e2bd !important;}
+.summaryBox .sum-total-item:last-child .sum-total-val{color:#3f6b57 !important;}
+.sum-progress-label,.estimated-days-label,.estimated-days-val,.rate-setting-label,.rate-setting-unit,.rate-source{color:#6b5a40 !important;}
+.sum-progress-value,.userInputs label > span{color:#2e2318 !important;}
+.sum-progress-track{background:#e6dcc6 !important;}
+#reportTable{background:#fffdf7 !important;border-color:#dcc79c !important;}
+#reportTable thead th{background:#eadcbc !important;color:#3a2e21 !important;border-color:#cdb585 !important;}
+#reportTable tbody tr:nth-child(odd){background:#fffdf7 !important;}
+#reportTable tbody tr:nth-child(even){background:#f5eedd !important;}
+#reportTable td{color:#2e2318 !important;border-color:#e6dcc6 !important;}
+#reportTable tfoot td,#reportTable tr.total-row td{background:#ebe1cb !important;color:#2e2318 !important;}
+.bonus-toggle-label{color:#3a2e21 !important;}
+.bonus-result-box,.bonus-result-none{color:#3a2e21 !important;}
+.button-group .btn-grey,.btn-grey{background:#e6dcc6 !important;color:#3a2e21 !important;border-color:#cdb585 !important;}
+.button-group .btn-warning{color:#3a2e21 !important;}
 </style>
 </head>
 <body>
