@@ -1918,6 +1918,10 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
   box-shadow:0 0 0 2px rgba(184,146,74,.25),0 4px 10px rgba(120,95,50,.2) !important;
 }
 </style>
+<style id="hide-export-step">
+/* 取消「報表轉圖片」獨立步驟：分享時自動產生圖片 */
+#exportBtn{display:none !important;}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -4217,7 +4221,10 @@ async function shareToLine(){
 // 原生分享
 async function nativeShare(){
   if(!authStatus)return;
-  if(!navigator.share||!els.previewImage.src){alert("無法使用原生分享");return;}
+  if(!navigator.share){alert("無法使用原生分享");return;}
+  // 直接分享：每次都先重新產生最新的報表圖片（避免分享到舊圖）
+  await exportToImage();
+  if(!els.previewImage.src) return;
   try{
     const response=await fetch(els.previewImage.src);
     const blob=await response.blob();
@@ -5255,7 +5262,6 @@ function vzStepInit(){
     {n:'購買者',  t:()=>$('buyerInput'),  d:()=>!!($('buyerInput')&&$('buyerInput').value.trim())},
     {n:'新增品項',t:()=>$('addBtn'),      d:()=>cap.querySelectorAll('tbody tr').length>0},
     {n:'付款方式',t:()=>$('cashOption'),  d:()=>!!getF().s3 || !!(($('cashOption')&&$('cashOption').checked)||($('cardOption')&&$('cardOption').checked))},
-    {n:'報表轉圖片',t:()=>$('exportBtn'), d:()=>!!getF().s4},
     {n:'分享圖片',t:()=>$('nativeShareBtn'), d:()=>!!getF().s5},
     {n:'重置報表',t:()=>$('resetReportBtn'), d:()=>!!getF().s6}
   ];
@@ -5337,7 +5343,7 @@ function vzStepInit(){
   bar.classList.remove('open'); setOpen(false);   // 預設收起來，每次載入都從收合開始
   $('vzStepHead').addEventListener('click',()=>{ const v=!bar.classList.contains('open'); bar.classList.toggle('open',v); setOpen(v); });
   document.addEventListener('input',e=>{ if(e.target&&e.target.id==='buyerInput'){ const f=getF(); if(f.s6){ delete f.s6; setF(f); } } });
-  const GATE={addBtn:[0],exportBtn:[0,1,2],nativeShareBtn:[0,1,2,3],shareToLineBtn:[0,1,2,3],resetReportBtn:[0,1,2,3,4]};
+  const GATE={addBtn:[0],nativeShareBtn:[0,1,2],shareToLineBtn:[0,1,2],resetReportBtn:[0,1,2,3]};
   const gate=document.createElement('div'); gate.id='vzGate'; gate.hidden=true;
   gate.innerHTML='<div class="vzg-card"><div class="vzg-head"><span>⚠️</span><span>試算步驟尚未完成</span><button type="button" class="vzg-x" id="vzgClose">✕</button></div><p class="vzg-msg" id="vzgMsg"></p><div class="vzg-chips" id="vzgChips"></div><div class="vzg-btns"><button type="button" class="vzg-go" id="vzgGo">前往未完成步驟</button><button type="button" class="vzg-run" id="vzgRun">確認略過並執行</button></div></div>';
   document.body.appendChild(gate);
