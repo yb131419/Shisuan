@@ -981,7 +981,7 @@ body{
 #qtyInput{font-size:18px!important;font-weight:800;}
 #exportBtn,#shareToLineBtn,#nativeShareBtn,#clearImageBtn,#resetReportBtn{flex:1;min-width:90px;margin:0;}
 #previewImage{display:none;width:100%!important;max-width:600px;margin:15px auto!important;border:2px solid #888;border-radius:10px;image-rendering:-webkit-optimize-contrast;image-rendering:pixelated;}
-#shareToLineBtn,#nativeShareBtn,#clearImageBtn{display:none;}
+#shareToLineBtn,#clearImageBtn{display:none;}
 #buyerInput,#calculatorDisplay{
   background:#f9fafb;border:1.5px solid #d1d5db;color:#374151;border-radius:8px;
   padding:10px 12px;font-size:18px;transition:border-color 0.3s ease,box-shadow 0.3s ease;
@@ -4277,7 +4277,7 @@ function clearImage(){
   els.previewImage.style.display="none";
   els.previewImage.src="";
   els.shareToLineBtn.style.display="none";
-  els.nativeShareBtn.style.display="none";
+  els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
   els.clearImageBtn.style.display="none";
 }
 
