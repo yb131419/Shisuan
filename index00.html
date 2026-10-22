@@ -1933,6 +1933,20 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-mode{overflow:hidden !important;}
 #captureArea.capture-mode .summaryBox,#captureArea.capture-mode .sum-progress-group,#captureArea.capture-mode .bonus-section{overflow:hidden !important;}
 </style>
+<style id="align-preview-layout">
+/* 分享圖版面對齊預覽（米白配色保留）：付款一列、購買者／試算者左右並排、表頭米白 */
+#captureArea.capture-mode .payment-period-card{display:flex !important;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px !important;}
+#captureArea.capture-mode .payment-period-card .payment-options{display:flex !important;gap:10px;}
+#captureArea.capture-mode .payment-period-card .payment-options label:has(input:not(:checked)){display:none !important;}
+#captureArea.capture-mode .payment-period-card .estimated-days-row{display:flex !important;justify-content:flex-end;align-items:center;flex:1;gap:6px;border:none !important;background:none !important;}
+#captureArea.capture-mode .userInputs .row{display:grid !important;grid-template-columns:1fr 1fr;gap:8px;}
+#captureArea.capture-mode .userInputs label{flex-direction:row !important;align-items:center !important;justify-content:space-between !important;text-align:left !important;}
+#captureArea.capture-mode .userInputs label > span{text-align:left !important;width:auto !important;}
+#captureArea.capture-mode .userInputs input{text-align:right !important;width:auto !important;}
+#captureArea.capture-mode #reportTable thead th{background:#eadcbc !important;color:#3a2e21 !important;border-bottom:1px solid #cdb585 !important;}
+#captureArea.capture-mode #reportTable tbody tr:nth-child(even){background:#f5eedd !important;}
+#captureArea.capture-mode #reportTable tbody tr:nth-child(odd){background:#fffdf7 !important;}
+</style>
 </head>
 <body>
 <div id="authContainer">
