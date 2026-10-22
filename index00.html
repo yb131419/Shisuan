@@ -2,10 +2,14 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8"/>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="preconnect" href="https://static.line-scdn.net" crossorigin>
+<link rel="preconnect" href="https://code.jquery.com" crossorigin>
+<link rel="dns-prefetch" href="https://yb131419.github.io">
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>彥彬🌿試算系統</title>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
@@ -3950,6 +3954,19 @@ function syncFormStateForCapture(){
   });
 }
 
+// 需要時才載入截圖套件（首屏不再等待）
+function ensureDomToImage(){
+  if(window.domtoimage) return Promise.resolve();
+  if(window._domToImageLoading) return window._domToImageLoading;
+  window._domToImageLoading=new Promise((resolve,reject)=>{
+    const sc=document.createElement('script');
+    sc.src='https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/3.4.4/dom-to-image-more.min.js';
+    sc.onload=()=>resolve();
+    sc.onerror=()=>{ window._domToImageLoading=null; reject(new Error('截圖套件載入失敗，請檢查網路後重試')); };
+    document.head.appendChild(sc);
+  });
+  return window._domToImageLoading;
+}
 async function exportToImage(){
   if(!checkUserRemainingTimes())return;
   if(selectedProds.length===0){alert("請先新增至少一個品項，才能匯出圖片！");return;}
@@ -4064,6 +4081,7 @@ async function exportToImage(){
     els.captureArea.style.paddingRight="30px";
     els.captureArea.style.position="relative";
 
+    await ensureDomToImage();
     const ua=navigator.userAgent||'';
     const isLineInApp=/Line/i.test(ua);
     const isMobile=window.innerWidth<768;
@@ -4236,7 +4254,11 @@ async function nativeShare(){
       if(estDays>0) _pt2=`\n預估使用：${daysToMonthText(estDays)}`;
     }
 
-    const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_pt2}${getPaymentShareText()}`;
+    // 分享文字附上總金額與總 PV（與畫面顯示一致）
+    const _totPrice=(els.totalPriceCellDup.textContent||'').trim();
+    const _totPv=(els.totalPvCellDup.textContent||'').trim();
+    const _totText=`\n總金額：${_totPrice}\n總 PV：${_totPv}`;
+    const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_totText}${_pt2}${getPaymentShareText()}`;
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});if(window.vzRecordShare)window.vzRecordShare(buyer,calculator,blob,shareText,'');
   }catch(error){
     showToast(`分享失敗: ${error.message||'未知錯誤'}`, 'error');
@@ -4452,7 +4474,7 @@ async function handleLoginClick(){
     sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
     setSessionDeleteCount(0);
     if(loginBtn){loginBtn.innerHTML='✅ 登入成功';loginBtn.classList.add('btn-success');}
-    await new Promise(r=>setTimeout(r,320));
+    await new Promise(r=>setTimeout(r,120));
     enterCalculator();
     // 修改：登入成功改用大字幕浮窗顯示剩餘次數/天數，取代原本的小提示
     showLoginWelcome();
