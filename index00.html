@@ -1927,6 +1927,12 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea .userInputs label > span{font-size:17px !important;}
 #buyerInput,#calculatorDisplay,#captureArea .userInputs input{font-size:20px !important;font-weight:800 !important;line-height:1.4 !important;}
 </style>
+<style id="cream-shadowfix">
+/* 報表截圖：去除陰影與溢出，避免右側出現灰色殘影 */
+#captureArea.capture-mode, #captureArea.capture-mode *{box-shadow:none !important;text-shadow:none !important;}
+#captureArea.capture-mode{overflow:hidden !important;}
+#captureArea.capture-mode .summaryBox,#captureArea.capture-mode .sum-progress-group,#captureArea.capture-mode .bonus-section{overflow:hidden !important;}
+</style>
 </head>
 <body>
 <div id="authContainer">
