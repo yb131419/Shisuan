@@ -1939,6 +1939,13 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-mode #buyerInput,#captureArea.capture-mode #calculatorDisplay,#captureArea.capture-mode .userInputs input{font-size:26px !important;font-weight:800 !important;line-height:1.3 !important;}
 </style>
 <style id="welcome-black-text">
+/* 可使用月份／自訂天數／預估天數：同一行 */
+#periodOptionsRow{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:6px !important;}
+#periodOptionsRow > *{flex:0 1 auto !important;min-width:0 !important;}
+#periodOptionsRow .period-select-wrap{flex:1 1 0 !important;}
+#periodOptionsRow .estimated-days-row{display:flex !important;align-items:center !important;gap:4px !important;flex:0 0 auto !important;white-space:nowrap !important;}
+#periodOptionsRow .estimated-days-label{font-size:12px !important;white-space:nowrap !important;}
+#periodOptionsRow .estimated-days-val{font-size:14px !important;}
 /* 登錄歡迎浮窗：文字改為黑色（取消金色漸層）；姓名字體加大 */
 .welcome-card .welcome-name{font-size:1.7rem !important;line-height:1.3;}
 .welcome-card .welcome-name,.welcome-card .welcome-badge,.welcome-card .welcome-big-label,.welcome-card .welcome-big-number,.welcome-card .welcome-sub,.welcome-card .welcome-name *,.welcome-card .welcome-big-number *{
@@ -2097,10 +2104,10 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
       <input type="number" id="customDays" placeholder="自訂" class="custom-days-input">
       <span class="custom-days-unit">天</span>
     </div>
-  </div>
-  <div class="estimated-days-row">
-    <span class="estimated-days-label">📦 預估可使用天數</span>
-    <span class="estimated-days-val" id="estimatedDaysVal">－</span>
+    <div class="estimated-days-row">
+      <span class="estimated-days-label">📦 預估可使用天數</span>
+      <span class="estimated-days-val" id="estimatedDaysVal">－</span>
+    </div>
   </div>
 </div>
   <div class="userInputs">  
