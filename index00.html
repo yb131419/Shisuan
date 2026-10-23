@@ -1939,7 +1939,8 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-mode #buyerInput,#captureArea.capture-mode #calculatorDisplay,#captureArea.capture-mode .userInputs input{font-size:26px !important;font-weight:800 !important;line-height:1.3 !important;}
 </style>
 <style id="welcome-black-text">
-/* 登錄歡迎浮窗：文字改為黑色（取消金色漸層） */
+/* 登錄歡迎浮窗：文字改為黑色（取消金色漸層）；姓名字體加大 */
+.welcome-card .welcome-name{font-size:1.7rem !important;line-height:1.3;}
 .welcome-card .welcome-name,.welcome-card .welcome-badge,.welcome-card .welcome-big-label,.welcome-card .welcome-big-number,.welcome-card .welcome-sub,.welcome-card .welcome-name *,.welcome-card .welcome-big-number *{
   background:none !important;background-image:none !important;
   color:#111111 !important;-webkit-text-fill-color:#111111 !important;text-shadow:none !important;
@@ -3181,7 +3182,6 @@ const GUIDE_STEPS=[
   {icon:'💵',title:'付款方式與期數',desc:'勾選「💵 現金 / 💳 刷卡」，並選擇「一個月 / 三個月 / 六個月」或右方自訂天數。現金金額每滿 2 萬，系統會自動贈送 211(30) 一組。'},
   {icon:'🗑️',title:'刪除規則',desc:'每一批可免費刪除 3 次；用完後再刪除會扣 1 次使用次數，並回復 3 次刪除機會，如此循環。'},
   {icon:'🏅',title:'預計獎金試算',desc:'選擇「👤 非經理 / 🏅 經理階」身分，系統會依「總 PV」對應獎金比例，估算約略的獎金金額，方便當場向客戶說明。'},
-  {icon:'📤',title:'報表轉圖片',desc:'品項齊全後，按「📤 報表轉圖片」把整張報表（含預計獎金）轉成圖片，可先預覽確認再分享。'},
   {icon:'📱',title:'分享報表',desc:'圖片產生後，可用「安卓分享」把圖片網址轉傳到 LINE，或用「分享圖片」呼叫手機原生分享；不需要時可按「❌ 清除圖片」。'},
   {icon:'🔄',title:'重置報表',desc:'「🔄 重置報表」會清空所有品項並登出，需要重新登入（重新扣 1 次使用次數），適合換一位客戶重新試算時使用。'},
   {icon:'☰',title:'左上角功能選單',desc:'左上角的「☰」選單裡有兩個功能：「📊 顯示/隱藏狀態欄」可以隨時收合或展開身分與剩餘次數資訊；「❓ 使用導覽」可以重看這份教學。狀態欄右上角的「關閉」也能直接收合。'}
@@ -4747,8 +4747,6 @@ const NPC=[
    lines:['選好品項和數量，一項一項加進來。','限購的品項，我會幫你看著。']},
   {id:'pay',name:'付款方式',role:'勾選現金、刷卡與使用月份',ic:'💳',sprite:'settings',x:3,y:22,look:L('#B5652E','#FFD9A8','hat'),
    lines:['先決定怎麼付款，我來幫你勾選。','現金、刷卡擇一，月份可以挑。']},
-  {id:'export',name:'報表轉圖片',role:'把報表做成一張圖',ic:'🖼',sprite:'results',x:8,y:15,look:L('#5A4A8A','#E2D6FA','hat'),
-   lines:['品項都齊了嗎？轉成圖片就能傳出去。']},
   {id:'share',name:'分享圖片',role:'分享給客戶或傳到 LINE',ic:'📱',sprite:'video',x:10,y:19,look:L('#7A3E2A','#E7C27A','crown'),
    lines:['圖片做好了，最後一步，分享出去。']},
   {id:'reset',name:'重置報表',role:'清空目前報表，重新開始',ic:'♻️',sprite:'settings',x:10,y:2,look:L('#8A3A3A','#F5D0C0','hat'),
@@ -4934,34 +4932,19 @@ const NPC_UI={
     },
     run(){ if(!selectedProds.length){ showToast('請先新增至少一個品項','warning'); return false; } return true; }
   },
-  export:{
-    full:true,
-    go:'✔ 執行，前往下一位',
-    render(f){
-      f.innerHTML='<div class="vf-note">把目前報表轉成一張圖片（需至少一個品項）。</div>'+
-        '<div class="vf-note">目前報表：'+selectedProds.length+' 項</div>';
-    },
-    async run(){
-      if(!selectedProds.length){ showToast('請先新增品項','warning'); return false; }
-      await exportToImage();
-      return !!els.previewImage.src;
-    }
-  },
   share:{
     list:false,
     go:'📱 分享圖片（LINE）',
     extra:{label:'🟢 安卓分享', advance:true, async run(){
-      if(!els.previewImage.src){ showToast('請先完成報表轉圖片','warning'); return false; }
+      if(!selectedProds.length){ showToast('請先新增品項','warning'); return false; }
       await shareToLine();
       return true;
     }},
     render(f){
-      f.innerHTML = els.previewImage.src
-        ? '<div class="vf-note">圖片已產生，請在列表頁面查看。</div>'
-        : '<div class="vf-note">還沒有圖片，請先完成「報表轉圖片」。</div>';
+      f.innerHTML = '<div class="vf-note">按下分享，系統會自動產生報表圖片並分享。</div>';
     },
     async run(){
-      if(!els.previewImage.src){ showToast('請先完成報表轉圖片','warning'); return false; }
+      if(!selectedProds.length){ showToast('請先新增品項','warning'); return false; }
       if(navigator.share){ await nativeShare(); } else { await shareToLine(); }
       return true;
     }
@@ -5025,7 +5008,6 @@ async function runNPC(n,which){
   setBtnsDisabled(false);
   if(!ok) return;
   if(spec.advance===false){ ui.render(document.getElementById('vcF')); return; }
-  if(n.id==='export') markDone(); // 經驗值只來自「成功完成報表轉圖片」
   hideCard();
   const idx=STEPS.indexOf(n);
   if(idx<STEPS.length-1){ walkNear(STEPS[idx+1]); }
@@ -5462,9 +5444,8 @@ function vzStepInit(){
       askConfirm('付款方式','請勾選現金或刷卡；如果還不確定，也可以先略過，直接進入下一步。','不確定，略過並進入下一步',()=>setFlag('s3',true));
       return;
     }
-    if(cur===3){ const b=$('exportBtn'); if(b){ go(3); setTimeout(function(){ b.click(); },650); } return; }   // 先捲到「報表轉圖片」按鈕，等捲動完成再執行
-    if(cur===4){ const b=$('nativeShareBtn'); if(b){ go(4); b.click(); } return; }
-    if(cur===5){ const b=$('resetReportBtn'); if(b){ go(5); b.click(); } return; }
+    if(cur===3){ const b=$('nativeShareBtn'); if(b){ go(3); b.click(); } return; }
+    if(cur===4){ const b=$('resetReportBtn'); if(b){ go(4); b.click(); } return; }
     go(cur);
   }
   fab.addEventListener('click',function(){ if(document.body.classList.contains('v-mode')&&window.vzCloseVillage){ window.vzCloseVillage(); setTimeout(nextAction,250); } else { nextAction(); } });
