@@ -4241,7 +4241,9 @@ async function shareToLine(){
 // 📝 分享成功後寫入「試算紀錄」工作表（失敗不影響分享）
 function logCalcRecord(buyer, calculator, pv, amount){
   try{
-    jsonpRequest({action:'recordCalc', buyer:buyer, calculator:calculator, pv:pv, amount:amount}).then(r=>{
+    const cashOn=document.getElementById('cashOption')?.checked?'✔':'';
+    const cardOn=document.getElementById('cardOption')?.checked?'✔':'';
+    jsonpRequest({action:'recordCalc', buyer:buyer, calculator:calculator, pv:pv, amount:amount, cash:cashOn, card:cardOn}).then(r=>{
       if(r && r.status==='success') showToast('已寫入試算紀錄','success');
       else showToast('試算紀錄寫入失敗：'+((r&&r.message)||'未知原因'),'error');
     }).catch(err=>showToast('試算紀錄寫入失敗：'+(err&&err.message||''),'error'));
