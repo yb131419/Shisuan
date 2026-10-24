@@ -3244,7 +3244,7 @@ els.buyerInput.addEventListener("input",saveBuyerName);
 els.resetReportBtn.addEventListener("click",resetReport);
 els.exportBtn.addEventListener("click",exportToImage);
 els.shareToLineBtn.addEventListener("click",shareToLine);
-els.nativeShareBtn.addEventListener("click",nativeShare);
+els.nativeShareBtn.addEventListener("click",smartShare);
 els.clearImageBtn.addEventListener("click",clearImage);
 els.cashOption.addEventListener("change",handleCashGift);
 // 修改：現金／刷卡改成互斥選項（只能勾選其中一個），但保留原生 checkbox
@@ -4164,7 +4164,7 @@ async function exportToImage(){
     els.previewImage.dataset.objectUrl=objectUrl;
     els.previewImage.style.display="block";
     els.shareToLineBtn.style.display="inline-block";
-    els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
+    els.nativeShareBtn.style.display="inline-block";
     els.clearImageBtn.style.display="inline-block";
   }catch(error){
     console.error('匯出錯誤:',error);
@@ -4256,6 +4256,29 @@ function logCalcRecord(buyer, calculator, pv, amount){
     }).catch(err=>showToast('試算紀錄寫入失敗：'+(err&&err.message||''),'error'));
   }catch(e){}
 }
+// 裝置判斷：iOS 用原生分享（含圖片）；安卓若瀏覽器支援檔案分享也用原生，否則改用 LINE 分享（上傳圖片後開啟 LINE）
+function isIOSDevice(){
+  const ua=navigator.userAgent||'';
+  return /iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+function canNativeFileShare(){
+  try{
+    if(!navigator.share) return false;
+    if(!navigator.canShare) return false;
+    const probe=new File([new Blob(['x'],{type:'image/png'})],'probe.png',{type:'image/png'});
+    return !!navigator.canShare({files:[probe]});
+  }catch(e){ return false; }
+}
+async function smartShare(){
+  if(!authStatus) return;
+  if(isIOSDevice() && navigator.share){ return nativeShare(); }
+  if(canNativeFileShare()){ return nativeShare(); }
+  // 安卓（或不支援檔案分享的瀏覽器）：先產生最新圖片，再用 LINE 分享
+  await exportToImage();
+  if(!els.previewImage.src) return;
+  return shareToLine();
+}
+
 async function nativeShare(){
   if(!authStatus)return;
   if(!navigator.share){alert("無法使用原生分享");return;}
@@ -4316,7 +4339,7 @@ function clearImage(){
   els.previewImage.style.display="none";
   els.previewImage.src="";
   els.shareToLineBtn.style.display="none";
-  els.nativeShareBtn.style.display=navigator.share?"inline-block":"none";
+  els.nativeShareBtn.style.display="inline-block";
   els.clearImageBtn.style.display="none";
 }
 
@@ -4945,7 +4968,7 @@ const NPC_UI={
     },
     async run(){
       if(!selectedProds.length){ showToast('請先新增品項','warning'); return false; }
-      if(navigator.share){ await nativeShare(); } else { await shareToLine(); }
+      await smartShare();
       return true;
     }
   }
