@@ -3684,7 +3684,7 @@ async function animateRowRemoval(btn){
 // 不可刪除的品項：入會品項；現金已勾選且達 2 萬以上時的自動贈品
 function isLockedRow(p){
   const n=(p&&p.name||'').trim();
-  const isNewMember=n.includes('新入會')||n.includes('新會員')||n.includes('入會');
+  const isNewMember=/^入.*會/.test(n);
   const isCashGift=n.includes(GIFT_NAME_KEY)&&!!(els.cashOption&&els.cashOption.checked)&&Number(p.qty)>0;
   return isNewMember||isCashGift;
 }
