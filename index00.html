@@ -3681,6 +3681,16 @@ async function animateRowRemoval(btn){
   }
 }
 
+// 刪除品項：若刪的是「新入會」，同時把名稱為「入*會」（入開頭、含會）的品項一起刪除
+function removeProductWithLinked(idx){
+  const target=selectedProds[idx];
+  const tn=((target&&target.name)||'').trim();
+  if(tn.includes('新入會')||tn.includes('新會員')){
+    selectedProds=selectedProds.filter((p,i)=>i!==idx && !/^入.*會/.test((p.name||'').trim()));
+  }else{
+    selectedProds.splice(idx,1);
+  }
+}
 // 不可刪除的品項：入會品項；現金已勾選且達 2 萬以上時的自動贈品
 function isLockedRow(p){
   const n=(p&&p.name||'').trim();
@@ -3705,7 +3715,7 @@ async function handleDelete(btn){
   if(isPrivilege){
     btn.disabled=true;
     await animateRowRemoval(btn);
-    selectedProds.splice(idx,1);
+    removeProductWithLinked(idx);
     saveSelectedProds();
     renderTable();
     if(els.cashOption.checked) handleCashGift();
@@ -3719,7 +3729,7 @@ async function handleDelete(btn){
   if(usedDeletes<FREE_DELETE_LIMIT){
     btn.disabled=true;
     await animateRowRemoval(btn);
-    selectedProds.splice(idx,1);
+    removeProductWithLinked(idx);
     saveSelectedProds();
     renderTable();
     if(els.cashOption.checked) handleCashGift();
@@ -3759,7 +3769,7 @@ async function handleDelete(btn){
     authStatus.remainingTimes=result.remainingTimes;
     sessionStorage.setItem(SESSION_KEY_AUTH,JSON.stringify(authStatus));
     await animateRowRemoval(btn);
-    selectedProds.splice(idx,1);
+    removeProductWithLinked(idx);
     saveSelectedProds();
     renderTable();
     if(els.cashOption.checked) handleCashGift();
