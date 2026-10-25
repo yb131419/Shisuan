@@ -3584,7 +3584,7 @@ function renderTable(){
       <td style="text-align:center;">${item.pv}</td>
       <td style="text-align:center;">${subtotalPrice}</td>
       <td style="text-align:center;">${subtotalPv}</td>
-      <td><button class="deleteBtn" data-index="${idx}">刪除</button></td>
+      <td>${isLockedRow(item) ? '<button class="deleteBtn" data-index="'+idx+'" disabled title="此品項無法刪除">🔒</button>' : '<button class="deleteBtn" data-index="'+idx+'">刪除</button>'}</td>
     `;
     els.reportBody.appendChild(tr);
   });
@@ -3681,6 +3681,13 @@ async function animateRowRemoval(btn){
   }
 }
 
+// 不可刪除的品項：入會品項；現金已勾選且達 2 萬以上時的自動贈品
+function isLockedRow(p){
+  const n=(p&&p.name||'').trim();
+  const isNewMember=n.includes('新入會')||n.includes('新會員')||n.includes('入會');
+  const isCashGift=n.includes(GIFT_NAME_KEY)&&!!(els.cashOption&&els.cashOption.checked)&&Number(p.qty)>0;
+  return isNewMember||isCashGift;
+}
 async function handleDelete(btn){
   if(!authStatus||authStatus.isExpired){
     showToast('賬號已過期，無法操作', 'error');
@@ -3688,6 +3695,10 @@ async function handleDelete(btn){
   }
   const idx=parseInt(btn.dataset.index);
   if(isNaN(idx)||idx<0||idx>=selectedProds.length)return;
+  if(isLockedRow(selectedProds[idx])){
+    showToast('此品項無法刪除（入會品項／現金滿額贈品）','warning');
+    return;
+  }
 
   const isPrivilege=authStatus.isVip||authStatus.isSuperAdmin;
 
@@ -4989,6 +5000,7 @@ function renderItemList(){
     const nm=document.createElement('span'); nm.className='vf-nm'; nm.textContent=p.name;
     const del=document.createElement('button'); del.type='button'; del.className='vf-del'; del.textContent='刪除';
     del.onclick=async()=>{ const fake=document.createElement('button'); fake.dataset.index=String(i); await handleDelete(fake); renderItemList(); };
+    if(isLockedRow(p)){ del.disabled=true; del.textContent='🔒'; del.title='此品項無法刪除'; }
     top.appendChild(nm); top.appendChild(del);
     const bot=document.createElement('div'); bot.className='vf-bot';
     const sel=document.createElement('select'); sel.className='vf-qs';
@@ -6240,4 +6252,3 @@ setInterval(()=>{ if(document.body.classList.contains('v-mode')) renderVillage()
 </script>
 </body>
 </html>
-
