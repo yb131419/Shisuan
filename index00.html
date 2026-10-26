@@ -4349,7 +4349,7 @@ async function nativeShare(){
     const blob=await response.blob();
     const filesArray=[new File([blob],"康園試算報表.png",{type:blob.type})];
     const {buyer,calculator,shareText}=buildReportShareText();
-    logCalcRecord(buyer, calculator, _totPv, (els.totalPriceCellDup.textContent||'').trim());
+    logCalcRecord(buyer, calculator, (els.totalPvCellDup.textContent||'').trim(), (els.totalPriceCellDup.textContent||'').trim());
     await navigator.share({files:filesArray,title:"康園試算報表",text:shareText,});
     if(window.vzRecordShare)window.vzRecordShare(buyer,calculator,blob,shareText,'');
   }catch(error){
