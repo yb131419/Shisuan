@@ -4365,7 +4365,7 @@ async function exportToImage(){
     const isLineInApp=/Line/i.test(ua);
     const isMobile=window.innerWidth<768;
     const MAX_CANVAS_AREA=isLineInApp?6000000:(isMobile?10000000:16000000);
-    const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3200:8000);
+    const MAX_CANVAS_SIDE=isLineInApp?2200:(isMobile?3800:8000);
     const captureHeight=els.captureArea.offsetHeight||1;
     let scale=isLineInApp?1.5:(isMobile?1.5:2);
     const estimatedArea=captureWidth*captureHeight*scale*scale;
@@ -4378,8 +4378,10 @@ async function exportToImage(){
     }
 
     const attemptCapture=async(useScale)=>{
-      const dpr=Math.min(window.devicePixelRatio||1,3);
-      const captureScale=Math.max(2,useScale*dpr);
+      // 輸出倍率：依畫布上限（面積、最長邊）取安全值，手機高解析螢幕不再超過上限而糊掉
+      const areaCap=Math.sqrt(MAX_CANVAS_AREA/(captureWidth*captureHeight));
+      const sideCap=MAX_CANVAS_SIDE/Math.max(captureWidth,captureHeight);
+      const captureScale=Math.max(1.5,Math.min(useScale,areaCap,sideCap));
       const outputW=Math.round(captureWidth*captureScale);
       const outputH=Math.round(captureHeight*captureScale);
 
@@ -4402,10 +4404,10 @@ async function exportToImage(){
 
     let blob;
     try{
-      blob=await attemptCapture(scale);
+      blob=await attemptCapture(isLineInApp?2:3);
     }catch(innerErr){
       await new Promise(r=>setTimeout(r,400));
-      blob=await attemptCapture(Math.max(1.5,scale-0.5));
+      blob=await attemptCapture(isLineInApp?1.5:2);
     }
     if(!blob)throw new Error('圖片產生失敗');
     if(els.previewImage.dataset.objectUrl){
