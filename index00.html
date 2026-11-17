@@ -2038,9 +2038,11 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 /* 分享圖 4:3：左右兩欄改用浮動排版（截圖工具無法正確保留 grid 欄位位置） */
 #captureArea.capture-4x3{display:block !important;}
 #captureArea.capture-4x3::after{content:'';display:block;clear:both;}
-#captureArea.capture-4x3 .cap-left{float:left;width:520px;}
-#captureArea.capture-4x3 .cap-right{float:right;width:600px;}
+#captureArea.capture-4x3 .cap-left{float:left;width:500px;}
+#captureArea.capture-4x3 .cap-right{float:right;width:620px;}
 #captureArea.capture-4x3 .cap-left > *{margin:0 0 12px !important;}
+#captureArea.capture-4x3 .cap-left{display:flex;flex-direction:column;justify-content:space-between;}
+#captureArea.capture-4x3 .cap-left > :last-child{margin-bottom:0 !important;}
 /* 4:3 標題：YB 標誌放在「康園試算報表」左側 */
 /* 標題列：標誌、標題、日期、品牌同一列、不換行、置中 */
 #captureArea.capture-4x3 > .rpt-head{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;justify-content:center;align-items:center;gap:16px;text-align:center !important;margin:0 0 14px !important;}
@@ -2051,6 +2053,15 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 /* 品項少（8 樣以下）：字體加大，列高由上面的高度撐開 */
 #captureArea.capture-4x3.cap-roomy #reportTable th{font-size:17px !important;}
 #captureArea.capture-4x3.cap-roomy #reportTable td{font-size:18px !important;}
+/* 分享圖品項表格：加粗加大（依品項多寡分級） */
+html #captureArea.capture-4x3 #reportTable th{font-weight:800 !important;font-size:16px !important;}
+html #captureArea.capture-4x3 #reportTable td{font-weight:800 !important;font-size:17px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable th{font-size:19px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable td{font-size:21px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable th{font-size:16px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable td{font-size:16px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable th{font-size:14px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable td{font-size:14px !important;}
 </style>
 <style id="capture-3x4-fit">
 /* 分享圖 3:4（品項 5 樣以下）：縮小垂直用量，確保全部內容在 1200 高度內 */
@@ -2065,8 +2076,8 @@ html #captureArea.capture-3x4 .payment-options label{height:50px !important;font
 html #captureArea.capture-3x4 .payment-options input[type=checkbox]{width:32px !important;height:32px !important;}
 html #captureArea.capture-3x4 .period-est-use-label{font-size:22px !important;}
 html #captureArea.capture-3x4 #periodCustomBtn{height:52px !important;font-size:22px !important;min-width:200px !important;}
-html #captureArea.capture-3x4 #reportTable th{font-size:17px !important;padding:6px 3px !important;}
-html #captureArea.capture-3x4 #reportTable td{font-size:17px !important;padding:5px 3px !important;}
+html #captureArea.capture-3x4 #reportTable th{font-size:19px !important;font-weight:800 !important;padding:6px 3px !important;}
+html #captureArea.capture-3x4 #reportTable td{font-size:20px !important;font-weight:800 !important;padding:5px 3px !important;}
 html #captureArea.capture-3x4 #reportTable td.qty,#captureArea.capture-3x4 #reportTable td .qty-print{font-size:19px !important;}
 html #captureArea.capture-3x4 .sum-total-val{font-size:28px !important;}
 html #captureArea.capture-3x4 .sum-total-label{font-size:17px !important;}
@@ -2080,6 +2091,17 @@ html #captureArea.capture-3x4 > .rpt-head{margin:0 0 0 !important;}
 html #captureArea.capture-3x4 > .rpt-head .rpt-dateRow{margin-top:0 !important;}
 html #captureArea.capture-3x4 .payment-period-card{padding-top:10px !important;padding-bottom:10px !important;}
 html #captureArea.capture-3x4 .sum-progress-group{padding-top:6px !important;padding-bottom:6px !important;}
+</style>
+<style id="capture-qty-color">
+/* 分享圖：數量欄用金棕色區分（4:3 與 3:4 共用） */
+html #captureArea #reportTable td:nth-child(2){color:#9a5b00 !important;font-weight:900 !important;}
+html #captureArea #reportTable td:nth-child(2) .qty,
+html #captureArea #reportTable td:nth-child(2) .qty-print{color:#9a5b00 !important;font-weight:900 !important;}
+/* 分享圖：日期與「彥彬試算系統」改為深棕色，加粗，清楚可見 */
+html #captureArea .rpt-date,
+html #captureArea .rpt-wm{color:#4a3b28 !important;font-weight:800 !important;opacity:1 !important;-webkit-text-fill-color:#4a3b28 !important;}
+/* 分享圖：YB 標誌做立體感（實色底＋較厚的深色下緣；截圖模式會移除陰影，所以用邊框製造厚度） */
+html #captureArea .rpt-badge{background:#fbf5e6 !important;border:2px solid #c9a463 !important;border-bottom:6px solid #8f6e33 !important;color:#7a5a24 !important;font-weight:800 !important;box-shadow:none !important;}
 </style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
@@ -4243,6 +4265,7 @@ async function exportToImage(){
   let payGridCols = null;
   let originalStyles = null;
   let capWrap = null;
+  let capTotalRow = null;
 
   try{
     // 修正⑤：只隱藏切換鈕列，深色獎金卡維持原樣直接截圖
@@ -4311,6 +4334,16 @@ async function exportToImage(){
     else if(_itemRows>=11) els.captureArea.classList.add('cap-mid','cap-stretch');
     if(_itemRows<=8) els.captureArea.classList.add('cap-roomy');
     if(!_use34) els.captureArea.classList.add('capture-4x3');
+    // 分享圖：品項表格最後一列加上總計（總金額、總PV），截圖後移除
+    {
+      const _tr=document.createElement('tr');
+      _tr.className='total-row';
+      const _pvTxt=(els.totalPvCellDup.textContent||'').trim();
+      const _priceTxt=(els.totalPriceCellDup.textContent||'').trim();
+      _tr.innerHTML='<td>總計</td><td></td><td></td><td></td><td>'+_priceTxt+'</td><td>'+_pvTxt+'</td><td style="display:none"></td>';
+      els.reportBody.appendChild(_tr);
+      capTotalRow=_tr;
+    }
     // 4:3 版型：左右兩欄用浮動排版（截圖工具無法正確保留 grid 的欄位位置），截圖後會還原
     if(!_use34){
       const _left=document.createElement('div'); _left.className='cap-left';
@@ -4358,7 +4391,12 @@ async function exportToImage(){
     els.captureArea.style.paddingRight="30px";
     els.captureArea.style.position="relative";
     // 4:3：品項表格高度對齊左欄（預計獎金下緣），品項少列高、品項多列矮
-    if(capWrap){ capWrap.right.style.height=capWrap.left.offsetHeight+'px'; }
+    if(capWrap){
+      const _l=capWrap.left, _r=capWrap.right, _t=_r.querySelector('#reportTable');
+      _l.style.height='auto'; _r.style.height='auto';
+      const _H=Math.max(_l.offsetHeight, _t?_t.offsetHeight:0);
+      _l.style.height=_H+'px'; _r.style.height=_H+'px';
+    }
 
     await ensureDomToImage();
     const ua=navigator.userAgent||'';
@@ -4433,6 +4471,7 @@ async function exportToImage(){
     if(estDaysRow) estDaysRow.style.display = estDaysOriginalDisplay;
     if(customWrapEl) customWrapEl.style.display = customWrapOriginalDisplay;
     if(estUseLabelEl && estUseLabelEl.parentNode) estUseLabelEl.parentNode.removeChild(estUseLabelEl);
+    if(capTotalRow){ capTotalRow.remove(); capTotalRow=null; }
     // 還原 4:3 左右兩欄包裝，把元素按原順序放回
     if(capWrap){
       const {left:_l,right:_r,kids:_ks}=capWrap;
