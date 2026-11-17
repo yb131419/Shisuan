@@ -2038,10 +2038,48 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 /* 分享圖 4:3：左右兩欄改用浮動排版（截圖工具無法正確保留 grid 欄位位置） */
 #captureArea.capture-4x3{display:block !important;}
 #captureArea.capture-4x3::after{content:'';display:block;clear:both;}
-#captureArea.capture-4x3 .cap-left{float:left;width:470px;}
+#captureArea.capture-4x3 .cap-left{float:left;width:520px;}
 #captureArea.capture-4x3 .cap-right{float:right;width:600px;}
 #captureArea.capture-4x3 .cap-left > *{margin:0 0 12px !important;}
-#captureArea.capture-4x3 .cap-right > #reportTable{width:100% !important;margin:0 !important;}
+/* 4:3 標題：YB 標誌放在「康園試算報表」左側 */
+/* 標題列：標誌、標題、日期、品牌同一列、不換行、置中 */
+#captureArea.capture-4x3 > .rpt-head{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;justify-content:center;align-items:center;gap:16px;text-align:center !important;margin:0 0 14px !important;}
+#captureArea.capture-4x3 > .rpt-head > .rpt-badge{flex:0 0 auto;float:none;width:62px;height:62px;margin:0;font-size:18px;}
+#captureArea.capture-4x3 > .rpt-head > .rpt-title{flex:0 0 auto;white-space:nowrap;font-size:34px !important;margin:0 !important;line-height:1.15;}
+#captureArea.capture-4x3 > .rpt-head > .rpt-dateRow{flex:0 0 auto;white-space:nowrap;display:flex !important;flex-wrap:nowrap !important;justify-content:flex-start !important;align-items:center;gap:12px;margin:0 !important;}
+#captureArea.capture-4x3 .cap-right > #reportTable{width:100% !important;margin:0 !important;height:100%;}
+/* 品項少（8 樣以下）：字體加大，列高由上面的高度撐開 */
+#captureArea.capture-4x3.cap-roomy #reportTable th{font-size:17px !important;}
+#captureArea.capture-4x3.cap-roomy #reportTable td{font-size:18px !important;}
+</style>
+<style id="capture-3x4-fit">
+/* 分享圖 3:4（品項 5 樣以下）：縮小垂直用量，確保全部內容在 1200 高度內 */
+html #captureArea.capture-3x4{gap:8px !important;padding:20px 24px !important;}
+html #captureArea.capture-3x4 > *{flex-shrink:0 !important;}
+html #captureArea.capture-3x4 > #reportTable{flex:0 0 auto !important;}
+html #captureArea.capture-3x4 > .rpt-head{margin:0 0 2px !important;}
+html #captureArea.capture-3x4 > .rpt-head .rpt-badge{width:54px !important;height:54px !important;font-size:16px !important;}
+html #captureArea.capture-3x4 > .rpt-head .rpt-title{font-size:34px !important;margin-top:2px !important;}
+html #captureArea.capture-3x4 > .rpt-head .rpt-dateRow{font-size:14px !important;}
+html #captureArea.capture-3x4 .payment-options label{height:50px !important;font-size:23px !important;}
+html #captureArea.capture-3x4 .payment-options input[type=checkbox]{width:32px !important;height:32px !important;}
+html #captureArea.capture-3x4 .period-est-use-label{font-size:22px !important;}
+html #captureArea.capture-3x4 #periodCustomBtn{height:52px !important;font-size:22px !important;min-width:200px !important;}
+html #captureArea.capture-3x4 #reportTable th{font-size:17px !important;padding:6px 3px !important;}
+html #captureArea.capture-3x4 #reportTable td{font-size:17px !important;padding:5px 3px !important;}
+html #captureArea.capture-3x4 #reportTable td.qty,#captureArea.capture-3x4 #reportTable td .qty-print{font-size:19px !important;}
+html #captureArea.capture-3x4 .sum-total-val{font-size:28px !important;}
+html #captureArea.capture-3x4 .sum-total-label{font-size:17px !important;}
+html #captureArea.capture-3x4 .sum-progress-label{font-size:16px !important;}
+html #captureArea.capture-3x4 .sum-progress-value{font-size:22px !important;}
+html #captureArea.capture-3x4 .bonus-section{padding:10px !important;}
+html #captureArea.capture-3x4 .bonus-result-box{padding:12px !important;}
+/* 3:4 也隱藏未勾選的付款方式 */
+html #captureArea.capture-3x4 .payment-options label[data-pay-hidden]{display:none !important;}
+html #captureArea.capture-3x4 > .rpt-head{margin:0 0 0 !important;}
+html #captureArea.capture-3x4 > .rpt-head .rpt-dateRow{margin-top:0 !important;}
+html #captureArea.capture-3x4 .payment-period-card{padding-top:10px !important;padding-bottom:10px !important;}
+html #captureArea.capture-3x4 .sum-progress-group{padding-top:6px !important;padding-bottom:6px !important;}
 </style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
@@ -4271,6 +4309,7 @@ async function exportToImage(){
     const _itemRows=els.reportBody.querySelectorAll('tr').length;
     if(_itemRows>=17) els.captureArea.classList.add('cap-dense','cap-stretch');
     else if(_itemRows>=11) els.captureArea.classList.add('cap-mid','cap-stretch');
+    if(_itemRows<=8) els.captureArea.classList.add('cap-roomy');
     if(!_use34) els.captureArea.classList.add('capture-4x3');
     // 4:3 版型：左右兩欄用浮動排版（截圖工具無法正確保留 grid 的欄位位置），截圖後會還原
     if(!_use34){
@@ -4279,7 +4318,9 @@ async function exportToImage(){
       const _kids=[...els.captureArea.children];
       _kids.forEach(k=>{
         if(k.tagName==='SCRIPT'||k.tagName==='H2') return;
-        if(k.id==='reportTable') _right.appendChild(k); else _left.appendChild(k);
+        if(k.id==='reportTable') _right.appendChild(k);
+        else if(k.classList.contains('rpt-head')) return; // 標題列留在最上方、橫跨整個寬度
+        else _left.appendChild(k);
       });
       els.captureArea.appendChild(_left);
       els.captureArea.appendChild(_right);
@@ -4316,6 +4357,8 @@ async function exportToImage(){
     els.captureArea.style.paddingLeft="30px";
     els.captureArea.style.paddingRight="30px";
     els.captureArea.style.position="relative";
+    // 4:3：品項表格高度對齊左欄（預計獎金下緣），品項少列高、品項多列矮
+    if(capWrap){ capWrap.right.style.height=capWrap.left.offsetHeight+'px'; }
 
     await ensureDomToImage();
     const ua=navigator.userAgent||'';
@@ -4398,7 +4441,7 @@ async function exportToImage(){
     }
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
-    els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch');
+    els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch','cap-roomy');
     payHidden.forEach(l=>{ l.removeAttribute('data-pay-hidden'); });
     const _payBox=els.captureArea.querySelector('.payment-options');
     if(_payBox) _payBox.style.gridTemplateColumns=payGridCols||'';
