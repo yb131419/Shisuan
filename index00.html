@@ -2034,6 +2034,15 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-4x3 #periodCustomBtn{height:58px !important;min-width:230px !important;font-size:24px !important;font-weight:800 !important;padding:0 18px !important;border-radius:16px !important;}
 #captureArea.capture-4x3 .period-options{gap:12px !important;}
 </style>
+<style id="capture-float">
+/* 分享圖 4:3：左右兩欄改用浮動排版（截圖工具無法正確保留 grid 欄位位置） */
+#captureArea.capture-4x3{display:block !important;}
+#captureArea.capture-4x3::after{content:'';display:block;clear:both;}
+#captureArea.capture-4x3 .cap-left{float:left;width:470px;}
+#captureArea.capture-4x3 .cap-right{float:right;width:600px;}
+#captureArea.capture-4x3 .cap-left > *{margin:0 0 12px !important;}
+#captureArea.capture-4x3 .cap-right > #reportTable{width:100% !important;margin:0 !important;}
+</style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
 #captureArea.capture-4x3 .payment-options label[data-pay-hidden]{display:none !important;}
@@ -4195,6 +4204,7 @@ async function exportToImage(){
   let payHidden = [];
   let payGridCols = null;
   let originalStyles = null;
+  let capWrap = null;
 
   try{
     // 修正⑤：只隱藏切換鈕列，深色獎金卡維持原樣直接截圖
@@ -4262,6 +4272,19 @@ async function exportToImage(){
     if(_itemRows>=17) els.captureArea.classList.add('cap-dense','cap-stretch');
     else if(_itemRows>=11) els.captureArea.classList.add('cap-mid','cap-stretch');
     if(!_use34) els.captureArea.classList.add('capture-4x3');
+    // 4:3 版型：左右兩欄用浮動排版（截圖工具無法正確保留 grid 的欄位位置），截圖後會還原
+    if(!_use34){
+      const _left=document.createElement('div'); _left.className='cap-left';
+      const _right=document.createElement('div'); _right.className='cap-right';
+      const _kids=[...els.captureArea.children];
+      _kids.forEach(k=>{
+        if(k.tagName==='SCRIPT'||k.tagName==='H2') return;
+        if(k.id==='reportTable') _right.appendChild(k); else _left.appendChild(k);
+      });
+      els.captureArea.appendChild(_left);
+      els.captureArea.appendChild(_right);
+      capWrap={left:_left,right:_right,kids:_kids};
+    }
     // 付款方式：只顯示已勾選的（未勾選直接隱藏）
     const payBox=els.captureArea.querySelector('.payment-options');
     if(payBox){
@@ -4365,6 +4388,14 @@ async function exportToImage(){
     if(estDaysRow) estDaysRow.style.display = estDaysOriginalDisplay;
     if(customWrapEl) customWrapEl.style.display = customWrapOriginalDisplay;
     if(estUseLabelEl && estUseLabelEl.parentNode) estUseLabelEl.parentNode.removeChild(estUseLabelEl);
+    // 還原 4:3 左右兩欄包裝，把元素按原順序放回
+    if(capWrap){
+      const {left:_l,right:_r,kids:_ks}=capWrap;
+      _ks.forEach(k=>{ if(k.parentNode===_l||k.parentNode===_r) els.captureArea.insertBefore(k,_l); });
+      if(_l.parentNode) _l.parentNode.removeChild(_l);
+      if(_r.parentNode) _r.parentNode.removeChild(_r);
+      capWrap=null;
+    }
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
     els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch');
