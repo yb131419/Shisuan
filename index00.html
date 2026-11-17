@@ -1932,6 +1932,7 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-mode, #captureArea.capture-mode *{box-shadow:none !important;text-shadow:none !important;}
 #captureArea.capture-mode{overflow:hidden !important;}
 #captureArea.capture-mode .summaryBox,#captureArea.capture-mode .sum-progress-group,#captureArea.capture-mode .bonus-section{overflow:hidden !important;}
+#captureArea.capture-mode .summaryBox,#captureArea.capture-mode .sum-progress-group{box-shadow:none !important;}
 </style>
 <style id="capture-bigger-buyer">
 /* 分享圖：購買者／試算者的標題與內容字體加大 */
@@ -2102,6 +2103,9 @@ html #captureArea .rpt-date,
 html #captureArea .rpt-wm{color:#4a3b28 !important;font-weight:800 !important;opacity:1 !important;-webkit-text-fill-color:#4a3b28 !important;}
 /* 分享圖：YB 標誌做立體感（實色底＋較厚的深色下緣；截圖模式會移除陰影，所以用邊框製造厚度） */
 html #captureArea .rpt-badge{background:#fbf5e6 !important;border:2px solid #c9a463 !important;border-bottom:6px solid #8f6e33 !important;color:#7a5a24 !important;font-weight:800 !important;box-shadow:none !important;}
+/* 分享圖 4:3：表格列高收斂，確保品項表格不超出左欄高度 */
+html #captureArea.capture-4x3 #reportTable td,
+html #captureArea.capture-4x3 #reportTable th{line-height:1.25 !important;padding-top:5px !important;padding-bottom:5px !important;}
 </style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
@@ -4394,7 +4398,31 @@ async function exportToImage(){
     if(capWrap){
       const _l=capWrap.left, _r=capWrap.right, _t=_r.querySelector('#reportTable');
       _l.style.height='auto'; _r.style.height='auto';
-      const _H=Math.max(_l.offsetHeight, _t?_t.offsetHeight:0);
+      // 左欄各區塊不可被壓縮（否則預計獎金會被裁切）
+      Array.from(_l.children).forEach(c=>{ c.style.flexShrink='0'; });
+      // 可用底線：內容區底部（扣除底部留白）
+      const _area=els.captureArea;
+      const _bottomEdge=_area.clientHeight-parseFloat(getComputedStyle(_area).paddingBottom||'0');
+      const _avail=_bottomEdge-_l.offsetTop;
+      // 預計獎金區塊若超出，就等比縮小（只縮這一塊，讓整體不超出畫面）
+      const _bonus=_l.querySelector('.bonus-section');
+      if(_bonus){
+        // 以實際畫面位置反覆調整比例，直到預計獎金的下緣不超出底線
+        _bonus.style.transformOrigin='top center';
+        _bonus.style.transform='scale(1)';
+        const _ar=_area.getBoundingClientRect();
+        let _k=1;
+        for(let i=0;i<8;i++){
+          const _br=_bonus.getBoundingClientRect();
+          const _topV=_br.top-_ar.top, _botV=_br.bottom-_ar.top;
+          if(_botV<=_bottomEdge || _k<=0.3) break;
+          const _h1=_br.height/_k;
+          const _want=(_bottomEdge-_topV)/_h1;
+          _k=Math.max(0.3, Math.min(_k*0.98, _want));
+          _bonus.style.transform='scale('+_k+')';
+        }
+      }
+      const _H=Math.max(_avail, _t?_t.offsetHeight:0);
       _l.style.height=_H+'px'; _r.style.height=_H+'px';
     }
 
@@ -4475,7 +4503,8 @@ async function exportToImage(){
     // 還原 4:3 左右兩欄包裝，把元素按原順序放回
     if(capWrap){
       const {left:_l,right:_r,kids:_ks}=capWrap;
-      _ks.forEach(k=>{ if(k.parentNode===_l||k.parentNode===_r) els.captureArea.insertBefore(k,_l); });
+      Array.from(_l.children).forEach(c=>{ c.style.flexShrink=''; c.style.transform=''; c.style.transformOrigin=''; });
+      _ks.forEach(k=>{ k.style.transform=''; k.style.transformOrigin=''; k.style.flexShrink=''; if(k.parentNode===_l||k.parentNode===_r) els.captureArea.insertBefore(k,_l); });
       if(_l.parentNode) _l.parentNode.removeChild(_l);
       if(_r.parentNode) _r.parentNode.removeChild(_r);
       capWrap=null;
