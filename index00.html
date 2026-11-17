@@ -1721,9 +1721,11 @@ body.v-mode #quickAddFab{display:none!important}
 #captureArea #reportTable tbody tr:nth-child(odd){background:#fffdf7 !important;}
 #captureArea #reportTable tbody tr:nth-child(even){background:#f5eedd !important;}
 #captureArea #reportTable td{color:#2e2318 !important;border-color:#e6dcc6 !important;}
-#captureArea #reportTable tfoot td,#captureArea #reportTable tr.total-row td{background:#ebe1cb !important;color:#2e2318 !important;font-weight:800;}
+#captureArea #reportTable tfoot td,#captureArea #reportTable tr.total-row td{background:#5b4a35 !important;color:#f3dca2 !important;font-weight:900;border-top:2px solid #3a2d1d !important;}
 #captureArea .summaryBox .sum-totals{display:grid !important;grid-template-columns:1fr 1fr;gap:10px;}
 #captureArea .summaryBox .sum-total-divider{display:none !important;}
+#captureArea .summaryBox .sum-totals{align-items:stretch !important;}
+#captureArea .summaryBox .sum-total-item{height:auto !important;align-self:stretch !important;box-sizing:border-box !important;}
 #captureArea .summaryBox .sum-total-item{background:#5b4a35 !important;border-radius:18px;padding:14px 8px;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:none !important;}
 #captureArea .summaryBox .sum-total-item:last-child{background:#fffdf7 !important;border:1px solid #dcc79c !important;}
 #captureArea .summaryBox .sum-total-ic-wrap{display:none !important;}
@@ -1965,6 +1967,7 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea #reportTable th{border-bottom:3px solid #3a2d1d !important;}
 #captureArea #reportTable tr:nth-child(odd) td{background:#fffdf7 !important;}
 #captureArea #reportTable tr:nth-child(even) td{background:#f6efdc !important;}
+html #captureArea #reportTable tr.total-row td{background:#5b4a35 !important;color:#f3dca2 !important;font-weight:900 !important;}
 #captureArea #reportTable tr:last-child td{border-bottom:none;}
 #captureArea .sum-progress-track{border-bottom:2px solid #d2c39c;}
 #captureArea .sum-progress-fill{border-bottom:2px solid rgba(0,0,0,.12);}
@@ -4408,7 +4411,11 @@ async function exportToImage(){
       const _bonus=_l.querySelector('.bonus-section');
       if(_bonus){
         // 以實際畫面位置反覆調整比例，直到預計獎金的下緣不超出底線
-        _bonus.style.transformOrigin='top center';
+        // 縮小時寬度同步放大（寬 = 欄寬 ÷ 比例），縮完後寬度仍與上方卡片一致
+        const _Lw=_l.clientWidth;
+        _bonus.style.boxSizing='border-box';
+        _bonus.style.transformOrigin='top left';
+        _bonus.style.width=_Lw+'px';
         _bonus.style.transform='scale(1)';
         const _ar=_area.getBoundingClientRect();
         let _k=1;
@@ -4419,6 +4426,7 @@ async function exportToImage(){
           const _h1=_br.height/_k;
           const _want=(_bottomEdge-_topV)/_h1;
           _k=Math.max(0.3, Math.min(_k*0.98, _want));
+          _bonus.style.width=(_Lw/_k)+'px';
           _bonus.style.transform='scale('+_k+')';
         }
       }
@@ -4503,7 +4511,7 @@ async function exportToImage(){
     // 還原 4:3 左右兩欄包裝，把元素按原順序放回
     if(capWrap){
       const {left:_l,right:_r,kids:_ks}=capWrap;
-      Array.from(_l.children).forEach(c=>{ c.style.flexShrink=''; c.style.transform=''; c.style.transformOrigin=''; });
+      Array.from(_l.children).forEach(c=>{ c.style.flexShrink=''; c.style.transform=''; c.style.transformOrigin=''; c.style.width=''; c.style.boxSizing=''; });
       _ks.forEach(k=>{ k.style.transform=''; k.style.transformOrigin=''; k.style.flexShrink=''; if(k.parentNode===_l||k.parentNode===_r) els.captureArea.insertBefore(k,_l); });
       if(_l.parentNode) _l.parentNode.removeChild(_l);
       if(_r.parentNode) _r.parentNode.removeChild(_r);
