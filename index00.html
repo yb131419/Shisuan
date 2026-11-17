@@ -1976,6 +1976,114 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea:not(.capture-mode) .summaryBox .sum-total-item{box-shadow:0 10px 18px -8px rgba(58,45,29,.55) !important;}
 #captureArea:not(.capture-mode) .rpt-title{text-shadow:0 2px 0 #fffdf7,0 3px 4px rgba(91,74,53,.25);}
 </style>
+<style id="capture-width-fix">
+#captureArea.capture-mode{max-width:none !important;min-width:0 !important;}
+</style>
+<style id="capture-4x3">
+/* 分享圖 4:3：左欄 = 付款/期數、購買者/試算者、總金額/PV、達標、獎金；右欄 = 產品明細 */
+#captureArea.capture-4x3{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);grid-auto-rows:max-content;gap:14px 22px;align-items:start;height:900px !important;overflow:hidden !important;box-sizing:border-box;padding:26px 28px !important;}
+#captureArea.capture-4x3 > h2{display:none !important;}
+#captureArea.capture-4x3 > script{display:none !important;}
+#captureArea.capture-4x3 > .rpt-head{grid-column:1 / -1;grid-row:1;margin-bottom:0 !important;}
+#captureArea.capture-4x3 > .payment-period-card{grid-column:1;grid-row:2;margin:0 !important;}
+#captureArea.capture-4x3 > .userInputs{grid-column:1;grid-row:3;margin:0 !important;}
+#captureArea.capture-4x3 > .summaryBox{grid-column:1;grid-row:4;margin:0 !important;}
+#captureArea.capture-4x3 > .bonus-section{grid-column:1;grid-row:5;margin:0 !important;}
+#captureArea.capture-4x3 > #reportTable{grid-column:2;grid-row:2 / 6;margin:0 !important;align-self:start;}
+#captureArea.capture-4x3 .bonus-toggle-row{display:none !important;}
+/* 中密（11–16 項）：表格稍縮、左欄撐滿與表格等高 */
+#captureArea.capture-4x3.cap-mid #reportTable th{padding:7px 3px !important;font-size:13px !important;}
+#captureArea.capture-4x3.cap-mid #reportTable td{padding:6px 3px !important;font-size:13px !important;}
+/* 高密（約 20 項）：表格再縮，左欄卡片變精簡 */
+#captureArea.capture-4x3.cap-dense #reportTable th{padding:5px 2px !important;font-size:11.5px !important;}
+#captureArea.capture-4x3.cap-dense #reportTable td{padding:3px 2px !important;font-size:11.5px !important;}
+#captureArea.capture-4x3.cap-dense #reportTable td.qty,
+#captureArea.capture-4x3.cap-dense #reportTable td .qty-print{font-size:13px !important;}
+/* 左欄撐滿高度，依項目多寡分配（項目少時不撐，維持原本緊湊排版） */
+#captureArea.capture-4x3.cap-stretch{align-content:stretch;}
+#captureArea.capture-4x3.cap-stretch > .payment-period-card,
+#captureArea.capture-4x3.cap-stretch > .userInputs,
+#captureArea.capture-4x3.cap-stretch > .summaryBox,
+#captureArea.capture-4x3.cap-stretch > .bonus-section{display:flex !important;flex-direction:column;justify-content:center;align-self:stretch;height:100%;}
+#captureArea.capture-4x3.cap-dense > .payment-period-card{padding:8px 10px !important;}
+#captureArea.capture-4x3.cap-dense > .userInputs .buyer-container,
+#captureArea.capture-4x3.cap-dense > .userInputs .calculator-container{padding:8px 6px !important;}
+#captureArea.capture-4x3.cap-dense > .summaryBox .sum-total-item{padding:8px 4px !important;}
+#captureArea.capture-4x3.cap-dense > .summaryBox .sum-total-val{font-size:22px !important;}
+#captureArea.capture-4x3.cap-dense > .summaryBox .sum-total-label{font-size:12px !important;}
+#captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-group{padding:8px !important;}
+#captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-size:15px !important;}
+#captureArea.capture-4x3.cap-dense > .bonus-section{padding:8px !important;}
+</style>
+<style id="capture-4x3-v3">
+/* 分享圖 v3：品牌頭併入左欄；產品明細在右欄從頂端撐到底；付款改為勾選方框 */
+#captureArea.capture-4x3 > .rpt-head{grid-column:1 !important;grid-row:1 !important;display:flex !important;flex-direction:column;align-items:flex-start;gap:6px;margin:0 !important;}
+#captureArea.capture-4x3 > .rpt-head .rpt-badge{width:58px;height:58px;}
+#captureArea.capture-4x3 > .rpt-head .rpt-title{font-size:32px !important;line-height:1.1;}
+#captureArea.capture-4x3 > .rpt-head .rpt-dateRow{display:flex;align-items:center;gap:12px;}
+#captureArea.capture-4x3 > #reportTable{grid-column:2 !important;grid-row:1 / 6 !important;align-self:stretch !important;}
+#captureArea.capture-4x3 .payment-options{display:grid !important;grid-template-columns:1fr 1fr;gap:12px;}
+#captureArea.capture-4x3 .payment-options label{display:flex !important;align-items:center;justify-content:center;gap:10px;height:58px;border-radius:14px;background:#fffdf7 !important;border:1px solid #dcc79c !important;border-bottom:4px solid #d9c99f !important;font-size:18px !important;font-weight:700;color:#2e2318 !important;}
+#captureArea.capture-4x3 .payment-options input[type=checkbox]{-webkit-appearance:none;appearance:none;width:28px;height:28px;margin:0;border-radius:7px;border:1.5px solid #9d8e74;background:#fffdf7;display:inline-grid;place-content:center;flex:0 0 auto;}
+#captureArea.capture-4x3 .payment-options input[type=checkbox]:checked{background:linear-gradient(180deg,#c9a463,#b8924a);border-color:#b8924a;}
+#captureArea.capture-4x3 .payment-options input[type=checkbox]:checked::after{content:'✓';color:#fff;font-size:18px;font-weight:900;line-height:1;}
+</style>
+<style id="capture-period-big">
+/* 分享圖：預估使用與月份欄位放大 */
+#captureArea.capture-4x3 .period-est-use-label{font-size:24px !important;font-weight:800 !important;}
+#captureArea.capture-4x3 #periodCustomBtn{height:58px !important;min-width:230px !important;font-size:24px !important;font-weight:800 !important;padding:0 18px !important;border-radius:16px !important;}
+#captureArea.capture-4x3 .period-options{gap:12px !important;}
+</style>
+<style id="capture-pay-hide">
+/* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
+#captureArea.capture-4x3 .payment-options label[data-pay-hidden]{display:none !important;}
+</style>
+<style id="capture-pay-big">
+/* 分享圖：現金／刷卡文字與勾選框放大 */
+#captureArea.capture-4x3 .payment-options label{height:68px !important;font-size:26px !important;font-weight:800 !important;gap:12px !important;}
+#captureArea.capture-4x3 .payment-options input[type=checkbox]{width:36px !important;height:36px !important;border-radius:9px !important;}
+#captureArea.capture-4x3 .payment-options input[type=checkbox]:checked::after{font-size:26px !important;}
+</style>
+<style id="capture-3x4">
+/* 分享圖 3:4（品項 5 樣以下）：直式單欄，品牌、付款、人員、金額、獎金、產品明細由上往下 */
+#captureArea.capture-3x4{display:flex !important;flex-direction:column;gap:16px;padding:30px 28px !important;box-sizing:border-box;overflow:hidden !important;}
+#captureArea.capture-3x4 > h2,#captureArea.capture-3x4 > script{display:none !important;}
+#captureArea.capture-3x4 > .rpt-head{margin:0 0 4px !important;}
+#captureArea.capture-3x4 > .rpt-head .rpt-title{font-size:34px !important;}
+#captureArea.capture-3x4 > #reportTable{width:100% !important;margin:0 !important;}
+#captureArea.capture-3x4 .payment-options{display:grid !important;grid-template-columns:1fr 1fr;gap:12px;}
+#captureArea.capture-3x4 .payment-options label{height:68px !important;font-size:26px !important;font-weight:800 !important;display:flex !important;align-items:center;justify-content:center;gap:12px;}
+#captureArea.capture-3x4 .payment-options input[type=checkbox]{-webkit-appearance:none;appearance:none;width:36px !important;height:36px !important;border-radius:9px;border:1.5px solid #9d8e74;background:#fffdf7;display:inline-grid;place-content:center;}
+#captureArea.capture-3x4 .payment-options input[type=checkbox]:checked{background:linear-gradient(180deg,#c9a463,#b8924a);border-color:#b8924a;}
+#captureArea.capture-3x4 .payment-options input[type=checkbox]:checked::after{content:'✓';color:#fff;font-size:26px;font-weight:900;line-height:1;}
+#captureArea.capture-3x4 .period-est-use-label{font-size:24px !important;font-weight:800 !important;}
+#captureArea.capture-3x4 #periodCustomBtn{height:58px !important;min-width:230px !important;font-size:24px !important;font-weight:800 !important;}
+#captureArea.capture-3x4 .sum-total-val{font-size:34px !important;}
+</style>
+<style id="capture-3x4-center">
+/* 3:4 直式：文字置中、字級加大，表格列高加大讓版面更飽滿 */
+#captureArea.capture-3x4 > .rpt-head{align-items:center !important;text-align:center;}
+#captureArea.capture-3x4 > .rpt-head .rpt-title{font-size:42px !important;}
+#captureArea.capture-3x4 > .rpt-head .rpt-badge{width:66px;height:66px;font-size:20px;}
+#captureArea.capture-3x4 > .rpt-head .rpt-dateRow{justify-content:center;font-size:16px;}
+#captureArea.capture-3x4 .payment-options label{font-size:30px !important;height:76px !important;justify-content:center !important;}
+#captureArea.capture-3x4 .payment-options input[type=checkbox]{width:40px !important;height:40px !important;}
+#captureArea.capture-3x4 .period-est-use-label{font-size:28px !important;}
+#captureArea.capture-3x4 #periodCustomBtn{height:64px !important;min-width:260px !important;font-size:28px !important;justify-content:center !important;}
+#captureArea.capture-3x4 .period-options{justify-content:center !important;}
+#captureArea.capture-3x4 .buyer-container,#captureArea.capture-3x4 .calculator-container{text-align:center !important;}
+#captureArea.capture-3x4 .sum-total-item{align-items:center !important;text-align:center !important;justify-content:center !important;}
+#captureArea.capture-3x4 .sum-total-label{font-size:20px !important;}
+#captureArea.capture-3x4 .sum-total-val{font-size:44px !important;}
+#captureArea.capture-3x4 .sum-progress-col{text-align:center !important;align-items:center !important;}
+#captureArea.capture-3x4 .sum-progress-label{font-size:19px !important;}
+#captureArea.capture-3x4 .sum-progress-value{font-size:28px !important;}
+#captureArea.capture-3x4 .bonus-section{text-align:center;}
+#captureArea.capture-3x4 > #reportTable{flex:1 1 auto !important;}
+#captureArea.capture-3x4 #reportTable th{font-size:19px !important;padding:14px 4px !important;}
+#captureArea.capture-3x4 #reportTable td{font-size:19px !important;padding:14px 4px !important;}
+#captureArea.capture-3x4 #reportTable td.qty,#captureArea.capture-3x4 #reportTable td .qty-print{font-size:22px !important;}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -4084,6 +4192,8 @@ async function exportToImage(){
   let estUseLabelEl = null;
   let qtySwaps = [];
   let opCells = [];
+  let payHidden = [];
+  let payGridCols = null;
   let originalStyles = null;
 
   try{
@@ -4142,7 +4252,28 @@ async function exportToImage(){
     const tableWidth=els.reportTable.offsetWidth;
     const lastCol=els.reportTable.querySelector('th:last-child');
     const lastColWidth=lastCol?lastCol.offsetWidth:0;
-    const captureWidth=(tableWidth-lastColWidth)+60;
+    // 分享圖固定 4:3（1200×900）：左欄為試算資訊，右欄為產品明細
+    // 版型比例：品項 5 樣以下用 3:4（900×1200），超過 5 樣用 4:3（1200×900）
+    const _use34=els.reportBody.querySelectorAll('tr').length<=5;
+    const captureWidth=_use34?900:1200;
+    const captureTargetH=_use34?1200:900;
+    if(_use34) els.captureArea.classList.add('capture-3x4');
+    const _itemRows=els.reportBody.querySelectorAll('tr').length;
+    if(_itemRows>=17) els.captureArea.classList.add('cap-dense','cap-stretch');
+    else if(_itemRows>=11) els.captureArea.classList.add('cap-mid','cap-stretch');
+    if(!_use34) els.captureArea.classList.add('capture-4x3');
+    // 付款方式：只顯示已勾選的（未勾選直接隱藏）
+    const payBox=els.captureArea.querySelector('.payment-options');
+    if(payBox){
+      payGridCols=payBox.style.gridTemplateColumns;
+      const visible=[];
+      payBox.querySelectorAll('label').forEach(l=>{
+        const cb=l.querySelector('input[type=checkbox]');
+        if(cb && !cb.checked){ l.setAttribute('data-pay-hidden','1'); payHidden.push(l); }
+        else visible.push(l);
+      });
+      payBox.style.gridTemplateColumns = visible.length===1 ? '1fr' : '';
+    }
 
     // 保存原始樣式
     originalStyles = {
@@ -4151,10 +4282,14 @@ async function exportToImage(){
       paddingRight: els.captureArea.style.paddingRight,
       position: els.captureArea.style.position,
       zIndex: els.captureArea.style.zIndex,
-      background: els.captureArea.style.background
+      background: els.captureArea.style.background,
+      height: els.captureArea.style.height,
+      maxWidth: els.captureArea.style.maxWidth
     };
 
+    els.captureArea.style.setProperty('max-width','none','important');
     els.captureArea.style.width=`${captureWidth}px`;
+    els.captureArea.style.height=`${captureTargetH}px`;
     els.captureArea.style.paddingLeft="30px";
     els.captureArea.style.paddingRight="30px";
     els.captureArea.style.position="relative";
@@ -4232,6 +4367,10 @@ async function exportToImage(){
     if(estUseLabelEl && estUseLabelEl.parentNode) estUseLabelEl.parentNode.removeChild(estUseLabelEl);
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
+    els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch');
+    payHidden.forEach(l=>{ l.removeAttribute('data-pay-hidden'); });
+    const _payBox=els.captureArea.querySelector('.payment-options');
+    if(_payBox) _payBox.style.gridTemplateColumns=payGridCols||'';
     // 修正③：截圖完成後還原「數量」下拉選單
     qtySwaps.forEach(item=>{
       if(item.span.parentNode) item.span.parentNode.removeChild(item.span);
@@ -4244,6 +4383,8 @@ async function exportToImage(){
       els.captureArea.style.paddingLeft=originalStyles.paddingLeft;
       els.captureArea.style.paddingRight=originalStyles.paddingRight;
       els.captureArea.style.position=originalStyles.position;
+      els.captureArea.style.height=originalStyles.height;
+      els.captureArea.style.maxWidth=originalStyles.maxWidth||'';
     }
     els.exportBtn.disabled=false;
     document.querySelectorAll('body > svg, body > div.domtoimage-wrapper').forEach(el=>{
