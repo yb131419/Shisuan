@@ -2149,8 +2149,8 @@ html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-s
 /* 品項總計列重新設計：整列合併成一條（總計 ｜ 總金額 ｜ 總 PV） */
 #captureArea #reportTable tr.total-row td.tot-cell{padding:10px 12px !important;text-align:center !important;}
 #captureArea .tot-wrap{display:flex;justify-content:center;align-items:center;gap:28px;}
-#captureArea .tot-l{font-size:24px;font-weight:900;color:#e9d59a !important;letter-spacing:4px;}
-#captureArea .tot-a{font-size:36px;font-weight:900;color:#fff3d1 !important;}
+#captureArea .tot-l{font-size:24px;font-weight:800;color:#f0e2bd !important;letter-spacing:1.2px;}
+#captureArea .tot-a{font-family:Georgia,serif;font-size:36px;font-weight:700;color:#f0e2bd !important;}
 #captureArea .tot-p{font-size:26px;font-weight:800;color:#3f6b57 !important;background:#fffdf7;border:2px solid #dcc79c;border-radius:12px;padding:4px 14px;}
 /* 數量欄位加寬、數字加大（4:3） */
 html #captureArea.capture-4x3 #reportTable th:nth-child(2),html #captureArea.capture-4x3 #reportTable td:nth-child(2){width:13% !important;}
@@ -4397,7 +4397,8 @@ async function exportToImage(){
       _tr.className='total-row';
       const _pvTxt=(els.totalPvCellDup.textContent||'').trim();
       const _priceTxt=(els.totalPriceCellDup.textContent||'').trim();
-      _tr.innerHTML='<td colspan="6" class="tot-cell"><div class="tot-wrap"><span class="tot-l">總計</span><span class="tot-a">'+_priceTxt+'</span><span class="tot-p">總 PV '+_pvTxt+'</span></div></td><td style="display:none"></td>';
+      const _totLbl=(currentCurrency==='TWD')?'總計':'總計（'+CURRENCY_TABLE[currentCurrency].label+'）';
+      _tr.innerHTML='<td colspan="6" class="tot-cell"><div class="tot-wrap"><span class="tot-l">'+_totLbl+'</span><span class="tot-a">'+_priceTxt+'</span><span class="tot-p">總 PV '+_pvTxt+'</span></div></td><td style="display:none"></td>';
       els.reportBody.appendChild(_tr);
       capTotalRow=_tr;
     }
