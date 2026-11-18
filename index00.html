@@ -2151,7 +2151,14 @@ html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-s
 #captureArea .tot-wrap{display:flex;justify-content:center;align-items:center;gap:28px;}
 #captureArea .tot-l{font-size:24px;font-weight:900;color:#e9d59a !important;letter-spacing:4px;}
 #captureArea .tot-a{font-size:36px;font-weight:900;color:#fff3d1 !important;}
-#captureArea .tot-p{font-size:26px;font-weight:800;color:#e9d59a !important;}
+#captureArea .tot-p{font-size:26px;font-weight:800;color:#3f6b57 !important;background:#fffdf7;border:2px solid #dcc79c;border-radius:12px;padding:4px 14px;}
+/* 數量欄位加寬、數字加大（4:3） */
+html #captureArea.capture-4x3 #reportTable th:nth-child(2),html #captureArea.capture-4x3 #reportTable td:nth-child(2){width:13% !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(2){font-size:28px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(2){font-size:22px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(2){font-size:19px !important;}
+/* 文字框外圍加白色（4:3） */
+html #captureArea.capture-4x3 .buyer-container,html #captureArea.capture-4x3 .calculator-container,html #captureArea.capture-4x3 .estimated-days-row,html #captureArea.capture-4x3 .payment-options label,html #captureArea.capture-4x3 #periodCustomBtn{outline:3px solid #ffffff !important;outline-offset:2px !important;}
 </style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
