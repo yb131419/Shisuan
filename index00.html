@@ -949,6 +949,8 @@ body{
 .bonus-result-pct{font-size:1.5rem;font-weight:bold;color:#00d1b2;line-height:1.2;}
 .bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ff9f43;margin-top:2px;}
 .bonus-result-tax{font-size:0.92rem;font-weight:700;color:#3a2e21;margin-top:4px;padding-top:6px;border-top:1px dashed #dcc79c;}
+.tax-lbl{display:block;font-size:0.85rem;opacity:.9;}
+.tax-amt{display:block;font-size:1.5rem;font-weight:800;}
 .bonus-result-tier{font-size:0.78rem;color:#888;margin-top:4px;line-height:1.5;}
 .bonus-result-deduct{
   font-size:0.8rem;font-weight:700;color:#5b9dff;margin-bottom:6px;
@@ -2042,8 +2044,8 @@ html #captureArea #reportTable tr.total-row td{background:#5b4a35 !important;col
 /* 分享圖 4:3：左右兩欄改用浮動排版（截圖工具無法正確保留 grid 欄位位置） */
 #captureArea.capture-4x3{display:block !important;}
 #captureArea.capture-4x3::after{content:'';display:block;clear:both;}
-#captureArea.capture-4x3 .cap-left{float:left;width:500px;}
-#captureArea.capture-4x3 .cap-right{float:right;width:620px;}
+#captureArea.capture-4x3 .cap-left{float:left;width:430px;}
+#captureArea.capture-4x3 .cap-right{float:right;width:690px;}
 #captureArea.capture-4x3 .cap-left > *{margin:0 0 12px !important;}
 #captureArea.capture-4x3 .cap-left{display:flex;flex-direction:column;justify-content:space-between;}
 #captureArea.capture-4x3 .cap-left > :last-child{margin-bottom:0 !important;}
@@ -2060,19 +2062,20 @@ html #captureArea #reportTable tr.total-row td{background:#5b4a35 !important;col
 /* 分享圖品項表格：加粗加大（依品項多寡分級） */
 html #captureArea.capture-4x3 #reportTable th{font-weight:800 !important;font-size:16px !important;}
 html #captureArea.capture-4x3 #reportTable td{font-weight:800 !important;font-size:17px !important;}
-html #captureArea.capture-4x3.cap-roomy #reportTable th{font-size:19px !important;}
-html #captureArea.capture-4x3.cap-roomy #reportTable td{font-size:21px !important;}
-html #captureArea.capture-4x3.cap-mid #reportTable th{font-size:16px !important;}
-html #captureArea.capture-4x3.cap-mid #reportTable td{font-size:16px !important;}
-html #captureArea.capture-4x3.cap-dense #reportTable th{font-size:14px !important;}
-html #captureArea.capture-4x3.cap-dense #reportTable td{font-size:14px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable th{font-size:22px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable td{font-size:23px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable th{font-size:18px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable td{font-size:18px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable th{font-size:15px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable td{font-size:15px !important;}
 /* 品項名稱加大；單價、PV 欄位縮小（4:3，依品項多寡） */
-html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(1){font-size:24px !important;}
-html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(1){font-size:19px !important;}
-html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(1){font-size:15px !important;}
-html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(4){font-size:16px !important;}
-html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(4){font-size:13px !important;}
-html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(4){font-size:11.5px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(1){font-size:30px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(1){font-size:22px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(1){font-size:18px !important;}
+html #captureArea.capture-4x3 #reportTable th:nth-child(1),html #captureArea.capture-4x3 #reportTable td:nth-child(1){width:36% !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(4){font-size:19px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(4){font-size:16px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(4){font-size:13px !important;}
 </style>
 <style id="capture-3x4-fit">
 /* 分享圖 3:4（品項 5 樣以下）：縮小垂直用量，確保全部內容在 1200 高度內 */
@@ -2116,6 +2119,39 @@ html #captureArea .rpt-badge{background:#fbf5e6 !important;border:2px solid #c9a
 /* 分享圖 4:3：表格列高收斂，確保品項表格不超出左欄高度 */
 html #captureArea.capture-4x3 #reportTable td,
 html #captureArea.capture-4x3 #reportTable th{line-height:1.25 !important;padding-top:5px !important;padding-bottom:5px !important;}
+/* 預計獎金：字體優先，重新排版（4:3；用 flex 換行，避免 grid 在截圖時失效） */
+html #captureArea.capture-4x3 .bonus-result-box{display:flex !important;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;}
+html #captureArea.capture-4x3 .bonus-result-box > *{width:100% !important;text-align:center !important;margin:0 !important;}
+html #captureArea.capture-4x3 .bonus-result-box > .bonus-result-pct,html #captureArea.capture-4x3 .bonus-result-box > .bonus-result-amount{width:calc(50% - 6px) !important;}
+html #captureArea.capture-4x3 .bonus-result-label{font-size:17px !important;}
+html #captureArea.capture-4x3 .bonus-result-deduct{font-size:16px !important;padding:6px 10px !important;}
+html #captureArea.capture-4x3 .bonus-result-pct{font-size:38px !important;line-height:1.1 !important;}
+html #captureArea.capture-4x3 .bonus-result-amount{font-size:24px !important;}
+html #captureArea.capture-4x3 .bonus-result-tax{background:#5b4a35 !important;border:2px solid #3a2d1d !important;border-radius:14px !important;padding:8px 10px !important;margin-top:4px !important;color:#f3dca2 !important;font-size:16px !important;font-weight:800 !important;}
+html #captureArea.capture-4x3 .bonus-result-tax .tax-lbl{font-size:18px !important;color:#e9d59a !important;font-weight:800 !important;opacity:1 !important;}
+html #captureArea.capture-4x3 .bonus-result-tax .tax-amt{font-size:40px !important;font-weight:900 !important;color:#fff3d1 !important;line-height:1.15 !important;}
+html #captureArea.capture-4x3 .bonus-result-tier{font-size:14px !important;}
+html #captureArea.capture-4x3 .bonus-result-none{font-size:18px !important;}
+/* 預估可使用天數加大（4:3） */
+html #captureArea.capture-4x3 .estimated-days-label{font-size:20px !important;}
+html #captureArea.capture-4x3 .estimated-days-val{font-size:30px !important;}
+/* 整體字體再加大（4:3，仍以不超出欄位為限） */
+html #captureArea.capture-4x3 > .rpt-head > .rpt-title{font-size:38px !important;}
+html #captureArea.capture-4x3 .rpt-date{font-size:20px !important;}
+html #captureArea.capture-4x3 .rpt-wm{font-size:18px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-total-val{font-size:34px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-total-label{font-size:15px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-label{font-size:16px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-value{font-size:22px !important;}
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-total-val{font-size:30px !important;}
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-total-label{font-size:14px !important;}
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-size:18px !important;}
+/* 品項總計列重新設計：整列合併成一條（總計 ｜ 總金額 ｜ 總 PV） */
+#captureArea #reportTable tr.total-row td.tot-cell{padding:10px 12px !important;text-align:center !important;}
+#captureArea .tot-wrap{display:flex;justify-content:center;align-items:center;gap:28px;}
+#captureArea .tot-l{font-size:24px;font-weight:900;color:#e9d59a !important;letter-spacing:4px;}
+#captureArea .tot-a{font-size:36px;font-weight:900;color:#fff3d1 !important;}
+#captureArea .tot-p{font-size:26px;font-weight:800;color:#e9d59a !important;}
 </style>
 <style id="capture-pay-hide">
 /* 分享圖：未勾選的付款方式隱藏（需用 !important 才能蓋過 capture 版型的顯示規則） */
@@ -2811,7 +2847,7 @@ function updateBonusDisplay() {
     ${thresholdNote}
     <div class="bonus-result-pct">${pctText}</div>
     <div class="bonus-result-amount">約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(bonusAmt)}</div>
-    <div class="bonus-result-tax">扣稅 10% 後：約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(afterTaxAmt)}</div>
+    <div class="bonus-result-tax"><span class="tax-lbl">扣稅 10% 後實得</span><span class="tax-amt">約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(afterTaxAmt)}</span></div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
 }
@@ -4354,7 +4390,7 @@ async function exportToImage(){
       _tr.className='total-row';
       const _pvTxt=(els.totalPvCellDup.textContent||'').trim();
       const _priceTxt=(els.totalPriceCellDup.textContent||'').trim();
-      _tr.innerHTML='<td>總計</td><td></td><td></td><td></td><td>'+_priceTxt+'</td><td>'+_pvTxt+'</td><td style="display:none"></td>';
+      _tr.innerHTML='<td colspan="6" class="tot-cell"><div class="tot-wrap"><span class="tot-l">總計</span><span class="tot-a">'+_priceTxt+'</span><span class="tot-p">總 PV '+_pvTxt+'</span></div></td><td style="display:none"></td>';
       els.reportBody.appendChild(_tr);
       capTotalRow=_tr;
     }
