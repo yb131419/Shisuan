@@ -948,6 +948,7 @@ body{
 .bonus-result-label{font-size:0.82rem;color:#aaa;margin-bottom:4px;letter-spacing:0.5px;}
 .bonus-result-pct{font-size:1.5rem;font-weight:bold;color:#00d1b2;line-height:1.2;}
 .bonus-result-amount{font-size:1.05rem;font-weight:bold;color:#ff9f43;margin-top:2px;}
+.bonus-approx{color:#ffffff !important;background:#5b4a35;border-radius:6px;padding:0 6px;}
 .bonus-result-tax{font-size:0.92rem;font-weight:700;color:#3a2e21;margin-top:4px;padding-top:6px;border-top:1px dashed #dcc79c;}
 .tax-lbl{display:block;font-size:0.85rem;opacity:.9;}
 .tax-amt{display:block;font-size:1.5rem;font-weight:800;}
@@ -1943,6 +1944,22 @@ html body #currencyBar button.currency-btn[aria-checked="true"]{
 #captureArea.capture-mode .userInputs label > span{font-size:22px !important;}
 #captureArea.capture-mode #buyerInput,#captureArea.capture-mode #calculatorDisplay,#captureArea.capture-mode .userInputs input{font-size:26px !important;font-weight:800 !important;line-height:1.3 !important;}
 </style>
+<style id="capture-input-hint">
+/* 分享圖：「輸入購買者／輸入試算者」提示文字改用醒目的橘棕色粗體，與內容區分 */
+html #captureArea.capture-mode #buyerInput::placeholder,html #captureArea.capture-mode #calculatorDisplay::placeholder{color:#1e5fa8 !important;font-weight:900 !important;opacity:1 !important;}
+html #captureArea.capture-mode #buyerInput[data-hint-swap],html #captureArea.capture-mode #calculatorDisplay[data-hint-swap]{font-size:32px !important;line-height:1.3 !important;}
+</style>
+<style id="capture-bonus-light">
+/* 分享圖：左下角預計獎金區改回淺色底，外型與上方卡片一致；扣稅後實得保留深色卡片 */
+html #captureArea.capture-mode .bonus-section{background:#fffdf7 !important;border:1px solid #dcc79c !important;border-bottom:5px solid #d6c294 !important;color:#3a2e21 !important;}
+html #captureArea.capture-mode .bonus-section .bonus-result-label{color:#3a2e21 !important;}
+html #captureArea.capture-mode .bonus-section .bonus-result-deduct{background:#5b4a35 !important;color:#ffffff !important;border-radius:8px !important;}
+/* 白底配色：6% 用品牌綠、金額用深棕，與右側總 PV 及卡片色系一致 */
+html #captureArea.capture-mode .bonus-section .bonus-result-pct{color:#3f6b57 !important;}
+html #captureArea.capture-mode .bonus-section .bonus-result-amount{color:#5b4a35 !important;}
+html #captureArea.capture-mode .bonus-section .bonus-result-tax{background:#5b4a35 !important;border:2px solid #dcc79c !important;}
+html #captureArea.capture-mode .bonus-section .bonus-result-tax *{color:#ffffff !important;background:transparent !important;}
+</style>
 <style id="welcome-black-text">
 /* 登錄歡迎浮窗：文字改為黑色（取消金色漸層）；姓名字體加大 */
 .welcome-card .welcome-name{font-size:1.7rem !important;line-height:1.3;}
@@ -2044,8 +2061,8 @@ html #captureArea #reportTable tr.total-row td{background:#5b4a35 !important;col
 /* 分享圖 4:3：左右兩欄改用浮動排版（截圖工具無法正確保留 grid 欄位位置） */
 #captureArea.capture-4x3{display:block !important;}
 #captureArea.capture-4x3::after{content:'';display:block;clear:both;}
-#captureArea.capture-4x3 .cap-left{float:left;width:430px;}
-#captureArea.capture-4x3 .cap-right{float:right;width:690px;}
+#captureArea.capture-4x3 .cap-left{float:left;width:380px;}
+#captureArea.capture-4x3 .cap-right{float:right;width:740px;}
 #captureArea.capture-4x3 .cap-left > *{margin:0 0 12px !important;}
 #captureArea.capture-4x3 .cap-left{display:flex;flex-direction:column;justify-content:space-between;}
 #captureArea.capture-4x3 .cap-left > :last-child{margin-bottom:0 !important;}
@@ -2123,7 +2140,7 @@ html #captureArea.capture-4x3 #reportTable th{line-height:1.25 !important;paddin
 html #captureArea.capture-4x3 .bonus-result-box{display:flex !important;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;}
 html #captureArea.capture-4x3 .bonus-result-box > *{width:100% !important;text-align:center !important;margin:0 !important;}
 html #captureArea.capture-4x3 .bonus-result-box > .bonus-result-pct,html #captureArea.capture-4x3 .bonus-result-box > .bonus-result-amount{width:calc(50% - 6px) !important;}
-html #captureArea.capture-4x3 .bonus-result-label{font-size:17px !important;}
+html #captureArea.capture-4x3 .bonus-result-label{font-size:26px !important;font-weight:900 !important;color:#2b2118 !important;}
 html #captureArea.capture-4x3 .bonus-result-deduct{font-size:16px !important;padding:6px 10px !important;}
 html #captureArea.capture-4x3 .bonus-result-pct{font-size:38px !important;line-height:1.1 !important;}
 html #captureArea.capture-4x3 .bonus-result-amount{font-size:24px !important;}
@@ -2150,13 +2167,32 @@ html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-s
 #captureArea #reportTable tr.total-row td.tot-cell{padding:10px 12px !important;text-align:center !important;}
 #captureArea .tot-wrap{display:flex;justify-content:center;align-items:center;gap:28px;}
 #captureArea .tot-l{font-size:24px;font-weight:800;color:#f0e2bd !important;letter-spacing:1.2px;}
-#captureArea .tot-a{font-family:Georgia,serif;font-size:36px;font-weight:700;color:#f0e2bd !important;}
+#captureArea .tot-a{font-family:Georgia,serif;font-size:36px;font-weight:700;color:#ffffff !important;}
 #captureArea .tot-p{font-size:26px;font-weight:800;color:#3f6b57 !important;background:#fffdf7;border:2px solid #dcc79c;border-radius:12px;padding:4px 14px;}
+/* 左側（4:3）：隱藏總金額、總 PV；購買者、試算者上下排列 */
+html #captureArea.capture-4x3 .summaryBox .sum-totals{display:none !important;}
+html #captureArea.capture-4x3 .userInputs > .row{display:flex !important;flex-direction:column !important;gap:10px !important;}
+html #captureArea.capture-4x3 .userInputs > .row > .buyer-container,html #captureArea.capture-4x3 .userInputs > .row > .calculator-container{width:100% !important;}
 /* 數量欄位加寬、數字加大（4:3） */
 html #captureArea.capture-4x3 #reportTable th:nth-child(2),html #captureArea.capture-4x3 #reportTable td:nth-child(2){width:13% !important;}
 html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(2){font-size:28px !important;}
 html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(2){font-size:22px !important;}
 html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(2){font-size:19px !important;}
+/* 右側品項表：字體加大、加粗、加寬（4:3，依品項多寡） */
+html #captureArea.capture-4x3.cap-roomy #reportTable th{font-size:24px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable td{font-size:25px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(1){font-size:32px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable tr:not(.total-row) td:nth-child(2){font-size:32px !important;}
+html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-roomy #reportTable th:nth-child(4){font-size:21px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable th{font-size:18px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable td{font-size:18px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(1){font-size:22px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(2){font-size:22px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-mid #reportTable th:nth-child(4){font-size:18px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable th{font-size:16px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable td{font-size:16px !important;font-weight:900 !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(2){font-size:20px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable td:nth-child(4),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(3),html #captureArea.capture-4x3.cap-dense #reportTable th:nth-child(4){font-size:14px !important;}
 /* 文字框外圍加白色（4:3） */
 html #captureArea.capture-4x3 .buyer-container,html #captureArea.capture-4x3 .calculator-container,html #captureArea.capture-4x3 .estimated-days-row,html #captureArea.capture-4x3 .payment-options label,html #captureArea.capture-4x3 #periodCustomBtn{outline:3px solid #ffffff !important;outline-offset:2px !important;}
 </style>
@@ -2379,7 +2415,7 @@ html #captureArea.capture-4x3 .buyer-container,html #captureArea.capture-4x3 .ca
       <label>
         <span>試算者：</span>
         <div class="calculator-container">
-          <input type="text" id="calculatorDisplay" readonly />
+          <input type="text" id="calculatorDisplay" readonly placeholder="輸入試算者" />
           <button id="resetCalculatorBtn" title="重置試算者名稱">↺</button>
         </div>
       </label>
@@ -2853,7 +2889,7 @@ function updateBonusDisplay() {
     <div class="bonus-result-label">${typeLabel} · 預計獎金試算</div>
     ${thresholdNote}
     <div class="bonus-result-pct">${pctText}</div>
-    <div class="bonus-result-amount">約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(bonusAmt)}</div>
+    <div class="bonus-result-amount"><span class="bonus-approx">約</span> ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(bonusAmt)}</div>
     <div class="bonus-result-tax"><span class="tax-lbl">扣稅 10% 後實得</span><span class="tax-amt">約 ${CURRENCY_TABLE[currentCurrency].symbol} ${formatMoney(afterTaxAmt)}</span></div>
     <div class="bonus-result-tier">適用區間：${result.label}｜總金額 × ${pctText}</div>
   `;
@@ -4355,6 +4391,15 @@ async function exportToImage(){
 
     // 修正②：套用 capture-mode，關閉光暈/位移/動畫，避免月份按鈕白光溢出
     els.captureArea.classList.add('capture-mode');
+    // 分享圖：空白的購買者／試算者提示文字，暫時改成實際文字顯示（截圖無法套用 ::placeholder 樣式），截完會還原
+    els.captureArea.querySelectorAll('#buyerInput,#calculatorDisplay').forEach(function(inp){
+      if(!inp.value && inp.placeholder){
+        inp.value=inp.placeholder;
+        inp.dataset.hintSwap='1';
+        inp.style.setProperty('color','#1e5fa8','important');
+        inp.style.setProperty('font-weight','900','important');
+      }
+    });
     if(document.activeElement && typeof document.activeElement.blur==='function'){
       document.activeElement.blur(); // 收起焦點外框，避免截到 focus 光圈
     }
@@ -4570,6 +4615,12 @@ async function exportToImage(){
     }
     // 修正②：截圖完成後移除 capture-mode，恢復正常互動特效
     els.captureArea.classList.remove('capture-mode');
+    els.captureArea.querySelectorAll('[data-hint-swap]').forEach(function(inp){
+      inp.value='';
+      inp.removeAttribute('data-hint-swap');
+      inp.style.removeProperty('color');
+      inp.style.removeProperty('font-weight');
+    });
     els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch','cap-roomy');
     payHidden.forEach(l=>{ l.removeAttribute('data-pay-hidden'); });
     const _payBox=els.captureArea.querySelector('.payment-options');
