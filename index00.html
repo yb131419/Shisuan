@@ -5117,12 +5117,24 @@ function enterCalculator(){
   },320);
 }
 
+// 從 LIFF 連結帶過來的 lid 參數取得分流ID（連結格式：liff.line.me/{ID}/?lid={ID}，LINE 會把它放進 liff.state）
+function getLiffIdFromLink(){
+  try{
+    const st=new URLSearchParams(window.location.search).get('liff.state')||'';
+    const m=st.match(/[?&]lid=(2008578880-[A-Za-z0-9]+)/);
+    return m?m[1]:'';
+  }catch(e){return '';}
+}
+
 // 初始化LIFF和授權
 async function initLiffAndAuth(){
   try{
     showLoginLoading("正在初始化","請稍候...");
+    // 先試連結帶來的那一個（通常第一次就成功），失敗才依序試其他 ID
+    const idFromLink=getLiffIdFromLink();
+    const tryIds=idFromLink?[idFromLink,...LIFF_IDS.filter(x=>x!==idFromLink)]:LIFF_IDS;
     let liffInitOk=false, liffInitErr=null;
-    for(const id of LIFF_IDS){
+    for(const id of tryIds){
       try{
         await liff.init({liffId:id,withLoginOnExternalBrowser:true,scope:'profile openid email'});
         liffInitOk=true;
