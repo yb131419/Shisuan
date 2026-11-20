@@ -2657,6 +2657,7 @@ const IMGBB_API_KEY="5be146133d1fa6ded66878aade98880f";
 // 分流用：依序嘗試每一個 LIFF ID，哪個能成功初始化就用哪個（同一個網址可接所有 LIFF App）
 const LIFF_IDS=["2008578880-QL6gDWka","2008578880-YruvRMNQ","2008578880-n5YBfRrI","2008578880-p6p4rddP"];
 const JSONP_TIMEOUT=15000;
+const PRECHECK_TIMEOUT=25000; // 驗證用戶（GAS 冷啟動較慢時需要較長時間）
 const PERMANENT_EXPIRY_DATE="9999/12/31";
 const TARGET_PV220=220000;
 const TARGET_PV300=300000;
@@ -4904,11 +4905,11 @@ const precheckUserFromBackend=(profile)=>{
     const data={action:'verifyUser',userId:profile.userId,displayName:profile.displayName,callback:callbackName,dataType:'userPrecheck'};
     $.ajax({
       url:API_URL,dataType:'jsonp',jsonp:'callback',jsonpCallback:callbackName,
-      timeout:JSONP_TIMEOUT,data:data,
+      timeout:PRECHECK_TIMEOUT,data:data,
       error:function(xhr,status,error){
         delete window[callbackName];
         const errorMsg=status==='timeout'?'驗證超時，請檢查網絡後重新嘗試':`驗證失敗：${error||'未知網絡錯誤'}`;
-        showError(errorMsg);
+        // 不在這裡直接顯示錯誤，交給 precheckWithRetry 重試；全部失敗後才由外層顯示
         reject(new Error(errorMsg));
       }
     });
@@ -5117,13 +5118,35 @@ function enterCalculator(){
   },320);
 }
 
-// 從 LIFF 連結帶過來的 lid 參數取得分流ID（連結格式：liff.line.me/{ID}/?lid={ID}，LINE 會把它放進 liff.state）
+// 從 LIFF 連結帶過來的 lid 參數取得分流ID（連結格式：liff.line.me/{ID}?lid={ID}）
+// 第一次載入時參數在 liff.state 裡，LIFF 轉址後會直接出現在網址上，兩種都要讀
 function getLiffIdFromLink(){
   try{
-    const st=new URLSearchParams(window.location.search).get('liff.state')||'';
-    const m=st.match(/[?&]lid=(2008578880-[A-Za-z0-9]+)/);
-    return m?m[1]:'';
+    const params=new URLSearchParams(window.location.search);
+    const candidates=[params.get('lid')||'', params.get('liff.state')||''];
+    for(const c of candidates){
+      const m=c.match(/(?:^|[?&])lid=(2008578880-[A-Za-z0-9]+)/) || c.match(/^(2008578880-[A-Za-z0-9]+)$/);
+      if(m) return m[1];
+    }
+    return '';
   }catch(e){return '';}
+}
+
+// 驗證用戶：GAS 偶爾較慢或暫時逾時，自動重試（最多 3 次），避免使用者一遇到就要手動刷新
+async function precheckWithRetry(profile){
+  let lastErr=null;
+  for(let i=1;i<=3;i++){
+    try{
+      return await precheckUserFromBackend(profile);
+    }catch(e){
+      lastErr=e;
+      if(i<3){
+        showLoginLoading("正在連線",`伺服器回應較慢，重新連線中（第 ${i+1} / 3 次）...`);
+        await new Promise(r=>setTimeout(r,800));
+      }
+    }
+  }
+  throw lastErr;
 }
 
 // 初始化LIFF和授權
@@ -5170,7 +5193,7 @@ async function initLiffAndAuth(){
     }
 
     showLoginLoading("彥彬🌿試算系統","核對用戶權限中...");
-    const precheck=await precheckUserFromBackend(profile);
+    const precheck=await precheckWithRetry(profile);
     if(!precheck)return;
 if(precheck.isExpired){
   showError(`
