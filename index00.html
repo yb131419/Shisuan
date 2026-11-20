@@ -1762,6 +1762,12 @@ body.v-mode #quickAddFab{display:none!important}
 #loginScreen .login-badge{color:#8a6a33 !important;}
 #loginScreen .login-name{color:#2e2318 !important;}
 #loginScreen .login-sub{color:#6b5a40 !important;}
+/* 分流切換點（登入畫面） */
+.route-switch{margin:18px auto 6px;text-align:center;}
+.route-switch-title{font-size:14px;font-weight:800;color:#8a6a33;margin-bottom:10px;letter-spacing:.08em;}
+.route-switch-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.route-switch-btn{flex:1 1 0;min-width:0;max-width:130px;padding:12px 8px;border-radius:12px;border:1.5px solid #c9a86a;background:#fffdf7;color:#5b4a35;font-size:15px;font-weight:800;cursor:pointer;}
+.route-switch-btn.current{background:#5b4a35;color:#ffffff;border-color:#5b4a35;cursor:default;}
 .login-profile-card{background:#fffdf7 !important;border:1px solid #dcc79c !important;box-shadow:0 6px 18px rgba(120,95,50,.12) !important;}
 .login-rules{background:#fffdf7 !important;border-left:3px solid #b8924a !important;}
 .login-rules-title{color:#8a6a33 !important;}
@@ -4985,10 +4991,33 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
       ? `<button id="loginBtn" class="login-cta">🔓 登入試算系統<span class="cta-sub">Premium Access</span></button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 🌟尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
+    ${routeSwitchHtml()}
   `;
   els.loginWrapper.style.display='flex';
   const loginBtn=document.getElementById('loginBtn');
   if(loginBtn)loginBtn.addEventListener('click',handleLoginClick);
+  els.loginScreenBody.querySelectorAll('.route-switch-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.routeId;
+      if(id) window.location.href='https://liff.line.me/'+id;
+    });
+  });
+}
+
+// 分流切換點：列出三個 LIFF 分流，標示目前使用中的那一個，點選即切換到該分流
+const ROUTE_SWITCH_LIST=[
+  {label:'分流1',id:'2008578880-YruvRMNQ'},
+  {label:'分流2',id:'2008578880-n5YBfRrI'},
+  {label:'分流3',id:'2008578880-p6p4rddP'}
+];
+function routeSwitchHtml(){
+  let cur='';
+  try{cur=(typeof liff!=='undefined'&&liff.id)?String(liff.id):'';}catch(e){cur='';}
+  const btns=ROUTE_SWITCH_LIST.map(r=>{
+    const isCur=cur===r.id;
+    return `<button type="button" class="route-switch-btn${isCur?' current':''}" data-route-id="${r.id}"${isCur?' disabled':''}>${r.label}${isCur?'（目前）':''}</button>`;
+  }).join('');
+  return `<div class="route-switch"><div class="route-switch-title">🔀 切換分流</div><div class="route-switch-row">${btns}</div></div>`;
 }
 
 async function handleLoginClick(){
