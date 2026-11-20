@@ -1766,7 +1766,8 @@ body.v-mode #quickAddFab{display:none!important}
 .route-switch{margin:18px auto 6px;text-align:center;}
 .route-switch-title{font-size:14px;font-weight:800;color:#8a6a33;margin-bottom:10px;letter-spacing:.08em;}
 .route-switch-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.route-switch-btn{flex:1 1 0;min-width:0;max-width:130px;padding:12px 8px;border-radius:12px;border:1.5px solid #c9a86a;background:#fffdf7;color:#5b4a35;font-size:15px;font-weight:800;cursor:pointer;}
+.route-switch-btn{flex:1 1 0;min-width:0;max-width:130px;padding:12px 6px;border-radius:12px;border:1.5px solid #c9a86a;background:#fffdf7;color:#5b4a35;font-size:16px;font-weight:800;cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1.2;}
+.route-switch-tag{font-size:12px;font-weight:700;letter-spacing:.05em;color:#f3e3bd;}
 .route-switch-btn.current{background:#5b4a35;color:#ffffff;border-color:#5b4a35;cursor:default;}
 .login-profile-card{background:#fffdf7 !important;border:1px solid #dcc79c !important;box-shadow:0 6px 18px rgba(120,95,50,.12) !important;}
 .login-rules{background:#fffdf7 !important;border-left:3px solid #b8924a !important;}
@@ -5015,7 +5016,7 @@ function routeSwitchHtml(){
   try{cur=(typeof liff!=='undefined'&&liff.id)?String(liff.id):'';}catch(e){cur='';}
   const btns=ROUTE_SWITCH_LIST.map(r=>{
     const isCur=cur===r.id;
-    return `<button type="button" class="route-switch-btn${isCur?' current':''}" data-route-id="${r.id}"${isCur?' disabled':''}>${r.label}${isCur?'（目前）':''}</button>`;
+    return `<button type="button" class="route-switch-btn${isCur?' current':''}" data-route-id="${r.id}"${isCur?' disabled':''}><span>${r.label}</span>${isCur?'<span class="route-switch-tag">目前使用中</span>':''}</button>`;
   }).join('');
   return `<div class="route-switch"><div class="route-switch-title">🔀 切換分流</div><div class="route-switch-row">${btns}</div></div>`;
 }
