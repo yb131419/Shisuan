@@ -2314,6 +2314,31 @@ html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-value{color:#b07a1c 
 html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-label{color:#2f6b57 !important;text-shadow:0 1px 0 #e9f7f1,0 0 6px rgba(63,107,87,.35) !important;}
 html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-value{color:#2f6b57 !important;text-shadow:0 2px 0 #e3f4ec,0 0 8px rgba(63,107,87,.45) !important;}
 </style>
+<style id="login-cta-special">
+/* 登入按鈕特效：深色系（深炭棕漸層、白字、外發光脈動、光澤掃過） */
+#loginScreen .login-cta{
+  position:relative !important;overflow:hidden !important;isolation:isolate !important;
+  background:linear-gradient(135deg,#120f0c 0%,#3a2e22 45%,#5b4a35 60%,#1a1510 100%) !important;
+  color:#ffffff !important;font-size:22px !important;font-weight:900 !important;letter-spacing:.08em !important;
+  border:2px solid #8a7656 !important;border-radius:18px !important;padding:18px 16px !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.5) !important;
+  animation:loginCtaGlow 2.4s ease-in-out infinite !important;
+}
+#loginScreen .login-cta::after{
+  content:"";position:absolute;top:0;left:-75%;width:45%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:skewX(-20deg);animation:loginCtaShine 2.8s ease-in-out infinite;pointer-events:none;z-index:-1;
+}
+#loginScreen .login-cta .cta-sub{color:#e6dccb !important;letter-spacing:.3em !important;font-size:12px !important;}
+@keyframes loginCtaShine{0%{left:-75%}60%,100%{left:125%}}
+@keyframes loginCtaGlow{
+  0%,100%{box-shadow:0 0 0 3px rgba(138,118,86,.35),0 10px 26px rgba(20,15,12,.55);}
+  50%{box-shadow:0 0 0 6px rgba(138,118,86,.2),0 14px 40px rgba(20,15,12,.8);}
+}
+@media (prefers-reduced-motion: reduce){
+  #loginScreen .login-cta,#loginScreen .login-cta::after{animation:none !important;}
+}
+</style>
 </head>
 <body>
 <div id="authContainer">
@@ -5011,12 +5036,12 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
   els.loginScreenBody.innerHTML=`
     <div class="login-avatar-wrap">${avatarHtml}</div>
     ${badgeHtml}
-    ${routeSwitchHtml()}
-    ${rulesHtml}
     ${canLogin
       ? `<button id="loginBtn" class="login-cta">🔓 登入試算系統<span class="cta-sub">Premium Access</span></button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 🌟尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
+    ${routeSwitchHtml()}
+    ${rulesHtml}
   `;
   els.loginWrapper.style.display='flex';
   const loginBtn=document.getElementById('loginBtn');
