@@ -5011,12 +5011,12 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
   els.loginScreenBody.innerHTML=`
     <div class="login-avatar-wrap">${avatarHtml}</div>
     ${badgeHtml}
+    ${routeSwitchHtml()}
     ${rulesHtml}
     ${canLogin
       ? `<button id="loginBtn" class="login-cta">🔓 登入試算系統<span class="cta-sub">Premium Access</span></button>`
       : `<div class="login-exceeded">黃金用戶使用次數已達上限（${info.maxUsage||MAX_NORMAL_USER_USAGE}次）<br>請升級 🌟尊爵用戶 繼續使用</div>
          <a class="support-btn" style="display:block;text-align:center;margin-top:12px;padding:14px 20px;font-size:16px;border-radius:12px;" href="https://portaly.cc/yb131419/" target="_blank">點擊贊助</a>`}
-    ${routeSwitchHtml()}
   `;
   els.loginWrapper.style.display='flex';
   const loginBtn=document.getElementById('loginBtn');
