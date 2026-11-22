@@ -1769,6 +1769,9 @@ body.v-mode #quickAddFab{display:none!important}
 .route-switch-btn{flex:1 1 0;min-width:0;max-width:130px;padding:12px 6px;border-radius:12px;border:1.5px solid #c9a86a;background:#fffdf7;color:#5b4a35;font-size:16px;font-weight:800;cursor:pointer;white-space:nowrap;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;line-height:1.2;}
 .route-switch-tag{font-size:12px;font-weight:700;letter-spacing:.05em;color:#f3e3bd;}
 .route-switch-btn.current{background:#5b4a35;color:#ffffff;border-color:#5b4a35;cursor:default;}
+.route-switch-current{font-size:14px;font-weight:800;color:#5b4a35;margin:-4px 0 10px;}
+.route-random-btn{display:block;width:100%;max-width:340px;margin:0 auto;padding:14px 12px;border-radius:14px;border:1.5px solid #5b4a35;background:#5b4a35;color:#ffffff;font-size:18px;font-weight:900;letter-spacing:.06em;cursor:pointer;}
+.route-random-btn:active{transform:scale(.98);}
 .login-profile-card{background:#fffdf7 !important;border:1px solid #dcc79c !important;box-shadow:0 6px 18px rgba(120,95,50,.12) !important;}
 .login-rules{background:#fffdf7 !important;border-left:3px solid #b8924a !important;}
 .login-rules-title{color:#8a6a33 !important;}
@@ -5049,7 +5052,7 @@ const canLogin=isPrivilege||(info.remainingTimes>0);
   els.loginScreenBody.querySelectorAll('.route-switch-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const id=btn.dataset.routeId;
-      if(id) window.location.href='https://liff.line.me/'+id;
+      if(id) window.location.href='https://liff.line.me/'+id+'?lid='+id+'&rr=1';
     });
   });
 }
@@ -5197,8 +5200,29 @@ async function precheckWithRetry(profile){
   throw lastErr;
 }
 
+// 每次開頁面自動隨機跳轉到其中一個分流（已帶 rr=1 的不再跳，避免無限迴圈）
+function shouldAutoRandomRoute(){
+  try{
+    const sp=new URLSearchParams(window.location.search);
+    const st=sp.get('liff.state')||'';
+    if(sp.get('rr')==='1'||/(?:^|[?&])rr=1/.test(st)) return false;
+    const last=Number(sessionStorage.getItem('route_rr_ts')||0);
+    if(Date.now()-last<60000) return false;
+    return true;
+  }catch(e){return false;}
+}
+function autoRandomRoute(){
+  const cur=getLiffIdFromLink();
+  const pool=ROUTE_SWITCH_LIST.filter(r=>r.id!==cur);
+  const list=pool.length?pool:ROUTE_SWITCH_LIST;
+  const pick=list[Math.floor(Math.random()*list.length)];
+  try{sessionStorage.setItem('route_rr_ts',String(Date.now()));}catch(e){}
+  window.location.href='https://liff.line.me/'+pick.id+'?lid='+pick.id+'&rr=1';
+}
+
 // 初始化LIFF和授權
 async function initLiffAndAuth(){
+  if(shouldAutoRandomRoute()){autoRandomRoute();return;}
   try{
     showLoginLoading("正在初始化","請稍候...");
     // 先試連結帶來的那一個（通常第一次就成功），失敗才依序試其他 ID
