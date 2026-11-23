@@ -2312,10 +2312,10 @@ html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-s
 </style>
 <style id="capture-progress-color">
 /* 最後覆寫：分享圖「距離 22 萬 PV」用金色、「距離 30 萬 PV」用綠色，加上文字陰影做出立體感 */
-html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-label{color:#9a6a12 !important;text-shadow:0 1px 0 #fff8e6,0 0 6px rgba(184,146,74,.35) !important;}
-html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-value{color:#b07a1c !important;text-shadow:0 2px 0 #fff3d6,0 0 8px rgba(184,146,74,.45) !important;}
-html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-label{color:#2f6b57 !important;text-shadow:0 1px 0 #e9f7f1,0 0 6px rgba(63,107,87,.35) !important;}
-html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-value{color:#2f6b57 !important;text-shadow:0 2px 0 #e3f4ec,0 0 8px rgba(63,107,87,.45) !important;}
+html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-label{color:#8f3f25 !important;text-shadow:0 1px 0 #fff1ea,0 0 6px rgba(156,74,47,.35) !important;}
+html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-value{color:#a9542f !important;text-shadow:0 2px 0 #fbe6dc,0 0 8px rgba(156,74,47,.45) !important;}
+html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-label{color:#5e3a6e !important;text-shadow:0 1px 0 #f3ecf8,0 0 6px rgba(94,58,110,.35) !important;}
+html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-value{color:#6a3d7a !important;text-shadow:0 2px 0 #ece2f3,0 0 8px rgba(94,58,110,.45) !important;}
 </style>
 <style id="login-cta-special">
 /* 登入按鈕特效：深色系（深炭棕漸層、白字、外發光脈動、光澤掃過） */
@@ -2341,6 +2341,35 @@ html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-value{color:#2f6b57 
 @media (prefers-reduced-motion: reduce){
   #loginScreen .login-cta,#loginScreen .login-cta::after{animation:none !important;}
 }
+</style>
+<style id="progress-box-premium">
+/* 最後覆寫：分享圖「距離 22 萬 / 30 萬 PV」區塊改成質感介面——大字、膠囊標籤、粗進度條（含密集版） */
+html #captureArea.capture-4x3 .summaryBox .sum-progress-group,
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-group{
+  background:linear-gradient(180deg,#fffdf7 0%,#f4eadb 100%) !important;
+  border:1.5px solid #cdb07a !important;border-radius:18px !important;
+  padding:14px 12px 12px !important;box-shadow:inset 0 1px 0 #ffffff,0 3px 0 #dcc49a !important;
+}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-label,
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-label{
+  display:inline-block !important;font-size:20px !important;font-weight:900 !important;letter-spacing:.04em !important;
+  padding:3px 12px !important;border-radius:999px !important;
+}
+html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-label{background:rgba(156,74,47,.2) !important;border:1px solid rgba(156,74,47,.55) !important;}
+html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-label{background:rgba(94,58,110,.2) !important;border:1px solid rgba(94,58,110,.55) !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-value,
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{
+  font-size:36px !important;font-weight:900 !important;line-height:1.1 !important;
+  font-variant-numeric:tabular-nums !important;letter-spacing:.02em !important;margin-top:4px !important;
+}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-track,
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-track{
+  height:12px !important;border-radius:999px !important;overflow:hidden !important;background:#e6dcc6 !important;
+}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-fill,
+html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-fill{border-radius:999px !important;border-bottom:none !important;}
+html #captureArea.capture-4x3 #pvProgressRow2 .sum-progress-fill{background:linear-gradient(90deg,#c7855f 0%,#8f3f25 100%) !important;}
+html #captureArea.capture-4x3 #pvProgressRow3 .sum-progress-fill{background:linear-gradient(90deg,#9a74ad 0%,#5e3a6e 100%) !important;}
 </style>
 </head>
 <body>
