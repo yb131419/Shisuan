@@ -817,6 +817,7 @@ body{
   margin-bottom:3px;opacity:.92;-webkit-text-fill-color:currentColor;color:inherit;
 }
 #totalPriceCellDup .cur-num{display:block;-webkit-text-fill-color:currentColor;color:inherit;}
+#totalPriceCellDup .cur-twd-note{display:block;font-size:.5em;font-weight:700;line-height:1.2;margin-top:4px;opacity:.95;letter-spacing:.03em;-webkit-text-fill-color:#ffffff;color:#ffffff;}
 .sum-total-divider{
   position:relative;z-index:1;
   width:1px;align-self:stretch;margin:2px 12px;
@@ -2208,7 +2209,9 @@ html #captureArea.capture-4x3.cap-dense > .summaryBox .sum-progress-value{font-s
 #captureArea #reportTable tr.total-row td.tot-cell{padding:10px 12px !important;text-align:center !important;}
 #captureArea .tot-wrap{display:flex;justify-content:center;align-items:center;gap:28px;}
 #captureArea .tot-l{font-size:24px;font-weight:800;color:#f0e2bd !important;letter-spacing:1.2px;}
-#captureArea .tot-a{font-family:Georgia,serif;font-size:36px;font-weight:700;color:#ffffff !important;}
+#captureArea .tot-a{font-family:Georgia,serif;font-size:36px;font-weight:700;color:#ffffff !important;display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;}
+#captureArea .tot-a-main{display:block;white-space:nowrap;font-family:Georgia,serif;font-size:36px;font-weight:700;color:#ffffff !important;}
+#captureArea .tot-a-note{display:block;white-space:nowrap;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#ffffff !important;margin-top:4px;}
 #captureArea .tot-p{font-size:26px;font-weight:800;color:#3f6b57 !important;background:#fffdf7;border:2px solid #dcc79c;border-radius:12px;padding:4px 14px;}
 /* 左側（4:3）：隱藏總金額、總 PV；購買者、試算者上下排列 */
 html #captureArea.capture-4x3 .summaryBox .sum-totals{display:none !important;}
@@ -2382,6 +2385,22 @@ html #captureArea.capture-4x3 .custom-select-btn .custom-select-label{
   font-size:32px !important;font-weight:900 !important;
 }
 html #captureArea.capture-4x3 .custom-select-arrow{font-size:22px !important;}
+</style>
+<style id="capture-fill-bigger">
+/* 最後覆寫：字放大填滿 4:3 畫面，讓聊天室縮小後仍清楚（表格價格/PV/小計、表頭、標題） */
+html #captureArea.capture-4x3.cap-dense #reportTable th{font-size:18px !important;}
+html #captureArea.capture-4x3.cap-dense #reportTable tr:not(.total-row) td:nth-child(n+3):nth-child(-n+6){font-size:20px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable th{font-size:20px !important;}
+html #captureArea.capture-4x3.cap-mid #reportTable tr:not(.total-row) td:nth-child(n+3):nth-child(-n+6){font-size:22px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-label{font-size:19px !important;}
+html #captureArea.capture-4x3 .summaryBox .sum-progress-value{font-size:33px !important;}
+</style>
+<style id="total-twd-note-layout">
+/* 最後覆寫：外幣總金額下方的新台幣價格（分享圖中換行顯示，不擠壓右側 PV） */
+html #captureArea #totalPriceCellDup{display:flex !important;flex-direction:column !important;align-items:flex-start !important;}
+html #captureArea #totalPriceCellDup .cur-sym{display:block !important;font-size:20px !important;font-weight:800 !important;margin-bottom:2px !important;}
+html #captureArea #totalPriceCellDup .cur-num{display:block !important;}
+html #captureArea #totalPriceCellDup .cur-twd-note{display:block !important;font-size:20px !important;font-weight:800 !important;margin-top:4px !important;opacity:.95 !important;}
 </style>
 </head>
 <body>
@@ -2940,7 +2959,12 @@ function getPaymentShareText(){
 function setTotalPriceDisplay(twd){
   els.totalPriceCellDup.dataset.twd=String(twd||0);
   const sym=hasRateFor(currentCurrency)?CURRENCY_TABLE[currentCurrency].symbol:'NT$';
-  els.totalPriceCellDup.innerHTML=`<span class="cur-sym">${sym}</span><span class="cur-num">${formatMoney(twd||0)}</span>`;
+  // 選擇外幣時，在總金額下方加上新台幣價格（例如 ≈ NT$ 84,800）
+  // 每一行都用 block 元素並內嵌 display，避免被截圖樣式覆蓋而擠在同一行
+  const twdNote=(currentCurrency!=='TWD'&&hasRateFor(currentCurrency))
+    ? `<span class="cur-twd-note" style="display:block;white-space:nowrap;">≈ NT$ ${Math.round(Number(twd)||0).toLocaleString('en-US')}</span>`
+    : '';
+  els.totalPriceCellDup.innerHTML=`<span class="cur-main" style="display:block;white-space:nowrap;"><span class="cur-sym">${sym}</span><span class="cur-num">${formatMoney(twd||0)}</span></span>${twdNote}`;
 }
 function refreshCurrencyDisplay(){
   const c=CURRENCY_TABLE[currentCurrency];
@@ -4580,9 +4604,12 @@ async function exportToImage(){
       const _tr=document.createElement('tr');
       _tr.className='total-row';
       const _pvTxt=(els.totalPvCellDup.textContent||'').trim();
-      const _priceTxt=(els.totalPriceCellDup.textContent||'').trim();
+      // 金額與外幣下方的新台幣註記分成兩行（避免兩段文字黏成一行、撐破表格）
+      const _curMain=((els.totalPriceCellDup.querySelector('.cur-sym')?.textContent||'')+(els.totalPriceCellDup.querySelector('.cur-num')?.textContent||'')).trim();
+      const _curNote=(els.totalPriceCellDup.querySelector('.cur-twd-note')?.textContent||'').trim();
+      const _priceHtml='<span class="tot-a-main">'+_curMain+'</span>'+(_curNote?'<span class="tot-a-note">'+_curNote+'</span>':'');
       const _totLbl=(currentCurrency==='TWD')?'總計':'總計（'+CURRENCY_TABLE[currentCurrency].label+'）';
-      _tr.innerHTML='<td colspan="6" class="tot-cell"><div class="tot-wrap"><span class="tot-l">'+_totLbl+'</span><span class="tot-a">'+_priceTxt+'</span><span class="tot-p">總 PV '+_pvTxt+'</span></div></td><td style="display:none"></td>';
+      _tr.innerHTML='<td colspan="6" class="tot-cell"><div class="tot-wrap"><span class="tot-l">'+_totLbl+'</span><span class="tot-a">'+_priceHtml+'</span><span class="tot-p">總 PV '+_pvTxt+'</span></div></td><td style="display:none"></td>';
       els.reportBody.appendChild(_tr);
       capTotalRow=_tr;
     }
@@ -4895,7 +4922,9 @@ function buildReportShareText(){
     }
 
     // 分享文字附上總金額與總 PV（與畫面顯示一致）
-    const _totPrice=(els.totalPriceCellDup.querySelector('.cur-num')?.textContent||'').trim();
+    const _totPriceBase=(els.totalPriceCellDup.querySelector('.cur-num')?.textContent||'').trim();
+    const _twdNoteEl=els.totalPriceCellDup.querySelector('.cur-twd-note');
+    const _totPrice=_twdNoteEl ? `${_totPriceBase}（${_twdNoteEl.textContent.replace('≈ ','約 ').trim()}）` : _totPriceBase;
     const _totPv=(els.totalPvCellDup.textContent||'').trim();
     const _totText=`\n總金額：${_totPrice}\n總 PV：${_totPv}`;
     const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_totText}${_pt2}${getPaymentShareText()}`;
