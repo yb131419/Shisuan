@@ -2962,7 +2962,7 @@ function setTotalPriceDisplay(twd){
   // 選擇外幣時，在總金額下方加上新台幣價格（例如 ≈ NT$ 84,800）
   // 每一行都用 block 元素並內嵌 display，避免被截圖樣式覆蓋而擠在同一行
   const twdNote=(currentCurrency!=='TWD'&&hasRateFor(currentCurrency))
-    ? `<span class="cur-twd-note" style="display:block;white-space:nowrap;">≈ NT$ ${Math.round(Number(twd)||0).toLocaleString('en-US')}</span>`
+    ? `<span class="cur-twd-note" style="display:block;white-space:nowrap;">總金額 NT$ ${Math.round(Number(twd)||0).toLocaleString('en-US')}</span>`
     : '';
   els.totalPriceCellDup.innerHTML=`<span class="cur-main" style="display:block;white-space:nowrap;"><span class="cur-sym">${sym}</span><span class="cur-num">${formatMoney(twd||0)}</span></span>${twdNote}`;
 }
@@ -4924,7 +4924,7 @@ function buildReportShareText(){
     // 分享文字附上總金額與總 PV（與畫面顯示一致）
     const _totPriceBase=(els.totalPriceCellDup.querySelector('.cur-num')?.textContent||'').trim();
     const _twdNoteEl=els.totalPriceCellDup.querySelector('.cur-twd-note');
-    const _totPrice=_twdNoteEl ? `${_totPriceBase}（${_twdNoteEl.textContent.replace('≈ ','約 ').trim()}）` : _totPriceBase;
+    const _totPrice=_twdNoteEl ? `${_totPriceBase}（${_twdNoteEl.textContent.trim()}）` : _totPriceBase;
     const _totPv=(els.totalPvCellDup.textContent||'').trim();
     const _totText=`\n總金額：${_totPrice}\n總 PV：${_totPv}`;
     const shareText=`🌿 康園試算報表\n\n購買者：${buyer}\n試算者：${calculator}${_totText}${_pt2}${getPaymentShareText()}`;
