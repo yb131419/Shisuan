@@ -4692,7 +4692,25 @@ async function exportToImage(){
           _bonus.style.transform='scale('+_k+')';
         }
       }
-      const _H=Math.max(_avail, _t?_t.offsetHeight:0);
+      // 品項太多時（表格比可用高度還高），整個表格等比縮小到剛好放得下，避免底部總計被裁切
+      let _tVisH=_t?_t.offsetHeight:0;
+      if(_t){
+        const _Rw=_r.clientWidth;
+        const _tTop=_t.getBoundingClientRect().top-_r.getBoundingClientRect().top;
+        const _tAvail=_avail-_tTop;
+        _t.style.transformOrigin='top left';
+        let _tk=1;
+        for(let i=0;i<10;i++){
+          const _lh=_t.offsetHeight;
+          if(_lh*_tk<=_tAvail+0.5 || _tk<=0.5) break;
+          _tk=Math.max(0.5, Math.min(_tk*0.995, _tAvail/_lh));
+          _t.style.setProperty('width',(_Rw/_tk)+'px','important');
+          _t.style.setProperty('max-width','none','important');
+          _t.style.transform='scale('+_tk+')';
+        }
+        _tVisH=_tTop+_t.offsetHeight*_tk;
+      }
+      const _H=Math.max(_avail, _tVisH);
       _l.style.height=_H+'px'; _r.style.height=_H+'px';
     }
 
@@ -4788,6 +4806,8 @@ async function exportToImage(){
       inp.style.removeProperty('font-weight');
     });
     els.captureArea.classList.remove('capture-4x3','capture-3x4','cap-dense','cap-mid','cap-stretch','cap-roomy');
+    // 還原表格縮放（分享圖品項過多時的等比縮小）
+    if(els.reportTable){ els.reportTable.style.transform=''; els.reportTable.style.transformOrigin=''; els.reportTable.style.removeProperty('width'); els.reportTable.style.removeProperty('max-width'); }
     payHidden.forEach(l=>{ l.removeAttribute('data-pay-hidden'); });
     const _payBox=els.captureArea.querySelector('.payment-options');
     if(_payBox) _payBox.style.gridTemplateColumns=payGridCols||'';
